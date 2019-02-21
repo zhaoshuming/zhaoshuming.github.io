@@ -292,6 +292,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/20/github博客搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/20/github博客搭建/" itemprop="url">github博客搭建</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-20T18:03:34+08:00">
+                2019-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/搭建博客/" itemprop="url" rel="index">
+                    <span itemprop="name">搭建博客</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><pre><code>hexo clean #/清除静态页面缓存（清除 public 文件夹)
+
+hexo g #生成或 hexo generate
+
+hexo s #启动本地服务器 或者hexo server,这一步之后就可以通过http://localhost:4000查看了
+
+hexo d #部署到github
+
+hexo clean &amp; hexo g &amp; hexo s #一键启动
+</code></pre><h3 id="hexo-new-page-xxx-创建页面"><a href="#hexo-new-page-xxx-创建页面" class="headerlink" title="hexo new page xxx #创建页面"></a>hexo new page xxx #创建页面</h3><pre><code>命令       文件目录            
+
+post    source/_post       新建一个文章
+
+draft   source/_drafts     新建一个草稿文件
+
+page    source             新建一个页面文件
+</code></pre><h3 id="hexo添加分类和标签"><a href="#hexo添加分类和标签" class="headerlink" title="hexo添加分类和标签:"></a>hexo添加分类和标签:</h3><pre><code>---
+title: title #文章標題
+date: 2016-06-01 23:47:44 #文章生成時間
+categories: &quot;Hexo教程&quot; #文章分類目錄 可以省略
+tags: #文章標籤 可以省略
+     - 标签1
+     - 标签2
+ description: #你對本頁的描述 可以省略
+---
+</code></pre><h3 id="hexo目录结构"><a href="#hexo目录结构" class="headerlink" title="hexo目录结构"></a>hexo目录结构</h3><p><img src="/2019/02/20/github博客搭建/5346170-61efae0da32ec550.png" alt></p>
+<h3 id="markdown编辑器"><a href="#markdown编辑器" class="headerlink" title="markdown编辑器"></a>markdown编辑器</h3><p>说明：在Hexo中插入图片时，请按照以下步骤进行设置 </p>
+<p>（1）将站点配置文件中的 post_asset_folde 选项设置成 true </p>
+<p>（2）在站点文件夹中打开 git bash，输入命令 npm install hexo-asset-image –save 安装插件</p>
+<p>（3）此时使用 hexo new title 创建文章时，将同时在 source/_post 文件夹中生成一个与 title 同名的文件夹，我们只需将待添加的图片放进此文件夹中，然后在文章中通过 Markdown 语法进行引用即可例如，在资源文件夹（就是那个与 title 同名的文件夹）中添加了图片 example.PNG，则可以在对应的文章中使用语句 ![示例图片]（title/example.PNG “示例图片”） 添加图片</p>
+<h3 id="使用-Hexo-Admin-插件（难用）"><a href="#使用-Hexo-Admin-插件（难用）" class="headerlink" title="使用 Hexo Admin 插件（难用）"></a>使用 Hexo Admin 插件（难用）</h3><p>Hexo Admin 是一个本地在线式文章管理器，可以用直观可视化的方式新建、编辑博客文章、page页面，添加标签、分类等，并且支持剪贴板粘贴图片（自动在source_images_目录中创建文件）</p>
+<p>在Hexo网站目录下，安装 Hexo Admin 插件</p>
+<p>npm install –save hexo-admin</p>
+<p>启动本地服务器并打开管理界面，即可使用</p>
+<p>hexo server -d</p>
+<p>open <a href="http://localhost:4000/admin/" target="_blank" rel="noopener">http://localhost:4000/admin/</a></p>
+<h3 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h3><p><a href="https://www.cnblogs.com/jackyroc/p/7681938.html" target="_blank" rel="noopener">https://www.cnblogs.com/jackyroc/p/7681938.html</a></p>
+<p><a href="https://www.cnblogs.com/fengxiongZz/p/7707219.html" target="_blank" rel="noopener">https://www.cnblogs.com/fengxiongZz/p/7707219.html</a></p>
+<p><a href="https://blog.csdn.net/wsmrzx/article/details/81478945" target="_blank" rel="noopener">https://blog.csdn.net/wsmrzx/article/details/81478945</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/18/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -323,7 +503,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-18T15:23:09+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-18T17:05:15+08:00">
                 2019-02-18
               </time>
             
@@ -333,6 +513,28 @@
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/搭建博客/" itemprop="url" rel="index">
+                    <span itemprop="name">搭建博客</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -456,14 +658,32 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
             
 
             
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
             
 
           </nav>
