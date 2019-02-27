@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/okhttp.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/gzip.png">
-<meta property="og:updated_time" content="2019-02-27T09:52:00.305Z">
+<meta property="og:updated_time" content="2019-02-27T09:53:10.099Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OKHttp深入理解">
 <meta name="twitter:description" content="OKHttp请求流程OKHttp的请求流程图如下所示：  如下为使用OKHttp进行Get请求的步骤： //1.新建OKHttpClient客户端 OkHttpClient client = new OkHttpClient(); //新建一个Request对象 Request request = new Request.Builder()         .url(url)         .b">
@@ -458,7 +458,8 @@ Response response = client.newCall(request).execute();
 <p>服务器支持的情况下，返回gzip后的response body，同时加入以下header：</p>
 <pre><code>Content-Encoding: gzip：表明body是gzip过的数据
 
-Content-Length:117：表示body gzip压缩后的数据大小，便于客户端使用。或 Transfer-Encoding: chunked：分块传输编码
+Content-Length:117：表示body gzip压缩后的数据大小，便于客户端使用。
+或 Transfer-Encoding: chunked：分块传输编码
 </code></pre><p><img src="/2019/02/27/OKHttp深入理解/gzip.png" alt></p>
 <h4 id="Okhttp"><a href="#Okhttp" class="headerlink" title="Okhttp"></a>Okhttp</h4><p>如果header中没有Accept-Encoding，默认自动添加 ，且标记变量transparentGzip为true。</p>
 <p>针对返回结果，如果同时满足以下三个条件：</p>
