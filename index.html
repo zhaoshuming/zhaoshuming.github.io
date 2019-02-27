@@ -385,7 +385,12 @@
       
         
           
-            <h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
+<p>实现Thread的run()方法或者实现Runable接口</p>
+<p>HandlerThread</p>
+<p>AsyncTask</p>
+<p>LoaderManager</p>
+<h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
 <h4 id="1-join"><a href="#1-join" class="headerlink" title="1.join"></a>1.join</h4><p>join() method suspends the execution of the calling thread until the object called finishes its execution.<br>也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
 <p>join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
 <p>sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
