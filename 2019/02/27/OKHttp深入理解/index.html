@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="OKHttp,Gzip,">
 
 
 
@@ -79,17 +79,20 @@
 
 
 
-<meta name="description" content="关于我一个android前端开发 email： 824793509@qq.comgithub: https://github.com/zhaoshuming">
-<meta property="og:type" content="website">
-<meta property="og:title" content="about">
-<meta property="og:url" content="http://yoursite.com/about/index.html">
+<meta name="description" content="OKHttp请求流程 首先，我们会在请求的时候初始化一个Call的实例，然后执行它的execute()方法或enqueue()方法，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到">
+<meta name="keywords" content="OKHttp,Gzip">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OKHttp深入理解">
+<meta property="og:url" content="http://yoursite.com/2019/02/27/OKHttp深入理解/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="关于我一个android前端开发 email： 824793509@qq.comgithub: https://github.com/zhaoshuming">
+<meta property="og:description" content="OKHttp请求流程 首先，我们会在请求的时候初始化一个Call的实例，然后执行它的execute()方法或enqueue()方法，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-21T06:02:25.357Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/OKHttp深入理解/okhttp.png">
+<meta property="og:updated_time" content="2019-02-27T08:15:20.482Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="about">
-<meta name="twitter:description" content="关于我一个android前端开发 email： 824793509@qq.comgithub: https://github.com/zhaoshuming">
+<meta name="twitter:title" content="OKHttp深入理解">
+<meta name="twitter:description" content="OKHttp请求流程 首先，我们会在请求的时候初始化一个Call的实例，然后执行它的execute()方法或enqueue()方法，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/OKHttp深入理解/okhttp.png">
 
 
 
@@ -119,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/about/">
+  <link rel="canonical" href="http://yoursite.com/2019/02/27/OKHttp深入理解/">
 
 
 
 
 
-  <title>about | Blog</title>
+  <title>OKHttp深入理解 | Blog</title>
   
 
 
@@ -283,35 +286,169 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/OKHttp深入理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">about</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <h3 id="关于我"><a href="#关于我" class="headerlink" title="关于我"></a>关于我</h3><p>一个android前端开发</p>
-<p>email： <a href="mailto:824793509@qq.com" target="_blank" rel="noopener">824793509@qq.com</a><br>github: <a href="https://github.com/zhaoshuming" target="_blank" rel="noopener">https://github.com/zhaoshuming</a></p>
-
+          <h1 class="post-title" itemprop="name headline">OKHttp深入理解</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-27T16:03:31+08:00">
+                2019-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <h3 id="OKHttp请求流程"><a href="#OKHttp请求流程" class="headerlink" title="OKHttp请求流程"></a>OKHttp请求流程</h3><p><img src="OKHttp深入理解/okhttp.png" alt title="OKHttp请求流程"></p>
+<p>首先，我们会在请求的时候初始化一个Call的实例，然后执行它的execute()方法或enqueue()方法，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到一个响应并交给用户。</p>
+
       
     </div>
     
     
     
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OKHttp/" rel="tag"># OKHttp</a>
+          
+            <a href="/tags/Gzip/" rel="tag"># Gzip</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/27/android多线程/" rel="next" title="android多线程">
+                <i class="fa fa-chevron-left"></i> android多线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -426,7 +563,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#关于我"><span class="nav-number">1.</span> <span class="nav-text">关于我</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OKHttp请求流程"><span class="nav-number">1.</span> <span class="nav-text">OKHttp请求流程</span></a></li></ol></div>
             
 
           </div>
