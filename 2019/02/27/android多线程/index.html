@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-27T07:37:33.152Z">
+<meta property="og:updated_time" content="2019-02-28T07:20:53.266Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="android多线程">
 <meta name="twitter:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
@@ -391,9 +391,15 @@
 <p>AsyncTask</p>
 <p>LoaderManager</p>
 <h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
-<h4 id="1-join"><a href="#1-join" class="headerlink" title="1.join"></a>1.join</h4><p>join() method suspends the execution of the calling thread until the object called finishes its execution.<br>也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
-<p>join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
-<p>sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
+<ol>
+<li><p>关键字join、sleep、yield</p>
+<p> join() method suspends the execution of the calling thread until the object called finishes its execution.<br> 也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
+<p> join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
+<p> sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
+<p> Yield()方法是停止当前线程，让同等优先权的线程运行。如果没有同等优先权的线程，那么Yield()方法将不会起作用。 </p>
+<p> suspend()可能导致死锁，因此弃用</p>
+</li>
+</ol>
 <h3 id="HandlerThread"><a href="#HandlerThread" class="headerlink" title="HandlerThread"></a>HandlerThread</h3><p>HandlerThread，这种方式<strong>适合子线程有序的执行异步操作，异步任务的执行一个接着一个</strong>。</p>
 <p>HandlerThread的内部实现机制很简单，在创建新的线程后，使该线程成为一个Looper线程，让该线程不断的从MessageQueue取出消息并处理。</p>
 <p>就应用程序而言，Android系统中JAVA的应用程序和其他系统上相同，都是靠消息驱动来工作的，他们大致的工作原理如下：</p>
@@ -613,7 +619,7 @@ public static void setDefaultExecutor(Executor exec) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-join"><span class="nav-number">2.1.</span> <span class="nav-text">1.join</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

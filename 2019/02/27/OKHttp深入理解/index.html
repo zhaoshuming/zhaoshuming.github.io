@@ -90,7 +90,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/okhttp.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/realcall.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/gzip.png">
-<meta property="og:updated_time" content="2019-02-28T06:45:15.868Z">
+<meta property="og:updated_time" content="2019-03-01T02:23:27.666Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OKHttp深入理解">
 <meta name="twitter:description" content="OKHttp请求流程OKHttp的请求流程图如下所示：  如下为使用OKHttp进行Get请求的步骤： //1.新建OKHttpClient客户端 OkHttpClient client = new OkHttpClient(); //新建一个Request对象 Request request = new Request.Builder()         .url(url)         .b">
@@ -530,12 +530,51 @@ public final InputStream byteStream() {
                 .cookieJar(new FundCookie());
         return mOkHttpClient = builder.build();
     }
+</code></pre><p>其次在构造Request时配置缓存策略</p>
+<pre><code>CacheControl cc = new CacheControl.Builder()  
+            //不使用缓存，但是会保存缓存数据  
+            //.noCache()  
+            //不使用缓存，同时也不保存缓存数据  
+           // .noStore()  
+            //只使用缓存，（如果我们要加载的数据本身就是本地数据时，可以使用这个，不过目前尚未发现使用场景）  
+            //.onlyIfCached()  
+            //手机可以接收响应时间小于当前时间加上10s的响应  
+            //  .minFresh(10,TimeUnit.SECONDS)  
+            //手机可以接收有效期不大于10s的响应  
+            //  .maxAge(10,TimeUnit.SECONDS)  
+            //手机可以接收超出5s的响应  
+            .maxStale(5,TimeUnit.SECONDS)  
+            .build();  
+    Request request = new Request.Builder()  
+            .cacheControl(cc)  
+            .url(&quot;http://192.168.152.2:8080/cache&quot;).build();  
+</code></pre><p>如果直接使用CacheControl中的常量，则不用调用上面那么多的方法，使用方式如下：</p>
+<pre><code>Request request = new Request.Builder()  
+            //强制使用网络  
+            // .cacheControl(CacheControl.FORCE_NETWORK)  
+            //强制使用缓存  
+            .cacheControl(CacheControl.FORCE_CACHE)  
+            .url(&quot;http://192.168.152.2:8080/cache&quot;).build();  
 </code></pre><p>OkHttp的Cache是根据URL以及请求参数来生成的，并且不支持POST请求。</p>
-<p>CacheInterceptor拦截器实现读写操作</p>
-<p>读写操作都是通过okio实现,快速,高效流</p>
-<p>读: 根据缓存策略实现读取缓存,返回Response,Okhttp中实现的是轻量级 LruCache缓存模式[最近最少使用原则],<br>DiskLruCache框架: <a href="https://github.com/JakeWharton/DiskLruCache" target="_blank" rel="noopener">https://github.com/JakeWharton/DiskLruCache</a></p>
+<p>CacheInterceptor拦截器实现读写操作,读写操作都是通过okio实现,快速,高效流</p>
+<p>读: 根据缓存策略实现读取缓存,返回Response,Okhttp中实现的是轻量级 LruCache缓存模式[最近最少使用原则]。然后关于DiskLruCache是如何管理缓存文件的，这个其实也很好理解，首先的原则就是按照LRU这种最近最少使用删除的原则，当总的大小超过限定大小后，删除最近最少使用的缓存文件，它的LRU算法是使用LinkedHashMap进行维护的，这样来保证，保留的缓存文件都是更常使用的。</p>
 <p>写: 根据缓存策略,将服务端返回的数据写入磁盘</p>
-<h3 id="Cookies"><a href="#Cookies" class="headerlink" title="Cookies"></a>Cookies</h3><p>加载Cookie时,IP地址与域名是有区别的。<br>如果访问的是IP地址,Cookie是不会从publicsuffixes.gz文件中读取Cookie数据。<br>publicsuffixes.gz 就是一个类似apk一样的压缩文件,可以解压通过Txt查看里面的内容。<br>官文提供的原始文件内容:   <a href="https://publicsuffix.org" target="_blank" rel="noopener">https://publicsuffix.org</a></p>
+<p>Okhttp缓存相关的类有如下：</p>
+<pre><code>CacheControl（HTTP中的Cache-Control和Pragma缓存控制）
+CacheControl是用于描述HTTP的Cache-Control和Pragma字段的类，用于指定缓存的规则。
+
+CacheStrategy（缓存策略类）
+CacheStrategy是用于判定使用缓存数据还是网络请求的决策类。
+
+Cache（缓存类）
+对外开放的缓存类，提供了缓存的增删改查接口。
+
+InternalCache（内部缓存类）
+对内使用的缓存类接口，没有具体实现，只是封装了Cache的使用。
+
+DiskLruCache（文件化的LRU缓存类）
+这是真正实现缓存功能的类，将数据存储在文件中，并使用LRU规则（由LinkedHashMap实现），控制对缓存文件的增删改查。
+</code></pre><h3 id="Cookies"><a href="#Cookies" class="headerlink" title="Cookies"></a>Cookies</h3><p>加载Cookie时,IP地址与域名是有区别的。<br>如果访问的是IP地址,Cookie是不会从publicsuffixes.gz文件中读取Cookie数据。<br>publicsuffixes.gz 就是一个类似apk一样的压缩文件,可以解压通过Txt查看里面的内容。<br>官文提供的原始文件内容:   <a href="https://publicsuffix.org" target="_blank" rel="noopener">https://publicsuffix.org</a></p>
 <pre><code>private class FundCookie implements CookieJar {
 
     private final ConcurrentHashMap&lt;String, List&lt;Cookie&gt;&gt; cookieStore = new ConcurrentHashMap&lt;&gt;();
@@ -596,7 +635,7 @@ header中标明了Content-Encoding为gzip
 </code></pre><blockquote>
 <h4 id="HttpUrlConnection"><a href="#HttpUrlConnection" class="headerlink" title="HttpUrlConnection:"></a>HttpUrlConnection:</h4></blockquote>
 <p>4.4版本之后与okhttp相仿</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5bc89fbc5188255c713cb8a5#heading-10" target="_blank" rel="noopener">https://juejin.im/post/5bc89fbc5188255c713cb8a5#heading-10</a><br><a href="https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/" target="_blank" rel="noopener">https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/</a></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5bc89fbc5188255c713cb8a5#heading-10" target="_blank" rel="noopener">https://juejin.im/post/5bc89fbc5188255c713cb8a5#heading-10</a><br><a href="https://www.jianshu.com/p/d5824d2150b9" target="_blank" rel="noopener">让 okhttp 支持 post缓存</a><br><a href="https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/" target="_blank" rel="noopener">https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/</a></p>
 
       
     </div>
