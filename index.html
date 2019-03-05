@@ -575,7 +575,7 @@ doSomethingwithconfig(context);
         return instance;
     }
 }
-</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>　　简单总结下，volatile是一种轻量级的同步机制，它主要有两个特性：<strong>一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化</strong>。同时需要注意的是，volatile对于单个的共享变量的读/写具有原子性，但是像num++这种复合操作，volatile无法保证其原子性，当然文中也提出了解决方案，就是使用并发包中的原子操作类，通过循环CAS地方式来保证num++操作的原子性。</p>
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>　　简单总结下，volatile是一种轻量级的同步机制，它主要有两个特性：<strong>一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化</strong>。同时需要注意的是，volatile对于单个的共享变量的读/写具有原子性，但是像num++这种复合操作，volatile无法保证其<strong>原子性</strong>，当然文中也提出了解决方案，就是使用并发包中的原子操作类，通过循环CAS地方式来保证num++操作的原子性。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/zhengbin/p/5654805.html" target="_blank" rel="noopener">https://www.cnblogs.com/zhengbin/p/5654805.html</a><br><a href="https://www.cnblogs.com/chengxiao/p/6528109.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6528109.html</a><br><a href="https://www.cnblogs.com/dolphin0520/p/3920373.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3920373.html</a></p>
 
           
@@ -841,6 +841,7 @@ public static boolean Thread.interrupted();
 <p>如果一个共享变量被声明成volatile，java线程内存模型将会确保所有线程看到这个变量的值是一致的。</p>
 </blockquote>
 <p>基本策略: 写操作时，会有Lock前缀指定，处理器会立马将修改直接写回系统内存，并且其他处理器会将该值在其上的高速缓存标为无效。<br>可能带来的性能消耗: 写操作实时写回内存，锁总线/锁内存。<br>优势: 一些场景上相比synchronized，执行成本更低(不会引起线程上下文切换以及调度)，使用更方便。</p>
+<p>关于volatile的详细理解，可以参考我的这篇文章： <a href="https://zhaoshuming.github.io/2019/03/04/java-volatile/" target="_blank" rel="noopener">Java中的volatile</a></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ea9a482ece5f" target="_blank" rel="noopener">https://www.jianshu.com/p/ea9a482ece5f</a><br><a href="https://www.cnblogs.com/mingyao123/p/7424911.html" target="_blank" rel="noopener">https://www.cnblogs.com/mingyao123/p/7424911.html</a><br><a href="https://blog.dreamtobe.cn/2015/11/13/java_synchronized/" target="_blank" rel="noopener">https://blog.dreamtobe.cn/2015/11/13/java_synchronized/</a></p>
 
           
