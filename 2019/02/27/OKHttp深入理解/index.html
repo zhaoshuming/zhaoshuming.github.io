@@ -84,18 +84,18 @@
 <meta name="keywords" content="OKHttp,Gzip">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OKHttp深入理解">
-<meta property="og:url" content="http://yoursite.com || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/index.html">
+<meta property="og:url" content="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="OKHttp请求流程OKHttp的请求流程图如下所示：  如下为使用OKHttp进行Get请求的步骤： //1.新建OKHttpClient客户端 OkHttpClient client = new OkHttpClient(); //新建一个Request对象 Request request = new Request.Builder()         .url(url)         .b">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/okhttp.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/realcall.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/gzip.png">
+<meta property="og:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/okhttp.png">
+<meta property="og:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/realcall.png">
+<meta property="og:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/gzip.png">
 <meta property="og:updated_time" content="2019-03-01T02:23:27.666Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OKHttp深入理解">
 <meta name="twitter:description" content="OKHttp请求流程OKHttp的请求流程图如下所示：  如下为使用OKHttp进行Get请求的步骤： //1.新建OKHttpClient客户端 OkHttpClient client = new OkHttpClient(); //新建一个Request对象 Request request = new Request.Builder()         .url(url)         .b">
-<meta name="twitter:image" content="http://yoursite.com/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/okhttp.png">
+<meta name="twitter:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/okhttp.png">
 
 
 
@@ -125,7 +125,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/">
+  <link rel="canonical" href="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/">
 
 
 
@@ -301,7 +301,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com || https://zhaosm.coding.me/blog/ || /blog/2019/02/27/OKHttp深入理解/">
+    <link itemprop="mainEntityOfPage" href="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/ || /blog/2019/02/27/OKHttp深入理解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -402,7 +402,7 @@ Request request = new Request.Builder()
 //2.Response为OKHttp中的响应
 Response response = client.newCall(request).execute();
 </code></pre><p>首先，我们会在请求的时候初始化一个Call的实例，然后<strong>根据同步和异步的不同，分别调用它的 execute() 和 enqueue()</strong> 方法，但是它们进行网络访问的逻辑都是一样的，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到一个响应并交给用户。</p>
-<p><img src="/2019/02/27/OKHttp深入理解/realcall.png" alt title="请求时序图"></p>
+<p><img src="/ || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/realcall.png" alt title="请求时序图"></p>
 <h3 id="分发器Dispatcher"><a href="#分发器Dispatcher" class="headerlink" title="分发器Dispatcher"></a>分发器Dispatcher</h3><p>使用 OkHttp 的时候，我们会创建一个 RealCall 并将其加入到双端队列中。但是请注意这里的双端队列的名称是 runningSyncCalls，也就是说这种请求是同步请求，会在当前的线程中立即被执行。所以，下面的 getResponseWithInterceptorChain() 就是这个同步的执行过程。而当我们执行完毕的时候，又会调用 Dispatcher 的 finished(RealCall) 方法把该请求从队列中移除。所以，这种<strong>同步的请求无法体现分发器的“分发”功能。</strong></p>
 <p>除了同步的请求，还有异步类型的请求：当我们拿到了 RealCall 的时候，调用它的 enqueue(Callback responseCallback) 方法并设置一个回调即可。该方法会执行下面这行代码：</p>
 <pre><code>client.dispatcher().enqueue(new AsyncCall(responseCallback));
@@ -611,7 +611,7 @@ DiskLruCache（文件化的LRU缓存类）
 
 Content-Length:117：表示body gzip压缩后的数据大小，便于客户端使用。
 或 Transfer-Encoding: chunked：分块传输编码
-</code></pre><p><img src="/2019/02/27/OKHttp深入理解/gzip.png" alt></p>
+</code></pre><p><img src="/ || https://zhaosm.coding.me/blog/2019/02/27/OKHttp深入理解/gzip.png" alt></p>
 <blockquote>
 <h4 id="Okhttp"><a href="#Okhttp" class="headerlink" title="Okhttp"></a>Okhttp</h4></blockquote>
 <p>如果header中没有Accept-Encoding，默认自动添加 ，且标记变量transparentGzip为true。</p>
