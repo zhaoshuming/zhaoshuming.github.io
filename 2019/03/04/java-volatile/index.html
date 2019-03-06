@@ -84,16 +84,16 @@
 <meta name="keywords" content="volatile,JMM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中的volatile">
-<meta property="og:url" content="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/2019/03/04/java-volatile/index.html">
+<meta property="og:url" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="volatile是Java提供的一种轻量级的同步机制，在并发编程中，它也扮演着比较重要的角色。同synchronized相比（synchronized通常称为重量级锁），volatile更轻量级。 volatile关键字是与Java的内存模型有关的，因此在讲述volatile关键之前，我们先来了解一下与内存模型相关的概念和知识 Java内存模型首先来看看如下代码 public class Test">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
+<meta property="og:image" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
 <meta property="og:updated_time" content="2019-03-05T02:40:24.438Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的volatile">
 <meta name="twitter:description" content="volatile是Java提供的一种轻量级的同步机制，在并发编程中，它也扮演着比较重要的角色。同synchronized相比（synchronized通常称为重量级锁），volatile更轻量级。 volatile关键字是与Java的内存模型有关的，因此在讲述volatile关键之前，我们先来了解一下与内存模型相关的概念和知识 Java内存模型首先来看看如下代码 public class Test">
-<meta name="twitter:image" content="https://zhaoshuming.github.io/%20%7C%7C%20https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
+<meta name="twitter:image" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
 
 
 
@@ -123,7 +123,7 @@
 
 
 
-  <link rel="canonical" href="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/2019/03/04/java-volatile/">
+  <link rel="canonical" href="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/">
 
 
 
@@ -299,7 +299,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhaoshuming.github.io/ || https://zhaosm.coding.me/blog/ || /blog/2019/03/04/java-volatile/">
+    <link itemprop="mainEntityOfPage" href="https://zhaosm.coding.me/blog/ || /blog/2019/03/04/java-volatile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -412,7 +412,7 @@
 }
 </code></pre><p>上面这个例子，在多线程环境里，假设线程1执行changeStatus()方法后,线程2运行run()方法，可以保证输出”running…..”吗？答案是NO! 因为对于共享变量status来说，线程A的修改，对于线程B来讲，是”不可见”的。也就是说，线程B此时可能无法观测到status已被修改为true。那么什么是可见性呢？<br>所谓<strong>可见性，是指当一条线程修改了共享变量的值，新值对于其他线程来说是可以立即得知的</strong>。很显然，上述的例子中是没有办法做到内存可见性的。</p>
 <p>java虚拟机有自己的内存模型（Java Memory Model，JMM），<strong>JMM可以屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果</strong>。</p>
-<p>JMM决定一个线程对共享变量的写入何时对另一个线程可见，JMM定义了线程和主内存之间的抽象关系：<strong>共享变量存储在主内存(Main Memory)中，每个线程都有一个私有的本地内存（Local Memory），本地内存保存了被该线程使用到的主内存的副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量</strong>。这三者之间的交互关系如下<br><img src="/ || https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png" alt><br>需要注意的是，JMM是个抽象的内存模型，所以所谓的本地内存，主内存都是抽象概念，并不一定就真实的对应cpu缓存和物理内存。当然如果是出于理解的目的，这样对应起来也无不可。</p>
+<p>JMM决定一个线程对共享变量的写入何时对另一个线程可见，JMM定义了线程和主内存之间的抽象关系：<strong>共享变量存储在主内存(Main Memory)中，每个线程都有一个私有的本地内存（Local Memory），本地内存保存了被该线程使用到的主内存的副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量</strong>。这三者之间的交互关系如下<br><img src="/blog/2019/03/04/java-volatile/volatile_memory.png" alt><br>需要注意的是，JMM是个抽象的内存模型，所以所谓的本地内存，主内存都是抽象概念，并不一定就真实的对应cpu缓存和物理内存。当然如果是出于理解的目的，这样对应起来也无不可。</p>
 <p>大概了解了JMM的简单定义后，问题就很容易理解了，对于普通的共享变量来讲，比如我们上文中的status，线程1将其修改为true这个动作发生在线程1的本地内存中，此时还未同步到主内存中去；而线程2缓存了status的初始值false，此时可能没有观测到status的值被修改了，所以就导致了上述的问题。那么这种共享变量在多线程模型中的不可见性如何解决呢？比较粗暴的方式自然就是加锁，但是此处使用synchronized或者Lock这些方式太重量级了。比较合理的方式其实就是volatile</p>
 <p>volatile具备两种特性：</p>
 <blockquote>
