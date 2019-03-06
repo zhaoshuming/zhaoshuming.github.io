@@ -41,7 +41,7 @@
 
   
   
-  <link href="/ | /blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
 
 
 
@@ -49,21 +49,21 @@
 
 
 
-<link href="/ | /blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
 
-<link href="/ | /blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/ | /blog/images/apple-touch-icon-next.png?v=5.1.4">
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/ | /blog/images/favicon-32x32-next.png?v=5.1.4">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/ | /blog/images/favicon-16x16-next.png?v=5.1.4">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=5.1.4">
 
 
-  <link rel="mask-icon" href="/ | /blog/images/logo.svg?v=5.1.4" color="#222">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
 
 
 
@@ -84,23 +84,23 @@
 <meta name="keywords" content="volatile,JMM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中的volatile">
-<meta property="og:url" content="http://yoursite.com | https://zhaosm.coding.me/blog/2019/03/04/java-volatile/index.html">
+<meta property="og:url" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="volatile是Java提供的一种轻量级的同步机制，在并发编程中，它也扮演着比较重要的角色。同synchronized相比（synchronized通常称为重量级锁），volatile更轻量级。 volatile关键字是与Java的内存模型有关的，因此在讲述volatile关键之前，我们先来了解一下与内存模型相关的概念和知识 Java内存模型首先来看看如下代码 public class Test">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
+<meta property="og:image" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
 <meta property="og:updated_time" content="2019-03-05T02:40:24.438Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的volatile">
 <meta name="twitter:description" content="volatile是Java提供的一种轻量级的同步机制，在并发编程中，它也扮演着比较重要的角色。同synchronized相比（synchronized通常称为重量级锁），volatile更轻量级。 volatile关键字是与Java的内存模型有关的，因此在讲述volatile关键之前，我们先来了解一下与内存模型相关的概念和知识 Java内存模型首先来看看如下代码 public class Test">
-<meta name="twitter:image" content="http://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
+<meta name="twitter:image" content="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png">
 
 
 
 <script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/ | /blog/',
+    root: '/blog/',
     scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
@@ -123,7 +123,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com | https://zhaosm.coding.me/blog/2019/03/04/java-volatile/">
+  <link rel="canonical" href="https://zhaosm.coding.me/blog/2019/03/04/java-volatile/">
 
 
 
@@ -158,7 +158,7 @@
     
 
     <div class="custom-logo-site-title">
-      <a href="/ | /blog/" class="brand" rel="start">
+      <a href="/blog/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
         <span class="site-title">Blog</span>
         <span class="logo-line-after"><i></i></span>
@@ -186,7 +186,7 @@
       
         
         <li class="menu-item menu-item-home">
-          <a href="/ | /blog/" rel="section">
+          <a href="/blog/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
             
@@ -196,7 +196,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/ | /blog/about/" rel="section">
+          <a href="/blog/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
             
@@ -206,7 +206,7 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/ | /blog/tags/" rel="section">
+          <a href="/blog/tags/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
             
@@ -216,7 +216,7 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/ | /blog/categories/" rel="section">
+          <a href="/blog/categories/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
             
@@ -226,7 +226,7 @@
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/ | /blog/archives/" rel="section">
+          <a href="/blog/archives/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
             
@@ -299,12 +299,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com | https://zhaosm.coding.me/blog/ | /blog/2019/03/04/java-volatile/">
+    <link itemprop="mainEntityOfPage" href="https://zhaosm.coding.me/blog/blog/2019/03/04/java-volatile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
       <meta itemprop="description" content>
-      <meta itemprop="image" content="/ | /blog/images/avatar.jpg">
+      <meta itemprop="image" content="/blog/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -351,7 +351,7 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/ | /blog/categories/同步/" itemprop="url" rel="index">
+                  <a href="/blog/categories/同步/" itemprop="url" rel="index">
                     <span itemprop="name">同步</span>
                   </a>
                 </span>
@@ -412,7 +412,7 @@
 }
 </code></pre><p>上面这个例子，在多线程环境里，假设线程1执行changeStatus()方法后,线程2运行run()方法，可以保证输出”running…..”吗？答案是NO! 因为对于共享变量status来说，线程A的修改，对于线程B来讲，是”不可见”的。也就是说，线程B此时可能无法观测到status已被修改为true。那么什么是可见性呢？<br>所谓<strong>可见性，是指当一条线程修改了共享变量的值，新值对于其他线程来说是可以立即得知的</strong>。很显然，上述的例子中是没有办法做到内存可见性的。</p>
 <p>java虚拟机有自己的内存模型（Java Memory Model，JMM），<strong>JMM可以屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果</strong>。</p>
-<p>JMM决定一个线程对共享变量的写入何时对另一个线程可见，JMM定义了线程和主内存之间的抽象关系：<strong>共享变量存储在主内存(Main Memory)中，每个线程都有一个私有的本地内存（Local Memory），本地内存保存了被该线程使用到的主内存的副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量</strong>。这三者之间的交互关系如下<br><img src="//zhaosm.coding.me/blog/2019/03/04/java-volatile/volatile_memory.png" alt><br>需要注意的是，JMM是个抽象的内存模型，所以所谓的本地内存，主内存都是抽象概念，并不一定就真实的对应cpu缓存和物理内存。当然如果是出于理解的目的，这样对应起来也无不可。</p>
+<p>JMM决定一个线程对共享变量的写入何时对另一个线程可见，JMM定义了线程和主内存之间的抽象关系：<strong>共享变量存储在主内存(Main Memory)中，每个线程都有一个私有的本地内存（Local Memory），本地内存保存了被该线程使用到的主内存的副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量</strong>。这三者之间的交互关系如下<br><img src="/blog/2019/03/04/java-volatile/volatile_memory.png" alt><br>需要注意的是，JMM是个抽象的内存模型，所以所谓的本地内存，主内存都是抽象概念，并不一定就真实的对应cpu缓存和物理内存。当然如果是出于理解的目的，这样对应起来也无不可。</p>
 <p>大概了解了JMM的简单定义后，问题就很容易理解了，对于普通的共享变量来讲，比如我们上文中的status，线程1将其修改为true这个动作发生在线程1的本地内存中，此时还未同步到主内存中去；而线程2缓存了status的初始值false，此时可能没有观测到status的值被修改了，所以就导致了上述的问题。那么这种共享变量在多线程模型中的不可见性如何解决呢？比较粗暴的方式自然就是加锁，但是此处使用synchronized或者Lock这些方式太重量级了。比较合理的方式其实就是volatile</p>
 <p>volatile具备两种特性：</p>
 <blockquote>
@@ -597,9 +597,9 @@ doSomethingwithconfig(context);
       
         <div class="post-tags">
           
-            <a href="/ | /blog/tags/volatile/" rel="tag"># volatile</a>
+            <a href="/blog/tags/volatile/" rel="tag"># volatile</a>
           
-            <a href="/ | /blog/tags/JMM/" rel="tag"># JMM</a>
+            <a href="/blog/tags/JMM/" rel="tag"># JMM</a>
           
         </div>
       
@@ -612,7 +612,7 @@ doSomethingwithconfig(context);
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/ | /blog/2019/03/01/Java-Synchronized/" rel="next" title="Java Synchronized探究">
+              <a href="/blog/2019/03/01/Java-Synchronized/" rel="next" title="Java Synchronized探究">
                 <i class="fa fa-chevron-left"></i> Java Synchronized探究
               </a>
             
@@ -686,7 +686,7 @@ doSomethingwithconfig(context);
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="/ | /blog/images/avatar.jpg" alt="Shuming Zhao">
+              <img class="site-author-image" itemprop="image" src="/blog/images/avatar.jpg" alt="Shuming Zhao">
             
               <p class="site-author-name" itemprop="name">Shuming Zhao</p>
               <p class="site-description motion-element" itemprop="description"></p>
@@ -697,7 +697,7 @@ doSomethingwithconfig(context);
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/ | /blog/archives/">
+                <a href="/blog/archives/">
               
                   <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
@@ -709,7 +709,7 @@ doSomethingwithconfig(context);
               
               
               <div class="site-state-item site-state-categories">
-                <a href="/ | /blog/categories/index.html">
+                <a href="/blog/categories/index.html">
                   <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
@@ -720,7 +720,7 @@ doSomethingwithconfig(context);
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/ | /blog/tags/index.html">
+                <a href="/blog/tags/index.html">
                   <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
@@ -862,64 +862,64 @@ doSomethingwithconfig(context);
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/jquery/index.js?v=2.1.3"></script>
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
   
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
   
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
   
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="/ | /blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
   
-
-
-  
-
-
-  <script type="text/javascript" src="/ | /blog/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/ | /blog/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/ | /blog/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/ | /blog/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
-  
-  <script type="text/javascript" src="/ | /blog/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/ | /blog/js/src/post-details.js?v=5.1.4"></script>
-
 
 
   
 
 
-  <script type="text/javascript" src="/ | /blog/js/src/bootstrap.js?v=5.1.4"></script>
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
 
 
 
@@ -969,7 +969,7 @@ doSomethingwithconfig(context);
     } else if (/json$/i.test(search_path)) {
       isXml = false;
     }
-    var path = "/ | /blog/" + search_path;
+    var path = "/blog/" + search_path;
     // monitor main search box;
 
     var onPopupClose = function (e) {
