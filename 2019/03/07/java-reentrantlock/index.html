@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-07T06:36:07.908Z">
+<meta property="og:updated_time" content="2019-03-07T06:41:31.948Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java Lock">
 <meta name="twitter:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
@@ -442,7 +442,7 @@ if(lock.tryLock()) {
     }  
 }
 </code></pre><p>注意，当一个线程获取了锁之后，是不会被interrupt()方法中断的。调用interrupt()方法不能中断正在运行过程中的线程，<strong>只能中断阻塞过程中的线程</strong>。<br>因此当通过lockInterruptibly()方法获取某个锁时，如果不能获取到，只有在进行等待的情况下，是可以响应中断的。而用synchronized修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一直等待下去。</p>
-<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。<br>更多详解见：</p>
+<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。<br>更多详解见：<a href="https://zhaoshuming.github.io/2019/03/07/java-reentrantlock-detail/" target="_blank" rel="noopener">Java Reentrantlock详解</a></p>
 <h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
 <pre><code>public interface ReadWriteLock {
     Lock readLock();
