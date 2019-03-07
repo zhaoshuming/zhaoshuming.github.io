@@ -80,18 +80,21 @@
 
 
 
-<meta name="description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
+<meta name="description" content="synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程自动释放">
 <meta name="keywords" content="lock">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java Lock">
 <meta property="og:url" content="http://yoursite.com/2019/03/07/java-reentrantlock/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
+<meta property="og:description" content="synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程自动释放">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-07T06:41:31.948Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/07/java-reentrantlock/lock.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/07/java-reentrantlock/reentrantlock.png">
+<meta property="og:updated_time" content="2019-03-07T10:27:04.187Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java Lock">
-<meta name="twitter:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
+<meta name="twitter:description" content="synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程自动释放">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/07/java-reentrantlock/lock.png">
 
 
 
@@ -386,7 +389,7 @@
       
 
       
-        <h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
+        <p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
 <p>如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：</p>
 <blockquote>
 <p>1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有<br>2）线程执行发生异常，此时JVM会让线程自动释放锁<br>3）这个主要是在等待唤醒机制里面的wait()方法，在等待的时候立即释放锁，方便其他的线程使用锁。</p>
@@ -397,6 +400,14 @@
 <blockquote>
 <p>1）<strong>Lock不是Java语言内置的</strong>，synchronized是Java语言的关键字，因此是内置特性。<br>2）synchronized是在JVM层面上实现的，不但可以通过一些监控工具监控synchronized的锁定，而且在代码执行时出现异常，JVM会自动释放锁定，但是使用Lock则不行，<strong>lock是通过代码实现的，必须要手动释放锁</strong><br>3）在资源竞争不是很激烈的情况下，Synchronized的性能要优于ReetrantLock，但是在<strong>资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态</strong><br>4）<strong>Lock可以让等待锁的线程响应中断</strong>，而synchronized却不行，使用synchronized时，等待的线程会一直等待下去，不能够响应中断；<br>5）通过<strong>Lock可以知道有没有成功获取锁</strong>，而synchronized却无法办到。<br>6）Lock可以<strong>提高多个线程进行读操作的效率</strong>。</p>
 </blockquote>
+<h2 id="locks包结构"><a href="#locks包结构" class="headerlink" title="locks包结构"></a>locks包结构</h2><p>java.util.concurrent.locks包为锁和等待条件提供一个框架的接口和类，结构如下图所示：</p>
+<p><img src="/2019/03/07/java-reentrantlock/lock.png" alt></p>
+<ol>
+<li><p>Lock和ReadWriteLock是两大锁根接口，Lock代表实现类是ReentrantLock（可重入锁），ReadWriteLock（读写锁）的代表实现类是ReentrantReadWriteLock。<br>Lock 接口支持那些语义不同（重入、公平等）的锁规则，可以在非阻塞式结构的上下文（包括 hand-over-hand 和锁重排算法）中使用这些规则。主要的实现是 ReentrantLock。<br>ReadWriteLock 接口以类似方式定义了一些读取者可以共享而写入者独占的锁。此包只提供了一个实现，即 ReentrantReadWriteLock，因为它适用于大部分的标准用法上下文。但程序员可以创建自己的、适用于非标准要求的实现。</p>
+</li>
+<li><p><strong>Condition 接口描述了可能会与锁有关联的条件变量</strong>。这些变量在用法上与使用 Object.wait 访问的隐式监视器类似，但提供了更强大的功能。需要特别指出的是，单个 Lock 可能与多个 Condition 对象关联。为了避免兼容性问题，Condition 方法的名称与对应的 Object 版本中的不同。</p>
+</li>
+</ol>
 <h2 id="Lock的使用"><a href="#Lock的使用" class="headerlink" title="Lock的使用"></a>Lock的使用</h2><p>下面我们就来探讨一下java.util.concurrent.locks包中常用的类和接口。通过查看Lock的源码可知，Lock是一个接口：</p>
 <pre><code>public interface Lock {
     void lock();
@@ -442,8 +453,24 @@ if(lock.tryLock()) {
     }  
 }
 </code></pre><p>注意，当一个线程获取了锁之后，是不会被interrupt()方法中断的。调用interrupt()方法不能中断正在运行过程中的线程，<strong>只能中断阻塞过程中的线程</strong>。<br>因此当通过lockInterruptibly()方法获取某个锁时，如果不能获取到，只有在进行等待的情况下，是可以响应中断的。而用synchronized修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一直等待下去。</p>
-<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。<br>更多详解见：<a href="https://zhaoshuming.github.io/2019/03/07/java-reentrantlock-detail/" target="_blank" rel="noopener">Java Reentrantlock详解</a></p>
-<h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
+<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。</p>
+<p>ReentrantLock的类图如下：<br><img src="/2019/03/07/java-reentrantlock/reentrantlock.png" alt><br>ReentrantLock的内部类Sync继承了AQS(AQS根本上是通过一个双向队列来实现的;线程构造成一个节点，一个线程先尝试获得锁，如果获取锁失败，就将该线程加到队列尾部)，<strong>分为公平锁FairSync和非公平锁NonfairSync</strong>。公平锁的获取，也就是等待时间最长的线程最优先获取锁，也可以说锁获取是顺序的。ReentrantLock的公平与否，可以通过它的构造函数来决定。</p>
+<p>事实上，<strong>公平锁往往没有非公平锁的效率高</strong>，但是，并不是任何场景都是以TPS作为唯一指标，<strong>公平锁能够减少“饥饿”发生的概率，等待越久的请求越能够得到优先满足</strong>。</p>
+<p>平锁与非公平锁相比，耗时更多，线程上下文切换次数更多。公平锁保证了锁的获取按照FIFO原则，而代价则是进行大量的线程切换。非<strong>公平锁虽然可能导致线程饥饿，但却有极少的线程切换，保证了其更大的吞吐量</strong>。</p>
+<h2 id="Condition"><a href="#Condition" class="headerlink" title="Condition"></a>Condition</h2><p>同jdk中的等待/通知机制类似，只不过Condition是用在重入锁这里的。有了Condition，线程就可以在合适的时间等待，在合适的时间继续执行。</p>
+<p>Condition接口包含以下方法：</p>
+<pre><code>// 让当前线程等待，并释放锁
+void await() throws InterruptedException;
+// 和await类似，但在等待过程中不会相应中断
+void awaitUninterruptibly();
+long awaitNanos(long nanosTimeout) throws InterruptedException;
+boolean await(long time, TimeUnit unit) throws InterruptedException;
+boolean awaitUntil(Date deadline) throws InterruptedException;
+// 唤醒等待中的线程
+void signal();
+// 唤醒等待中的所有线程
+void signalAll();
+</code></pre><h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
 <pre><code>public interface ReadWriteLock {
     Lock readLock();
     Lock writeLock();
@@ -452,7 +479,17 @@ if(lock.tryLock()) {
 <h2 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h2><p>ReentrantReadWriteLock实现了ReadWriteLock接口。ReentrantReadWriteLock里面提供了很多丰富的方法，不过最主要的有两个方法：readLock()和writeLock()用来获取读锁和写锁。</p>
 <p>thread1和thread2<strong>可以同时进行读操作</strong>，这样就大大提升了读操作的效率。</p>
 <p>不过要注意的是，如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a></p>
+<h2 id="锁的相关概念"><a href="#锁的相关概念" class="headerlink" title="锁的相关概念"></a>锁的相关概念</h2><ol>
+<li><p>可重入锁<br>&#160;&#160;&#160;&#160;如果锁具备可重入性，则称作为可重入锁。像synchronized和Lock都是可重入锁，可重入性在我看来实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。<br>&#160;&#160;&#160;&#160;我们在之前文章已经讲解过，详见： <a href="https://zhaoshuming.github.io/2019/03/01/Java-Synchronized/" target="_blank" rel="noopener">Java Synchronized探究</a></p>
+</li>
+<li><p>可中断锁<br>&#160;&#160;&#160;&#160;顾名思义，就是可以相应中断的锁。在Java中，synchronized就不是可中断锁，而Lock是可中断锁。<br>&#160;&#160;&#160;&#160;前面的lockInterruptibly()已经体现了Lock的可中断性。</p>
+</li>
+<li><p>公平锁<br>&#160;&#160;&#160;&#160;公平锁即<strong>尽量以请求锁的顺序来获取锁</strong>。比如同是有多个线程在等待一个锁，当这个锁被释放时，等待时间最久的线程（最先请求的线程）会获得该所，这种就是公平锁。<br>&#160;&#160;&#160;&#160;非公平锁即无法保证锁的获取是按照请求锁的顺序进行的。这样就可能导致某个或者一些线程永远获取不到锁。<br>&#160;&#160;&#160;&#160;在Java中，synchronized就是非公平锁，它无法保证等待的线程获取锁的顺序。<br>&#160;&#160;&#160;&#160;而对于ReentrantLock和ReentrantReadWriteLock，它默认情况下是非公平锁，但是可以设置为公平锁。</p>
+</li>
+<li><p>读写锁<br>&#160;&#160;&#160;&#160;读写锁将对一个资源（比如文件）的访问分成了2个锁，一个读锁和一个写锁。正因为有了读写锁，才使得多个线程之间的读操作不会发生冲突。<br>&#160;&#160;&#160;&#160;ReadWriteLock就是读写锁，它是一个接口，ReentrantReadWriteLock实现了这个接口。可以通过readLock()获取读锁，通过writeLock()获取写锁。</p>
+</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a><br><a href="https://blog.csdn.net/chengyuqiang/article/details/79181229" target="_blank" rel="noopener">https://blog.csdn.net/chengyuqiang/article/details/79181229</a><br><a href="https://www.cnblogs.com/fuck1/p/5432806.html" target="_blank" rel="noopener">https://www.cnblogs.com/fuck1/p/5432806.html</a><br><a href="https://blog.csdn.net/qq_38293564/article/details/80515718#t3" target="_blank" rel="noopener">https://blog.csdn.net/qq_38293564/article/details/80515718#t3</a><br><a href="https://blog.csdn.net/i_am_kop/article/details/80958856" target="_blank" rel="noopener">https://blog.csdn.net/i_am_kop/article/details/80958856</a></p>
 
       
     </div>
@@ -492,10 +529,6 @@ if(lock.tryLock()) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/07/java-reentrantlock-detail/" rel="prev" title="Java Reentrantlock详解">
-                Java Reentrantlock详解 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -574,7 +607,7 @@ if(lock.tryLock()) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -629,7 +662,7 @@ if(lock.tryLock()) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock"><span class="nav-number">1.</span> <span class="nav-text">Lock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock的使用"><span class="nav-number">2.</span> <span class="nav-text">Lock的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantLock"><span class="nav-number">3.</span> <span class="nav-text">ReentrantLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReadWriteLock"><span class="nav-number">4.</span> <span class="nav-text">ReadWriteLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantReadWriteLock"><span class="nav-number">5.</span> <span class="nav-text">ReentrantReadWriteLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#locks包结构"><span class="nav-number">1.</span> <span class="nav-text">locks包结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock的使用"><span class="nav-number">2.</span> <span class="nav-text">Lock的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantLock"><span class="nav-number">3.</span> <span class="nav-text">ReentrantLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Condition"><span class="nav-number">4.</span> <span class="nav-text">Condition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReadWriteLock"><span class="nav-number">5.</span> <span class="nav-text">ReadWriteLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantReadWriteLock"><span class="nav-number">6.</span> <span class="nav-text">ReentrantReadWriteLock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁的相关概念"><span class="nav-number">7.</span> <span class="nav-text">锁的相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
