@@ -80,20 +80,18 @@
 
 
 
-<meta name="description" content="理解ReentrantLock之前，首先了解下lock Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线">
+<meta name="description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
 <meta name="keywords" content="lock">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java Lock">
 <meta property="og:url" content="http://yoursite.com/2019/03/07/java-reentrantlock/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="理解ReentrantLock之前，首先了解下lock Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线">
+<meta property="og:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/03/07/java-reentrantlock/avatar.jpg">
-<meta property="og:updated_time" content="2019-03-07T06:29:06.751Z">
+<meta property="og:updated_time" content="2019-03-07T06:36:07.908Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java Lock">
-<meta name="twitter:description" content="理解ReentrantLock之前，首先了解下lock Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/07/java-reentrantlock/avatar.jpg">
+<meta name="twitter:description" content="Locksynchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？ 如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：  1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有2）线程执行发生异常，此时JVM会让线程">
 
 
 
@@ -388,8 +386,7 @@
       
 
       
-        <p>理解ReentrantLock之前，首先了解下lock</p>
-<h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
+        <h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
 <p>如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：</p>
 <blockquote>
 <p>1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有<br>2）线程执行发生异常，此时JVM会让线程自动释放锁<br>3）这个主要是在等待唤醒机制里面的wait()方法，在等待的时候立即释放锁，方便其他的线程使用锁。</p>
@@ -455,8 +452,6 @@ if(lock.tryLock()) {
 <h2 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h2><p>ReentrantReadWriteLock实现了ReadWriteLock接口。ReentrantReadWriteLock里面提供了很多丰富的方法，不过最主要的有两个方法：readLock()和writeLock()用来获取读锁和写锁。</p>
 <p>thread1和thread2<strong>可以同时进行读操作</strong>，这样就大大提升了读操作的效率。</p>
 <p>不过要注意的是，如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</p>
-<p>## </p>
-<p><img src="/2019/03/07/java-reentrantlock/avatar.jpg" alt></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a></p>
 
       
@@ -497,6 +492,10 @@ if(lock.tryLock()) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/07/java-reentrantlock-detail/" rel="prev" title="Java Reentrantlock详解">
+                Java Reentrantlock详解 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -575,7 +574,7 @@ if(lock.tryLock()) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

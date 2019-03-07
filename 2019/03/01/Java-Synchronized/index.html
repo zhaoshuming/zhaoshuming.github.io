@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/03/01/Java-Synchronized/heap-memory.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/01/Java-Synchronized/monitor.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/01/Java-Synchronized/java_synchronized.png">
-<meta property="og:updated_time" content="2019-03-05T02:31:02.032Z">
+<meta property="og:updated_time" content="2019-03-07T06:37:41.023Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java Synchronized探究">
 <meta name="twitter:description" content="在java中，每一个对象都有一把内置锁，当程序中的某一块代码被同步块包起来的时候（synchronized(this){…}），相当于电脑用this指向的对象的内置锁把这块代码锁起来了，只有拥有能解开着这把锁钥匙的线程才能进入到同步块，其他的线程只能在同步块外面排队，只有等拥有钥匙的人执行完同步块归还钥匙的时候，电脑在把钥匙随机分配给外面等待的一个线程。 根据锁的对象不同可以分为两种：对象锁和类锁">
@@ -514,6 +514,7 @@ public static boolean Thread.interrupted();
 </blockquote>
 <p>基本策略: 写操作时，会有Lock前缀指定，处理器会立马将修改直接写回系统内存，并且其他处理器会将该值在其上的高速缓存标为无效。<br>可能带来的性能消耗: 写操作实时写回内存，锁总线/锁内存。<br>优势: 一些场景上相比synchronized，执行成本更低(不会引起线程上下文切换以及调度)，使用更方便。</p>
 <p>关于volatile的详细理解，可以参考我的这篇文章： <a href="https://zhaoshuming.github.io/2019/03/04/java-volatile/" target="_blank" rel="noopener">Java中的volatile</a></p>
+<h3 id="lock"><a href="#lock" class="headerlink" title="lock"></a>lock</h3><p>Lock提供了比synchronized更多的功能。但并非内置特性，详见：<a href="https://zhaoshuming.github.io/2019/03/07/java-reentrantlock/" target="_blank" rel="noopener">Java Lock</a> 及 </p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ea9a482ece5f" target="_blank" rel="noopener">https://www.jianshu.com/p/ea9a482ece5f</a><br><a href="https://www.cnblogs.com/mingyao123/p/7424911.html" target="_blank" rel="noopener">https://www.cnblogs.com/mingyao123/p/7424911.html</a><br><a href="https://blog.dreamtobe.cn/2015/11/13/java_synchronized/" target="_blank" rel="noopener">https://blog.dreamtobe.cn/2015/11/13/java_synchronized/</a></p>
 
       
@@ -636,7 +637,7 @@ public static boolean Thread.interrupted();
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -691,7 +692,7 @@ public static boolean Thread.interrupted();
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-代码块"><span class="nav-number">1.</span> <span class="nav-text">synchronized 代码块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-静态方法"><span class="nav-number">2.</span> <span class="nav-text">synchronized 静态方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized底层原理"><span class="nav-number">3.</span> <span class="nav-text">synchronized底层原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java虚拟机对synchronize的优化："><span class="nav-number">3.1.</span> <span class="nav-text">Java虚拟机对synchronize的优化：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronize的可重入性："><span class="nav-number">3.2.</span> <span class="nav-text">synchronize的可重入性：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程中断："><span class="nav-number">3.3.</span> <span class="nav-text">线程中断：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程下数据同步"><span class="nav-number">4.</span> <span class="nav-text">多线程下数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库中的锁"><span class="nav-number">4.1.</span> <span class="nav-text">数据库中的锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile"><span class="nav-number">4.2.</span> <span class="nav-text">volatile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-代码块"><span class="nav-number">1.</span> <span class="nav-text">synchronized 代码块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-静态方法"><span class="nav-number">2.</span> <span class="nav-text">synchronized 静态方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized底层原理"><span class="nav-number">3.</span> <span class="nav-text">synchronized底层原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java虚拟机对synchronize的优化："><span class="nav-number">3.1.</span> <span class="nav-text">Java虚拟机对synchronize的优化：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronize的可重入性："><span class="nav-number">3.2.</span> <span class="nav-text">synchronize的可重入性：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程中断："><span class="nav-number">3.3.</span> <span class="nav-text">线程中断：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程下数据同步"><span class="nav-number">4.</span> <span class="nav-text">多线程下数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库中的锁"><span class="nav-number">4.1.</span> <span class="nav-text">数据库中的锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile"><span class="nav-number">4.2.</span> <span class="nav-text">volatile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lock"><span class="nav-number">4.3.</span> <span class="nav-text">lock</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
