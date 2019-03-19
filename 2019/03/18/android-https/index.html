@@ -91,7 +91,12 @@
 <meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/https.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/https_hand.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/ca.jpg">
-<meta property="og:updated_time" content="2019-03-19T02:38:16.643Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/center_attack.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/unsafe.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/checkServer.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/hostname_strict.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/hostname_verifier.jpg">
+<meta property="og:updated_time" content="2019-03-19T05:34:42.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="android中使用https">
 <meta name="twitter:description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书">
@@ -556,7 +561,11 @@
         e.printStackTrace();
     }
 }
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
+</code></pre><h2 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h2><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
+<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
+<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
+<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
 
       
     </div>
@@ -596,6 +605,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/19/java-https/" rel="prev" title="https相关概念">
+                https相关概念 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -674,7 +687,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -729,7 +742,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Https通讯原理"><span class="nav-number">1.</span> <span class="nav-text">Https通讯原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数字证书、CA"><span class="nav-number">2.</span> <span class="nav-text">数字证书、CA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pfx格式和-cer格式的区别"><span class="nav-number">2.1.</span> <span class="nav-text">.pfx格式和.cer格式的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#okhttp实现https请求"><span class="nav-number">3.</span> <span class="nav-text">okhttp实现https请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单向验证"><span class="nav-number">3.1.</span> <span class="nav-text">单向验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双向验证"><span class="nav-number">3.2.</span> <span class="nav-text">双向验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Https通讯原理"><span class="nav-number">1.</span> <span class="nav-text">Https通讯原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数字证书、CA"><span class="nav-number">2.</span> <span class="nav-text">数字证书、CA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pfx格式和-cer格式的区别"><span class="nav-number">2.1.</span> <span class="nav-text">.pfx格式和.cer格式的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#okhttp实现https请求"><span class="nav-number">3.</span> <span class="nav-text">okhttp实现https请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单向验证"><span class="nav-number">3.1.</span> <span class="nav-text">单向验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双向验证"><span class="nav-number">3.2.</span> <span class="nav-text">双向验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#中间人劫持攻击"><span class="nav-number">4.</span> <span class="nav-text">中间人劫持攻击</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

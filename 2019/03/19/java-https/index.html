@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="android,thread,">
+  <meta name="keywords" content="https,">
 
 
 
@@ -80,18 +80,22 @@
 
 
 
-<meta name="description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
-<meta name="keywords" content="android,thread">
+<meta name="description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
+<meta name="keywords" content="https">
 <meta property="og:type" content="article">
-<meta property="og:title" content="android多线程">
-<meta property="og:url" content="http://yoursite.com/2019/02/27/android多线程/index.html">
+<meta property="og:title" content="https相关概念">
+<meta property="og:url" content="http://yoursite.com/2019/03/19/java-https/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta property="og:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-28T07:20:53.266Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/osi.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/three_handshake.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/aes_rsa.png">
+<meta property="og:updated_time" content="2019-03-19T10:23:42.860Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="android多线程">
-<meta name="twitter:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta name="twitter:title" content="https相关概念">
+<meta name="twitter:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/19/java-https/osi.jpg">
 
 
 
@@ -121,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/02/27/android多线程/">
+  <link rel="canonical" href="http://yoursite.com/2019/03/19/java-https/">
 
 
 
 
 
-  <title>android多线程 | Blog</title>
+  <title>https相关概念 | Blog</title>
   
 
 
@@ -297,7 +301,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/android多线程/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -314,7 +318,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">android多线程</h1>
+          <h1 class="post-title" itemprop="name headline">https相关概念</h1>
         
 
         <div class="post-meta">
@@ -326,8 +330,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-27T14:12:20+08:00">
-                2019-02-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
+                2019-03-19
               </time>
             
 
@@ -349,8 +353,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">android知识点</span>
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
                   </a>
                 </span>
 
@@ -386,62 +390,24 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
-<p>实现Thread的run()方法或者实现Runable接口</p>
-<p>HandlerThread</p>
-<p>AsyncTask</p>
-<p>LoaderManager</p>
-<h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
-<ol>
-<li><p>关键字join、sleep、yield</p>
-<p> join() method suspends the execution of the calling thread until the object called finishes its execution.<br> 也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
-<p> join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
-<p> sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
-<p> Yield()方法是停止当前线程，让同等优先权的线程运行。如果没有同等优先权的线程，那么Yield()方法将不会起作用。 </p>
-<p> suspend()可能导致死锁，因此弃用</p>
-</li>
-</ol>
-<h3 id="HandlerThread"><a href="#HandlerThread" class="headerlink" title="HandlerThread"></a>HandlerThread</h3><p>HandlerThread，这种方式<strong>适合子线程有序的执行异步操作，异步任务的执行一个接着一个</strong>。</p>
-<p>HandlerThread的内部实现机制很简单，在创建新的线程后，使该线程成为一个Looper线程，让该线程不断的从MessageQueue取出消息并处理。</p>
-<p>就应用程序而言，Android系统中JAVA的应用程序和其他系统上相同，都是靠消息驱动来工作的，他们大致的工作原理如下：</p>
-<p>1、有一个消息队列，可以往这个消息队列中投递消息。</p>
-<p>2、有一个消息循环，不断从消息队列中取出消息，然后处理。</p>
-<p>在Android中，一个线程对应一个Looper对象，而一个Looper对象又对应一个MessageQueue（用于存放message）。</p>
-<p>循环者Looper类，消息处理类Handler，消息类Message。</p>
-<p>Looper对象用来为一个线程开启一个消息循环，用来操作MessgeQueue。默认情况下，Android中新创建的线程是没有开启消息循环的。（主线程除外）</p>
-<p>消息处理类（Handler）允许发送和处理Message和Rannable对象到其所在线程的MessageQueue中。（它主要有两个作用：1、将Message或Runnable应用post()方法或sendMessage()方法发送到MessageQueue中，在发送时可以指定延时时间、发送时间或者要携带的bundle数据。当MessageQueue循环到该Message时，调用相应的Handler对象的handlerMessage()方法对其进行处理。2、在子线程中与主线程进行通信，也就是在工作线程中与UI线程进行通信。）</p>
-<p>另外，在一个线程中只能有一个Looper和MessageQueue，但是可以有多个Handler,而且这些Handler可以共享一个Looper和MessageQueue。</p>
-<p>消息类(Message)被存放在MessageQueue中，一个MessageQueue中可以包含多个Message对象。每个Message对象可以通过Messhe.obtain()方法或者Handler.obtainMessage()方法获得。Message是一个final类，所以不可被继承。</p>
-<h3 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
-<p>当然我们是可以跳过不需要进行排队，直接就通过线程池分配一个线程并执行异步任务，但需要注意同时执行太多的异步任务，会影响用户体验，我想Google就是为了限制同时创建太多的线程才会采用一个排队机制的</p>
-<pre><code>/** @hide */
-public static void setDefaultExecutor(Executor exec) {
-    sDefaultExecutor = exec;
-}
-</code></pre><p>该方法是隐藏，但可使用反射，设置一个线程池。</p>
-<p>AsyncTask， <strong>通常用于耗时的异步处理，且时效性要求不是非常高的那种异步操作</strong>。如果时效性要求非常高的操作，不建议使用这个方式，因为AsyncTask的默认实现是有内部排队机制，且是整个应用的AsyncTask的任务进行排队，所以不能保证异步任务能很快的被执行。</p>
-<h3 id="LoaderManager"><a href="#LoaderManager" class="headerlink" title="LoaderManager"></a>LoaderManager</h3><p>LoaderManager，当<strong>请求处理时机需要根据Activity的生命周期进行调整</strong>，或需要<strong>时刻监测数据的变化</strong>，那LoaderManager是很不错的解决方案。</p>
-<p>LoaderManager可以解决的问题包括：</p>
-<p>1.加载的数据有变化时，会自动通知我们，而不自己监控数据的变化情况，如：用CursorLoader来加载数据库数据，当数据库数据有变化时，可是个展示变化的数据</p>
-<p>2.数据的请求处理时机会结合Activity和Fragment的生命周期进行调整，如：若Acivity销毁了，那就不会再去请求新的数据</p>
-<h4 id="1-LoaderManager"><a href="#1-LoaderManager" class="headerlink" title="1.LoaderManager"></a>1.LoaderManager</h4><p> LoaderManager用来负责管理与Activity或者Fragment联系起来的一个或多个Loaders对象.</p>
-<p> 每个Activity或者Fragment都有唯一的一个LoaderManager实例(通过getLoaderManager()方法获得),用来启动,停止,保持,重启,关闭它的Loaders,这些功能可通过调用initLoader()/restartLoader()/destroyLoader()方法来实现.</p>
-<p> LoaderManager并不知道数据如何装载以及何时需要装载.相反,它只需要控制它的Loaders们开始,停止,重置他们的Load行为,在配置变换或数据变化时保持loaders们的状态,并使用接口来返回load的结果.</p>
-<h4 id="2-Loader"><a href="#2-Loader" class="headerlink" title="2.Loader"></a>2.Loader</h4><p> Loades负责在一个单独线程中执行查询,监控数据源改变,当探测到改变时将查询到的结果集发送到注册的监听器上.Loader是一个强大的工具,具有如下特点</p>
-<p> (1)它封装了实际的数据载入.</p>
-<p> Activity或Fragment不再需要知道如何载入数据.它们将该任务委托给了Loader,Loader在后台执行查询要求并且将结果返回给Activity或Fragment.</p>
-<p> (2)客户端不需要知道查询如何执行.Activity或Fragment不需要担心查询如何在独立的线程中执行,Loder会自动执行这些查询操作.</p>
-<p> (3)它是一种安全的事件驱动方式.</p>
-<p> Loader检测底层数据,当检测到改变时,自动执行并载入最新数据.</p>
-<p> 这使得使用Loader变得容易,客户端可以相信Loader将会自己自动更新它的数据.</p>
-<p> Activity或Fragment所需要做的就是初始化Loader,并且对任何反馈回来的数据进行响应.除此之外,所有其他的事情都由Loader来解决.</p>
-<p>Loader：该类用于数据的加载 ，类型参数D用于指定Loader加载的数据类型</p>
-<pre><code>public class Loader&lt;D&gt; {
-}
-</code></pre><p>一般我们不直接继承Loader，而是继承AsyncTaskLoader，因为Loader的加载工作并不是在异步线程中。而AsyncTaskLoader实现了异步线程，加载流程在子线程中执行。注意：对该类的调用应该在主线程中完成。</p>
-<p><strong>Loader负责数据加载逻辑，LoaderManager负责Loader的调度</strong>，开发者只需要自定义自己的Loader，实现数据的加载逻辑，而不再关注数据加载时由于Activity销毁引发的问题。</p>
-<p>注意：其实AsyncTaskLoader内部实现异步的方式是使用AsyncTask完成的，上面我们说过AsyncTask的内部是有一个排队机制，但<strong>AsyncTaskLoader内部使用AsyncTask进行数据异步加载时，异步任务并不进行排队</strong>。而直接由线程池分配新线程来执行。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a></p>
+        <p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。</p>
+<p>下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置：<br><img src="/2019/03/19/java-https/osi.jpg" alt></p>
+<h2 id="HTTP三次握手"><a href="#HTTP三次握手" class="headerlink" title="HTTP三次握手"></a>HTTP三次握手</h2><p>HTTP（HyperText Transfer Protocol)超文本传输协议是互联网上应用最为广泛的一种网络协议。由于信息是明文传输，所以被认为是不安全的。而关于HTTP的三次握手，其实就是使用三次TCP握手确认建立一个HTTP连接。</p>
+<p>如下图所示，SYN（synchronous）是TCP/IP建立连接时使用的握手信号、Sequence number（序列号）、Acknowledge number（确认号码），三个箭头指向就代表三次握手，完成三次握手，客户端与服务器开始传送数据。<br><img src="/2019/03/19/java-https/three_handshake.jpg" alt><br>第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；</p>
+<p>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；</p>
+<p>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</p>
+<h2 id="HTTPS下的加密"><a href="#HTTPS下的加密" class="headerlink" title="HTTPS下的加密"></a>HTTPS下的加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
+<blockquote>
+<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
+</blockquote>
+<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
+<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
+<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
+<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a></p>
 
       
     </div>
@@ -459,9 +425,7 @@ public static void setDefaultExecutor(Executor exec) {
       
         <div class="post-tags">
           
-            <a href="/tags/android/" rel="tag"># android</a>
-          
-            <a href="/tags/thread/" rel="tag"># thread</a>
+            <a href="/tags/https/" rel="tag"># https</a>
           
         </div>
       
@@ -474,8 +438,8 @@ public static void setDefaultExecutor(Executor exec) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/20/github博客搭建/" rel="next" title="github博客搭建">
-                <i class="fa fa-chevron-left"></i> github博客搭建
+              <a href="/2019/03/18/android-https/" rel="next" title="android中使用https">
+                <i class="fa fa-chevron-left"></i> android中使用https
               </a>
             
           </div>
@@ -483,10 +447,6 @@ public static void setDefaultExecutor(Executor exec) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/02/27/OKHttp深入理解/" rel="prev" title="OKHttp深入理解">
-                OKHttp深入理解 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -620,7 +580,7 @@ public static void setDefaultExecutor(Executor exec) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP三次握手"><span class="nav-number">1.</span> <span class="nav-text">HTTP三次握手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS下的加密"><span class="nav-number">2.</span> <span class="nav-text">HTTPS下的加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对称加密"><span class="nav-number">2.1.</span> <span class="nav-text">对称加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#非对称加密"><span class="nav-number">2.2.</span> <span class="nav-text">非对称加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash算法（摘要算法）"><span class="nav-number">2.3.</span> <span class="nav-text">Hash算法（摘要算法）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS采用混合加密机制"><span class="nav-number">2.4.</span> <span class="nav-text">HTTPS采用混合加密机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
