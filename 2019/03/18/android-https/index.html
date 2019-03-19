@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="android,thread,">
+  <meta name="keywords" content="https,">
 
 
 
@@ -80,18 +80,22 @@
 
 
 
-<meta name="description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
-<meta name="keywords" content="android,thread">
+<meta name="description" content="HTTP协议是没有加密的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书)加密数据以防止数据中途被窃取；（加密）维护数据的完整性，确保数据在传输过程中不被改变。（摘要算法）  Https通讯原理HTTPS是HTTP over SSL/T">
+<meta name="keywords" content="https">
 <meta property="og:type" content="article">
-<meta property="og:title" content="android多线程">
-<meta property="og:url" content="http://yoursite.com/2019/02/27/android多线程/index.html">
+<meta property="og:title" content="android中使用https">
+<meta property="og:url" content="http://yoursite.com/2019/03/18/android-https/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta property="og:description" content="HTTP协议是没有加密的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书)加密数据以防止数据中途被窃取；（加密）维护数据的完整性，确保数据在传输过程中不被改变。（摘要算法）  Https通讯原理HTTPS是HTTP over SSL/T">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-28T07:20:53.266Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/https.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/https_hand.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/ca.jpg">
+<meta property="og:updated_time" content="2019-03-19T02:18:12.255Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="android多线程">
-<meta name="twitter:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta name="twitter:title" content="android中使用https">
+<meta name="twitter:description" content="HTTP协议是没有加密的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书)加密数据以防止数据中途被窃取；（加密）维护数据的完整性，确保数据在传输过程中不被改变。（摘要算法）  Https通讯原理HTTPS是HTTP over SSL/T">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/18/android-https/https.jpg">
 
 
 
@@ -121,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/02/27/android多线程/">
+  <link rel="canonical" href="http://yoursite.com/2019/03/18/android-https/">
 
 
 
 
 
-  <title>android多线程 | Blog</title>
+  <title>android中使用https | Blog</title>
   
 
 
@@ -297,7 +301,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/android多线程/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -314,7 +318,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">android多线程</h1>
+          <h1 class="post-title" itemprop="name headline">android中使用https</h1>
         
 
         <div class="post-meta">
@@ -326,8 +330,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-27T14:12:20+08:00">
-                2019-02-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
+                2019-03-18
               </time>
             
 
@@ -349,8 +353,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">android知识点</span>
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
                   </a>
                 </span>
 
@@ -386,62 +390,172 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
-<p>实现Thread的run()方法或者实现Runable接口</p>
-<p>HandlerThread</p>
-<p>AsyncTask</p>
-<p>LoaderManager</p>
-<h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
+        <p>HTTP协议是没有加密的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
+<blockquote>
+<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书)<br>加密数据以防止数据中途被窃取；（加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（摘要算法）</p>
+</blockquote>
+<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.jpg" alt><br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
 <ol>
-<li><p>关键字join、sleep、yield</p>
-<p> join() method suspends the execution of the calling thread until the object called finishes its execution.<br> 也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
-<p> join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
-<p> sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
-<p> Yield()方法是停止当前线程，让同等优先权的线程运行。如果没有同等优先权的线程，那么Yield()方法将不会起作用。 </p>
-<p> suspend()可能导致死锁，因此弃用</p>
+<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
+<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
+<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
+<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
+<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
+</ol>
+<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
+<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
+<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
+<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/18/android-https/ca.jpg" alt></p>
+<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
+<ol>
+<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
+</li>
+<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
+</li>
+<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
 </li>
 </ol>
-<h3 id="HandlerThread"><a href="#HandlerThread" class="headerlink" title="HandlerThread"></a>HandlerThread</h3><p>HandlerThread，这种方式<strong>适合子线程有序的执行异步操作，异步任务的执行一个接着一个</strong>。</p>
-<p>HandlerThread的内部实现机制很简单，在创建新的线程后，使该线程成为一个Looper线程，让该线程不断的从MessageQueue取出消息并处理。</p>
-<p>就应用程序而言，Android系统中JAVA的应用程序和其他系统上相同，都是靠消息驱动来工作的，他们大致的工作原理如下：</p>
-<p>1、有一个消息队列，可以往这个消息队列中投递消息。</p>
-<p>2、有一个消息循环，不断从消息队列中取出消息，然后处理。</p>
-<p>在Android中，一个线程对应一个Looper对象，而一个Looper对象又对应一个MessageQueue（用于存放message）。</p>
-<p>循环者Looper类，消息处理类Handler，消息类Message。</p>
-<p>Looper对象用来为一个线程开启一个消息循环，用来操作MessgeQueue。默认情况下，Android中新创建的线程是没有开启消息循环的。（主线程除外）</p>
-<p>消息处理类（Handler）允许发送和处理Message和Rannable对象到其所在线程的MessageQueue中。（它主要有两个作用：1、将Message或Runnable应用post()方法或sendMessage()方法发送到MessageQueue中，在发送时可以指定延时时间、发送时间或者要携带的bundle数据。当MessageQueue循环到该Message时，调用相应的Handler对象的handlerMessage()方法对其进行处理。2、在子线程中与主线程进行通信，也就是在工作线程中与UI线程进行通信。）</p>
-<p>另外，在一个线程中只能有一个Looper和MessageQueue，但是可以有多个Handler,而且这些Handler可以共享一个Looper和MessageQueue。</p>
-<p>消息类(Message)被存放在MessageQueue中，一个MessageQueue中可以包含多个Message对象。每个Message对象可以通过Messhe.obtain()方法或者Handler.obtainMessage()方法获得。Message是一个final类，所以不可被继承。</p>
-<h3 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
-<p>当然我们是可以跳过不需要进行排队，直接就通过线程池分配一个线程并执行异步任务，但需要注意同时执行太多的异步任务，会影响用户体验，我想Google就是为了限制同时创建太多的线程才会采用一个排队机制的</p>
-<pre><code>/** @hide */
-public static void setDefaultExecutor(Executor exec) {
-    sDefaultExecutor = exec;
+<h2 id="okhttp实现https请求"><a href="#okhttp实现https请求" class="headerlink" title="okhttp实现https请求"></a>okhttp实现https请求</h2><p>将ca证书放在本地，这里我们使用.pfx格式的证书</p>
+<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
-</code></pre><p>该方法是隐藏，但可使用反射，设置一个线程池。</p>
-<p>AsyncTask， <strong>通常用于耗时的异步处理，且时效性要求不是非常高的那种异步操作</strong>。如果时效性要求非常高的操作，不建议使用这个方式，因为AsyncTask的默认实现是有内部排队机制，且是整个应用的AsyncTask的任务进行排队，所以不能保证异步任务能很快的被执行。</p>
-<h3 id="LoaderManager"><a href="#LoaderManager" class="headerlink" title="LoaderManager"></a>LoaderManager</h3><p>LoaderManager，当<strong>请求处理时机需要根据Activity的生命周期进行调整</strong>，或需要<strong>时刻监测数据的变化</strong>，那LoaderManager是很不错的解决方案。</p>
-<p>LoaderManager可以解决的问题包括：</p>
-<p>1.加载的数据有变化时，会自动通知我们，而不自己监控数据的变化情况，如：用CursorLoader来加载数据库数据，当数据库数据有变化时，可是个展示变化的数据</p>
-<p>2.数据的请求处理时机会结合Activity和Fragment的生命周期进行调整，如：若Acivity销毁了，那就不会再去请求新的数据</p>
-<h4 id="1-LoaderManager"><a href="#1-LoaderManager" class="headerlink" title="1.LoaderManager"></a>1.LoaderManager</h4><p> LoaderManager用来负责管理与Activity或者Fragment联系起来的一个或多个Loaders对象.</p>
-<p> 每个Activity或者Fragment都有唯一的一个LoaderManager实例(通过getLoaderManager()方法获得),用来启动,停止,保持,重启,关闭它的Loaders,这些功能可通过调用initLoader()/restartLoader()/destroyLoader()方法来实现.</p>
-<p> LoaderManager并不知道数据如何装载以及何时需要装载.相反,它只需要控制它的Loaders们开始,停止,重置他们的Load行为,在配置变换或数据变化时保持loaders们的状态,并使用接口来返回load的结果.</p>
-<h4 id="2-Loader"><a href="#2-Loader" class="headerlink" title="2.Loader"></a>2.Loader</h4><p> Loades负责在一个单独线程中执行查询,监控数据源改变,当探测到改变时将查询到的结果集发送到注册的监听器上.Loader是一个强大的工具,具有如下特点</p>
-<p> (1)它封装了实际的数据载入.</p>
-<p> Activity或Fragment不再需要知道如何载入数据.它们将该任务委托给了Loader,Loader在后台执行查询要求并且将结果返回给Activity或Fragment.</p>
-<p> (2)客户端不需要知道查询如何执行.Activity或Fragment不需要担心查询如何在独立的线程中执行,Loder会自动执行这些查询操作.</p>
-<p> (3)它是一种安全的事件驱动方式.</p>
-<p> Loader检测底层数据,当检测到改变时,自动执行并载入最新数据.</p>
-<p> 这使得使用Loader变得容易,客户端可以相信Loader将会自己自动更新它的数据.</p>
-<p> Activity或Fragment所需要做的就是初始化Loader,并且对任何反馈回来的数据进行响应.除此之外,所有其他的事情都由Loader来解决.</p>
-<p>Loader：该类用于数据的加载 ，类型参数D用于指定Loader加载的数据类型</p>
-<pre><code>public class Loader&lt;D&gt; {
+</code></pre><p>第二种写法，同样有效:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
+
+        //key管理器工厂
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
-</code></pre><p>一般我们不直接继承Loader，而是继承AsyncTaskLoader，因为Loader的加载工作并不是在异步线程中。而AsyncTaskLoader实现了异步线程，加载流程在子线程中执行。注意：对该类的调用应该在主线程中完成。</p>
-<p><strong>Loader负责数据加载逻辑，LoaderManager负责Loader的调度</strong>，开发者只需要自定义自己的Loader，实现数据的加载逻辑，而不再关注数据加载时由于Activity销毁引发的问题。</p>
-<p>注意：其实AsyncTaskLoader内部实现异步的方式是使用AsyncTask完成的，上面我们说过AsyncTask的内部是有一个排队机制，但<strong>AsyncTaskLoader内部使用AsyncTask进行数据异步加载时，异步任务并不进行排队</strong>。而直接由线程池分配新线程来执行。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a></p>
+</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
+<blockquote>
+<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
+</blockquote>
+<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
+</code></pre><p>如果是.cer的话那么，就用:</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
+<p>通过jks文件生成对应的cer文件：</p>
+<blockquote>
+<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
+</blockquote>
+<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
+<blockquote>
+<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
+</blockquote>
+<p>客户端代码如下：</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //双向验证，配置服务器验证客户端的证书
+        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
+        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
 
       
     </div>
@@ -459,9 +573,7 @@ public static void setDefaultExecutor(Executor exec) {
       
         <div class="post-tags">
           
-            <a href="/tags/android/" rel="tag"># android</a>
-          
-            <a href="/tags/thread/" rel="tag"># thread</a>
+            <a href="/tags/https/" rel="tag"># https</a>
           
         </div>
       
@@ -474,8 +586,8 @@ public static void setDefaultExecutor(Executor exec) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/20/github博客搭建/" rel="next" title="github博客搭建">
-                <i class="fa fa-chevron-left"></i> github博客搭建
+              <a href="/2019/03/12/mpchart-point-label/" rel="next" title="MpAndroidChart实现多点的特殊标记">
+                <i class="fa fa-chevron-left"></i> MpAndroidChart实现多点的特殊标记
               </a>
             
           </div>
@@ -483,10 +595,6 @@ public static void setDefaultExecutor(Executor exec) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/02/27/OKHttp深入理解/" rel="prev" title="OKHttp深入理解">
-                OKHttp深入理解 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -620,7 +728,7 @@ public static void setDefaultExecutor(Executor exec) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Https通讯原理"><span class="nav-number">1.</span> <span class="nav-text">Https通讯原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数字证书、CA"><span class="nav-number">2.</span> <span class="nav-text">数字证书、CA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pfx格式和-cer格式的区别"><span class="nav-number">2.1.</span> <span class="nav-text">.pfx格式和.cer格式的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#okhttp实现https请求"><span class="nav-number">3.</span> <span class="nav-text">okhttp实现https请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单向验证"><span class="nav-number">3.1.</span> <span class="nav-text">单向验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双向验证"><span class="nav-number">3.2.</span> <span class="nav-text">双向验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
