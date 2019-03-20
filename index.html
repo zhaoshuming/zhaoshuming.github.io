@@ -312,7 +312,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https相关概念</a></h1>
+                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
         
 
         <div class="post-meta">
@@ -399,11 +399,63 @@
 <h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
 <h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
 <p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
 <h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
 <p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
 <h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
-<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a></p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现：</p>
+<pre><code>public class DataEncryptInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //请求
+        Request request = chain.request();
+        RequestBody oldRequestBody = request.body();
+        Buffer requestBuffer = new Buffer();
+        oldRequestBody.writeTo(requestBuffer);
+        String oldBodyStr = requestBuffer.readUtf8();
+        requestBuffer.close();
+        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
+        //生成随机AES密钥并用serverPublicKey进行RSA加密
+        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
+        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
+        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
+        //计算body 哈希 并使用app私钥RSA签名
+        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
+        //随机AES密钥加密oldBodyStr
+        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
+        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
+        //构造新的request
+        request = request.newBuilder()
+                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
+                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
+                .method(request.method(), newBody)
+                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
+                .header(&quot;appSignature&quot;, appSignature)
+                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
+                .build();
+        //响应
+        Response response = chain.proceed(request);
+        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
+            //获取响应头
+            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
+            //用app的RSA私钥解密AES加密密钥
+            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
+            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
+            //用AES密钥解密oldResponseBodyStr
+            ResponseBody oldResponseBody = response.body();
+            String oldResponseBodyStr = oldResponseBody.string();
+            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
+            oldResponseBody.close();
+            //构造新的response
+            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
+            response = response.newBuilder().body(newResponseBody).build();
+        }
+        response.close();
+        //返回
+        return response;
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
 
           
         
@@ -1478,8 +1530,28 @@ void signalAll();
 <blockquote>
 <p>1）对变量的写操作不依赖于当前值<br>2）该变量没有包含在具有其他变量的不变式中</p>
 </blockquote>
-<p>　　实际上，这些条件表明，可以被写入 volatile 变量的这些有效值独立于任何程序的状态，包括变量的当前状态。</p>
-<p>　　事实上，我的理解就是上面的2个条件<strong>需要保证操作是原子性操作</strong>，才能保证使用volatile关键字的程序在并发时能够正确执行。</p>
+<p>实际上，这些条件表明，可以被写入 volatile 变量的这些有效值独立于任何程序的状态，包括变量的当前状态。<br>事实上，我的理解就是上面的2个条件<strong>需要保证操作是原子性操作</strong>，才能保证使用volatile关键字的程序在并发时能够正确执行。</p>
+<p>下面代码显示了一个非线程安全的数值范围类。它包含了一个不变式 —— 下界总是小于或等于上界：</p>
+<pre><code>@NotThreadSafe 
+public class NumberRange {
+    private int lower, upper;
+
+    public int getLower() { return lower; }
+    public int getUpper() { return upper; }
+
+    public void setLower(int value) { 
+        if (value &gt; upper) 
+            throw new IllegalArgumentException(...);
+        lower = value;
+    }
+
+    public void setUpper(int value) { 
+        if (value &lt; lower) 
+            throw new IllegalArgumentException(...);
+        upper = value;
+    }
+}
+</code></pre><p>这种方式限制了范围的状态变量，因此将 lower 和 upper 字段定义为 volatile 类型不能够充分实现类的线程安全；从而仍然需要使用同步。否则，如果凑巧两个线程在同一时间使用不一致的值执行 setLower 和 setUpper 的话，则会使范围处于不一致的状态。例如，如果初始状态是 (0, 5)，同一时间内，线程 A 调用 setLower(4) 并且线程 B 调用 setUpper(3)，显然这两个操作交叉存入的值是不符合条件的，那么两个线程都会通过用于保护不变式的检查，使得最后的范围值是 (4, 3) —— 一个无效值。至于针对范围的其他操作，我们需要使 setLower() 和 setUpper() 操作原子化 —— 而将字段定义为 volatile 类型是无法实现这一目的的。</p>
 <p>　　下面列举几个Java中使用volatile的几个场景。</p>
 <p>1.状态标记量</p>
 <pre><code>volatile boolean flag = false;
@@ -1523,7 +1595,7 @@ doSomethingwithconfig(context);
     }
 }
 </code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>　　简单总结下，volatile是一种轻量级的同步机制，它主要有两个特性：<strong>一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化</strong>。同时需要注意的是，volatile对于单个的共享变量的读/写具有原子性，但是像num++这种复合操作，volatile无法保证其<strong>原子性</strong>，当然文中也提出了解决方案，就是使用并发包中的原子操作类，通过循环CAS地方式来保证num++操作的原子性。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/zhengbin/p/5654805.html" target="_blank" rel="noopener">https://www.cnblogs.com/zhengbin/p/5654805.html</a><br><a href="https://www.cnblogs.com/chengxiao/p/6528109.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6528109.html</a><br><a href="https://www.cnblogs.com/dolphin0520/p/3920373.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3920373.html</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/zhengbin/p/5654805.html" target="_blank" rel="noopener">https://www.cnblogs.com/zhengbin/p/5654805.html</a><br><a href="https://www.cnblogs.com/chengxiao/p/6528109.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6528109.html</a><br><a href="https://www.cnblogs.com/dolphin0520/p/3920373.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3920373.html</a><br><a href="https://www.ibm.com/developerworks/cn/java/j-jtp06197.html" target="_blank" rel="noopener">不变式举例</a></p>
 
           
         

@@ -83,7 +83,7 @@
 <meta name="description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
 <meta name="keywords" content="https">
 <meta property="og:type" content="article">
-<meta property="og:title" content="https相关概念">
+<meta property="og:title" content="https加密解析">
 <meta property="og:url" content="http://yoursite.com/2019/03/19/java-https/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
@@ -91,9 +91,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/osi.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/three_handshake.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/aes_rsa.png">
-<meta property="og:updated_time" content="2019-03-19T10:23:42.860Z">
+<meta property="og:updated_time" content="2019-03-20T02:18:52.128Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="https相关概念">
+<meta name="twitter:title" content="https加密解析">
 <meta name="twitter:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
 <meta name="twitter:image" content="http://yoursite.com/2019/03/19/java-https/osi.jpg">
 
@@ -131,7 +131,7 @@
 
 
 
-  <title>https相关概念 | Blog</title>
+  <title>https加密解析 | Blog</title>
   
 
 
@@ -318,7 +318,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">https相关概念</h1>
+          <h1 class="post-title" itemprop="name headline">https加密解析</h1>
         
 
         <div class="post-meta">
@@ -403,11 +403,63 @@
 <h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
 <h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
 <p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
 <h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
 <p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
 <h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
-<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a></p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现：</p>
+<pre><code>public class DataEncryptInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //请求
+        Request request = chain.request();
+        RequestBody oldRequestBody = request.body();
+        Buffer requestBuffer = new Buffer();
+        oldRequestBody.writeTo(requestBuffer);
+        String oldBodyStr = requestBuffer.readUtf8();
+        requestBuffer.close();
+        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
+        //生成随机AES密钥并用serverPublicKey进行RSA加密
+        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
+        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
+        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
+        //计算body 哈希 并使用app私钥RSA签名
+        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
+        //随机AES密钥加密oldBodyStr
+        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
+        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
+        //构造新的request
+        request = request.newBuilder()
+                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
+                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
+                .method(request.method(), newBody)
+                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
+                .header(&quot;appSignature&quot;, appSignature)
+                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
+                .build();
+        //响应
+        Response response = chain.proceed(request);
+        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
+            //获取响应头
+            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
+            //用app的RSA私钥解密AES加密密钥
+            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
+            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
+            //用AES密钥解密oldResponseBodyStr
+            ResponseBody oldResponseBody = response.body();
+            String oldResponseBodyStr = oldResponseBody.string();
+            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
+            oldResponseBody.close();
+            //构造新的response
+            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
+            response = response.newBuilder().body(newResponseBody).build();
+        }
+        response.close();
+        //返回
+        return response;
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
 
       
     </div>
