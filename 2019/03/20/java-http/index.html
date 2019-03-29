@@ -80,19 +80,19 @@
 
 
 
-<meta name="description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
+<meta name="description" content="OSI的七层协议TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperT">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HTTP基础">
 <meta property="og:url" content="http://yoursite.com/2019/03/20/java-http/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
+<meta property="og:description" content="OSI的七层协议TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperT">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/03/20/java-http/osi.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/20/java-http/three_handshake.jpg">
-<meta property="og:updated_time" content="2019-03-20T02:54:41.187Z">
+<meta property="og:updated_time" content="2019-03-20T03:23:08.373Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP基础">
-<meta name="twitter:description" content="TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperText Tra">
+<meta name="twitter:description" content="OSI的七层协议TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。 下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置： HTTP三次握手HTTP（HyperT">
 <meta name="twitter:image" content="http://yoursite.com/2019/03/20/java-http/osi.jpg">
 
 
@@ -388,13 +388,13 @@
       
 
       
-        <p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。</p>
+        <h2 id="OSI的七层协议"><a href="#OSI的七层协议" class="headerlink" title="OSI的七层协议"></a>OSI的七层协议</h2><p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。</p>
 <p>下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置：<br><img src="/2019/03/20/java-http/osi.jpg" alt></p>
 <h2 id="HTTP三次握手"><a href="#HTTP三次握手" class="headerlink" title="HTTP三次握手"></a>HTTP三次握手</h2><p>HTTP（HyperText Transfer Protocol)超文本传输协议是互联网上应用最为广泛的一种网络协议。由于信息是明文传输，所以被认为是不安全的。而关于HTTP的三次握手，其实就是使用三次TCP握手确认建立一个HTTP连接。</p>
 <p>如下图所示，SYN（synchronous）是TCP/IP建立连接时使用的握手信号、Sequence number（序列号）、Acknowledge number（确认号码），三个箭头指向就代表三次握手，完成三次握手，客户端与服务器开始传送数据。<br><img src="/2019/03/20/java-http/three_handshake.jpg" alt><br>第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；</p>
 <p>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；</p>
 <p>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/lovesong/p/5186200.html" target="_blank" rel="noopener">HTTP三次握手</a><br><a href="https://www.jianshu.com/p/8962f1f175e8" target="_blank" rel="noopener">HTTP基础</a></p>
 
       
     </div>
@@ -428,6 +428,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/22/android-dagger2/" rel="prev" title="android dagger2使用心得">
+                android dagger2使用心得 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -506,7 +510,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -528,7 +532,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -561,7 +565,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP三次握手"><span class="nav-number">1.</span> <span class="nav-text">HTTP三次握手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#OSI的七层协议"><span class="nav-number">1.</span> <span class="nav-text">OSI的七层协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP三次握手"><span class="nav-number">2.</span> <span class="nav-text">HTTP三次握手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

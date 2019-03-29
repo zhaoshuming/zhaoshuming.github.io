@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="dagger2,">
 
 
 
@@ -80,14 +80,18 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="categories">
-<meta property="og:url" content="http://yoursite.com/categories/index.html">
+<meta name="description" content="ScopeScope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。 在Dagger 2中1、@Singleton可以保持类的单例。2、@ApplicationScope注解的Component类与App">
+<meta name="keywords" content="dagger2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android dagger2使用心得">
+<meta property="og:url" content="http://yoursite.com/2019/03/22/android-dagger2/index.html">
 <meta property="og:site_name" content="Blog">
+<meta property="og:description" content="ScopeScope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。 在Dagger 2中1、@Singleton可以保持类的单例。2、@ApplicationScope注解的Component类与App">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-20T07:14:04.537Z">
+<meta property="og:updated_time" content="2019-03-27T01:28:22.831Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="categories">
+<meta name="twitter:title" content="android dagger2使用心得">
+<meta name="twitter:description" content="ScopeScope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。 在Dagger 2中1、@Singleton可以保持类的单例。2、@ApplicationScope注解的Component类与App">
 
 
 
@@ -117,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/categories/">
+  <link rel="canonical" href="http://yoursite.com/2019/03/22/android-dagger2/">
 
 
 
 
 
-  <title>categories | Blog</title>
+  <title>android dagger2使用心得 | Blog</title>
   
 
 
@@ -281,40 +285,225 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/android-dagger2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">categories</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="category-all-page">
-            <div class="category-all-title">
-                目前共计 5 个分类
-            </div>
-            <div class="category-all">
-              <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/android-ui/">android ui</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/android知识点/">android知识点</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/同步/">同步</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/搭建博客/">搭建博客</a><span class="category-list-count">1</span></li></ul>
-            </div>
-          </div>
+          <h1 class="post-title" itemprop="name headline">android dagger2使用心得</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T16:04:50+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><p>Scope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。</p>
+<p>在Dagger 2中<br>1、@Singleton可以保持类的单例。<br>2、@ApplicationScope注解的Component类与Applicaiton对象的生命周期一致。<br>3、@ActivityScope注解的Component类与Activity的生命周期一致<br>scope可以给我们带来“<strong>局部单例</strong>”，生命周期取决于scope自己。</p>
+<p>在 Dagger 2 官方文档中我找到一句话，非常清楚地描述了@Scope的原理：<br>When a binding uses a scope annotation, that means that the component object holds a reference to the bound object until the component object itself is garbage-collected.<br>Scope 作用域的本质：Component 间接持有依赖实例的引用，把实例的作用域与 Component 绑定，它们不是同年同月同日生，但是同年同月死。</p>
+<h4 id="自定义-Scope"><a href="#自定义-Scope" class="headerlink" title="自定义@Scope"></a>自定义@Scope</h4><p>对于Android，我们通常会定义一个针对整个Activity的注解,通过仿照@Singleton</p>
+<pre><code>@Scope
+@Documented
+@Retention(RUNTIME)
+public @interface ActivityScope {}
+</code></pre><p>你可能会发现，这个自定义的@Scope和@Singleton代码完全一样，具有实现单例模式的功能。那干嘛还自定义@Scope，好处如下：</p>
+<blockquote>
+<p>更好的管理ApplicationComponent和Module之间的关系，Component和Component之间的依赖和继承关系。如果关系不匹配，在编译期间会报错，详细下面会介绍。<br>代码可读性，让程序猿更好的了解Module中创建的类实例的使用范围。</p>
+</blockquote>
+<h4 id="使用-Scope的一些经验："><a href="#使用-Scope的一些经验：" class="headerlink" title="使用@Scope的一些经验："></a>使用@Scope的一些经验：</h4><p>1、<strong>@Component关联的@Module中的任何一个@Provides有@scope，则该整个@Component要加上这个scope</strong>。否则在暴露或者注入时（不暴露且不注入时，既不使用它构造对象时，不报错），会有如下错误:</p>
+<pre><code>Error:(13, 1) 错误: cn.xuexuan.newui.di.component.ActivityComponent (unscoped) may not reference scoped bindings:
+@Singleton @Provides android.app.Activity cn.xuexuan.newui.di.module.ActivityModule.getActivity()
+</code></pre><p>2、@Component的dependencies与@Component自身的scope不能相同，即<strong>dependencies组件之间的scope不能相同</strong>,否则出现下面错误<br>3、<strong>@Singleton的组件不能依赖其他scope的组件</strong>，但是其他scope的组件可以依赖@Singleton组件。否则出现下面错误<br>4、<strong>没有scope的不能依赖有scope的组件</strong>。否则出现下面错误:</p>
+<pre><code>Error:(21, 1) 错误: com.android.example.devsummit.archdemo.di.component.MyTestComponent (unscoped) cannot depend on scoped components:
+@com.android.example.devsummit.archdemo.di.scope.ActivityScope com.android.example.devsummit.archdemo.di.component.MyTestComponentX
+</code></pre><p>5、<strong>一个component不能同时有多个scope(Subcomponent除外)</strong>，否则出现下面的错误</p>
+<pre><code>Error:Execution failed for task ‘:app:compileDebugJavaWithJavac’.
+java.lang.IllegalArgumentException: com.android.example.devsummit.archdemo.di.component.MyTestComponent was annotated with more than one @Scope annotation
+</code></pre><h2 id="Binds"><a href="#Binds" class="headerlink" title="@Binds"></a>@Binds</h2><p>@Binds：可以理解为关联，首先它是跟@Provides使用地方是一样的，不同的在于<strong>@Provides 注解的方法都是有具体实现的，而@Binds修饰的只有方法定义，并没有具体的实现的，在方法定义中方法参数必须是 返回值的实现类</strong>。这样创建实体类的地方就不用在Modules 中实现了，例如：</p>
+<pre><code>@Binds
+@Singleton
+abstract AccountManagerDelegate accountManagerDelegate(AccountManagerDelegateImpl delegate);
+</code></pre><p>Module 中不一定要具体实现，可以用@Binds关联实体，这样在编译过程中会自动创建Fractory 以及实现的，AccountManagerDelegate中还可以使用该Module中 @Provides 提供的实体类</p>
+<h2 id="BindsInstance"><a href="#BindsInstance" class="headerlink" title="@BindsInstance"></a>@BindsInstance</h2><p>Component 可以在<strong>创建 Component 的时候绑定依赖实例</strong>，用以注入。这就是@BindsInstance注解的作用，只能在 Component.Builder 中使用。</p>
+<pre><code>@Module
+public final class HomeActivityModule {
+    private final HomeActivity activity;
+
+    public HomeActivityModule(HomeActivity activity) {
+        this.activity = activity;
+    }
+
+    @Provides
+    @ActivityScope  // 自定义作用域
+    Activity provideActivity() {
+        return activity;
+    }
+}
+</code></pre><p>而使用@BindsInstance的话会更加简单:</p>
+<pre><code>@ActivityScope
+@Component
+public interface HomeActivityComponent {
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        Builder activity(Activity activity);
+        HomeActivityComponent build();
+    }
+}
+</code></pre><p>注意在调用build()创建 Component 之前，所有@BindsInstance方法必须先调用。上面例子中 HomeActivityComponent 还可以注入 Activity 类型的依赖，但是不能注入 HomeActivity，因为 <strong>Dagger 2 是使用具体类型作为依据的</strong>（也就是只能使用@Inject Activity activity而不是@Inject HomeActivity activity）。</p>
+<p>如果@BindsInstance方法的参数可能为 null，需要再用@Nullable标记，同时标注 Inject 的地方也需要用@Nullable标记。这时 Builder 也可以不调用@BindsInstance方法，这样 Component 会默认设置 instance 为 null</p>
+<p>注意：<strong>dagger.android</strong> 扩展库可以极大地简化在 Android 项目中使用 Dagger 2 的过程，但是还是有些限制，<strong>SubComponent.Builder 不能自定义 @BindsInstance 方法，SubCompoennt 的 Module 不能有含参数的构造函数</strong>，否则AndroidInjection.inject(this)在创建 SubComponent 时无法成功。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/9703a931c7e7" target="_blank" rel="noopener">Dagger 2 完全解析</a><br><a href="https://blog.csdn.net/mq2553299/article/details/77485800" target="_blank" rel="noopener">打破Dagger2使用窘境：Dagger-Android详解</a>（<a href="https://github.com/qingmei2/Sample_dagger2）" target="_blank" rel="noopener">https://github.com/qingmei2/Sample_dagger2）</a><br><a href="https://github.com/AnyLifeZLB/MVP-Dagger2-Rxjava2" target="_blank" rel="noopener">dagger组件化</a></p>
+
       
     </div>
     
     
     
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/dagger2/" rel="tag"># dagger2</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/20/java-http/" rel="next" title="HTTP基础">
+                <i class="fa fa-chevron-left"></i> HTTP基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/29/java-rsa/" rel="prev" title="Java中使用RSA加解密">
+                Java中使用RSA加解密 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
@@ -347,8 +536,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -410,6 +608,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scope"><span class="nav-number">1.</span> <span class="nav-text">Scope</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义-Scope"><span class="nav-number">1.0.1.</span> <span class="nav-text">自定义@Scope</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-Scope的一些经验："><span class="nav-number">1.0.2.</span> <span class="nav-text">使用@Scope的一些经验：</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#Binds"><span class="nav-number">2.</span> <span class="nav-text">@Binds</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BindsInstance"><span class="nav-number">3.</span> <span class="nav-text">@BindsInstance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

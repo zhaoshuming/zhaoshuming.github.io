@@ -80,23 +80,23 @@
 
 
 
-<meta name="description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书">
+<meta name="description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证">
 <meta name="keywords" content="https">
 <meta property="og:type" content="article">
 <meta property="og:title" content="https加密解析">
 <meta property="og:url" content="http://yoursite.com/2019/03/19/java-https/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书">
+<meta property="og:description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/https.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/https.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/https_hand.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/ca.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/03/19/java-https/aes_rsa.png">
-<meta property="og:updated_time" content="2019-03-20T02:58:48.019Z">
+<meta property="og:updated_time" content="2019-03-29T08:27:53.137Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="https加密解析">
-<meta name="twitter:description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/19/java-https/https.jpg">
+<meta name="twitter:description" content="HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。 HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：  认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/19/java-https/https.png">
 
 
 
@@ -394,9 +394,9 @@
         <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
 <p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
 <blockquote>
-<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(验证证书)<br>加密数据以防止数据中途被窃取；（加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（摘要算法）</p>
+<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
 </blockquote>
-<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.jpg" alt><br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
+<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
 <ol>
 <li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
 <li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
@@ -602,7 +602,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -624,7 +624,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
