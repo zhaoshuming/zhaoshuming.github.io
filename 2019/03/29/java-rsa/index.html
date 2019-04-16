@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 byt">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-29T09:28:03.225Z">
+<meta property="og:updated_time" content="2019-04-16T02:40:29.216Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中使用RSA&#x2F;AES加解密">
 <meta name="twitter:description" content="RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 byt">
@@ -391,7 +391,7 @@
 at com.sun.crypto.provider.RSACipher.a(DashoA13*..)  
 at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)  
 at javax.crypto.Cipher.doFinal(DashoA13*..) 
-</code></pre><p>1.密钥长度<br>rsa算法初始化的时候一般要填入密钥长度,在96-1024bits间<br>(1)为啥下限是96bits(12bytes)?因为加密1byte的明文,需要至少1+11=12bytes的密钥(不懂?看下面的明文长度),低于下限96bits时,一个byte都加密不了,当然没意义啦<br>(2)为啥上限是1024(128bytes)?这是算法本身决定的</p>
+</code></pre><p>1.密钥长度<br>rsa算法初始化的时候一般要填入密钥长度,在96-2048bits间<br>(1)为啥下限是96bits(12bytes)?因为加密1byte的明文,需要至少1+11=12bytes的密钥(不懂?看下面的明文长度),低于下限96bits时,一个byte都加密不了,当然没意义啦<br>(2)为啥上限是2048(256bytes)?这是算法本身决定的。另RSA密钥长度随着保密级别提高，增加很快</p>
 <p>2.明文长度<br>明文长度(bytes) &lt;= 密钥长度(bytes)-11.这样的话,对于上限密钥长度1024bits能加密的明文上限就是117bytes了.<br>所以就出现了分片加密,网上很流行这个版本.很简单,如果明文长度大于那个最大明文长度了,我就分片吧,保证每片都别超过那个值就是了.<br>片数=(明文长度(bytes)/(密钥长度(bytes)-11))的整数部分+1,就是不满一片的按一片算</p>
 <p>3.密文长度<br>密文长度等于密钥长度.当然这是不分片情况下的.<br>分片后,密文长度=密钥长度*片数</p>
 <p>例如96bits的密钥,明文4bytes<br>每片明文长度=96/8-11=1byte,片数=4,密文长度=96/8*4=48bytes</p>
@@ -1200,7 +1200,7 @@ Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1222,7 +1222,7 @@ Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/okhttp.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/realcall.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/27/OKHttp深入理解/gzip.png">
-<meta property="og:updated_time" content="2019-04-09T05:56:39.176Z">
+<meta property="og:updated_time" content="2019-04-11T02:11:42.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OKHttp深入理解">
 <meta name="twitter:description" content="OKHttp请求流程OKHttp的请求流程图如下所示：  如下为使用OKHttp进行Get请求的步骤： //1.新建OKHttpClient客户端 OkHttpClient client = new OkHttpClient(); //新建一个Request对象 Request request = new Request.Builder()         .url(url)         .b">
@@ -603,7 +603,14 @@ DiskLruCache（文件化的LRU缓存类）
         return curCookies;
     }
 }
-</code></pre><h3 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h3><blockquote>
+</code></pre><h3 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h3><p>Okhttp默认是支持https网络请求的，但是支持的Https网站必须是CA机构认证了的，对于自签名的网址，还是不能访问的，访问直接抛出如下异常信息：</p>
+<pre><code>onFailure: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
+</code></pre><p>针对https的处理，目前主要有两种方式：</p>
+<blockquote>
+<p>客户端默认信任全部证书<br>对自签名网址进行证书的单独处理</p>
+</blockquote>
+<p>具体可以参看我的这篇文章：<a href="https://zhaoshuming.github.io/2019/03/18/android-https/" target="_blank" rel="noopener">android中使用https</a></p>
+<h3 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h3><blockquote>
 <h4 id="http"><a href="#http" class="headerlink" title="http"></a>http</h4></blockquote>
 <p>request header中声明<strong>Accept-Encoding: gzip</strong>，告知服务器客户端接受gzip的数据。</p>
 <p>服务器支持的情况下，返回gzip后的response body，同时加入以下header：</p>
@@ -760,7 +767,7 @@ header中标明了Content-Encoding为gzip
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -782,7 +789,7 @@ header中标明了Content-Encoding为gzip
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -815,7 +822,7 @@ header中标明了Content-Encoding为gzip
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OKHttp请求流程"><span class="nav-number">1.</span> <span class="nav-text">OKHttp请求流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发器Dispatcher"><span class="nav-number">2.</span> <span class="nav-text">分发器Dispatcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拦截器"><span class="nav-number">3.</span> <span class="nav-text">拦截器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连接管理：ConnectionPool"><span class="nav-number">4.</span> <span class="nav-text">连接管理：ConnectionPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Response"><span class="nav-number">5.</span> <span class="nav-text">Response</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存"><span class="nav-number">6.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cookies"><span class="nav-number">7.</span> <span class="nav-text">Cookies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gzip"><span class="nav-number">8.</span> <span class="nav-text">Gzip</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#http"><span class="nav-number">8.1.</span> <span class="nav-text">http</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Okhttp"><span class="nav-number">8.2.</span> <span class="nav-text">Okhttp</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HttpUrlConnection"><span class="nav-number">8.3.</span> <span class="nav-text">HttpUrlConnection:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#OKHttp请求流程"><span class="nav-number">1.</span> <span class="nav-text">OKHttp请求流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分发器Dispatcher"><span class="nav-number">2.</span> <span class="nav-text">分发器Dispatcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拦截器"><span class="nav-number">3.</span> <span class="nav-text">拦截器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连接管理：ConnectionPool"><span class="nav-number">4.</span> <span class="nav-text">连接管理：ConnectionPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Response"><span class="nav-number">5.</span> <span class="nav-text">Response</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存"><span class="nav-number">6.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cookies"><span class="nav-number">7.</span> <span class="nav-text">Cookies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS"><span class="nav-number">8.</span> <span class="nav-text">HTTPS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gzip"><span class="nav-number">9.</span> <span class="nav-text">Gzip</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#http"><span class="nav-number">9.1.</span> <span class="nav-text">http</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Okhttp"><span class="nav-number">9.2.</span> <span class="nav-text">Okhttp</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HttpUrlConnection"><span class="nav-number">9.3.</span> <span class="nav-text">HttpUrlConnection:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
