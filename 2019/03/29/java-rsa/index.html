@@ -80,18 +80,18 @@
 
 
 
-<meta name="description" content="RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 byt">
+<meta name="description" content="RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行。(RSA密钥长度随着保密级别提高，增加很快)RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not">
 <meta name="keywords" content="RSA,AES">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中使用RSA&#x2F;AES加解密">
 <meta property="og:url" content="http://yoursite.com/2019/03/29/java-rsa/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 byt">
+<meta property="og:description" content="RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行。(RSA密钥长度随着保密级别提高，增加很快)RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-16T02:40:29.216Z">
+<meta property="og:updated_time" content="2019-04-16T09:33:51.404Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中使用RSA&#x2F;AES加解密">
-<meta name="twitter:description" content="RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 byt">
+<meta name="twitter:description" content="RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行。(RSA密钥长度随着保密级别提高，增加很快)RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常： Exception in thread &amp;quot;main&amp;quot; javax.crypto.IllegalBlockSizeException: Data must not">
 
 
 
@@ -386,7 +386,7 @@
       
 
       
-        <p><strong>RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行</strong>。<br>RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常：</p>
+        <p><strong>RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行</strong>。(RSA密钥长度随着保密级别提高，增加很快)<br>RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常：</p>
 <pre><code>Exception in thread &quot;main&quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 bytes  
 at com.sun.crypto.provider.RSACipher.a(DashoA13*..)  
 at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)  
@@ -1076,7 +1076,7 @@ public class SymmetricEncoder {
 请输入要解密的内容（密文）:
 Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
 根据输入的规则使用AES对称加密解密后的明文是:使用AES对称加密
-</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.cnblogs.com/jiafuwei/p/7054500.html" target="_blank" rel="noopener">java RSA加密解密实现（含分段加密）</a><br><a href="https://www.cnblogs.com/liunanjava/p/4297854.html" target="_blank" rel="noopener">AES对称加密和解密</a><br><a href="https://www.cnblogs.com/zuge/p/5430362.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuge/p/5430362.html</a></p>
+</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.cnblogs.com/jiafuwei/p/7054500.html" target="_blank" rel="noopener">java RSA加密解密实现（含分段加密）</a><br><a href="https://www.cnblogs.com/liunanjava/p/4297854.html" target="_blank" rel="noopener">AES对称加密和解密</a><br><a href="https://blog.csdn.net/huangxiaoguo1/article/details/78237359" target="_blank" rel="noopener">Android: AndroidKeyStore 非对称RSA加密解密</a><br><a href="https://www.cnblogs.com/zuge/p/5430362.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuge/p/5430362.html</a></p>
 
       
     </div>
@@ -1200,7 +1200,7 @@ Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1211,7 +1211,7 @@ Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
