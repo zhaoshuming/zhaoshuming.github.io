@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="架构设计的主要目的是为了解决软件系统复杂度带来的问题。个人感悟是：架构及（重要）决策，是在一个有约束的盒子里去求解或接近最合适的解。这个有约束的盒子是团队经验、成本、资源、进度、业务所处阶段等所编织、掺杂在一起的综合体（人、财、时间等）。架构无优劣，但是存在恰当的架构用在合适的系统中，而这些就是决策的结果。不要过分设计。 架构概念软件架构指软件系统的顶层结构；框架是面向编程或配置的半成品；组件是从">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-25T06:45:01.603Z">
+<meta property="og:updated_time" content="2019-04-28T09:55:58.766Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="架构的概念">
 <meta name="twitter:description" content="架构设计的主要目的是为了解决软件系统复杂度带来的问题。个人感悟是：架构及（重要）决策，是在一个有约束的盒子里去求解或接近最合适的解。这个有约束的盒子是团队经验、成本、资源、进度、业务所处阶段等所编织、掺杂在一起的综合体（人、财、时间等）。架构无优劣，但是存在恰当的架构用在合适的系统中，而这些就是决策的结果。不要过分设计。 架构概念软件架构指软件系统的顶层结构；框架是面向编程或配置的半成品；组件是从">
@@ -410,6 +410,10 @@
 <h3 id="成本、安全、规模"><a href="#成本、安全、规模" class="headerlink" title="成本、安全、规模"></a>成本、安全、规模</h3><p>低成本是架构设计中需要考虑一个约束条件，但不会是首要目标。低成本本质上是与高性能和高可用冲突的，当无法设计出满足成本要求的方案，就只能协调并调整成本目标。<br>往往只有“创新”才能达到低成本目标。1）引入新技术。主要复杂度在于需要去熟悉新技术，并且将新技术与已有技术结合；一般中小型公司基本采用该方式达到目标。2）开创一个全新技术领域。主要复杂度在于需要去创造全新的理念和技术，并且与旧技术相比，需要有质的飞跃，复杂度更高；一般大公司拥有更多的资源、技术实力会采用该方式来达到低成本的目标。</p>
 <p>安全在技术角度上将包括功能安全和架构安全。1）功能安全-“防小偷”，减少系统潜在的缺陷（是一个逐步完善的过程，而且往往都是在问题出现后才能有针对性的提出解决方案，与编码实现有关），阻止黑客的破坏行为。2）架构安全-“防强盗”，保护系统不受恶意访问与攻击，保护系统的重要数据不被窃取（传统企业主要通过防火墙实现不同区域的访问控制，功能强大、性能一般，但是成本更高；互联网企业更多的是依靠运营商或者云服务商强大的带宽和流量清洗的能力，较少自己来设计和实现）。</p>
 <p>规模带来复杂度的主要原因是“量变引起质变”。1）功能越来越多，调用逻辑越来越复杂，会导致系统复杂度指数级上升。2）数据容量、类型、关联关系越来越多。<br>规模问题需要与高性能、高可用、高扩展、高伸缩性统一考虑。常采用“分而治之，各个击破”的方法策略。</p>
+<h3 id="架构设计三原则"><a href="#架构设计三原则" class="headerlink" title="架构设计三原则"></a>架构设计三原则</h3><p><strong>不断演化是架构发展的主旋律，而满足适合、追求简单是架构决策的重要依据。</strong>需求驱动技术的创新演化；技术反哺业务的发展升级。<br>1）合适原则<br>合适原则宣言：合适优于业界领先<br>失败原因：没有那么多人，却想干那么多活；没有那么多积累，却想一步登天；没有卓越的业务场景，却幻想灵光一闪成为天才。设计的目的不是为了证明自己，而是更快更好的满足业务需求。</p>
+<p>2）简单原则<br>简单原则宣言：简单优于复杂<br>定位一个复杂系统中的问题总是比简单系统更为复杂</p>
+<p>3）演化原则<br>演化原则宣言：演化优于一步到位<br><strong>对于软件来说，变化才是主题</strong>。罗马不是一天建成的，架构也不是一开始就设计成完美的样子，然后可以一劳永逸的用下去。</p>
+<p>各个公司的架构都是逐渐演进成当前的样子，在达到同样目的的过程中实现手段确并不完全相同，蚂蚁和阿里都进行了多地多中心部署的架构改造，但二者在诸如配置中心、跨ldc访问管控等方面都不尽相同，即使在蚂蚁内部也出现了后续实现推翻原始规划的情况。在多地多中心部署架构改造完成后，为进一步降低成本，避免大促活动中机器的浪费，又开始了弹性部署的改造，希望能够在大促高峰来临的前几个小时再临时增加服务器，等活动结束服务器就立即回收。等这个搞定，又开始在线离线混布的改造，进一步降低整体成本。<br>这些改造之所以一个接一个的能够实现，也在于使用的主要中间件和框架都是自研的，知根知底，可以快速迭代修改，如果是使用第三方的或者购买的，一方面可能非常贵，另一方面可能根本不支持，要重新设计改造部署所需的时间要远远大于自研的成本。</p>
 <h3 id="软件活动中没有“银弹”"><a href="#软件活动中没有“银弹”" class="headerlink" title="软件活动中没有“银弹”"></a>软件活动中没有“银弹”</h3><p>在古代的狼人传说中，只有用银质子弹（银弹）才能制服这些异常凶残的怪兽。在软件开发活动中，“银弹”特指人们渴望找到用于制服软件项目这头难缠的“怪兽”的“万能钥匙”。</p>
 <p>软件开发过程包括了分析、设计、实现、测试、验证、部署、运维等多个环节。从IT技术的发展历程来看，先辈们在上述不同的环节中提出过很多在当时看来很先进的方法与理念。但是，这些方法、理念在摩尔定律、业务创新、技术发展面前都被一一验证了以下观点：我们可以通过诸多方式去接近“银弹”，但很遗憾，软件活动中没有“银弹”。</p>
 <p>布鲁克斯发表《人月神话》三十年后，又写了《设计原本》。他认为一个成功的软件项目的最重要因素就是设计，架构师、设计师需要在业务需求和IT技术中寻找到一个平衡点。个人觉得，对这个平衡点的把握，就是架构设计中的取舍问题。而这种决策大部分是靠技术，但是一定程度上也依赖于架构师的“艺术”，技术可以依靠新工具、方法论、管理模式去提升，但是“艺术”无法量化 ，是一种权衡。</p>
@@ -449,6 +453,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/26/flutter-package-size/" rel="prev" title="Flutter APP体积为何比较大">
+                Flutter APP体积为何比较大 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -527,7 +535,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -538,7 +546,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -582,7 +590,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#架构概念"><span class="nav-number">1.</span> <span class="nav-text">架构概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高性能"><span class="nav-number">2.</span> <span class="nav-text">高性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高可用"><span class="nav-number">3.</span> <span class="nav-text">高可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可扩展性"><span class="nav-number">4.</span> <span class="nav-text">可扩展性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可伸缩性"><span class="nav-number">5.</span> <span class="nav-text">可伸缩性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成本、安全、规模"><span class="nav-number">6.</span> <span class="nav-text">成本、安全、规模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软件活动中没有“银弹”"><span class="nav-number">7.</span> <span class="nav-text">软件活动中没有“银弹”</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#架构概念"><span class="nav-number">1.</span> <span class="nav-text">架构概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高性能"><span class="nav-number">2.</span> <span class="nav-text">高性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高可用"><span class="nav-number">3.</span> <span class="nav-text">高可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可扩展性"><span class="nav-number">4.</span> <span class="nav-text">可扩展性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可伸缩性"><span class="nav-number">5.</span> <span class="nav-text">可伸缩性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成本、安全、规模"><span class="nav-number">6.</span> <span class="nav-text">成本、安全、规模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#架构设计三原则"><span class="nav-number">7.</span> <span class="nav-text">架构设计三原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软件活动中没有“银弹”"><span class="nav-number">8.</span> <span class="nav-text">软件活动中没有“银弹”</span></a></li></ol></div>
             
 
           </div>
