@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="https,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -80,24 +80,17 @@
 
 
 
-<meta name="description" content="本案例将ca证书放在本地，这里使用.pfx格式的证书 单向验证有两种写法，先展示一种接近okhttp官方写法的方法: private void setCertificates(Context context) {     try {         //将ca证书导入输入流         InputStream inputStream = context.getResources().openR">
-<meta name="keywords" content="https">
+<meta name="description" content="读写分离读写分离的基本原理是将数据库读写操作分散到不同的节点上。 读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。不适用的情况:1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。2）通过缓存技术或者程序优化能够满足要求 读写分离">
 <meta property="og:type" content="article">
-<meta property="og:title" content="android中使用https">
-<meta property="og:url" content="http://yoursite.com/2019/03/18/android-https/index.html">
+<meta property="og:title" content="数据库高性能">
+<meta property="og:url" content="http://yoursite.com/2019/04/29/architecture-high-performance/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="本案例将ca证书放在本地，这里使用.pfx格式的证书 单向验证有两种写法，先展示一种接近okhttp官方写法的方法: private void setCertificates(Context context) {     try {         //将ca证书导入输入流         InputStream inputStream = context.getResources().openR">
+<meta property="og:description" content="读写分离读写分离的基本原理是将数据库读写操作分散到不同的节点上。 读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。不适用的情况:1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。2）通过缓存技术或者程序优化能够满足要求 读写分离">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/center_attack.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/unsafe.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/checkServer.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/hostname_strict.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/03/18/android-https/hostname_verifier.jpg">
-<meta property="og:updated_time" content="2019-04-11T02:08:25.089Z">
+<meta property="og:updated_time" content="2019-05-05T01:43:13.109Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="android中使用https">
-<meta name="twitter:description" content="本案例将ca证书放在本地，这里使用.pfx格式的证书 单向验证有两种写法，先展示一种接近okhttp官方写法的方法: private void setCertificates(Context context) {     try {         //将ca证书导入输入流         InputStream inputStream = context.getResources().openR">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/18/android-https/center_attack.jpg">
+<meta name="twitter:title" content="数据库高性能">
+<meta name="twitter:description" content="读写分离读写分离的基本原理是将数据库读写操作分散到不同的节点上。 读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。不适用的情况:1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。2）通过缓存技术或者程序优化能够满足要求 读写分离">
 
 
 
@@ -127,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/03/18/android-https/">
+  <link rel="canonical" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
 
 
 
 
 
-  <title>android中使用https | Blog</title>
+  <title>数据库高性能 | Blog</title>
   
 
 
@@ -303,7 +296,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -320,7 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">android中使用https</h1>
+          <h1 class="post-title" itemprop="name headline">数据库高性能</h1>
         
 
         <div class="post-meta">
@@ -332,8 +325,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
-                2019-03-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-29T18:02:13+08:00">
+                2019-04-29
               </time>
             
 
@@ -355,8 +348,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
                   </a>
                 </span>
 
@@ -392,151 +385,18 @@
       
 
       
-        <p>本案例将ca证书放在本地，这里使用.pfx格式的证书</p>
-<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>第二种写法，同样有效:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
-
-        //key管理器工厂
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
-<blockquote>
-<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
-</blockquote>
-<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
-</code></pre><p>如果是.cer的话那么，就用:</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
-<p>通过jks文件生成对应的cer文件：</p>
-<blockquote>
-<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
-</blockquote>
-<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
-<blockquote>
-<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
-</blockquote>
-<p>客户端代码如下：</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //双向验证，配置服务器验证客户端的证书
-        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
-        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><h3 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h3><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
-<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
-<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
-<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
+        <h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><p>读写分离的基本原理是将数据库读写操作分散到不同的节点上。</p>
+<p>读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。<br>不适用的情况:<br>1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。<br>2）通过缓存技术或者程序优化能够满足要求</p>
+<p>读写分离的基本实现是：<br>1）数据库服务器搭建主从集群，一主一从，一主多从都可以<br>2）数据库主机负责写操作，从机负责读操作<br>3）数据库主机通过复制将数据同步到数据库从机，每台数据库服务器都存储了所有的业务数据<br>4）业务服务器将写操作发给数据库主机，将读操作发给数据库从机</p>
+<p>但有两个细节点引入了复杂度：<strong>主从复制延时</strong>和<strong>分配机制</strong>，以下为解决方案</p>
+<p>复制延时：<br>1）写操作后的读操作指定发给数据库主机<br>2）读从机失败后再度一次主机<br>3）关键业务读写操作全部指向主机，非关键业务采用读写分离</p>
+<p>分配机制：<br>将读写操作区分开来，然后访问不同的数据库，一般有两种方式：<strong>程序代码封装</strong>和<strong>中间件封装</strong></p>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3><p>分库分表会带来很多复杂度。在引入分库分表之前，应该是这些操作依次尝试：<br>1.做硬件优化，例如从机械硬盘改成使用固态硬盘，当然固态硬盘不适合服务器使用，只是举个例子<br>2.先做数据库服务器的调优操作，例如增加索引，oracle有很多的参数调整;<br>3.引入缓存技术，例如Redis，减少数据库压力<br>4.程序与数据库表优化，重构，例如根据业务逻辑对程序逻辑做优化，减少不必要的查询;<br>5.在这些操作都不能大幅度优化性能的情况下，不能满足将来的发展，再考虑分库分表，也要有预估性</p>
+<h4 id="分库"><a href="#分库" class="headerlink" title="分库"></a>分库</h4><p>业务分库是指按照业务模块将数据分散到不同的数据库服务器。</p>
+<p>存在问题：<br>1）join问题<br>2）事务问题<br>3）成本问题</p>
+<h4 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h4><p>分两种方式：垂直分表、水平分表</p>
+<p>水平分表：<br>水平分表后，某条数据具体属于哪个子表，需要增加路由算法进行计算，这个算法会引入一定的复杂性。<br>常见的路由算法有：<br>1）范围路由<br>2）hash路由<br>3）配置路由</p>
+<p>其他常见的复杂性问题：join，count，order by等</p>
 
       
     </div>
@@ -552,12 +412,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/https/" rel="tag"># https</a>
-          
-        </div>
-      
 
       
       
@@ -567,8 +421,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/12/mpchart-point-label/" rel="next" title="MpAndroidChart实现多点的特殊标记">
-                <i class="fa fa-chevron-left"></i> MpAndroidChart实现多点的特殊标记
+              <a href="/2019/04/28/architecture-design-flow/" rel="next" title="架构设计流程">
+                <i class="fa fa-chevron-left"></i> 架构设计流程
               </a>
             
           </div>
@@ -577,8 +431,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/03/19/java-https/" rel="prev" title="https加密解析">
-                https加密解析 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/05/05/architecture-extensible/" rel="prev" title="可扩展架构">
+                可扩展架构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -713,7 +567,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#单向验证"><span class="nav-number">1.</span> <span class="nav-text">单向验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双向验证"><span class="nav-number">2.</span> <span class="nav-text">双向验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中间人劫持攻击"><span class="nav-number">3.</span> <span class="nav-text">中间人劫持攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#读写分离"><span class="nav-number">1.</span> <span class="nav-text">读写分离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分库分表"><span class="nav-number">2.</span> <span class="nav-text">分库分表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分库"><span class="nav-number">2.1.</span> <span class="nav-text">分库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分表"><span class="nav-number">2.2.</span> <span class="nav-text">分表</span></a></li></ol></li></ol></div>
             
 
           </div>
