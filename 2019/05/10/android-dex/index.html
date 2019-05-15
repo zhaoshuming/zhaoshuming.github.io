@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="dex,">
 
 
 
@@ -80,13 +80,24 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog">
-<meta property="og:url" content="http://yoursite.com/categories/android知识点/index.html">
+<meta name="description" content="Dex文件定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。 作用：dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息。 Android支持动态加载的两种方式是：DexClassLoader和PathClassLoader。DexClassLoader可加载jar/apk/dex，且支持从SD卡加载；PathClassLoader据说只能加载已经安装在Andr">
+<meta name="keywords" content="dex">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dex、Class及ClassLoader">
+<meta property="og:url" content="http://yoursite.com/2019/05/10/android-dex/index.html">
 <meta property="og:site_name" content="Blog">
+<meta property="og:description" content="Dex文件定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。 作用：dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息。 Android支持动态加载的两种方式是：DexClassLoader和PathClassLoader。DexClassLoader可加载jar/apk/dex，且支持从SD卡加载；PathClassLoader据说只能加载已经安装在Andr">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex.webp">
+<meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_data.png">
+<meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_data_des.png">
+<meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_class.png">
+<meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/class_loader.png">
+<meta property="og:updated_time" content="2019-05-15T01:21:03.376Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Blog">
+<meta name="twitter:title" content="Dex、Class及ClassLoader">
+<meta name="twitter:description" content="Dex文件定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。 作用：dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息。 Android支持动态加载的两种方式是：DexClassLoader和PathClassLoader。DexClassLoader可加载jar/apk/dex，且支持从SD卡加载；PathClassLoader据说只能加载已经安装在Andr">
+<meta name="twitter:image" content="http://yoursite.com/2019/05/10/android-dex/dex.webp">
 
 
 
@@ -116,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/categories/android知识点/">
+  <link rel="canonical" href="http://yoursite.com/2019/05/10/android-dex/">
 
 
 
 
 
-  <title>分类: android知识点 | Blog</title>
+  <title>Dex、Class及ClassLoader | Blog</title>
   
 
 
@@ -141,7 +152,7 @@
     
   
 
-  <div class="container sidebar-position-right ">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 	
 
@@ -278,105 +289,233 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block category">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>android知识点<small>分类</small>
-        </h1>
-      </div>
-
-      
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/10/android-dex/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2019/05/10/android-dex/" itemprop="url">
-              
-                <span itemprop="name">Dex、Class及ClassLoader</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Dex、Class及ClassLoader</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-05-10T14:41:50+08:00" content="2019-05-10">
-          05-10
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-10T14:41:50+08:00">
+                2019-05-10
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/03/22/android-dagger2/" itemprop="url">
-              
-                <span itemprop="name">android dagger2使用心得</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-03-22T16:04:50+08:00" content="2019-03-22">
-          03-22
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/02/27/android多线程/" itemprop="url">
-              
-                <span itemprop="name">android多线程</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-02-27T14:12:20+08:00" content="2019-02-27">
-          02-27
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+        <h3 id="Dex文件"><a href="#Dex文件" class="headerlink" title="Dex文件"></a>Dex文件</h3><p>定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。</p>
+<p>作用：<strong>dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息</strong>。</p>
+<p>Android支持动态加载的两种方式是：DexClassLoader和PathClassLoader。DexClassLoader可加载jar/apk/dex，且支持从SD卡加载；PathClassLoader据说只能加载已经安装在Android系统内APK文件,以下这一段是摘录：PathClassLoader 的限制要更多一些，它只能加载已经安装到 Android 系统中的 apk 文件，也就是 /data/app 目录下的 apk 文件。其它位置的文件加载的时候都会出现 ClassNotFoundException。</p>
+<p>dex文件的生成：</p>
+<pre><code>先生成class文件（注意执行低版本的JDK版本，否则手机无法运行），然后执行：
+dx --dex --output Test.dex Test.class
+然后把生成的dex文件拷贝到手机：
+adb push C:\Users\Administrator\Desktop\Test.dex /storage/emulated/0
+adb shell
+dalvikvm -cp /sdcard/Test.dex Test
+</code></pre><p>dex文件的结构：</p>
+<pre><code>8位字节的二进制流文件
+各个数据紧密排列，无间隙，减少了文件体积，加快加载速度
+整个工程的类信息都存放在一个dex文件中（不考虑dex分包的情况下）
+</code></pre><p><img src="/2019/05/10/android-dex/dex.webp" alt><br>注意：<br>文件头包含了dex文件的信息，所有数据的大致分布情况<br>链接数据区：主要是指so库</p>
+<h4 id="Dex文件头格式"><a href="#Dex文件头格式" class="headerlink" title="Dex文件头格式"></a>Dex文件头格式</h4><p><img src="/2019/05/10/android-dex/dex_data.png" alt title="数据格式"><br><img src="/2019/05/10/android-dex/dex_data_des.png" alt><br>上图和上表就是dex的文件头的结构和各个位置的意思。其中最开始的64 65 78 0A 30 33 3500（dex.035.）表示这是按照dex解析的。</p>
+<h3 id="Class文件"><a href="#Class文件" class="headerlink" title="Class文件"></a>Class文件</h3><p>定义：能够被JVM识别，加载并执行的文件格式。</p>
+<p>作用：记录一个类文件的所有信息，记住所有。例如记住了当前类的引用this、父类super等等。class文件记录的信息往往比java文件多。</p>
+<p>class文件的结构:</p>
+<pre><code>8位字节的二进制流文件
+各个数据紧密排列，无间隙，减少了文件体积，加快加载速度
+每个类或者接口单独占据一个class文件，每个类单独管理，没有交叉
+</code></pre><p>class文件中的字段如下所示：</p>
+<pre><code>magic 加密字段，虚拟机判断当前的class文件是否被篡改过
+minor_version 支持最低版本的jdk
+major_version 编译使用的jdk版本
+constant_pool_count 常量池的数量，一般为一个
+cp_info constant_pool 常量池的结构体，数量不定（类型是cp_info结构体）
+access_flags 访问级别，例如public等
+this_class 当前类
+super_class 父类
+interfaces_count 类实现接口的数量
+fields_count 类成员变量的数量
+methods_count 类方法的数量
+method_info methods 类方法的结构体
+attributes_count 类属性的数量
+attribute_info attributes 类属性的结构体
+</code></pre><p>constant_pool包括：</p>
+<pre><code>CONSTANT_Integer_info、CONSTANT_Long_info、CONSTANT_String_info等等 
+CONSTANT_Class_info：类的相关信息，包括当前类、引用到的类的信息 
+CONSTANT_Fieldref_info：类的域信息 
+CONSTANT_Methodref_info：类的方法信息
+</code></pre><p>class文件的弊端：</p>
+<pre><code>内存占用大，不适合移动端
+堆栈的加栈模式，加载速度慢。
+文件IO操作多，类加载慢。
+</code></pre><h3 id="Class文件与Dex文件的比较"><a href="#Class文件与Dex文件的比较" class="headerlink" title="Class文件与Dex文件的比较"></a>Class文件与Dex文件的比较</h3><p>本质上都是一样的，都是二进制流文件格式，dex文件是从class文件演变而来的。<br><strong>class文件存在冗余信息，dex文件则去掉了冗余，并且整合了整个工程的类信息。</strong><br><img src="/2019/05/10/android-dex/dex_class.png" alt></p>
+<h3 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h3><p>ClassLoader种类：</p>
+<ul>
+<li>BootClassLoader（Java的BootStrap ClassLoader）<br>用于加载Android Framework层class文件。</li>
+<li>PathClassLoader（Java的App ClassLoader）<br>用于加载已经安装到系统中的apk中的class文件。</li>
+<li>DexClassLoader（Java的Custom ClassLoader）<br>用于加载指定目录中的class文件。</li>
+<li>BaseDexClassLoader<br>是PathClassLoader和DexClassLoader的父类。<br><img src="/2019/05/10/android-dex/class_loader.png" alt></li>
+</ul>
+<p>ClassLoader特点：<strong>遵循双亲委派模型</strong></p>
+<blockquote>
+<p>ClassLoader在加载一个class文件时：会询问当前ClassLoader是否已经加载过子类，如果已经加载过则直接返回，不再重复加载。如果没有加载过，会去查询当前ClassLoader的parent是否已经加载过。</p>
+</blockquote>
+<p>因为遵循双亲委派模型，Android中的classLoader具有两个特点：</p>
+<ul>
+<li>类加载共享<br>当一个class文件被任何一个ClassLoader加载过，就不会再被其他ClassLoader加载。</li>
+<li>类加载隔离<br>不同ClassLoader加载的class文件肯定不是一个。举个栗子，一些系统层级的class文件在系统初始化的时候被加载，比如java.net.String，这个是在应用启动前就被系统加载好的。如果在一个应用里能简单地用一个自定义的String类把这个String类替换掉的话，将有严重的安全问题。</li>
+</ul>
+<p>在Android中加载class，其实最终是通过DexPathList的findClass来加载的。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/ll458524906/article/details/78303557" target="_blank" rel="noopener">Android_dex详解</a><br><a href="https://blog.csdn.net/colinandroid/article/details/80712045" target="_blank" rel="noopener">ClassLoader详解</a><br><a href="https://blog.csdn.net/developandroid/article/details/81780477" target="_blank" rel="noopener">class文件和dex文件</a></p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/dex/" rel="tag"># dex</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/05/architecture-extensible/" rel="next" title="可扩展架构">
+                <i class="fa fa-chevron-left"></i> 可扩展架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -384,6 +523,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -404,8 +547,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -467,6 +619,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dex文件"><span class="nav-number">1.</span> <span class="nav-text">Dex文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dex文件头格式"><span class="nav-number">1.1.</span> <span class="nav-text">Dex文件头格式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class文件"><span class="nav-number">2.</span> <span class="nav-text">Class文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class文件与Dex文件的比较"><span class="nav-number">3.</span> <span class="nav-text">Class文件与Dex文件的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClassLoader"><span class="nav-number">4.</span> <span class="nav-text">ClassLoader</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -618,6 +786,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
