@@ -386,28 +386,9 @@
       
         
           
-            <h3 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h3><p>顾名思义，类加载器（class loader）用来加载 Java 类到 Java 虚拟机中。一般来说，Java 虚拟机使用 Java 类的方式如下：Java 源程序（.java 文件）在经过 Java 编译器编译之后就被转换成 Java 字节代码（.class 文件）。类加载器负责读取 Java 字节代码，并转换成 java.lang.Class类的一个实例，每个这样的实例用来表示一个 Java 类，通过此实例的 newInstance()方法就可以创建出该类的一个对象。</p>
-<p>类加载器是 Java 语言的一个创新。它<strong>使得动态安装和更新软件组件成为可能</strong>。</p>
-<p>Java 虚拟机是<strong>如何判定两个Java类是相同的：Java 虚拟机不仅要看类的全名是否相同，还要看加载此类的类加载器是否一样</strong>。只有两者都相同的情况，才认为两个类是相同的。</p>
-<h4 id="ClassLoader种类"><a href="#ClassLoader种类" class="headerlink" title="ClassLoader种类"></a>ClassLoader种类</h4><ul>
-<li>BootClassLoader（Java的BootStrap ClassLoader）<br>用于加载Android Framework层class文件。</li>
-<li>PathClassLoader（Java的App ClassLoader）<br>用于加载已经安装到系统中的apk中的class文件（要传入系统中apk的存放Path，所以只能加载已经安装的apk文件）。</li>
-<li>DexClassLoader（Java的Custom ClassLoader）<br>用于加载指定目录中的class文件(可以加载jar/apk/dex，可以从SD卡中加载未安装的apk)。</li>
-<li>BaseDexClassLoader<br>是PathClassLoader和DexClassLoader的父类。<br><img src="/2019/05/10/android-dex/class_loader.png" alt></li>
-</ul>
-<h4 id="DexClassLoader源码"><a href="#DexClassLoader源码" class="headerlink" title="DexClassLoader源码"></a>DexClassLoader源码</h4><pre><code>public class DexClassLoader extends BaseDexClassLoader {
-    public DexClassLoader(String dexPath, String optimizedDirectory,
-            String libraryPath, ClassLoader parent) {
-        super(dexPath, new File(optimizedDirectory), libraryPath, parent);
-    }
-}
-</code></pre><p>可以看到DexClassLoader的源码非常简单，只有一个构造方法。我们来看下其四个参数都是什么含义：</p>
-<ul>
-<li>dexPath：要加载的dex文件路径。</li>
-<li>optimizedDirectory：dex文件要被copy到的目录路径。此位置一定要是可读写且仅该应用可读写（安全性考虑），所以只能放在data/data下。</li>
-<li>libraryPath：apk文件中类要使用的c/c++代码，指向包含本地库(so)的文件夹路径，可以设为null。</li>
-<li>parent：父装载器，也就是真正loadclass的装载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。<br>在Android中加载class，其实最终是通过DexPathList的findClass来加载的。</li>
-</ul>
+            <h3 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h3><p>顾名思义，类加载器用来加载 Java 类到 Java 虚拟机中。一般来说，Java 虚拟机使用 Java 类的方式如下：Java 源程序（.java 文件）在经过 Java 编译器编译之后就被转换成 Java 字节代码（.class 文件）。类加载器负责读取 Java 字节代码，并转换成 java.lang.Class类的一个实例，每个这样的实例用来表示一个 Java 类，通过此实例的 newInstance()方法就可以创建出该类的一个对象。</p>
+<p>类加载器是 Java 语言的一个创新。<strong>它使得动态安装和更新软件组件成为可能</strong>。</p>
+<p><strong>Java 虚拟机是如何判定两个Java类是相同的：Java 虚拟机不仅要看类的全名是否相同，还要看加载此类的类加载器是否一样</strong>。只有两者都相同的情况，才认为两个类是相同的。</p>
 <h4 id="类加载器的代理模式"><a href="#类加载器的代理模式" class="headerlink" title="类加载器的代理模式"></a>类加载器的代理模式</h4><p>类加载器在尝试自己去查找某个类的字节代码并定义它时，会先代理给其父类加载器，由父类加载器先去尝试加载这个类，依次类推。</p>
 <p>代理模式是为了保证 Java 核心库的类型安全。所有 Java 应用都至少需要引用 java.lang.Object类，也就是说在运行的时候，java.lang.Object这个类需要被加载到 Java 虚拟机中。如果这个加载过程由 Java 应用自己的类加载器来完成的话，很可能就存在多个版本的 java.lang.Object类，而且这些类之间是不兼容的。通过代理模式，对于 Java 核心库的类的加载工作由引导类加载器来统一完成，保证了 Java 应用所使用的都是同一个版本的 Java 核心库的类，是互相兼容的。</p>
 <p><strong>不同的类加载器为相同名称的类创建了额外的名称空间。相同名称的类可以并存在 Java 虚拟机中，只需要用不同的类加载器来加载它们即可。不同类加载器加载的类之间是不兼容的，这就相当于在 Java 虚拟机内部创建了一个个相互隔离的 Java 类空间。</strong></p>
@@ -428,6 +409,114 @@
 <li>如果一个类库只有一个模块使用，把该类库的 jar 包放在模块中，在 Bundle-ClassPath中指明即可。</li>
 <li>如果一个类库被多个模块共用，可以为这个类库单独的创建一个模块，把其它模块需要用到的 Java 包声明为导出的。其它模块声明导入这些类。</li>
 <li>如果类库提供了 SPI 接口，并且利用线程上下文类加载器来加载 SPI 实现的 Java 类，有可能会找不到 Java 类。如果出现了 NoClassDefFoundError异常，首先检查当前线程的上下文类加载器是否正确。通过 Thread.currentThread().getContextClassLoader()就可以得到该类加载器。该类加载器应该是该模块对应的类加载器。如果不是的话，可以首先通过 class.getClassLoader()来得到模块对应的类加载器，再通过 Thread.currentThread().setContextClassLoader()来设置当前线程的上下文类加载器。</li>
+</ul>
+<h4 id="ClassLoader种类"><a href="#ClassLoader种类" class="headerlink" title="ClassLoader种类"></a>ClassLoader种类</h4><ul>
+<li>BootClassLoader（Java的BootStrap ClassLoader）<br>用于加载Android Framework层class文件。</li>
+<li>PathClassLoader（Java的App ClassLoader）<br>用于加载已经安装到系统中的apk中的class文件（要传入系统中apk的存放Path，所以只能加载已经安装的apk文件）。</li>
+<li>DexClassLoader（Java的Custom ClassLoader）<br>用于加载指定目录中的class文件(可以加载jar/apk/dex，可以从SD卡中加载未安装的apk)。</li>
+<li>BaseDexClassLoader<br>是PathClassLoader和DexClassLoader的父类。<br><img src="/2019/05/10/android-dex/class_loader.png" alt></li>
+</ul>
+<h4 id="PathClassLoader加载已安装的apk插件"><a href="#PathClassLoader加载已安装的apk插件" class="headerlink" title="PathClassLoader加载已安装的apk插件"></a>PathClassLoader加载已安装的apk插件</h4><p>使用PathClassLoader加载已安装的apk插件。sharedUserId要一致，简单的说，应用从一开始安装在Android系统上时，系统都会给它分配一个linux user id，之<br>后该应用在今后都将运行在独立的一个进程中，其它应用程序不能访问它的资源，那么如果两个应用的sharedUserId相同，那么它们将共同运行在相同的linux进程中，从而便可以数据共享、资源访问了。所以我们在宿主app和插件app的manifest上都定义一个相同的sharedUserId。</p>
+<p>下面看一个样例：加载包名为packageName的插件，然后获得插件内名为one.png的图片的资源id，进而供宿主app使用该图片</p>
+<pre><code>/**
+ * 加载已安装的apk
+ * @param packageName 应用的包名
+ * @param pluginContext 插件app的上下文
+ * @return 对应资源的id
+ */
+private int dynamicLoadApk(String packageName, Context pluginContext) throws Exception {
+    //第一个参数为包含dex的apk或者jar的路径，第二个参数为父加载器
+    PathClassLoader pathClassLoader = new PathClassLoader(pluginContext.getPackageResourcePath(),ClassLoader.getSystemClassLoader());
+    //Class&lt;?&gt; clazz = pathClassLoader.loadClass(packageName + &quot;.R$mipmap&quot;);//通过使用自身的加载器反射出mipmap类进而使用该类的功能
+    //参数：1、类的全名，2、是否初始化类，3、加载时使用的类加载器
+    Class&lt;?&gt; clazz = Class.forName(packageName + &quot;.R$mipmap&quot;, true, pathClassLoader);
+    //使用上述两种方式都可以，这里我们得到R类中的内部类mipmap，通过它得到对应的图片id，进而给我们使用
+    Field field = clazz.getDeclaredField(&quot;one&quot;);
+    int resourceId = field.getInt(R.mipmap.class);
+    return resourceId;
+}
+</code></pre><ul>
+<li>首先就是new出一个PathClassLoader对象，它的构造方法为：public PathClassLoader(String dexPath, ClassLoader parent)。其中第一个参数是通过插件的上下文来获取插件apk的路径，其实获取到的就是/data/app/apkthemeplugin.apk，那么插件的上下文怎么获取呢？在宿主app中我们只有本app的上下文啊，答案就是为插件app创建一个上下文：Context plugnContext = this.createPackageContext(packageName, CONTEXT_IGNORE_SECURITY | CONTEXT_INCLUDE_CODE。<strong> 通过插件的包名来创建上下文，不过这种方法只适合获取已安装的app上下文</strong>。或者不需要通过反射直接通过插件上下文getResource().getxxx(R.<em>.</em>);也行，而这里用的是反射方法。第二个参数是父加载器，都是ClassLoader.getSystemClassLoader()。</li>
+</ul>
+<h4 id="DexClassLoader加载已安装的apk插件"><a href="#DexClassLoader加载已安装的apk插件" class="headerlink" title="DexClassLoader加载已安装的apk插件"></a>DexClassLoader加载已安装的apk插件</h4><p>关于动态加载未安装的apk，先描述下思路：首先我们得到事先知道我们的插件apk存放在哪个目录下，然后分别得到插件apk的信息（名称、包名等），然后显示可用的插件，最后动态加载apk获得资源。</p>
+<p>按照上面这个思路，我们需要解决几个问题：<br>1、怎么得到未安装的apk的信息<br>2、怎么得到插件的context或者Resource，因为它是未安装的不可能通过createPackageContext(…);方法来构建出一个context，所以这时只有在Resource上下功夫。</p>
+<p>现在我们就一一来解答这些问题吧：<br>1、得到未安装的apk信息可以通过mPackageManager.getPackageArchiveInfo()方法获得</p>
+<pre><code>/**
+ * 获取未安装apk的信息
+ * @param context
+ * @param archiveFilePath apk文件的path
+ * @return
+ */
+private String[] getUninstallApkInfo(Context context, String archiveFilePath) {
+    String[] info = new String[2];
+    PackageManager pm = context.getPackageManager();
+    PackageInfo pkgInfo = pm.getPackageArchiveInfo(archiveFilePath, PackageManager.GET_ACTIVITIES);
+    if (pkgInfo != null) {
+        ApplicationInfo appInfo = pkgInfo.applicationInfo;
+        String versionName = pkgInfo.versionName;//版本号
+        Drawable icon = pm.getApplicationIcon(appInfo);//图标
+        String appName = pm.getApplicationLabel(appInfo).toString();//app名称
+        String pkgName = appInfo.packageName;//包名
+        info[0] = appName;
+        info[1] = pkgName;
+    }
+    return info;
+}
+</code></pre><p>2、得到对应未安装apk的Resource对象，我们需要通过反射来获得：</p>
+<pre><code>/**
+ * @param apkName 
+ * @return 得到对应插件的Resource对象
+ */
+private Resources getPluginResources(String apkName) {
+    try {
+        AssetManager assetManager = AssetManager.class.newInstance();
+        Method addAssetPath = assetManager.getClass().getMethod(&quot;addAssetPath&quot;, String.class);//反射调用方法addAssetPath(String path)
+        //第二个参数是apk的路径：Environment.getExternalStorageDirectory().getPath()+File.separator+&quot;plugin&quot;+File.separator+&quot;apkplugin.apk&quot;
+        addAssetPath.invoke(assetManager, apkDir+File.separator+apkName);//将未安装的Apk文件的添加进AssetManager中，第二个参数为apk文件的路径带apk名
+        Resources superRes = this.getResources();
+        Resources mResources = new Resources(assetManager, superRes.getDisplayMetrics(),
+                superRes.getConfiguration());
+        return mResources;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+</code></pre><p>通过得到AssetManager中的内部的方法addAssetPath，将未安装的apk路径传入从而添加进assetManager中，然后通过new Resource把assetManager传入构造方法中，进而得到未安装apk对应的Resource对象。</p>
+<p>3、接下来就是加载未安装的apk获得它的内部资源</p>
+<pre><code>/**
+ * 加载apk获得内部资源
+ * @param apkDir apk目录
+ * @param apkName apk名字,带.apk
+ * @throws Exception
+ */
+private void dynamicLoadApk(String apkDir, String apkName, String apkPackageName) throws Exception {
+    File optimizedDirectoryFile = getDir(&quot;dex&quot;, Context.MODE_PRIVATE);//在应用安装目录下创建一个名为app_dex文件夹目录,如果已经存在则不创建
+    Log.v(&quot;zxy&quot;, optimizedDirectoryFile.getPath().toString());// /data/data/com.example.dynamicloadapk/app_dex
+    //参数：1、包含dex的apk文件或jar文件的路径，2、apk、jar解压缩生成dex存储的目录，3、本地library库目录，一般为null，4、父ClassLoader
+    DexClassLoader dexClassLoader = new DexClassLoader(apkDir+File.separator+apkName, optimizedDirectoryFile.getPath(), null, ClassLoader.getSystemClassLoader());
+    Class&lt;?&gt; clazz = dexClassLoader.loadClass(apkPackageName + &quot;.R$mipmap&quot;);//通过使用apk自己的类加载器，反射出R类中相应的内部类进而获取我们需要的资源id
+    Field field = clazz.getDeclaredField(&quot;one&quot;);//得到名为one的这张图片字段
+    int resId = field.getInt(R.id.class);//得到图片id
+    Resources mResources = getPluginResources(apkName);//得到插件apk中的Resource
+    if (mResources != null) {
+        //通过插件apk中的Resource得到resId对应的资源
+        findViewById(R.id.background).setBackgroundDrawable(mResources.getDrawable(resId));
+    }
+}
+</code></pre><p>其中通过new DexClassLoader()来创建未安装apk的类加载器，我们来看看它的参数：</p>
+<pre><code>public class DexClassLoader extends BaseDexClassLoader {
+    public DexClassLoader(String dexPath, String optimizedDirectory,
+            String libraryPath, ClassLoader parent) {
+        super(dexPath, new File(optimizedDirectory), libraryPath, parent);
+    }
+}
+</code></pre><p>可以看到DexClassLoader的源码非常简单，只有一个构造方法。我们来看下其四个参数都是什么含义：</p>
+<ul>
+<li>dexPath：要加载的dex文件路径。</li>
+<li>optimizedDirectory：dex文件要被copy到的目录路径。此位置一定要是可读写且仅该应用可读写（安全性考虑），所以只能放在data/data下。看官方文档：<br>This class loader requires an application-private, writable directory to cache optimized classes. Use Context.getDir(String, int) to create such a directory: File dexOutputDir = context.getDir(“dex”, 0);</li>
+<li>libraryPath：apk文件中类要使用的c/c++代码，指向包含本地库(so)的文件夹路径，可以设为null。</li>
+<li>parent：父装载器，也就是真正loadclass的装载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。<br>在Android中加载class，其实最终是通过DexPathList的findClass来加载的。</li>
 </ul>
 <h3 id="Dex文件"><a href="#Dex文件" class="headerlink" title="Dex文件"></a>Dex文件</h3><p>定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。</p>
 <p>作用：<strong>dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息</strong>。</p>
@@ -476,7 +565,7 @@ CONSTANT_Methodref_info：类的方法信息
 堆栈的加栈模式，加载速度慢。
 文件IO操作多，类加载慢。
 </code></pre><h3 id="Class文件与Dex文件的比较"><a href="#Class文件与Dex文件的比较" class="headerlink" title="Class文件与Dex文件的比较"></a>Class文件与Dex文件的比较</h3><p>本质上都是一样的，都是二进制流文件格式，dex文件是从class文件演变而来的。<br><strong>class文件存在冗余信息，dex文件则去掉了冗余，并且整合了整个工程的类信息。</strong><br><img src="/2019/05/10/android-dex/dex_class.png" alt></p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-classloader/" target="_blank" rel="noopener">深入探讨 Java 类加载器</a><br><a href="https://blog.csdn.net/ll458524906/article/details/78303557" target="_blank" rel="noopener">Android_dex详解</a><br><a href="https://blog.csdn.net/colinandroid/article/details/80712045" target="_blank" rel="noopener">ClassLoader详解</a><br><a href="https://blog.csdn.net/developandroid/article/details/81780477" target="_blank" rel="noopener">class文件和dex文件</a></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-classloader/" target="_blank" rel="noopener">深入探讨 Java 类加载器</a><br><a href="https://blog.csdn.net/u010687392/article/details/47121729?hmsr=toutiao.io" target="_blank" rel="noopener">插件化开发—动态加载技术加载已安装和未安装的apk</a><br><a href="https://blog.csdn.net/ll458524906/article/details/78303557" target="_blank" rel="noopener">Android_dex详解</a><br><a href="https://blog.csdn.net/colinandroid/article/details/80712045" target="_blank" rel="noopener">ClassLoader详解</a><br><a href="https://blog.csdn.net/developandroid/article/details/81780477" target="_blank" rel="noopener">class文件和dex文件</a></p>
 
           
         
