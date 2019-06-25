@@ -312,7 +312,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/25/hybird-redux/" itemprop="url">理解 Redux</a></h1>
+                <a class="post-title-link" href="/2019/06/25/hybird-redux/" itemprop="url">Redux概念</a></h1>
         
 
         <div class="post-meta">
@@ -394,7 +394,7 @@
 <li>reducers</li>
 </ul>
 <p><img src="/2019/06/25/hybird-redux/redux.jpg" alt></p>
-<p><strong>Actions</strong><br>简单地，Actions就是事件。Actions传递来自这个应用（用户接口，内部事件比如API调用和表单提交）的数据给store。store只获取来自Actions的信息。内部Actions就是简单的具有一个type属性（通常是常量）的JavaScript对象，这个对象描述了action的类型以及传递给store的负载信息:</p>
+<p><strong>Actions</strong><br>简单地，<strong>Actions就是事件。Actions传递来自这个应用（用户接口，内部事件比如API调用和表单提交）的数据给store。store只获取来自Actions的信息</strong>。内部Actions就是简单的具有一个type属性（通常是常量）的JavaScript对象，这个对象描述了action的类型以及传递给store的负载信息:</p>
 <pre><code>{
     type: LOGIN_FORM_SUBMIT,
     payload: {username: &apos;alex&apos;, password: &apos;123456&apos;}
@@ -412,6 +412,7 @@
     changePassword: changePassword
 });
 </code></pre><p><strong>Store</strong><br>Store对象<strong>保存应用的状态并提供一些帮助方法来存取状态，分发状态以及注册监听。全部state由一个store来表示</strong>。任何action通过reducer返回一个新的状态对象。这就使得Redux非常简单以及可预测。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5d04790a6fb9a07efa09164d" target="_blank" rel="noopener">完全理解 redux（从零实现一个 redux）</a></p>
 
           
         
