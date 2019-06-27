@@ -92,7 +92,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/event-loop-and-main.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/both-queues.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/scheduling-tasks.png">
-<meta property="og:updated_time" content="2019-06-26T08:10:21.987Z">
+<meta property="og:updated_time" content="2019-06-26T08:28:44.979Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dart语言基础">
 <meta name="twitter:description" content="在Dart中，一切都是对象，一切对象都是class的实例，哪怕是数字类型、方法甚至null都是对象，所有的对象都是继承自Object 虽然Dart是强类型语言，但变量类型是可选的，因为Dart可以自动推断变量类型 Dart支持范型，List&amp;lt;int&amp;gt;表示一个整型的数据列表，List&amp;lt;dynamic&amp;gt;则是一个对象的列表，其中可以装任意对象 Dart支持顶层方法（如main方">
@@ -1022,7 +1022,7 @@ main() {
 <p>Dart中没有线程的概念，只有isolate，每个isolate都是隔离的，并不会共享内存。而一个Dart程序是在Main isolate的main函数开始，而<strong>在Main函数结束后，Main isolate线程开始一个一个（one by one）的开始处理Event Queue中的每一个Event</strong>。</p>
 <p><img src="/2019/06/25/dart-knowledge/event-loop-and-main.png" alt title="Main isolate"></p>
 <h4 id="Event-Queue以及Microtask-Queue"><a href="#Event-Queue以及Microtask-Queue" class="headerlink" title="Event Queue以及Microtask Queue"></a>Event Queue以及Microtask Queue</h4><p>Dart中的Main Isolate只有一个Event Looper，但是存在两个Event Queue:Event Queue以及Microtask Queue。</p>
-<p><strong>Microtask Queue存在的意义是：希望通过这个Queue来处理稍晚一些的事情，但是在下一个消息到来之前需要处理完的事情。</strong></p>
+<p><strong><em>Microtask Queue存在的意义是：希望通过这个Queue来处理稍晚一些的事情，但是在下一个消息到来之前需要处理完的事情。</em></strong></p>
 <p>当<strong>Event Looper正在处理Microtask Queue中的Event时候，Event Queue中的Event就停止了处理了</strong>，此时App不能绘制任何图形，不能处理任何鼠标点击，不能处理文件IO等等</p>
 <p>Event-Looper挑选Task的执行顺序为：1.优先全部执行完Microtask Queue中的Event；2.直到Microtask Queue为空时，才会执行Event Queue中的Event：</p>
 <p><img src="/2019/06/25/dart-knowledge/both-queues.png" alt title="both-queues"><br><strong>Dart中只能知道Event处理的先后顺序，但是并不知道某个Event执行的具体时间点，因为它的处理模型是一个单线程循环</strong>，而不是基于时钟调度（即它的执行只是按照Event处理完，就开始循环下一个Event，而与Java中的Thread调度不一样，没有时间调度的概念），也就是我们既是指定另一个Delay Time的Task，希望它在预期的时间后开始执行，它有可能不会在那个时间执行，需要看是否前面的Event是否已经Dequeue。</p>
