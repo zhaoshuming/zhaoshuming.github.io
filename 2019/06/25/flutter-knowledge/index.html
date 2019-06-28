@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="Views在Flutter中，View相当于是Widget。Widget仅支持一帧，并且在每一帧上，Flutter的框架都会创建一个Widget实例树(相当于一次性绘制整个界面)。在Flutter中的widget是不可变的，这允许widget变得超级轻量。 Widget状态在Flutter中Widget是不可变的，不会直接更新，而必须使用Widget的状态。这是Stateful和Stateless">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-27T08:32:16.388Z">
+<meta property="og:updated_time" content="2019-06-27T10:19:08.302Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flutter知识点">
 <meta name="twitter:description" content="Views在Flutter中，View相当于是Widget。Widget仅支持一帧，并且在每一帧上，Flutter的框架都会创建一个Widget实例树(相当于一次性绘制整个界面)。在Flutter中的widget是不可变的，这允许widget变得超级轻量。 Widget状态在Flutter中Widget是不可变的，不会直接更新，而必须使用Widget的状态。这是Stateful和Stateless">
@@ -792,7 +792,7 @@ Widget build(BuildContext context) {
 <p>如何在我的Flutter应用程序中使用NDK<br>自定义插件首先会与Android应用程序通信，您可以在其中调用native标记的函数。一旦Native完成了相应操作，就可以将响应消息发回给Flutter并呈现结果。</p>
 <h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><p>Flutter很好的实现了一个美丽的Material Design，它会满足很多样式和主题的需求。 与Android中使用XML声明主题不同，在Flutter中，您可以<strong>通过顶层widget声明主题</strong>。</p>
 <p>MaterialApp是一个方便的widget，它包装了许多Material Design应用通常需要的widget，它通过添加Material特定功能构建在WidgetsApp上。</p>
-<p>如果你不想使用Material Components，那么你可以声明一个顶级widget-WidgetsApp，它是一个便利的类，它包装了许多应用程序通常需要的widget</p>
+<p>如果你不想使用Material Components，那么你可以声明一个顶级widget-WidgetsApp，它是一个便利的类，它包装了许多应用程序通常需要的widget。</p>
 <p>要自定义Material Components的颜色和样式，您可以将ThemeData对象传递到MaterialApp widget中，例如在下面的代码中，您可以看到主色板设置为蓝色，并且所有选择区域的文本颜色都应为红色。</p>
 <pre><code>class SampleApp extends StatelessWidget {
   @override
@@ -807,7 +807,8 @@ Widget build(BuildContext context) {
     );
   }
 }
-</code></pre><h2 id="数据库和本地存储"><a href="#数据库和本地存储" class="headerlink" title="数据库和本地存储"></a>数据库和本地存储</h2><h3 id="如何在Flutter中访问Shared-Preferences"><a href="#如何在Flutter中访问Shared-Preferences" class="headerlink" title="如何在Flutter中访问Shared Preferences ?"></a>如何在Flutter中访问Shared Preferences ?</h3><p>在Flutter中，您可以通过使用插件Shared_Preferences来访问此功能</p>
+</code></pre><p>Scaffold 是 Material library 中提供的一个widget, 它提供了默认的导航栏、标题和包含主屏幕widget树的body属性。widget树可以很复杂。</p>
+<h2 id="数据库和本地存储"><a href="#数据库和本地存储" class="headerlink" title="数据库和本地存储"></a>数据库和本地存储</h2><h3 id="如何在Flutter中访问Shared-Preferences"><a href="#如何在Flutter中访问Shared-Preferences" class="headerlink" title="如何在Flutter中访问Shared Preferences ?"></a>如何在Flutter中访问Shared Preferences ?</h3><p>在Flutter中，您可以通过使用插件Shared_Preferences来访问此功能</p>
 <p>这个插件包装了<a href="https://pub.dartlang.org/packages/shared_preferences" target="_blank" rel="noopener">Shared Preferences</a>和NSUserDefaults（与iOS相同）的功能</p>
 <pre><code>import &apos;package:flutter/material.dart&apos;;
 import &apos;package:shared_preferences/shared_preferences.dart&apos;;
