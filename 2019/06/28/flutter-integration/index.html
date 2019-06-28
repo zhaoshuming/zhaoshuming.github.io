@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="chart,">
+  <meta name="keywords" content="flutter,">
 
 
 
@@ -80,20 +80,18 @@
 
 
 
-<meta name="description" content="最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）： 在网上并没有相关资料，在此做下记录分享 下面上代码: 首先创建一个类继承LineChart,重写init()方法： @Override protected void init() {     super.init();     //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配     W">
-<meta name="keywords" content="chart">
+<meta name="description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
+<meta name="keywords" content="flutter">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MpAndroidChart实现多点的特殊标记">
-<meta property="og:url" content="http://yoursite.com/2019/03/12/mpchart-point-label/index.html">
+<meta property="og:title" content="Flutter集成Android项目">
+<meta property="og:url" content="http://yoursite.com/2019/06/28/flutter-integration/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）： 在网上并没有相关资料，在此做下记录分享 下面上代码: 首先创建一个类继承LineChart,重写init()方法： @Override protected void init() {     super.init();     //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配     W">
+<meta property="og:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/03/12/mpchart-point-label/chart_label.png">
-<meta property="og:updated_time" content="2019-03-13T01:54:31.678Z">
+<meta property="og:updated_time" content="2019-06-28T10:21:26.196Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MpAndroidChart实现多点的特殊标记">
-<meta name="twitter:description" content="最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）： 在网上并没有相关资料，在此做下记录分享 下面上代码: 首先创建一个类继承LineChart,重写init()方法： @Override protected void init() {     super.init();     //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配     W">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/12/mpchart-point-label/chart_label.png">
+<meta name="twitter:title" content="Flutter集成Android项目">
+<meta name="twitter:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
 
 
 
@@ -123,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
+  <link rel="canonical" href="http://yoursite.com/2019/06/28/flutter-integration/">
 
 
 
 
 
-  <title>MpAndroidChart实现多点的特殊标记 | Blog</title>
+  <title>Flutter集成Android项目 | Blog</title>
   
 
 
@@ -299,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -316,7 +314,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MpAndroidChart实现多点的特殊标记</h1>
+          <h1 class="post-title" itemprop="name headline">Flutter集成Android项目</h1>
         
 
         <div class="post-meta">
@@ -328,8 +326,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-12T18:36:14+08:00">
-                2019-03-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T16:31:43+08:00">
+                2019-06-28
               </time>
             
 
@@ -351,8 +349,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android-ui/" itemprop="url" rel="index">
-                    <span itemprop="name">android ui</span>
+                  <a href="/categories/HyBrid/" itemprop="url" rel="index">
+                    <span itemprop="name">HyBrid</span>
                   </a>
                 </span>
 
@@ -388,85 +386,64 @@
       
 
       
-        <p>最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）：</p>
-<p><img src="/2019/03/12/mpchart-point-label/chart_label.png" alt><br>在网上并没有相关资料，在此做下记录分享</p>
-<p>下面上代码:</p>
-<p>首先创建一个类继承LineChart,重写init()方法：</p>
-<pre><code>@Override
-protected void init() {
-    super.init();
-    //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配
-    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-    DisplayMetrics metrics = new DisplayMetrics();
-    wm.getDefaultDisplay().getMetrics(metrics);
-    mRenderer = new HbFundLineChartRenderer(this, mAnimator, mViewPortHandler, metrics.widthPixels);
-}
-</code></pre><p>接下来是主要内容,也就是自己实现的LineChartRenderer即渲染器,用来画点、线等.<br>首先是一些变量,分别是标记控件的宽高边距等,这里写的是一些根据我们需求来的默认值：</p>
-<pre><code>private int mWidth;//屏幕宽度,在构造方法中传进来赋值
-private float hViewLength = Utils.convertDpToPixel(30f);//vie宽30dp
-private float vViewLength = Utils.convertDpToPixel(20f);//view高20dp
-private float viewRect= Utils.convertDpToPixel(4f);//矩形高低差
-</code></pre><p>然后,在LineChartRenderer中有一个drawValues,它是主要负责根据值来画点的,我们要做的就是在super()之后加上我们自己的东西：</p>
-<pre><code>@Override
-public void drawValues(Canvas c) {
-    super.drawValues(c);
-    if (isShowLabel) {
-        LineDataSet dataSetByIndex = (LineDataSet) mChart.getLineData().getDataSetByIndex(0);
-        Transformer trans = mChart.getTransformer(dataSetByIndex.getAxisDependency());
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿画笔
-        paint.setTextSize(Utils.convertDpToPixel(textSixe));//设置字体大小
+        <h2 id="在现有项目上集成Flutter"><a href="#在现有项目上集成Flutter" class="headerlink" title="在现有项目上集成Flutter"></a>在现有项目上集成Flutter</h2><p>1.在andorid工程目录上级目录下执行命令:</p>
+<pre><code>flutter create -t module xxxx(想要创建的flutter项目名)
+</code></pre><p>执行完后，一个和Android项目平级的flutter项目就已经创建好了。</p>
+<p>2.添加flutter到当前Android项目：<br>在Android项目根目录下的settings.gradle文件中，添加如下代码：</p>
+<pre><code>setBinding(new Binding([gradle: this]))
+evaluate(new File(
+        settingsDir.parentFile,
+        &quot;flutter_hybrid/.android/include_flutter.groovy&quot;
+))
+</code></pre><p>然后，在项目的app目录下，build.gradle文件中，添加如下dependency:</p>
+<pre><code>implementation project(&apos;:flutter&apos;)
+</code></pre><p>如上，添加完之后，准备工作就完成了。</p>
+<h2 id="集成Flutter页面跳转"><a href="#集成Flutter页面跳转" class="headerlink" title="集成Flutter页面跳转"></a>集成Flutter页面跳转</h2><h3 id="通过继承FlutterActivity跳到默认页面"><a href="#通过继承FlutterActivity跳到默认页面" class="headerlink" title="通过继承FlutterActivity跳到默认页面"></a>通过继承FlutterActivity跳到默认页面</h3><p>1.Application：初始化Flutter</p>
+<pre><code>public class App extends Application {
 
-        //画首中尾三个label
-        float[] firstFloat = getFloat(dataSetByIndex.getValues(), 0);//根据数据集获取点
-        drawPointLabel(trans, paint, c, firstFloat);
-        float[] middleFloat = getFloat(dataSetByIndex.getValues(), (dataSetByIndex.getValues().size() - 1) / 2);
-        drawPointLabel(trans, paint, c, middleFloat);
-        float[] endFloat = getFloat(dataSetByIndex.getValues(), dataSetByIndex.getValues().size() - 1);
-        drawPointLabel(trans, paint, c, endFloat);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FlutterMain.startInitialization(this);
     }
 }
-</code></pre><p>首先获取点的数据集,然后得到Transformer,它可以根据点数据集里的某一点来得到这个点在屏幕中的位置<br>然后分别传入transformer、画笔、画布对象、点,进行绘制：</p>
-<pre><code>private void drawPointLabel(Transformer trans, Paint paint, Canvas c, float[] floatPosition) {
-    MPPointD maxPoint = trans.getPixelForValues(floatPosition[0], floatPosition[1]);
-    float highX = (float) maxPoint.x;
-    float highY = (float) maxPoint.y;
-    TextView view = (TextView) LayoutInflater.from(mContext).inflate(R.layout.mark_view, null, false);
-    if (highX &gt; mWidth - mWidth / 4) {//标识朝左
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_r);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength), (int) (highY - vViewLength - viewRect), paint);
-    } else if (highX &lt; mWidth / 4) {//标识朝右
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_l);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX), (int) (highY - vViewLength - viewRect), paint);
-    } else {//标识居中
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_c);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength / 2), (int) (highY - vViewLength - viewRect), paint);
-    }
+</code></pre><p>2.Activity：继承FlutterActivity</p>
+<pre><code>/**
+ * debug模式原生跳转到flutter界面会出现白屏，release包就不会出现白屏了
+ */
+public class MainFlutterActivity extends FlutterActivity {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    GeneratedPluginRegistrant.registerWith(this);
+  }
+</code></pre><p>这样以后，我们就可以跳转这个MainFlutterActivity，实现在Android工程里面进入Flutter工程的默认页面了。</p>
+<h3 id="通过FlutterView跳到指定页面"><a href="#通过FlutterView跳到指定页面" class="headerlink" title="通过FlutterView跳到指定页面"></a>通过FlutterView跳到指定页面</h3><p>首先通过Flutter.createFlutterView方法来创建一个FlutterView类型的View。它有三个构造参数：</p>
+<pre><code>public static FlutterView createView(Activity activity, Lifecycle lifecycle, String initialRoute)
+</code></pre><p>三个参数分别是：<br>1.Activity，即当前附着的Activity</p>
+<p>2.LifeCycle，且是不能为空(NonNull)的，这也就要求我们必须用AppCompatActivity来承载FlutterView了，如果我们的Activity继承自android.app.Activity是没有getLifeCycle()这个方法的。</p>
+<pre><code>public class FlutterViewActivity extends AppCompatActivity 复制代码
+</code></pre><p>3.initialRoute这是一个String类型的变量，根据不同的标识跳转不同的Flutter页面：</p>
+<pre><code>Widget _widgetForRoute(String route) {
+  switch (route) {
+    case &apos;route1&apos;:
+      return  MyHomePage(title: &apos;Flutter Demo Home Page1&apos;);
+    case &apos;route2&apos;:
+      return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
+    default:
+        return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
+  }
 }
-</code></pre><p>此处，我们随意定义几个点，可以根据实际需求进行设置：</p>
-<pre><code>private float[] getFloat(List&lt;Entry&gt; lists, int index) {
-    float[] maxEntry = new float[2];
-    maxEntry[0] = lists.get(index).getX();
-    maxEntry[1] = lists.get(index).getY();
-    return maxEntry;
-}
-</code></pre><p>view转bitmap方法如下：</p>
-<pre><code>private Bitmap createBitmap(View v, int width, int height) {
-    //测量使得view指定大小
-    int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
-    int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
-    v.measure(measuredWidth, measuredHeight);
-    //调用layout方法布局后，可以得到view的尺寸大小
-    v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-    Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-    Canvas c = new Canvas(bmp);
-    v.draw(c);
-    return bmp;
-}
-</code></pre><p>最后附上<a href="https://github.com/zhaoshuming/TestAcharView" target="_blank" rel="noopener">代码（内部测试demo，多余功能请忽略）</a></p>
-<p>参考资料：<br><a href="https://www.jianshu.com/p/1877b8c2fc6c" target="_blank" rel="noopener">https://www.jianshu.com/p/1877b8c2fc6c</a></p>
+</code></pre><p>然后在当前Activity的OnCreate方法中，执行：</p>
+<pre><code>FlutterView flutterView = Flutter.createView(this, getLifecycle(), &quot;route1&quot;);    
+setContentView(flutterView);
+
+//或者：
+
+setContentView(R.layout.activity_flutter);
+rlContainer = findViewById(R.id.rl_container);
+rlContainer.addView(flutterView)
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">https://github.com/chinaltz/FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a></p>
 
       
     </div>
@@ -484,7 +461,7 @@ public void drawValues(Canvas c) {
       
         <div class="post-tags">
           
-            <a href="/tags/chart/" rel="tag"># chart</a>
+            <a href="/tags/flutter/" rel="tag"># flutter</a>
           
         </div>
       
@@ -497,8 +474,8 @@ public void drawValues(Canvas c) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/07/java-reentrantlock/" rel="next" title="Java Lock">
-                <i class="fa fa-chevron-left"></i> Java Lock
+              <a href="/2019/06/25/dart-knowledge/" rel="next" title="Dart语言基础">
+                <i class="fa fa-chevron-left"></i> Dart语言基础
               </a>
             
           </div>
@@ -506,10 +483,6 @@ public void drawValues(Canvas c) {
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/18/android-https/" rel="prev" title="android中使用https">
-                android中使用https <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -561,8 +534,17 @@ public void drawValues(Canvas c) {
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -624,6 +606,22 @@ public void drawValues(Canvas c) {
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#在现有项目上集成Flutter"><span class="nav-number">1.</span> <span class="nav-text">在现有项目上集成Flutter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成Flutter页面跳转"><span class="nav-number">2.</span> <span class="nav-text">集成Flutter页面跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过继承FlutterActivity跳到默认页面"><span class="nav-number">2.1.</span> <span class="nav-text">通过继承FlutterActivity跳到默认页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过FlutterView跳到指定页面"><span class="nav-number">2.2.</span> <span class="nav-text">通过FlutterView跳到指定页面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
