@@ -471,12 +471,12 @@ SIGABRT
 <h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
 <h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
 <pre><code>-keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.* { *; }
--keep class io.flutter.util.* { *; }
--keep class io.flutter.view.* { *; }
--keep class io.flutter.* { *; }
--keep class io.flutter.plugins.* { *; }
--keep class myapp.flutter.*
+-keep class io.flutter.plugin.** { *; }
+-keep class io.flutter.util.** { *; }
+-keep class io.flutter.view.** { *; }
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-keep class myapp.flutter.** { *; }
 </code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">https://github.com/chinaltz/FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
 
           
