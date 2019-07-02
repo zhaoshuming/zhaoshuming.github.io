@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-28T10:21:26.196Z">
+<meta property="og:updated_time" content="2019-07-02T06:29:01.125Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flutter集成Android项目">
 <meta name="twitter:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
@@ -443,7 +443,41 @@ setContentView(flutterView);
 setContentView(R.layout.activity_flutter);
 rlContainer = findViewById(R.id.rl_container);
 rlContainer.addView(flutterView)
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">https://github.com/chinaltz/FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a></p>
+</code></pre><h2 id="集成到现有项目遇到的坑"><a href="#集成到现有项目遇到的坑" class="headerlink" title="集成到现有项目遇到的坑"></a>集成到现有项目遇到的坑</h2><p>Check failed: vm. Must be able to initialize the VM：</p>
+<pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_data.cc(19)] VM snapshot invalid and could not be inferred from settings.
+    [ERROR:flutter/runtime/dart_vm.cc(241)] Could not setup VM data to bootstrap the VM from.
+    [ERROR:flutter/runtime/dart_vm_lifecycle.cc(89)] Could not create Dart VM instance.
+ A/flutter: [FATAL:flutter/shell/common/shell.cc(218)] Check failed: vm. Must be able to initialize the VM.
+
+SIGABRT
+    0x146b
+    #00    pc 0002210c    /system/lib/libc.so (tgkill+12) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #01    pc 00013165    /system/lib/libc.so (pthread_kill+48) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #02    pc 00013379    /system/lib/libc.so (raise+10) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #03    pc 000120a3    /system/lib/libc.so [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #04    pc 000219c0    /system/lib/libc.so (abort+4) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #05    pc 00af85ab    /data/app-lib/xxx.debug-1/libflutter.so [armeabi-v7a::a12434e0b53806a35730000001000000]
+</code></pre><p>经github上<a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">#24679</a>及其他issue参考，得出以下解决方案：</p>
+<blockquote>
+<p>Import flutter module to your HOST app(set binding, implementation, and instantiate view/fragment)<br>When you clean/rebuild from HOST app, flutter module does not generate properly<br>You need to open your flutter module in a separate AS<br>flutter clean<br>cd .android<br>./gradlew clean<br>./gradlew assembleDebug<br>Return to host app and run app(do not sync or rebuild) :)</p>
+</blockquote>
+<p>翻译过来就是：</p>
+<blockquote>
+<p>本项目执行清理命令。./gradlew clean<br>进入 flutter module 项目执行清理命令。flutter packages get;flutter clean<br>进入 flutter module 的 .android 项目执行清理命令和打包操作。./gradlew clean;./gradlew assemble<br>回到本项目执行打包命令。./gradlew assemble</p>
+</blockquote>
+<p>直接执行下面命令即可：</p>
+<pre><code>$ ./gradlew clean;cd ../flutter_module;flutter packages get;flutter clean;cd .android/;./gradlew clean;./gradlew assemble;cd /d/workspace/app_proj/;./gradlew installDebug
+</code></pre><p>后续假设你 flutter module 没有更新过，那么以后修改本地项目之后，就直接执行./gradlew installDebug。 注意不要用studio工具运行、rebuild或clean。</p>
+<h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
+<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
+<pre><code>-keep class io.flutter.app.** { *; }
+-keep class io.flutter.plugin.* { *; }
+-keep class io.flutter.util.* { *; }
+-keep class io.flutter.view.* { *; }
+-keep class io.flutter.* { *; }
+-keep class io.flutter.plugins.* { *; }
+-keep class myapp.flutter.*
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">https://github.com/chinaltz/FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
 
       
     </div>
@@ -616,7 +650,7 @@ rlContainer.addView(flutterView)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#在现有项目上集成Flutter"><span class="nav-number">1.</span> <span class="nav-text">在现有项目上集成Flutter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成Flutter页面跳转"><span class="nav-number">2.</span> <span class="nav-text">集成Flutter页面跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过继承FlutterActivity跳到默认页面"><span class="nav-number">2.1.</span> <span class="nav-text">通过继承FlutterActivity跳到默认页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过FlutterView跳到指定页面"><span class="nav-number">2.2.</span> <span class="nav-text">通过FlutterView跳到指定页面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#在现有项目上集成Flutter"><span class="nav-number">1.</span> <span class="nav-text">在现有项目上集成Flutter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成Flutter页面跳转"><span class="nav-number">2.</span> <span class="nav-text">集成Flutter页面跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过继承FlutterActivity跳到默认页面"><span class="nav-number">2.1.</span> <span class="nav-text">通过继承FlutterActivity跳到默认页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过FlutterView跳到指定页面"><span class="nav-number">2.2.</span> <span class="nav-text">通过FlutterView跳到指定页面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成到现有项目遇到的坑"><span class="nav-number">3.</span> <span class="nav-text">集成到现有项目遇到的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#flutter-assets"><span class="nav-number">3.1.</span> <span class="nav-text">flutter_assets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#混淆"><span class="nav-number">3.2.</span> <span class="nav-text">混淆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
