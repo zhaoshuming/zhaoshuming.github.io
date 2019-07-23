@@ -80,18 +80,20 @@
 
 
 
-<meta name="description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addConverterFactory(GsonCo">
+<meta name="description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addCallAdapterFactory(RxJa">
 <meta name="keywords" content="retrofit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android Retrofit 2使用">
+<meta property="og:title" content="Android Retrofit 2详解">
 <meta property="og:url" content="http://yoursite.com/2019/04/11/android-retrofit/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addConverterFactory(GsonCo">
+<meta property="og:description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addCallAdapterFactory(RxJa">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-25T01:24:16.093Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/11/android-retrofit/retrofit2_dir.png">
+<meta property="og:updated_time" content="2019-07-18T07:59:57.408Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android Retrofit 2使用">
-<meta name="twitter:description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addConverterFactory(GsonCo">
+<meta name="twitter:title" content="Android Retrofit 2详解">
+<meta name="twitter:description" content="基础使用以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法: private  void getLogin() { Retrofit retrofit = new Retrofit.Builder()         .baseUrl(&amp;quot;//localhost:8080/&amp;quot;)         .addCallAdapterFactory(RxJa">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/11/android-retrofit/retrofit2_dir.png">
 
 
 
@@ -127,7 +129,7 @@
 
 
 
-  <title>Android Retrofit 2使用 | Blog</title>
+  <title>Android Retrofit 2详解 | Blog</title>
   
 
 
@@ -314,7 +316,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Android Retrofit 2使用</h1>
+          <h1 class="post-title" itemprop="name headline">Android Retrofit 2详解</h1>
         
 
         <div class="post-meta">
@@ -386,10 +388,11 @@
       
 
       
-        <h4 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h4><p>以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法:</p>
+        <h2 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h2><p>以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法:</p>
 <pre><code>private  void getLogin() {
 Retrofit retrofit = new Retrofit.Builder()
         .baseUrl(&quot;//localhost:8080/&quot;)
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .addConverterFactory(GsonConverterFactory.create())
         .build();
 ApiManager apiService = retrofit.create(ApiManager.class);
@@ -416,14 +419,21 @@ call.enqueue(new Callback&lt;LoginResult&gt;() {
  @GET(&quot;login/&quot;)
  Call&lt;LoginResult&gt; getData(@Query(&quot;name&quot;) String name, @Query(&quot;password&quot;) String pw);
 }
-</code></pre><h4 id="Retrofit支持异步和同步"><a href="#Retrofit支持异步和同步" class="headerlink" title="Retrofit支持异步和同步"></a>Retrofit支持异步和同步</h4><p>call.enqueue(new Callback<loginresult>）采用异步请求；<br>call.execute() 采用同步方式。</loginresult></p>
+</code></pre><h2 id="Retrofit支持异步和同步"><a href="#Retrofit支持异步和同步" class="headerlink" title="Retrofit支持异步和同步"></a>Retrofit支持异步和同步</h2><p>call.enqueue(new Callback<loginresult>）采用异步请求；<br>call.execute() 采用同步方式。</loginresult></p>
 <p>call.cancel() 取消请求</p>
-<h4 id="ConverterFactory"><a href="#ConverterFactory" class="headerlink" title="ConverterFactory"></a>ConverterFactory</h4><p>addConverterFactory <strong>制定数据解析器</strong>，上面添加依赖的gson就是用在这里做默认数据返回的， 之后通过build()创建出来。</p>
+<h2 id="CallAdapterFactory"><a href="#CallAdapterFactory" class="headerlink" title="CallAdapterFactory"></a>CallAdapterFactory</h2><p>.addCallAdapterFactory(RxJava2CallAdapterFactory.create())这个是用来决定你的返回值是Observable还是Call。</p>
+<pre><code>// 使用call的情况
+Call&lt;String&gt; login();  
+// 使用Observable的情况
+Observable&lt;String&gt; login();  
+</code></pre><p>如果返回为Call那么可以不添加这个配置。如果使用Observable那就必须添加这个配置。否则就会请求的时候就会报错！</p>
+<p>Retrofit中使用RxJava：由于Retrofit设计的扩展性非常强，你只需要添加一个 CallAdapter 就可以了</p>
+<h2 id="ConverterFactory"><a href="#ConverterFactory" class="headerlink" title="ConverterFactory"></a>ConverterFactory</h2><p>addConverterFactory <strong>制定数据解析器</strong>，上面添加依赖的gson就是用在这里做默认数据返回的， 之后通过build()创建出来。</p>
 <p>Retrofit内部自带如下格式：</p>
 <blockquote>
 <p>Gson: com.squareup.retrofit2:converter-gson<br>Jackson: com.squareup.retrofit2:converter-jackson<br>Moshi: com.squareup.retrofit2:converter-moshi<br>Protobuf: com.squareup.retrofit2:converter-protobuf<br>Wire: com.squareup.retrofit2:converter-wire<br>Simple XML: com.squareup.retrofit2:converter-simplexml<br>Scalars (primitives, boxed, and String): com.squareup.retrofit2:converter-scalars</p>
 </blockquote>
-<h4 id="网络请求参数"><a href="#网络请求参数" class="headerlink" title="网络请求参数"></a>网络请求参数</h4><p>@Path:所有在网址中的参数(URL的问号前面),如://192.168.1.1/api/Accounts/{accountId}</p>
+<h2 id="网络请求参数"><a href="#网络请求参数" class="headerlink" title="网络请求参数"></a>网络请求参数</h2><p>@Path:所有在网址中的参数(URL的问号前面),如://192.168.1.1/api/Accounts/{accountId}</p>
 <p>@Query:URL问号后面的参数,如://192.168.1.1/api/Comments?access_token={access_token}</p>
 <p>@QueryMap:相当于多个@Query</p>
 <p>@Field:用于POST请求,提交单个数据</p>
@@ -438,7 +448,7 @@ call.enqueue(new Callback&lt;LoginResult&gt;() {
 <li><p>@Path 和@Query的区别<br>相同点:都是请求头中的带有的数据<br>不同点:前者是请求头中问号之前用于替换URL中变量的字段,后者是请求头问号之后用于查询数据的字段,作用和应用场景都不同</p>
 </li>
 </ol>
-<h4 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h4><h5 id="开启Log"><a href="#开启Log" class="headerlink" title="开启Log"></a>开启Log</h5><p>用拦截器实现， retrofit已经提供了 HttpLoggingInterceptor 里面有四种级别，输出的格式，可以看下面介绍：</p>
+<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="开启Log"><a href="#开启Log" class="headerlink" title="开启Log"></a>开启Log</h3><p>用拦截器实现， retrofit已经提供了 HttpLoggingInterceptor 里面有四种级别，输出的格式，可以看下面介绍：</p>
 <pre><code>public enum Level {
 /** No logs. */
 NONE,
@@ -501,7 +511,7 @@ BODY
 <pre><code>Retrofit retrofit = new Retrofit.Builder().client(new OkHttpClient.Builder()
                          .addNetworkInterceptor(new  HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))       
                          .build())
-</code></pre><h5 id="增加头部信息"><a href="#增加头部信息" class="headerlink" title="增加头部信息"></a>增加头部信息</h5><pre><code>new Retrofit.Builder()
+</code></pre><h3 id="增加头部信息"><a href="#增加头部信息" class="headerlink" title="增加头部信息"></a>增加头部信息</h3><pre><code>new Retrofit.Builder()
        .addConverterFactory(GsonConverterFactory.create())
        .client(new OkHttpClient.Builder()
                .addInterceptor(new Interceptor() {
@@ -522,7 +532,7 @@ BODY
 <pre><code>@Headers({ &quot;Accept: application/vnd.github.v3.full+json&quot;, &quot;User-Agent: Retrofit-your-App&quot;})
 @get(&quot;users/{username}&quot;)
 Call&lt;User&gt;   getUser(@Path(&quot;username&quot;) String username);
-</code></pre><h5 id="添加证书Pinning"><a href="#添加证书Pinning" class="headerlink" title="添加证书Pinning"></a>添加证书Pinning</h5><p>证书可以在自定义的OkHttpClient加入certificatePinner 实现：</p>
+</code></pre><h3 id="添加证书Pinning"><a href="#添加证书Pinning" class="headerlink" title="添加证书Pinning"></a>添加证书Pinning</h3><p>证书可以在自定义的OkHttpClient加入certificatePinner 实现：</p>
 <pre><code>OkHttpClient client = new OkHttpClient.Builder()
 .certificatePinner(new CertificatePinner.Builder()
         .add(&quot;YOU API.com&quot;, &quot;sha1/DmxUShsZuNiqPQsX2Oi9uv2sCnw=&quot;)
@@ -530,8 +540,8 @@ Call&lt;User&gt;   getUser(@Path(&quot;username&quot;) String username);
         .add(&quot;YOU API..com&quot;, &quot;sha1/blhOM3W9V/bVQhsWAcLYwPU6n24=&quot;)
         .add(&quot;YOU API..com&quot;, &quot;sha1/T5x9IXmcrQ7YuQxXnxoCmeeQ84c=&quot;)
         .build())
-</code></pre><h5 id="支持https"><a href="#支持https" class="headerlink" title="支持https"></a>支持https</h5><p>加密和普通http客户端请求支持https一样，证书同样可以设置到okhttpclient中.详细可以参考我之前的文章：<a href="https://zhaoshuming.github.io/2019/03/18/android-https/" target="_blank" rel="noopener">android中使用https</a></p>
-<h4 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h4><h5 id="url被转义"><a href="#url被转义" class="headerlink" title="url被转义"></a>url被转义</h5><pre><code>https://api.myapi.com/http%3A%2F%2Fapi.mysite.com%2Fuser%2Flist
+</code></pre><h3 id="支持https"><a href="#支持https" class="headerlink" title="支持https"></a>支持https</h3><p>加密和普通http客户端请求支持https一样，证书同样可以设置到okhttpclient中.详细可以参考我之前的文章：<a href="https://zhaoshuming.github.io/2019/03/18/android-https/" target="_blank" rel="noopener">android中使用https</a></p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="url被转义"><a href="#url被转义" class="headerlink" title="url被转义"></a>url被转义</h3><pre><code>https://api.myapi.com/http%3A%2F%2Fapi.mysite.com%2Fuser%2Flist
 </code></pre><p>请将@path改成@url</p>
 <pre><code>public interface APIService { 
 @GET Call&lt;Users&gt; getUsers(@Url String url);}
@@ -540,25 +550,108 @@ Call&lt;User&gt;   getUser(@Path(&quot;username&quot;) String username);
     @GET(&quot;{fullUrl}&quot;)
     Call&lt;Users&gt; getUsers(@Path(value = &quot;fullUrl&quot;, encoded = true) String fullUrl);
 }
-</code></pre><h5 id="Method方法找不到"><a href="#Method方法找不到" class="headerlink" title="Method方法找不到"></a>Method方法找不到</h5><pre><code>java.lang.IllegalArgumentException: Method must not be null
+</code></pre><h3 id="Method方法找不到"><a href="#Method方法找不到" class="headerlink" title="Method方法找不到"></a>Method方法找不到</h3><pre><code>java.lang.IllegalArgumentException: Method must not be null
 </code></pre><p>请指定具体请求类型@get @post等</p>
 <pre><code>public interface APIService { 
    @GET Call&lt;Users&gt; getUsers(@Url String url);
 }
-</code></pre><h5 id="Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded"><a href="#Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded" class="headerlink" title="Url编码不对，@fieldMap parameters must be use FormUrlEncoded"></a>Url编码不对，@fieldMap parameters must be use FormUrlEncoded</h5><p>如果用fieldMap加上FormUrlEncoded编码</p>
+</code></pre><h3 id="Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded"><a href="#Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded" class="headerlink" title="Url编码不对，@fieldMap parameters must be use FormUrlEncoded"></a>Url编码不对，@fieldMap parameters must be use FormUrlEncoded</h3><p>如果用fieldMap加上FormUrlEncoded编码</p>
 <pre><code>@POST()
 @FormUrlEncoded
 Observable&lt;ResponseBody&gt; executePost(@FieldMap Map&lt;String, Object&gt; maps);
 </code></pre><p>上层需要转换将自己的map转换为FieldMap</p>
 <pre><code>@FieldMap(encoded = true) Map&lt;String, Object&gt; parameters,
-</code></pre><h5 id="path和url一起使用"><a href="#path和url一起使用" class="headerlink" title="path和url一起使用"></a>path和url一起使用</h5><pre><code>Using @Path and @Url paramers together with retrofit2 
+</code></pre><h3 id="path和url一起使用"><a href="#path和url一起使用" class="headerlink" title="path和url一起使用"></a>path和url一起使用</h3><pre><code>Using @Path and @Url paramers together with retrofit2 
 java.lang.IllegalArgumentException: @Path parameters may not be used with @Url. (parameter #4
 </code></pre><p>如果你是这样的：</p>
 <pre><code>@GET
 Call&lt;DataResponse&gt; getOrder(@Url String url, @Path(&quot;id&quot;) int id);
 </code></pre><p>请在你的url指定占位符.url:</p>
 <pre><code>www.myAPi.com/{Id}
-</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://blog.csdn.net/csdn_aiyang/article/details/72303367" target="_blank" rel="noopener">Android Retrofit 2.0</a></p>
+</code></pre><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>Retrofit就像一个适配器（Adapter）的角色，将一个Java接口转换成一个Http请求并返回一个Call对象，简单的调用接口方法就可以发送API请求，Retrofit完全隐藏了Request 的请求体，并使用okhttp执行请求。</p>
+<p>Retrofit 是怎么实现的呢？答案就是：Java的动态代理。<strong>Java动态代理，是一种结构性设计模式，可以在要调用的Class方法前或后，插入想要执行的代码进行改造。</strong></p>
+<p>案例中关键两行代码：</p>
+<pre><code>ApiManager apiService = retrofit.create(ApiManager.class); //2、retrofit对象创建一个API接口对象
+
+Call&lt;LoginResult&gt; call = apiService.getData(&quot;lyk&quot;, &quot;1234&quot;); //返回响应接口回调
+</code></pre><p>这简短的两行代码，隐藏了Request请求体并拿到Response返回Call对象。看下源码，这几行代码才是 Retrofit 精妙之处：</p>
+<pre><code>/** Create an implementation of the API defined by the {@code service} interface. */
+public &lt;T&gt; T create(final Class&lt;T&gt; service) {
+  Utils.validateServiceInterface(service);
+  if (validateEagerly) {
+     eagerlyValidateMethods(service);
+  }
+  return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class&lt;?&gt;[] { service },
+    new InvocationHandler() {
+      private final Platform platform = Platform.get();
+      @Override public Object invoke(Object proxy, Method method, Object... args)
+          throws Throwable {
+        // If the method is a method from Object then defer to normal invocation.
+        if (method.getDeclaringClass() == Object.class) {
+          return method.invoke(this, args);
+        }
+        if (platform.isDefaultMethod(method)) {
+          return platform.invokeDefaultMethod(method, service, proxy, args);
+        }
+        ServiceMethod serviceMethod = loadServiceMethod(method);
+        OkHttpCall okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);
+        return serviceMethod.callAdapter.adapt(okHttpCall);
+      }
+    });
+}
+</code></pre><p>源码分析：<br>当 apiService 对象调用 getData方法时，就会被这个动态代理拦截并在内部做些小动作，它会调用 Proxy.newProxyInstance方法 中的 InvocationHandler 对象，它的 invoke方法 会传入3个参数：</p>
+<blockquote>
+<p>Object proxy     ：代理对象 ，即APIManner.class<br>Method method ：调用方法，即getData方法<br>Object… args    ： 参数对象，即 “lyk”,”1234”</p>
+</blockquote>
+<p>Retrofit 得到了 method 和 参数args 。接下去 Retrofit 就会用 Java反射 获取到 getData方法 的注解信息，配合args参数，创建一个ServiceMethod对象。</p>
+<p>ServiceMethod 是服务于请求方法的，服务于传入Retrofit的proxy对象的method方法，即getData方法。如何服务呢？它可以将method通过各种内部接口解析器进行组装拼凑，最终生成一个Request请求体。这个Request 包含 api域名、path、http请求方法、请求头、是否有body、是否是multipart等等。最后返回一个Call对象，Retrofit2中Call接口的默认实现是OkHttpCall，它默认使用OkHttp3作为底层http请求client。一句话就是：<strong>Retrofit 使用Java动态代理就是要拦截被调用的Java方法，然后解析这个Java方法的注解，最后生成Request由OkHttp发送Http请求。</strong></p>
+<p>想要弄清楚Retrofit的细节，先来简单了解一下Retrofit源码组成结构：</p>
+<p><img src="/2019/04/11/android-retrofit/retrofit2_dir.png" alt><br>一个retrofit2.http包，里面全部是定义HTTP请求的Java注解，比如GET、POST、PUT、DELETE、Headers、Path、Query等；</p>
+<p>余下的retrofit2包中，几个类和接口retrofit的代码真的很少很简单，因为retrofit把网络请求这部分功能全部交给了OkHttp。</p>
+<h3 id="Retrofit接口"><a href="#Retrofit接口" class="headerlink" title="Retrofit接口"></a>Retrofit接口</h3><p>Retrofit的设计使用插件化而且轻量级，高内聚而且低耦合，这都和它的接口设计有关。Retrofit中定义了四个接口：</p>
+<ul>
+<li>Callback<t></t></li>
+<li>Converter&lt;F, T&gt;</li>
+<li>Call<t></t></li>
+<li>CallAdapter<t></t></li>
+</ul>
+<p>1、Callback<t><br>这个接口就是retrofit请求数据返回的接口，只有两个方法：</t></p>
+<pre><code>void onResponse(Response&lt;T&gt; response);
+void onFailure(Throwable t);
+</code></pre><p>2、Converter&lt;F, T&gt;<br>这个接口主要的作用就是将HTTP返回的数据解析成Java对象，主要有Xml、Gson、protobuf等。你可以在创建Retrofit对象时添加你需要使用的Converter实现。</p>
+<p>3、Call<t><br>这个接口主要的作用就是发送一个HTTP请求，Retrofit默认的实现是OkHttpCall<t>，你可以根据实际情况实现你自己的Call类。这个设计和Volley的HttpStack接口设计的思想非常相似，子类可以实现基于HttpClient或HttpUrlConnetction的HTTP请求工具。</t></t></p>
+<p>4、CallAdapter<t><br>这个借口的属性只有responseType一个；这个接口的实现类也只有DefaultCallAdapter一个。这个方法的主要作用就是将Call对象转换成另一个对象，为了支持RxJava才设计这个类的吧。</t></p>
+<h3 id="Retrofit的运行过程"><a href="#Retrofit的运行过程" class="headerlink" title="Retrofit的运行过程"></a>Retrofit的运行过程</h3><p>上面讲的案例代码，返回了一个动态代理对象。而执行这段代码时，返回了一个OkHttpCall对象，拿到这个 Call 对象才能真正执行 HTTP 请求。</p>
+<pre><code>ApiManager apiService = retrofit.create(ApiManager.class); //2、retrofit对象创建一个API接口对象
+Call&lt;LoginResult&gt; call = apiService.getData(&quot;lyk&quot;, &quot;1234&quot;); //返回响应接口回调
+</code></pre><p>上面代码中 apiService 对象其实是一个动态代理对象。当 apiService 对象调用 getData方法 时会被动态代理拦截，然后调用 Proxy.newProxyInstance 方法中的 InvocationHandler 对象， 创建一个  ServiceMethod对象：</p>
+<pre><code>ServiceMethod serviceMethod = loadServiceMethod(method);
+OkHttpCall okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);
+return serviceMethod.callAdapter.adapt(okHttpCall);
+</code></pre><h3 id="创建ServiceMethod"><a href="#创建ServiceMethod" class="headerlink" title="创建ServiceMethod"></a>创建ServiceMethod</h3><p>刚才说到 ServiceMethod 是服务于方法的，具体来看一下创建这个ServiceMethod的过程是怎么样的：<br>首先，获取到上面说到的 Retrofit的接口：</p>
+<pre><code>callAdapter = createCallAdapter();
+responseType = callAdapter.responseType();
+responseConverter = createResponseConverter();
+</code></pre><p>然后，解析Method方法的注解，其实就是想获取Http请求的方法。比如请求方法是GET还是POST形式，如果没有程序就会报错。还会做一系列的检查，比如在方法上注解了@Multipart，但是Http请求方法是GET，同样也会报错。</p>
+<pre><code>for (Annotation annotation : methodAnnotations) {
+    parseMethodAnnotation(annotation);
+}
+
+if (httpMethod == null) {
+   throw methodError(&quot;HTTP method annotation is required (e.g., @GET, @POST, etc.).&quot;);
+}
+</code></pre><p>其次，比如上面 apiService 接口的方法中带有参数{name,password}，这都占位符，而参数值是在Java方法调用中传入的。那么 Retrofit 会使用一个 ParameterHandler 来进行替换：</p>
+<pre><code>int parameterCount = parameterAnnotationsArray.length;
+parameterHandlers = new ParameterHandler&lt;?&gt;[parameterCount];
+</code></pre><p>最后，ServiceMethod 还会做其他的检查。比如用了 @FormUrlEncoded 注解，那么方法参数中必须至少有一个 @Field 或 @FieldMap。</p>
+<h3 id="执行Http请求"><a href="#执行Http请求" class="headerlink" title="执行Http请求"></a>执行Http请求</h3><p>之前讲到，OkHttpCall是实现了Call接口的，并且是真正调用 OkHttp3 发送Http请求的类。OkHttp3发送一个Http请求需要一个Request对象，而这个Request对象就是从 ServiceMethod 的 toRequest 返回的。</p>
+<p>总之，OkHttpCall 就是调用 ServiceMethod 获得一个可以执行的 Request 对象，然后等到 Http 请求返回后，再将 response body 传入 ServiceMethod 中，ServiceMethod 就可以调用 Converter 接口将 response body 转成一个Java对象。</p>
+<p>综上所述，<strong>ServiceMethod 中几乎保存了一个api请求所有需要的数据，OkHttpCall需要从ServiceMethod中获得一个Request对象，然后得到response后，还需要传入 ServiceMethod 用 Converter 转换成Java对象。</strong></p>
+<p>你可能会觉得我只要发送一个HTTP请求，你要做这么多事情不会很“慢”吗？不会很浪费性能吗？<br>我觉得，首先现在手机处理器主频非常高了，解析这个接口可能就花1ms可能更少的时间（我没有测试过），面对一个HTTP本来就需要几百ms，甚至几千ms来说不值得一提；而且Retrofit会对解析过的请求进行缓存，就在Map&lt;Method, ServiceMethod&gt; serviceMethodCache = new LinkedHashMap&lt;&gt;()这个对象中</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>Retrofit非常巧妙的用注解来描述一个HTTP请求，将一个HTTP请求抽象成一个Java接口，然后用了Java动态代理的方式，动态的将这个接口的注解“翻译”成一个HTTP请求，最后再执行这个HTTP请求</strong></p>
+<p>Retrofit的功能非常多的依赖Java反射，代码中其实还有很多细节，比如异常的捕获、抛出和处理，大量的Factory设计模式（为什么要这么多使用Factory模式？）</p>
+<p>Retrofit中接口设计的恰到好处，在你创建Retrofit对象时，让你有更多更灵活的方式去处理你的需求，比如使用不同的Converter、使用不同的CallAdapter，这也就提供了你使用RxJava来调用Retrofit的可能</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/csdn_aiyang/article/details/72303367" target="_blank" rel="noopener">Android Retrofit 2.0</a><br><a href="https://blog.csdn.net/jiankeufo/article/details/73186929" target="_blank" rel="noopener">https://blog.csdn.net/jiankeufo/article/details/73186929</a><br><a href="https://www.jianshu.com/p/2e8b400909b7" target="_blank" rel="noopener">https://www.jianshu.com/p/2e8b400909b7</a></p>
 
       
     </div>
@@ -735,7 +828,7 @@ Call&lt;DataResponse&gt; getOrder(@Url String url, @Path(&quot;id&quot;) int id)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#基础使用"><span class="nav-number">1.</span> <span class="nav-text">基础使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Retrofit支持异步和同步"><span class="nav-number">2.</span> <span class="nav-text">Retrofit支持异步和同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ConverterFactory"><span class="nav-number">3.</span> <span class="nav-text">ConverterFactory</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网络请求参数"><span class="nav-number">4.</span> <span class="nav-text">网络请求参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进阶功能"><span class="nav-number">5.</span> <span class="nav-text">进阶功能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#开启Log"><span class="nav-number">5.1.</span> <span class="nav-text">开启Log</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#增加头部信息"><span class="nav-number">5.2.</span> <span class="nav-text">增加头部信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#添加证书Pinning"><span class="nav-number">5.3.</span> <span class="nav-text">添加证书Pinning</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#支持https"><span class="nav-number">5.4.</span> <span class="nav-text">支持https</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见问题"><span class="nav-number">6.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#url被转义"><span class="nav-number">6.1.</span> <span class="nav-text">url被转义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Method方法找不到"><span class="nav-number">6.2.</span> <span class="nav-text">Method方法找不到</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded"><span class="nav-number">6.3.</span> <span class="nav-text">Url编码不对，@fieldMap parameters must be use FormUrlEncoded</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#path和url一起使用"><span class="nav-number">6.4.</span> <span class="nav-text">path和url一起使用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础使用"><span class="nav-number">1.</span> <span class="nav-text">基础使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrofit支持异步和同步"><span class="nav-number">2.</span> <span class="nav-text">Retrofit支持异步和同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CallAdapterFactory"><span class="nav-number">3.</span> <span class="nav-text">CallAdapterFactory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConverterFactory"><span class="nav-number">4.</span> <span class="nav-text">ConverterFactory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络请求参数"><span class="nav-number">5.</span> <span class="nav-text">网络请求参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进阶功能"><span class="nav-number">6.</span> <span class="nav-text">进阶功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#开启Log"><span class="nav-number">6.1.</span> <span class="nav-text">开启Log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增加头部信息"><span class="nav-number">6.2.</span> <span class="nav-text">增加头部信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加证书Pinning"><span class="nav-number">6.3.</span> <span class="nav-text">添加证书Pinning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#支持https"><span class="nav-number">6.4.</span> <span class="nav-text">支持https</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">7.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#url被转义"><span class="nav-number">7.1.</span> <span class="nav-text">url被转义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Method方法找不到"><span class="nav-number">7.2.</span> <span class="nav-text">Method方法找不到</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded"><span class="nav-number">7.3.</span> <span class="nav-text">Url编码不对，@fieldMap parameters must be use FormUrlEncoded</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#path和url一起使用"><span class="nav-number">7.4.</span> <span class="nav-text">path和url一起使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">8.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Retrofit接口"><span class="nav-number">8.1.</span> <span class="nav-text">Retrofit接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Retrofit的运行过程"><span class="nav-number">8.2.</span> <span class="nav-text">Retrofit的运行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建ServiceMethod"><span class="nav-number">8.3.</span> <span class="nav-text">创建ServiceMethod</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行Http请求"><span class="nav-number">8.4.</span> <span class="nav-text">执行Http请求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

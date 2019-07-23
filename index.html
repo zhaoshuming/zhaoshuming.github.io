@@ -961,7 +961,53 @@ main() {
       ..study();
 }
 </code></pre><p>可以看到，使用<strong>..调用某个对象的方法（或者成员变量）时，返回值是这个对象本身</strong>，所以你可以接着使用..调用这个对象的其他方法，这不就类似于Java中的建造者模式，每次build某个属性时，都返回一个this对象吗。</p>
-<h3 id="控制流程"><a href="#控制流程" class="headerlink" title="控制流程"></a>控制流程</h3><p>if / else switch for /while try / catch语句跟Java中都类似，<strong>try / catch语句可能稍有不同</strong>，下面用一段代码说明：</p>
+<h3 id="typedefs"><a href="#typedefs" class="headerlink" title="typedefs"></a>typedefs</h3><p>typedef 本质上为 一个方法签名提供了一个别名。官网上介绍TypeDef的时候有一句话说道：<br>“If we change the code to use explicit names and retain type information”<br>使用typedef会保留方法的类型信息。</p>
+<p>考虑下面的代码，哪一个没有使用 typedef。</p>
+<pre><code>class SortedCollection {
+  Function compare;
+
+  SortedCollection(int f(Object a, Object b)) {
+    compare = f;
+  }
+}
+
+ // Initial, broken implementation.
+ int sort(Object a, Object b) =&gt; 0;
+
+main() {
+  SortedCollection coll = new SortedCollection(sort);
+
+  // All we know is that compare is a function,
+  // but what type of function?
+  assert(coll.compare is Function);
+}
+</code></pre><p>当 f 分配到 compare 的时候类型信息丢失了。f的类型是 (Object, Object) → int(→ 意味着返回的)，然而compare 的类型是方法。如果我们使用显式的名字更改代码并保留类型信息，则开发者和工具都可以使用这些信息。</p>
+<pre><code>typedef int Compare(Object a, Object b);
+
+class SortedCollection {
+  Compare compare;
+
+  SortedCollection(this.compare);
+}
+
+ // Initial, broken implementation.
+ int sort(Object a, Object b) =&gt; 0;
+
+main() {
+  SortedCollection coll = new SortedCollection(sort);
+  assert(coll.compare is Function);
+  assert(coll.compare is Compare);
+}
+</code></pre><p>请注意目前 typedefs 仅限于函数类型。</p>
+<p>因为 typedefs 是简单的别名，所以它提供了一种方法来检查任何函数的类型。比如：</p>
+<pre><code>typedef int Compare(int a, int b);
+
+int sort(int a, int b) =&gt; a - b;
+
+main() {
+  assert(sort is Compare); // True!
+}
+</code></pre><h3 id="控制流程"><a href="#控制流程" class="headerlink" title="控制流程"></a>控制流程</h3><p>if / else switch for /while try / catch语句跟Java中都类似，<strong>try / catch语句可能稍有不同</strong>，下面用一段代码说明：</p>
 <pre><code>main() {
   // if else语句
   int score = 80;
@@ -1994,7 +2040,49 @@ _incrementCounter() async {
 <blockquote>
 <p>注意：在中国无法使用Firebase服务。</p>
 </blockquote>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/flutter-for-android" target="_blank" rel="noopener">Flutter for Android 开发者</a></p>
+<h2 id="yaml"><a href="#yaml" class="headerlink" title="yaml"></a>yaml</h2><p>YAML是一个类似 XML的标记语言。YAML强调以数据为中心，并不是以标识语言为重点</p>
+<p>规范：</p>
+<ul>
+<li>大小写敏感</li>
+<li>缩进代表层级，使用空格，默认2个空格（flutter工具做了处理，tab也可以）</li>
+<li>#表示注释内容</li>
+<li>: 表示键值对，注意后面要空格</li>
+<li>{} 表示键值表</li>
+<li>表示列表，注意后面要空格</li>
+<li>[] 表示数组，注意每项之间有空格</li>
+<li><p>? 表示复杂的键</p>
+<pre><code># 依赖库
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^0.1.2
+
+flutter:
+  #使用Material图标
+  uses-material-design: true
+  #assets文件
+  assets:
+    - images/1.png
+    - images/2.gif
+  #字体样式
+  fonts:
+     #family与fonts是一个整体，列表的一项
+     - family: Schyler
+       fonts:
+         - asset: fonts/Schyler-Regular.ttf
+         - asset: fonts/Schyler-Italic.ttf
+           style: italic
+     - family: Trajan Pro
+       fonts:
+         - asset: fonts/TrajanPro.ttf
+         - asset: fonts/TrajanPro_Bold.ttf
+           weight: 700
+</code></pre></li>
+</ul>
+<p>-可转化为[]，:也可以转化为{}，转化后类似json</p>
+<pre><code>dependencies: {flutter: {sdk: flutter}, cupertino_icons: ^0.1.2}
+assets: [images/1.png, images/2.gif]
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/flutter-for-android" target="_blank" rel="noopener">Flutter for Android 开发者</a></p>
 
           
         
