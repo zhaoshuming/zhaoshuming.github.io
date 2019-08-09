@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="flutter,">
+  <meta name="keywords" content="rxjava,">
 
 
 
@@ -80,18 +80,18 @@
 
 
 
-<meta name="description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
-<meta name="keywords" content="flutter">
+<meta name="description" content="本篇主要对以下三个方面进行讲解：  RxJava是流式编程，在每一条流中，都至少包含三个要素：源头/被订阅者(Observable或Flowable)、订阅者(Observer或subscriber)、触发时机(subscribe()方法)； 其次就是线程切换（subscribeOn()和observeOn()）； 最后就是数据操作(如map()、flatMap()等)。  1、订阅（subscr">
+<meta name="keywords" content="rxjava">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flutter集成Android项目">
-<meta property="og:url" content="http://yoursite.com/2019/06/28/flutter-integration/index.html">
+<meta property="og:title" content="RxJava2原理解析">
+<meta property="og:url" content="http://yoursite.com/2019/08/09/android-rxjava-principle/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
+<meta property="og:description" content="本篇主要对以下三个方面进行讲解：  RxJava是流式编程，在每一条流中，都至少包含三个要素：源头/被订阅者(Observable或Flowable)、订阅者(Observer或subscriber)、触发时机(subscribe()方法)； 其次就是线程切换（subscribeOn()和observeOn()）； 最后就是数据操作(如map()、flatMap()等)。  1、订阅（subscr">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-03T05:29:14.871Z">
+<meta property="og:updated_time" content="2019-08-09T09:17:36.404Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Flutter集成Android项目">
-<meta name="twitter:description" content="在现有项目上集成Flutter1.在andorid工程目录上级目录下执行命令: flutter create -t module xxxx(想要创建的flutter项目名) 执行完后，一个和Android项目平级的flutter项目就已经创建好了。 2.添加flutter到当前Android项目：在Android项目根目录下的settings.gradle文件中，添加如下代码： setBindin">
+<meta name="twitter:title" content="RxJava2原理解析">
+<meta name="twitter:description" content="本篇主要对以下三个方面进行讲解：  RxJava是流式编程，在每一条流中，都至少包含三个要素：源头/被订阅者(Observable或Flowable)、订阅者(Observer或subscriber)、触发时机(subscribe()方法)； 其次就是线程切换（subscribeOn()和observeOn()）； 最后就是数据操作(如map()、flatMap()等)。  1、订阅（subscr">
 
 
 
@@ -121,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/06/28/flutter-integration/">
+  <link rel="canonical" href="http://yoursite.com/2019/08/09/android-rxjava-principle/">
 
 
 
 
 
-  <title>Flutter集成Android项目 | Blog</title>
+  <title>RxJava2原理解析 | Blog</title>
   
 
 
@@ -297,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/android-rxjava-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -314,7 +314,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Flutter集成Android项目</h1>
+          <h1 class="post-title" itemprop="name headline">RxJava2原理解析</h1>
         
 
         <div class="post-meta">
@@ -326,8 +326,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T16:31:43+08:00">
-                2019-06-28
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T15:03:10+08:00">
+                2019-08-09
               </time>
             
 
@@ -349,8 +349,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
                   </a>
                 </span>
 
@@ -386,192 +386,361 @@
       
 
       
-        <h2 id="在现有项目上集成Flutter"><a href="#在现有项目上集成Flutter" class="headerlink" title="在现有项目上集成Flutter"></a>在现有项目上集成Flutter</h2><p>1.在andorid工程目录上级目录下执行命令:</p>
-<pre><code>flutter create -t module xxxx(想要创建的flutter项目名)
-</code></pre><p>执行完后，一个和Android项目平级的flutter项目就已经创建好了。</p>
-<p>2.添加flutter到当前Android项目：<br>在Android项目根目录下的settings.gradle文件中，添加如下代码：</p>
-<pre><code>setBinding(new Binding([gradle: this]))
-evaluate(new File(
-        settingsDir.parentFile,
-        &quot;flutter_hybrid/.android/include_flutter.groovy&quot;
-))
-</code></pre><p>然后，在项目的app目录下，build.gradle文件中，添加如下dependency:</p>
-<pre><code>implementation project(&apos;:flutter&apos;)
-</code></pre><p>如上，添加完之后，准备工作就完成了。</p>
-<h2 id="集成Flutter页面跳转"><a href="#集成Flutter页面跳转" class="headerlink" title="集成Flutter页面跳转"></a>集成Flutter页面跳转</h2><h3 id="通过继承FlutterActivity跳到默认页面"><a href="#通过继承FlutterActivity跳到默认页面" class="headerlink" title="通过继承FlutterActivity跳到默认页面"></a>通过继承FlutterActivity跳到默认页面</h3><p>1.Application：初始化Flutter</p>
-<pre><code>public class App extends Application {
-
+        <p>本篇主要对以下三个方面进行讲解：</p>
+<ul>
+<li>RxJava是流式编程，在每一条流中，都至少包含三个要素：源头/被订阅者(Observable或Flowable)、订阅者(Observer或subscriber)、触发时机(subscribe()方法)；</li>
+<li>其次就是线程切换（subscribeOn()和observeOn()）；</li>
+<li>最后就是数据操作(如map()、flatMap()等)。</li>
+</ul>
+<h2 id="1、订阅（subscribe）"><a href="#1、订阅（subscribe）" class="headerlink" title="1、订阅（subscribe）"></a>1、订阅（subscribe）</h2><p>首先看下最简单的情况：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe&lt;String&gt;() {
     @Override
-    public void onCreate() {
-        super.onCreate();
-        FlutterMain.startInitialization(this);
+    public void subscribe(ObservableEmitter&lt;String&gt; emitter) throws Exception {
+        // doSomething, eg: 
+        // emitter.onNext(&quot;onNext&quot;);
+        // emitter.onComplete();
+    }
+}).subscribe();
+</code></pre><p>一条RxJava流若是没有调用subscribe()方法，该流便无法执行，即<strong>必须由subscribe()确定了订阅关系后这条流才能生效</strong>，原因如下：</p>
+<pre><code>// Observable.java
+public static &lt;T&gt; Observable&lt;T&gt; create(ObservableOnSubscribe&lt;T&gt; source) {
+    ObjectHelper.requireNonNull(source, &quot;source is null&quot;);
+    // 可以直接忽略RxJavaPlugins的相关方法，不影响我们理解原理
+    return RxJavaPlugins.onAssembly(new ObservableCreate&lt;T&gt;(source)); 
+ }
+// 无论调用subscribe的哪个重载方法，最终都会走到这个方法
+public final void subscribe(Observer&lt;? super T&gt; observer) {
+    ... // 省去不重要代码
+    subscribeActual(observer);
+    ...
+}
+protected abstract void subscribeActual(Observer&lt;? super T&gt; observer);
+</code></pre><p>可以看到subscribe()里面主要是调用了subscribeActual，而subscribeActual是一个抽象方法，所以具体实现在子类中，这里的子类便是ObservableCreate，再来看它的实现：</p>
+<pre><code>// ObservableCreate.java
+public ObservableCreate(ObservableOnSubscribe&lt;T&gt; source) {
+    this.source = source;
+}
+protected void subscribeActual(Observer&lt;? super T&gt; observer) {
+    CreateEmitter&lt;T&gt; parent = new CreateEmitter&lt;T&gt;(observer);
+    observer.onSubscribe(parent);
+    try {
+        source.subscribe(parent);
+    } catch (Throwable ex) {
+        Exceptions.throwIfFatal(ex);
+        parent.onError(ex);
     }
 }
-</code></pre><p>2.Activity：继承FlutterActivity</p>
-<pre><code>/**
- * debug模式原生跳转到flutter界面会出现白屏，release包就不会出现白屏了
- */
-public class MainFlutterActivity extends FlutterActivity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    GeneratedPluginRegistrant.registerWith(this);
-  }
-</code></pre><p>这样以后，我们就可以跳转这个MainFlutterActivity，实现在Android工程里面进入Flutter工程的默认页面了。</p>
-<h3 id="通过FlutterView跳到指定页面"><a href="#通过FlutterView跳到指定页面" class="headerlink" title="通过FlutterView跳到指定页面"></a>通过FlutterView跳到指定页面</h3><p>首先通过Flutter.createFlutterView方法来创建一个FlutterView类型的View。它有三个构造参数：</p>
-<pre><code>public static FlutterView createView(Activity activity, Lifecycle lifecycle, String initialRoute)
-</code></pre><p>三个参数分别是：<br>1.Activity，即当前附着的Activity</p>
-<p>2.LifeCycle，且是不能为空(NonNull)的，这也就要求我们必须用AppCompatActivity来承载FlutterView了，如果我们的Activity继承自android.app.Activity是没有getLifeCycle()这个方法的。</p>
-<pre><code>public class FlutterViewActivity extends AppCompatActivity 复制代码
-</code></pre><p>3.initialRoute这是一个String类型的变量，根据不同的标识跳转不同的Flutter页面：</p>
-<pre><code>Widget _widgetForRoute(String route) {
-  switch (route) {
-    case &apos;route1&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page1&apos;);
-    case &apos;route2&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-    default:
-        return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-  }
+</code></pre><p><strong>ObservableCreate中subscribeActual的实现就是将我们的observer封装成CreateEmitter（ObservableEmitter的实现类），再执行observer.onSubscribe，确保onSubscribe总能在onNext等其他订阅行为之前执行，接着就是我们的核心代码：source.subscribe(parent)，source便是我们一开始创建流时新建的ObservableOnSubscribe对象，而parent则是封装后的CreateEmitter，所以其实此时执行的便是在创建ObservableOnSubscribe时实现的public void subscribe(ObservableEmitter<string> emitter) throws Exception方法，此时整条流的订阅关系便成立了。</string></strong></p>
+<p>现在我们知道，事件流的执行实际上是由子类实现的subscribeActual控制的，所以其他的Observable创建方式也是一样的道理，这里再以fromIterable为例看一下：</p>
+<pre><code>// Observable.java
+public static &lt;T&gt; Observable&lt;T&gt; fromIterable(Iterable&lt;? extends T&gt; source) {
+    ObjectHelper.requireNonNull(source, &quot;source is null&quot;);
+    return RxJavaPlugins.onAssembly(new ObservableFromIterable&lt;T&gt;(source));
 }
-</code></pre><p>然后在当前Activity的OnCreate方法中，执行：</p>
-<pre><code>FlutterView flutterView = Flutter.createView(this, getLifecycle(), &quot;route1&quot;);    
-setContentView(flutterView);
 
-//或者：
-
-setContentView(R.layout.activity_flutter);
-rlContainer = findViewById(R.id.rl_container);
-rlContainer.addView(flutterView)
-</code></pre><h2 id="集成到现有项目遇到的坑"><a href="#集成到现有项目遇到的坑" class="headerlink" title="集成到现有项目遇到的坑"></a>集成到现有项目遇到的坑</h2><p>Check failed: vm. Must be able to initialize the VM：</p>
-<pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_data.cc(19)] VM snapshot invalid and could not be inferred from settings.
-    [ERROR:flutter/runtime/dart_vm.cc(241)] Could not setup VM data to bootstrap the VM from.
-    [ERROR:flutter/runtime/dart_vm_lifecycle.cc(89)] Could not create Dart VM instance.
- A/flutter: [FATAL:flutter/shell/common/shell.cc(218)] Check failed: vm. Must be able to initialize the VM.
-
-SIGABRT
-    0x146b
-    #00    pc 0002210c    /system/lib/libc.so (tgkill+12) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #01    pc 00013165    /system/lib/libc.so (pthread_kill+48) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #02    pc 00013379    /system/lib/libc.so (raise+10) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #03    pc 000120a3    /system/lib/libc.so [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #04    pc 000219c0    /system/lib/libc.so (abort+4) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #05    pc 00af85ab    /data/app-lib/xxx.debug-1/libflutter.so [armeabi-v7a::a12434e0b53806a35730000001000000]
-</code></pre><p>经github上<a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">#24679</a>及其他issue参考，得出以下解决方案：</p>
-<blockquote>
-<p>Import flutter module to your HOST app(set binding, implementation, and instantiate view/fragment)<br>When you clean/rebuild from HOST app, flutter module does not generate properly<br>You need to open your flutter module in a separate AS<br>flutter clean<br>cd .android<br>./gradlew clean<br>./gradlew assembleDebug<br>Return to host app and run app(do not sync or rebuild) :)</p>
-</blockquote>
-<p>翻译过来就是：</p>
-<blockquote>
-<p>本项目执行清理命令。./gradlew clean<br>进入 flutter module 项目执行清理命令。flutter packages get;flutter clean<br>进入 flutter module 的 .android 项目执行清理命令和打包操作。./gradlew clean;./gradlew assemble<br>回到本项目执行打包命令。./gradlew assemble</p>
-</blockquote>
-<p>直接执行下面命令即可：</p>
-<pre><code>$ ./gradlew clean;cd ../flutter_module;flutter packages get;flutter clean;cd .android/;./gradlew clean;./gradlew assemble;cd /d/workspace/app_proj/;./gradlew installDebug
-</code></pre><p>后续假设你 flutter module 没有更新过，那么以后修改本地项目之后，就直接执行./gradlew installDebug。 注意不要用studio工具运行、rebuild或clean。</p>
-<h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
-<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
-<pre><code>-keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.** { *; }
--keep class io.flutter.util.** { *; }
--keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
--keep class myapp.flutter.** { *; }
-</code></pre><h2 id="交互"><a href="#交互" class="headerlink" title="交互"></a>交互</h2><h3 id="Flutter-调用Android"><a href="#Flutter-调用Android" class="headerlink" title="Flutter 调用Android"></a>Flutter 调用Android</h3><p>java</p>
-<pre><code>new MethodChannel(flutterView, FlutterToAndroidCHANNEL).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+// ObservableFromIterable.java
+public ObservableFromIterable(Iterable&lt;? extends T&gt; source) {
+    this.source = source;
+}
+@Override
+public void subscribeActual(Observer&lt;? super T&gt; s) {
+    Iterator&lt;? extends T&gt; it;
+    try {
+        it = source.iterator();
+    } catch (Throwable e) {
+        Exceptions.throwIfFatal(e);
+        EmptyDisposable.error(e, s);
+        return;
+    }
+    boolean hasNext;
+    try {
+        hasNext = it.hasNext();
+    } catch (Throwable e) {
+        Exceptions.throwIfFatal(e);
+        EmptyDisposable.error(e, s);
+        return;
+    }
+    if (!hasNext) {
+        EmptyDisposable.complete(s);
+        return;
+    }
+    FromIterableDisposable&lt;T&gt; d = new FromIterableDisposable&lt;T&gt;(s, it);
+    s.onSubscribe(d);
+    if (!d.fusionMode) {
+        d.run();
+    }
+}    
+</code></pre><p>可以看到，这里是将observer和我们的数据源列表封装为FromIterableDisposable，然后执行d.run()，下面看下run的实现：</p>
+<pre><code>// FromIterableDisposable.java
+FromIterableDisposable(Observer&lt;? super T&gt; actual, Iterator&lt;? extends T&gt; it) {
+    this.actual = actual;
+    this.it = it;
+}
+void run() {
+    boolean hasNext;
+    do {
+        if (isDisposed()) {
+            return;
+        }
+        T v;
+        try {
+            v = ObjectHelper.requireNonNull(it.next(), &quot;The iterator returned a null value&quot;);
+        } catch (Throwable e) {
+            Exceptions.throwIfFatal(e);
+            actual.onError(e);
+            return;
+        }
+        actual.onNext(v);
+        if (isDisposed()) {
+            return;
+        }
+        try {
+            hasNext = it.hasNext();
+        } catch (Throwable e) {
+            Exceptions.throwIfFatal(e);
+            actual.onError(e);
+            return;
+        }
+    } while (hasNext);
+    if (!isDisposed()) {
+        actual.onComplete();
+    }
+}
+</code></pre><p>在run方法中不停地遍历数据源列表，然后根据实际情况执行对应的事件处理方法(actual.onNext(v);等，actual即为我们传进来的observer)，这便完成了RxJava流的处理。</p>
+<p>总结：<strong>RxJava2的订阅原理其实便是在subcribe时执行子类中实现的subscribeActual方法，该方法最终会去调用observer相关的订阅方法，可理解为观察者模式的一种变形。</strong></p>
+<h2 id="2、线程切换"><a href="#2、线程切换" class="headerlink" title="2、线程切换"></a>2、线程切换</h2><h3 id="subscribeOn"><a href="#subscribeOn" class="headerlink" title="subscribeOn"></a>subscribeOn</h3><pre><code>// Observable.java
+public final Observable&lt;T&gt; subscribeOn(Scheduler scheduler) {
+    ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
+    return RxJavaPlugins.onAssembly(new ObservableSubscribeOn&lt;T&gt;(this, scheduler));
+    }
+</code></pre><p>subscribeOn时其实也是创建了一个Observable子类去实现subscribeActual方法：</p>
+<pre><code>// ObservableSubscribeOn.java
+public void subscribeActual(final Observer&lt;? super T&gt; s) {
+    final SubscribeOnObserver&lt;T&gt; parent = new SubscribeOnObserver&lt;T&gt;(s);
+    s.onSubscribe(parent);
+    parent.setDisposable(scheduler.scheduleDirect(new SubscribeTask(parent)));
+}
+</code></pre><p>这里将下游的Observer s封装成SubscribeOnObserver后又封装成Runnable的实现类SubscribeTask，在run方法中source.subscribe(parent)：</p>
+<pre><code>// ObservableSubscribeOn.java
+final class SubscribeTask implements Runnable {
+    private final SubscribeOnObserver&lt;T&gt; parent;
+    SubscribeTask(SubscribeOnObserver&lt;T&gt; parent) {
+        this.parent = parent;
+    }
     @Override
-    public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-
-        //接收来自flutter的指令withoutParams
-        if (methodCall.method.equals(&quot;withoutParams&quot;)) {
-
-            //跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        }
-        //接收来自flutter的指令withParams
-        else if (methodCall.method.equals(&quot;withParams&quot;)) {
-
-            //解析参数
-            String text = methodCall.argument(&quot;flutter&quot;);
-
-            //带参数跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            intent.putExtra(&quot;test&quot;, text);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        } else {
-            result.notImplemented();
-        }
+    public void run() {
+        source.subscribe(parent);
+    }
+}
+</code></pre><p>然后通过scheduler.scheduleDirect(new SubscribeTask(parent))将这个Task放到Worker中：</p>
+<pre><code>// Scheduler.java
+public Disposable scheduleDirect(@NonNull Runnable run) {
+    return scheduleDirect(run, 0L, TimeUnit.NANOSECONDS);
+}
+public Disposable scheduleDirect(@NonNull Runnable run, long delay, @NonNull TimeUnit unit) {
+    final Worker w = createWorker();
+    final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
+    DisposeTask task = new DisposeTask(decoratedRun, w);
+    w.schedule(task, delay, unit);
+    return task;
+}
+public abstract Worker createWorker();
+</code></pre><p>而createWorker由Scheduler子类实现，即我们执行的线程类型，如AndroidSchedulers.mainThread()、Schedulers.io()，这里以mainThread()为例，</p>
+<pre><code>// AndroidSchedulers.java
+public static Scheduler mainThread() {
+    return RxAndroidPlugins.onMainThreadScheduler(MAIN_THREAD);
+}
+private static final Scheduler MAIN_THREAD = RxAndroidPlugins.initMainThreadScheduler(new Callable&lt;Scheduler&gt;() {
+    @Override 
+    public Scheduler call() throws Exception {
+        return MainHolder.DEFAULT;
     }
 });
-</code></pre><p>dart</p>
-<pre><code>Future&lt;Null&gt; _jumpToNative() async {
-  String result = await toAndroidPlugin.invokeMethod(&apos;withoutParams&apos;);
-
-  print(result);
+private static final class MainHolder {
+    static final Scheduler DEFAULT = new HandlerScheduler(new Handler(Looper.getMainLooper()));
 }
-
-
-Future&lt;Null&gt; _jumpToNativeWithParams() async {
-
-  Map&lt;String, String&gt; map = { &quot;flutter&quot;: &quot;这是一条来自flutter的参数&quot; };
-
-  String result = await toAndroidPlugin.invokeMethod(&apos;withParams&apos;, map);
-
-  print(result);
+</code></pre><p>RxAndroidPlugins里面的非常简单，这里最终返回的就是HandlerScheduler，因此来看下它实现的createWorker和schedule方法：</p>
+<pre><code>// HandlerScheduler.java
+public Worker createWorker() { return new HandlerWorker(handler); }
+</code></pre><p>在HandlerWorker中实现schedule(task, delay, unit)：</p>
+<pre><code>// HandlerWorker.java
+public Disposable schedule(Runnable run, long delay, TimeUnit unit) {
+    ...
+    ScheduledRunnable scheduled = new ScheduledRunnable(handler, run);
+    Message message = Message.obtain(handler, scheduled);
+    message.obj = this; // Used as token for batch disposal of this worker&apos;s runnables.
+    handler.sendMessageDelayed(message, unit.toMillis(delay));
+    ....
+    return scheduled;
 }
-</code></pre><h3 id="Android-向-Flutter-传参"><a href="#Android-向-Flutter-传参" class="headerlink" title="Android 向 Flutter 传参"></a>Android 向 Flutter 传参</h3><p>java</p>
-<pre><code>new EventChannel(flutterView, AndroidToFlutterCHANNEL)
-            .setStreamHandler(new EventChannel.StreamHandler() {
-                @Override
-                public void onListen(Object o, EventChannel.EventSink eventSink) {
-                    String androidParmas = &quot;来自android原生的参数&quot;;
-                    eventSink.success(androidParmas);
+</code></pre><p>这里将handler（由上面创建DEFAULT Scheduler时可知，该handler为UI线程的handler）和run又再次封装为ScheduledRunnable，然后通过handler发送到主线程处理，因此便保证了订阅操作（source.subscribe(parent)）执行在主线程。</p>
+<p>同时，由上面可知，rx流由subscribe开始触发，然后执行source.subscribe(observer)，然而source可能也是上游操作后的产物（如map），因此便会触发上游内部的subscribe，直到源头，即<strong>rx流由subscribe开始触发，然后逆向向上寻找直到源头，才开始真正的执行</strong>。因此，若是有多个subscribeOn，最终的subscribe也是被放到最上面的subscribeOn（即第一个）指定的线程中执行，<strong>这便是指定多个subscribeOn只有第一个生效的原因</strong>。</p>
+<p>总结：<strong>其实就是将订阅操作放到Runnable中执行，并结合handler机制将Runnable发送到主线程，对于其他线程（不同的线程模式会创建不同的Scheduler，并持有对应的线程池）则是将Runnable交给指定线程池处理。这便保证了在指定线程获取/处理数据源（observable）。</strong></p>
+<h3 id="observeOn"><a href="#observeOn" class="headerlink" title="observeOn"></a>observeOn</h3><pre><code>// Observable.java
+public final Observable&lt;T&gt; observeOn(Scheduler scheduler) {
+    return observeOn(scheduler, false, bufferSize());
+}
+public final Observable&lt;T&gt; observeOn(Scheduler scheduler, boolean delayError, int bufferSize) {
+    ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
+    ObjectHelper.verifyPositive(bufferSize, &quot;bufferSize&quot;);
+    return RxJavaPlugins.onAssembly(new ObservableObserveOn&lt;T&gt;(this, scheduler, delayError, bufferSize));
+}
+</code></pre><p>observeOn的线程切换则是在ObservableObserveOn中处理的：</p>
+<pre><code>// ObservableObserveOn.java
+protected void subscribeActual(Observer&lt;? super T&gt; observer) {
+    if (scheduler instanceof TrampolineScheduler) {
+         source.subscribe(observer);
+    } else {
+        Scheduler.Worker w = scheduler.createWorker();
+        source.subscribe(new ObserveOnObserver&lt;T&gt;(observer, w, delayError, bufferSize));
+    }
+}
+</code></pre><p>这里也是根据指定线程类型创建Worker（可参考上面subscribeOn原理），并将observer和w一同放到ObserveOnObserver中：</p>
+<pre><code>// ObserveOnObserver.java
+public void onNext(T t) {
+    ....
+    schedule();
+}
+void schedule() {
+    if (getAndIncrement() == 0) {
+        worker.schedule(this);
+    }
+}
+public void run() {
+    if (outputFused) {
+        drainFused();
+    } else {
+         drainNormal();
+    }
+}
+void drainNormal() {
+    ...
+    for (;;) {
+        ...
+        for (;;) {
+            ...
+            a.onNext(v);
+        }
+        ...
+    }
+}
+</code></pre><p>可以看到，onNext执行的是schedule，而schedule则是将该对象直接放到指定线程的Worker中，然后在run中去执行对应的事件处理方法（onNext等），因此便实现了将下游的observer放到指定线程执行的目的，当然，这里只是将其直接下游的observer放到指定线程而已，对于其下游的下游则不一定。<strong>也就是说，observeOn可以有多个，每个都是对其直接下游做线程切换，若是下游不再切换，则所有下游都在该指定线程中执行。</strong></p>
+<p>总结:<strong>observeOn其实就是将下游的observer放到指定线程里面去执行。</strong></p>
+<h2 id="3、数据变换"><a href="#3、数据变换" class="headerlink" title="3、数据变换"></a>3、数据变换</h2><p>在事件从源头流到最终观察者的过程中，我们可以对事件进行操作转换，这里以map和flatMap为例进行解析。</p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><pre><code>// Observable.java
+public final &lt;R&gt; Observable&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper) {
+    ObjectHelper.requireNonNull(mapper, &quot;mapper is null&quot;);
+    return RxJavaPlugins.onAssembly(new ObservableMap&lt;T, R&gt;(this, mapper));
+}
+</code></pre><p>执行map操作时其实是<strong>将上游的observable和我们自己实现的mapper封住成一个ObservableMap</strong>，所以具体实现就是在ObservableMap的subscribeActual中：</p>
+<pre><code>// ObservableMap.java
+public void subscribeActual(Observer&lt;? super U&gt; t) {
+    source.subscribe(new MapObserver&lt;T, U&gt;(t, function));
+}
+</code></pre><p>看到这句是不是很熟悉，从上面的订阅原理可知，到这里其实真正执行的便是MapObserver中的onNext等方法了，而其onNext里便是先执行map转换，再将转换结果交给下游的observer执行：</p>
+<pre><code>// MapObserver.java
+@Override
+public void onNext(T t) {
+    if (done) { // error or complete
+        return;
+    }
+    if (sourceMode != NONE) {
+        actual.onNext(null);
+        return;
+    }
+    U v;
+    try {
+    v = ObjectHelper.requireNonNull(mapper.apply(t), &quot;The mapper function returned a null value.&quot;);
+    } catch (Throwable ex) {
+        fail(ex);
+    return;
+    }
+    actual.onNext(v);
+}
+</code></pre><h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h3><p>我们调用的flatMap最终执行的是该重载方法：</p>
+<pre><code>// Observable.java
+public final &lt;R&gt; Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper, boolean delayErrors, int maxConcurrency, int bufferSize) {
+     ...
+     return RxJavaPlugins.onAssembly(new ObservableFlatMap&lt;T, R&gt;(this, mapper, delayErrors, maxConcurrency, bufferSize));
+}
+</code></pre><p>因此看下ObservableFlatMap：</p>
+<pre><code>// ObservableFlatMap.java
+public ObservableFlatMap(ObservableSource&lt;T&gt; source, Function&lt;? super T, ? extends ObservableSource&lt;? extends U&gt;&gt; mapper, boolean delayErrors, int maxConcurrency, int bufferSize) {
+    super(source);
+    this.mapper = mapper;
+    this.delayErrors = delayErrors;
+    this.maxConcurrency = maxConcurrency;
+    this.bufferSize = bufferSize;
+}
+@Override
+public void subscribeActual(Observer&lt;? super U&gt; t) {
+    if (ObservableScalarXMap.tryScalarXMapSubscribe(source, t, mapper)) {
+    return;
+    }
+    source.subscribe(new MergeObserver&lt;T, U&gt;(t, mapper, delayErrors, maxConcurrency, bufferSize));
+}
+</code></pre><p>所以实际的操作是在MergeObserver，这里我们就看下onNext就好了：</p>
+<pre><code>// MergeObserver.java
+public void onNext(T t) {
+    // safeguard against misbehaving sources
+    if (done) {
+        return;
+    }
+    ObservableSource&lt;? extends U&gt; p;
+    try {
+        p = ObjectHelper.requireNonNull(mapper.apply(t), &quot;The mapper returned a null ObservableSource&quot;);
+    } catch (Throwable e) {
+        Exceptions.throwIfFatal(e);
+        s.dispose();
+        onError(e);
+        return;
+    }
+    if (maxConcurrency != Integer.MAX_VALUE) {
+        synchronized (this) {
+            if (wip == maxConcurrency) {
+                sources.offer(p);
+                return;
+            }
+            wip++;
+        }
+    }
+    subscribeInner(p);
+}
+</code></pre><p>可以看到，这里是想<strong>将上游传进来的对象通过我们自己实现的mapper进行转换，然后再执行subscribeInner(p)</strong>（maxConcurrency默认就是Integer.MAX_VALUE），因此看下subscribeInner(p)：</p>
+<pre><code>// MergeObserver.java
+void subscribeInner(ObservableSource&lt;? extends U&gt; p) {
+    for (;;) {
+        if (p instanceof Callable) {
+            if (tryEmitScalar(((Callable&lt;? extends U&gt;)p)) &amp;&amp; maxConcurrency != Integer.MAX_VALUE) {
+                boolean empty = false;
+                synchronized (this) {
+                    p = sources.poll();
+                    if (p == null) {
+                        wip--;
+                        empty = true;
+                    }
                 }
-
-                @Override
-                public void onCancel(Object o) {
-
+                if (empty) {
+                    drain();
+                    break;
                 }
-            });
-</code></pre><p>dart</p>
-<pre><code> void _startfromAndroiPlugin(){
-   if(_fromAndroiSub == null){
-     _fromAndroiSub =  fromAndroiPlugin.receiveBroadcastStream()
-     .listen(_onfromAndroiEvent,onError: _onfromAndroiError);
-   }
- }
-
-void _onfromAndroiEvent(Object event) {
-   setState(() {
-     _nativeParams = event;
-   });
- }
-
- void _onfromAndroiError(Object error) {
-   setState(() {
-     _nativeParams = &quot;error&quot;;
-     print(error);
-   });
- }
-</code></pre><p>有几处 要注意一一对应：</p>
-<pre><code>public static final String FlutterToAndroidCHANNEL = &quot;com.litngzhe.toandroid/plugin&quot;; 
-public static final String AndroidToFlutterCHANNEL= &quot;com.litngzhe.toflutter/plugin&quot;;
-
-new MethodChannel(flutterView, FlutterToAndroidCHANNEL)
-new EventChannel(flutterView, AndroidToFlutterCHANNEL) 
-
-
-//dart中 获取到插件与原生的交互通道 MethodChannel 中 涉及到的方法名要要统一
-static const toAndroidPlugin = const MethodChannel(&apos;com.litngzhe.toandroid/plugin&apos;);
-static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/plugin&apos;); 
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
+            } else {
+                break;
+            }
+        } else {
+            InnerObserver&lt;T, U&gt; inner = new InnerObserver&lt;T, U&gt;(this, uniqueId++);
+            if (addInner(inner)) {
+                p.subscribe(inner);
+            }
+            break;
+        }
+    }
+}
+</code></pre><p>这里是个无线循环，根据是否为Callable类型执行不同的逻辑，一般Observable.just为Callable，而from类型的则不是。这里看下from的逻辑，毕竟Callable类型又没指定maxConcurrency的话，是直接break，所以没什么好看的。而非Callable类型的，可以看到这里又封装成了InnerObserver，而for循环并没有什么用。</p>
+<p>总结：<strong>在执行操作符方法(如map、flatMap等)时，会生成对应的Observable对象，在该对象中实现具体业务逻辑，对上游流下来的数据进行操作，再将处理后的结果交给下游的的订阅者继续处理。</strong></p>
+<h2 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h2><p>RxJava2事件流的产生由subscribe方法调用subscribeActual(observer)触发，而subscribeActual由Observable子类实现，每个子类里的实现逻辑不同，可能会先执行自己的操作（如map或flatMap等 ），但最终都会调用source.subscribe，source即为该节点的上游数据源，因此需要上游操作执行完才能拿到source，最终便形成逐级逆向向上获取数据源（Observable或Flowable），即形成了从最开始的源头发射数据一路向下经过各个节点的操作后交给最终观察者的链式模型。</p>
+<p>而对于线程切换，subscribeOn即是将订阅操作（observer）放到Runnable中执行，并将Runnable放到指定线程里操作；observeOn则是将下游的observer放到指定线程里面去执行。</p>
+<h2 id="5、参考资料"><a href="#5、参考资料" class="headerlink" title="5、参考资料"></a>5、参考资料</h2><p><a href="https://blog.csdn.net/reakingf/article/details/84845705" target="_blank" rel="noopener">https://blog.csdn.net/reakingf/article/details/84845705</a></p>
 
       
     </div>
@@ -589,7 +758,7 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
       
         <div class="post-tags">
           
-            <a href="/tags/flutter/" rel="tag"># flutter</a>
+            <a href="/tags/rxjava/" rel="tag"># rxjava</a>
           
         </div>
       
@@ -602,8 +771,8 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/25/dart-knowledge/" rel="next" title="Dart语言基础">
-                <i class="fa fa-chevron-left"></i> Dart语言基础
+              <a href="/2019/08/07/android-rxjava-role/" rel="next" title="RxJava2五种被观察者及背压">
+                <i class="fa fa-chevron-left"></i> RxJava2五种被观察者及背压
               </a>
             
           </div>
@@ -611,10 +780,6 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/08/06/android-rxjava/" rel="prev" title="RxJava2操作符汇总">
-                RxJava2操作符汇总 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -748,7 +913,7 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#在现有项目上集成Flutter"><span class="nav-number">1.</span> <span class="nav-text">在现有项目上集成Flutter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成Flutter页面跳转"><span class="nav-number">2.</span> <span class="nav-text">集成Flutter页面跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过继承FlutterActivity跳到默认页面"><span class="nav-number">2.1.</span> <span class="nav-text">通过继承FlutterActivity跳到默认页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过FlutterView跳到指定页面"><span class="nav-number">2.2.</span> <span class="nav-text">通过FlutterView跳到指定页面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集成到现有项目遇到的坑"><span class="nav-number">3.</span> <span class="nav-text">集成到现有项目遇到的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#flutter-assets"><span class="nav-number">3.1.</span> <span class="nav-text">flutter_assets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#混淆"><span class="nav-number">3.2.</span> <span class="nav-text">混淆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#交互"><span class="nav-number">4.</span> <span class="nav-text">交互</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flutter-调用Android"><span class="nav-number">4.1.</span> <span class="nav-text">Flutter 调用Android</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-向-Flutter-传参"><span class="nav-number">4.2.</span> <span class="nav-text">Android 向 Flutter 传参</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、订阅（subscribe）"><span class="nav-number">1.</span> <span class="nav-text">1、订阅（subscribe）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、线程切换"><span class="nav-number">2.</span> <span class="nav-text">2、线程切换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#subscribeOn"><span class="nav-number">2.1.</span> <span class="nav-text">subscribeOn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#observeOn"><span class="nav-number">2.2.</span> <span class="nav-text">observeOn</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、数据变换"><span class="nav-number">3.</span> <span class="nav-text">3、数据变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#map"><span class="nav-number">3.1.</span> <span class="nav-text">map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMap"><span class="nav-number">3.2.</span> <span class="nav-text">flatMap</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、总结"><span class="nav-number">4.</span> <span class="nav-text">4、总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、参考资料"><span class="nav-number">5.</span> <span class="nav-text">5、参考资料</span></a></li></ol></div>
             
 
           </div>
