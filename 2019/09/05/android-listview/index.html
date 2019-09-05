@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="listView,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ListView的结构，如下图所示：  Adapter作用Adapter是适配器的意思，它在ListView和数据源之间起到了一个桥梁的作用，ListView并不会直接和数据源打交道，而是会借助Adapter这个桥梁来去访问真正的数据源，与之前不同的是，Adapter的接口都是统一的，因此ListView不用再去担心任何适配方面的问题。而Adapter又是一个接口(interface)，它可以去实">
+<meta name="keywords" content="listView">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android ListView原理完全解析">
+<meta property="og:url" content="http://yoursite.com/2019/09/05/android-listview/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="ListView的结构，如下图所示：  Adapter作用Adapter是适配器的意思，它在ListView和数据源之间起到了一个桥梁的作用，ListView并不会直接和数据源打交道，而是会借助Adapter这个桥梁来去访问真正的数据源，与之前不同的是，Adapter的接口都是统一的，因此ListView不用再去担心任何适配方面的问题。而Adapter又是一个接口(interface)，它可以去实">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/android-listview/listview.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/android-listview/recycle_bin.png">
+<meta property="og:updated_time" content="2019-09-05T09:21:53.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android ListView原理完全解析">
+<meta name="twitter:description" content="ListView的结构，如下图所示：  Adapter作用Adapter是适配器的意思，它在ListView和数据源之间起到了一个桥梁的作用，ListView并不会直接和数据源打交道，而是会借助Adapter这个桥梁来去访问真正的数据源，与之前不同的是，Adapter的接口都是统一的，因此ListView不用再去担心任何适配方面的问题。而Adapter又是一个接口(interface)，它可以去实">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/05/android-listview/listview.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/05/android-listview/">
+
+
+
+
+
+  <title>Android ListView原理完全解析 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/05/android-listview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android ListView原理完全解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-05T13:33:57+08:00">
+                2019-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>ListView的结构，如下图所示：</p>
+<p><img src="/2019/09/05/android-listview/listview.png" alt></p>
+<h2 id="Adapter作用"><a href="#Adapter作用" class="headerlink" title="Adapter作用"></a>Adapter作用</h2><p>Adapter是适配器的意思，它在ListView和数据源之间起到了一个桥梁的作用，ListView并不会直接和数据源打交道，而是会借助Adapter这个桥梁来去访问真正的数据源，与之前不同的是，Adapter的接口都是统一的，因此ListView不用再去担心任何适配方面的问题。而Adapter又是一个接口(interface)，它可以去实现各种各样的子类，每个子类都能通过自己的逻辑来去完成特定的功能，以及与特定数据源的适配操作，比如说ArrayAdapter可以用于数组和List类型的数据源适配，SimpleCursorAdapter可以用于游标类型的数据源适配，这样就非常巧妙地把数据源适配困难的问题解决掉了，并且还拥有相当不错的扩展性。简单的原理示意图如下所示：</p>
+<p>当然Adapter的作用不仅仅只有<strong>数据源适配</strong>这一点，还有一个非常非常重要的方法也需要我们在Adapter当中去重写，就是getView()方法</p>
+<h2 id="RecycleBin机制"><a href="#RecycleBin机制" class="headerlink" title="RecycleBin机制"></a>RecycleBin机制</h2><p>在开始分析ListView的源码之前，还有一个东西是我们提前需要了解的，就是RecycleBin机制，这个机制也是ListView能够实现成百上千条数据都不会OOM最重要的一个原因。其实RecycleBin的代码并不多，它是写在AbsListView中的一个内部类，所以所有继承自AbsListView的子类，也就是ListView和GridView，都可以使用这个机制。那我们来看一下RecycleBin中的主要代码，如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * The RecycleBin facilitates reuse of views across layouts. The RecycleBin</span><br><span class="line"> * has two levels of storage: ActiveViews and ScrapViews. ActiveViews are</span><br><span class="line"> * those views which were onscreen at the start of a layout. By</span><br><span class="line"> * construction, they are displaying current information. At the end of</span><br><span class="line"> * layout, all views in ActiveViews are demoted to ScrapViews. ScrapViews</span><br><span class="line"> * are old views that could potentially be used by the adapter to avoid</span><br><span class="line"> * allocating views unnecessarily.</span><br><span class="line"> * </span><br><span class="line"> * @see android.widget.AbsListView#setRecyclerListener(android.widget.AbsListView.RecyclerListener)</span><br><span class="line"> * @see android.widget.AbsListView.RecyclerListener</span><br><span class="line"> */</span><br><span class="line">class RecycleBin &#123;</span><br><span class="line">	private RecyclerListener mRecyclerListener;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * The position of the first view stored in mActiveViews.</span><br><span class="line">	 */</span><br><span class="line">	private int mFirstActivePosition;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * Views that were on screen at the start of layout. This array is</span><br><span class="line">	 * populated at the start of layout, and at the end of layout all view</span><br><span class="line">	 * in mActiveViews are moved to mScrapViews. Views in mActiveViews</span><br><span class="line">	 * represent a contiguous range of Views, with position of the first</span><br><span class="line">	 * view store in mFirstActivePosition.</span><br><span class="line">	 */</span><br><span class="line">	private View[] mActiveViews = new View[0];</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * Unsorted views that can be used by the adapter as a convert view.</span><br><span class="line">	 */</span><br><span class="line">	private ArrayList&lt;View&gt;[] mScrapViews;</span><br><span class="line"> </span><br><span class="line">	private int mViewTypeCount;</span><br><span class="line"> </span><br><span class="line">	private ArrayList&lt;View&gt; mCurrentScrap;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * Fill ActiveViews with all of the children of the AbsListView.</span><br><span class="line">	 * </span><br><span class="line">	 * @param childCount</span><br><span class="line">	 *            The minimum number of views mActiveViews should hold</span><br><span class="line">	 * @param firstActivePosition</span><br><span class="line">	 *            The position of the first view that will be stored in</span><br><span class="line">	 *            mActiveViews</span><br><span class="line">	 */</span><br><span class="line">	void fillActiveViews(int childCount, int firstActivePosition) &#123;</span><br><span class="line">		if (mActiveViews.length &lt; childCount) &#123;</span><br><span class="line">			mActiveViews = new View[childCount];</span><br><span class="line">		&#125;</span><br><span class="line">		mFirstActivePosition = firstActivePosition;</span><br><span class="line">		final View[] activeViews = mActiveViews;</span><br><span class="line">		for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">			View child = getChildAt(i);</span><br><span class="line">			AbsListView.LayoutParams lp = (AbsListView.LayoutParams) child.getLayoutParams();</span><br><span class="line">			// Don&apos;t put header or footer views into the scrap heap</span><br><span class="line">			if (lp != null &amp;&amp; lp.viewType != ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</span><br><span class="line">				// Note: We do place AdapterView.ITEM_VIEW_TYPE_IGNORE in</span><br><span class="line">				// active views.</span><br><span class="line">				// However, we will NOT place them into scrap views.</span><br><span class="line">				activeViews[i] = child;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * Get the view corresponding to the specified position. The view will</span><br><span class="line">	 * be removed from mActiveViews if it is found.</span><br><span class="line">	 * </span><br><span class="line">	 * @param position</span><br><span class="line">	 *            The position to look up in mActiveViews</span><br><span class="line">	 * @return The view if it is found, null otherwise</span><br><span class="line">	 */</span><br><span class="line">	View getActiveView(int position) &#123;</span><br><span class="line">		int index = position - mFirstActivePosition;</span><br><span class="line">		final View[] activeViews = mActiveViews;</span><br><span class="line">		if (index &gt;= 0 &amp;&amp; index &lt; activeViews.length) &#123;</span><br><span class="line">			final View match = activeViews[index];</span><br><span class="line">			activeViews[index] = null;</span><br><span class="line">			return match;</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * Put a view into the ScapViews list. These views are unordered.</span><br><span class="line">	 * </span><br><span class="line">	 * @param scrap</span><br><span class="line">	 *            The view to add</span><br><span class="line">	 */</span><br><span class="line">	void addScrapView(View scrap) &#123;</span><br><span class="line">		AbsListView.LayoutParams lp = (AbsListView.LayoutParams) scrap.getLayoutParams();</span><br><span class="line">		if (lp == null) &#123;</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">		// Don&apos;t put header or footer views or views that should be ignored</span><br><span class="line">		// into the scrap heap</span><br><span class="line">		int viewType = lp.viewType;</span><br><span class="line">		if (!shouldRecycleViewType(viewType)) &#123;</span><br><span class="line">			if (viewType != ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</span><br><span class="line">				removeDetachedView(scrap, false);</span><br><span class="line">			&#125;</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">		if (mViewTypeCount == 1) &#123;</span><br><span class="line">			dispatchFinishTemporaryDetach(scrap);</span><br><span class="line">			mCurrentScrap.add(scrap);</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			dispatchFinishTemporaryDetach(scrap);</span><br><span class="line">			mScrapViews[viewType].add(scrap);</span><br><span class="line">		&#125;</span><br><span class="line"> </span><br><span class="line">		if (mRecyclerListener != null) &#123;</span><br><span class="line">			mRecyclerListener.onMovedToScrapHeap(scrap);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	/**</span><br><span class="line">	 * @return A view from the ScrapViews collection. These are unordered.</span><br><span class="line">	 */</span><br><span class="line">	View getScrapView(int position) &#123;</span><br><span class="line">		ArrayList&lt;View&gt; scrapViews;</span><br><span class="line">		if (mViewTypeCount == 1) &#123;</span><br><span class="line">			scrapViews = mCurrentScrap;</span><br><span class="line">			int size = scrapViews.size();</span><br><span class="line">			if (size &gt; 0) &#123;</span><br><span class="line">				return scrapViews.remove(size - 1);</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				return null;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			int whichScrap = mAdapter.getItemViewType(position);</span><br><span class="line">			if (whichScrap &gt;= 0 &amp;&amp; whichScrap &lt; mScrapViews.length) &#123;</span><br><span class="line">				scrapViews = mScrapViews[whichScrap];</span><br><span class="line">				int size = scrapViews.size();</span><br><span class="line">				if (size &gt; 0) &#123;</span><br><span class="line">					return scrapViews.remove(size - 1);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	public void setViewTypeCount(int viewTypeCount) &#123;</span><br><span class="line">		if (viewTypeCount &lt; 1) &#123;</span><br><span class="line">			throw new IllegalArgumentException(&quot;Can&apos;t have a viewTypeCount &lt; 1&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">		// noinspection unchecked</span><br><span class="line">		ArrayList&lt;View&gt;[] scrapViews = new ArrayList[viewTypeCount];</span><br><span class="line">		for (int i = 0; i &lt; viewTypeCount; i++) &#123;</span><br><span class="line">			scrapViews[i] = new ArrayList&lt;View&gt;();</span><br><span class="line">		&#125;</span><br><span class="line">		mViewTypeCount = viewTypeCount;</span><br><span class="line">		mCurrentScrap = scrapViews[0];</span><br><span class="line">		mScrapViews = scrapViews;</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里的RecycleBin代码并不全，只是把最主要的几个方法提了出来。那么我们先来对这几个方法进行简单解读，这对后面分析ListView的工作原理将会有很大的帮助:</p>
+<ul>
+<li><p><strong>fillActiveViews()</strong> 这个方法接收两个参数，第一个参数表示要存储的view的数量，第二个参数表示ListView中第一个可见元素的position值。RecycleBin当中使用mActiveViews这个数组来存储View，调用这个方法后就会根据传入的参数来将ListView中的指定元素存储到mActiveViews数组当中。</p>
+</li>
+<li><p><strong>getActiveView()</strong> 这个方法和fillActiveViews()是对应的，用于从mActiveViews数组当中获取数据。该方法接收一个position参数，表示元素在ListView当中的位置，方法内部会自动将position值转换成mActiveViews数组对应的下标值。需要注意的是，mActiveViews当中所存储的View，一旦被获取了之后就会从mActiveViews当中移除，下次获取同样位置的View将会返回null，也就是说mActiveViews不能被重复利用。</p>
+</li>
+<li><p><strong>addScrapView()</strong> 用于将一个废弃的View进行缓存，该方法接收一个View参数，当有某个View确定要废弃掉的时候(比如滚动出了屏幕)，就应该调用这个方法来对View进行缓存，RecycleBin当中使用mScrapViews和mCurrentScrap这两个List来存储废弃View。</p>
+</li>
+<li><p><strong>getScrapView()</strong> 用于从废弃缓存中取出一个View，这些废弃缓存中的View是没有顺序可言的，因此getScrapView()方法中的算法也非常简单，就是直接从mCurrentScrap当中获取尾部的一个scrap view进行返回。</p>
+</li>
+<li><p><strong>setViewTypeCount()</strong> 我们都知道Adapter当中可以重写一个getViewTypeCount()来表示ListView中有几种类型的数据项，而setViewTypeCount()方法的作用就是为每种类型的数据项都单独启用一个RecycleBin缓存机制。实际上，getViewTypeCount()方法通常情况下使用的并不是很多，所以我们只要知道RecycleBin当中有这样一个功能就行了。</p>
+</li>
+</ul>
+<h2 id="第一次Layout"><a href="#第一次Layout" class="headerlink" title="第一次Layout"></a>第一次Layout</h2><p>不管怎么说，ListView即使再特殊最终还是继承自View的，因此它的执行流程还将会按照View的规则来执行。</p>
+<p>View的执行流程无非就分为三步，onMeasure()用于测量View的大小，onLayout()用于确定View的布局，onDraw()用于将View绘制到界面上。而在ListView当中，onMeasure()并没有什么特殊的地方，因为它终归是一个View，占用的空间最多并且通常也就是整个屏幕。onDraw()在ListView当中也没有什么意义，因为ListView本身并不负责绘制，而是由ListView当中的子元素来进行绘制的。那么ListView大部分的神奇功能其实都是在onLayout()方法中进行的了，因此我们本篇文章也是主要分析的这个方法里的内容。</p>
+<p>如果你到ListView源码中去找一找，你会发现ListView中是没有onLayout()这个方法的，这是因为这个方法是在ListView的父类AbsListView中实现的，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Subclasses should NOT override this method but &#123;@link #layoutChildren()&#125;</span><br><span class="line"> * instead.</span><br><span class="line"> */</span><br><span class="line">@Override</span><br><span class="line">protected void onLayout(boolean changed, int l, int t, int r, int b) &#123;</span><br><span class="line">	super.onLayout(changed, l, t, r, b);</span><br><span class="line">	mInLayout = true;</span><br><span class="line">	if (changed) &#123;</span><br><span class="line">		int childCount = getChildCount();</span><br><span class="line">		for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">			getChildAt(i).forceLayout();</span><br><span class="line">		&#125;</span><br><span class="line">		mRecycler.markChildrenDirty();</span><br><span class="line">	&#125;</span><br><span class="line">	layoutChildren();</span><br><span class="line">	mInLayout = false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，<strong>onLayout()方法中主要就是一个判断，如果ListView的大小或者位置发生了变化，那么changed变量就会变成true，此时会要求所有的子布局都强制进行重绘</strong>。除此之外倒没有什么难理解的地方了，不过我们注意到，在第16行调用了layoutChildren()这个方法，从方法名上我们就可以猜出这个方法是用来进行子元素布局的。那么进入ListView的layoutChildren()方法，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void layoutChildren() &#123;</span><br><span class="line">    final boolean blockLayoutRequests = mBlockLayoutRequests;</span><br><span class="line">    if (!blockLayoutRequests) &#123;</span><br><span class="line">        mBlockLayoutRequests = true;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    try &#123;</span><br><span class="line">        super.layoutChildren();</span><br><span class="line">        invalidate();</span><br><span class="line">        if (mAdapter == null) &#123;</span><br><span class="line">            resetList();</span><br><span class="line">            invokeOnItemScrollListener();</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        int childrenTop = mListPadding.top;</span><br><span class="line">        int childrenBottom = getBottom() - getTop() - mListPadding.bottom;</span><br><span class="line">        int childCount = getChildCount();</span><br><span class="line">        int index = 0;</span><br><span class="line">        int delta = 0;</span><br><span class="line">        View sel;</span><br><span class="line">        View oldSel = null;</span><br><span class="line">        View oldFirst = null;</span><br><span class="line">        View newSel = null;</span><br><span class="line">        View focusLayoutRestoreView = null;</span><br><span class="line">        // Remember stuff we will need down below</span><br><span class="line">        switch (mLayoutMode) &#123;</span><br><span class="line">        case LAYOUT_SET_SELECTION:</span><br><span class="line">            index = mNextSelectedPosition - mFirstPosition;</span><br><span class="line">            if (index &gt;= 0 &amp;&amp; index &lt; childCount) &#123;</span><br><span class="line">                newSel = getChildAt(index);</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_FORCE_TOP:</span><br><span class="line">        case LAYOUT_FORCE_BOTTOM:</span><br><span class="line">        case LAYOUT_SPECIFIC:</span><br><span class="line">        case LAYOUT_SYNC:</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_MOVE_SELECTION:</span><br><span class="line">        default:</span><br><span class="line">            // Remember the previously selected view</span><br><span class="line">            index = mSelectedPosition - mFirstPosition;</span><br><span class="line">            if (index &gt;= 0 &amp;&amp; index &lt; childCount) &#123;</span><br><span class="line">                oldSel = getChildAt(index);</span><br><span class="line">            &#125;</span><br><span class="line">            // Remember the previous first child</span><br><span class="line">            oldFirst = getChildAt(0);</span><br><span class="line">            if (mNextSelectedPosition &gt;= 0) &#123;</span><br><span class="line">                delta = mNextSelectedPosition - mSelectedPosition;</span><br><span class="line">            &#125;</span><br><span class="line">            // Caution: newSel might be null</span><br><span class="line">            newSel = getChildAt(index + delta);</span><br><span class="line">        &#125;</span><br><span class="line">        boolean dataChanged = mDataChanged;</span><br><span class="line">        if (dataChanged) &#123;</span><br><span class="line">            handleDataChanged();</span><br><span class="line">        &#125;</span><br><span class="line">        // Handle the empty set by removing all views that are visible</span><br><span class="line">        // and calling it a day</span><br><span class="line">        if (mItemCount == 0) &#123;</span><br><span class="line">            resetList();</span><br><span class="line">            invokeOnItemScrollListener();</span><br><span class="line">            return;</span><br><span class="line">        &#125; else if (mItemCount != mAdapter.getCount()) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;The content of the adapter has changed but &quot;</span><br><span class="line">                    + &quot;ListView did not receive a notification. Make sure the content of &quot;</span><br><span class="line">                    + &quot;your adapter is not modified from a background thread, but only &quot;</span><br><span class="line">                    + &quot;from the UI thread. [in ListView(&quot; + getId() + &quot;, &quot; + getClass() </span><br><span class="line">                    + &quot;) with Adapter(&quot; + mAdapter.getClass() + &quot;)]&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        setSelectedPositionInt(mNextSelectedPosition);</span><br><span class="line">        // Pull all children into the RecycleBin.</span><br><span class="line">        // These views will be reused if possible</span><br><span class="line">        final int firstPosition = mFirstPosition;</span><br><span class="line">        final RecycleBin recycleBin = mRecycler;</span><br><span class="line">        // reset the focus restoration</span><br><span class="line">        View focusLayoutRestoreDirectChild = null;</span><br><span class="line">        // Don&apos;t put header or footer views into the Recycler. Those are</span><br><span class="line">        // already cached in mHeaderViews;</span><br><span class="line">        if (dataChanged) &#123;</span><br><span class="line">            for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">                recycleBin.addScrapView(getChildAt(i));</span><br><span class="line">                if (ViewDebug.TRACE_RECYCLER) &#123;</span><br><span class="line">                    ViewDebug.trace(getChildAt(i),</span><br><span class="line">                            ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP, index, i);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            recycleBin.fillActiveViews(childCount, firstPosition);</span><br><span class="line">        &#125;</span><br><span class="line">        // take focus back to us temporarily to avoid the eventual</span><br><span class="line">        // call to clear focus when removing the focused child below</span><br><span class="line">        // from messing things up when ViewRoot assigns focus back</span><br><span class="line">        // to someone else</span><br><span class="line">        final View focusedChild = getFocusedChild();</span><br><span class="line">        if (focusedChild != null) &#123;</span><br><span class="line">            // TODO: in some cases focusedChild.getParent() == null</span><br><span class="line">            // we can remember the focused view to restore after relayout if the</span><br><span class="line">            // data hasn&apos;t changed, or if the focused position is a header or footer</span><br><span class="line">            if (!dataChanged || isDirectChildHeaderOrFooter(focusedChild)) &#123;</span><br><span class="line">                focusLayoutRestoreDirectChild = focusedChild;</span><br><span class="line">                // remember the specific view that had focus</span><br><span class="line">                focusLayoutRestoreView = findFocus();</span><br><span class="line">                if (focusLayoutRestoreView != null) &#123;</span><br><span class="line">                    // tell it we are going to mess with it</span><br><span class="line">                    focusLayoutRestoreView.onStartTemporaryDetach();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            requestFocus();</span><br><span class="line">        &#125;</span><br><span class="line">        // Clear out old views</span><br><span class="line">        detachAllViewsFromParent();</span><br><span class="line">        switch (mLayoutMode) &#123;</span><br><span class="line">        case LAYOUT_SET_SELECTION:</span><br><span class="line">            if (newSel != null) &#123;</span><br><span class="line">                sel = fillFromSelection(newSel.getTop(), childrenTop, childrenBottom);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                sel = fillFromMiddle(childrenTop, childrenBottom);</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_SYNC:</span><br><span class="line">            sel = fillSpecific(mSyncPosition, mSpecificTop);</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_FORCE_BOTTOM:</span><br><span class="line">            sel = fillUp(mItemCount - 1, childrenBottom);</span><br><span class="line">            adjustViewsUpOrDown();</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_FORCE_TOP:</span><br><span class="line">            mFirstPosition = 0;</span><br><span class="line">            sel = fillFromTop(childrenTop);</span><br><span class="line">            adjustViewsUpOrDown();</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_SPECIFIC:</span><br><span class="line">            sel = fillSpecific(reconcileSelectedPosition(), mSpecificTop);</span><br><span class="line">            break;</span><br><span class="line">        case LAYOUT_MOVE_SELECTION:</span><br><span class="line">            sel = moveSelection(oldSel, newSel, delta, childrenTop, childrenBottom);</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            if (childCount == 0) &#123;</span><br><span class="line">                if (!mStackFromBottom) &#123;</span><br><span class="line">                    final int position = lookForSelectablePosition(0, true);</span><br><span class="line">                    setSelectedPositionInt(position);</span><br><span class="line">                    sel = fillFromTop(childrenTop);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    final int position = lookForSelectablePosition(mItemCount - 1, false);</span><br><span class="line">                    setSelectedPositionInt(position);</span><br><span class="line">                    sel = fillUp(mItemCount - 1, childrenBottom);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (mSelectedPosition &gt;= 0 &amp;&amp; mSelectedPosition &lt; mItemCount) &#123;</span><br><span class="line">                    sel = fillSpecific(mSelectedPosition,</span><br><span class="line">                            oldSel == null ? childrenTop : oldSel.getTop());</span><br><span class="line">                &#125; else if (mFirstPosition &lt; mItemCount) &#123;</span><br><span class="line">                    sel = fillSpecific(mFirstPosition,</span><br><span class="line">                            oldFirst == null ? childrenTop : oldFirst.getTop());</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    sel = fillSpecific(0, childrenTop);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">        // Flush any cached views that did not get reused above</span><br><span class="line">        recycleBin.scrapActiveViews();</span><br><span class="line">        if (sel != null) &#123;</span><br><span class="line">            // the current selected item should get focus if items</span><br><span class="line">            // are focusable</span><br><span class="line">            if (mItemsCanFocus &amp;&amp; hasFocus() &amp;&amp; !sel.hasFocus()) &#123;</span><br><span class="line">                final boolean focusWasTaken = (sel == focusLayoutRestoreDirectChild &amp;&amp;</span><br><span class="line">                        focusLayoutRestoreView.requestFocus()) || sel.requestFocus();</span><br><span class="line">                if (!focusWasTaken) &#123;</span><br><span class="line">                    // selected item didn&apos;t take focus, fine, but still want</span><br><span class="line">                    // to make sure something else outside of the selected view</span><br><span class="line">                    // has focus</span><br><span class="line">                    final View focused = getFocusedChild();</span><br><span class="line">                    if (focused != null) &#123;</span><br><span class="line">                        focused.clearFocus();</span><br><span class="line">                    &#125;</span><br><span class="line">                    positionSelector(sel);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    sel.setSelected(false);</span><br><span class="line">                    mSelectorRect.setEmpty();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                positionSelector(sel);</span><br><span class="line">            &#125;</span><br><span class="line">            mSelectedTop = sel.getTop();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (mTouchMode &gt; TOUCH_MODE_DOWN &amp;&amp; mTouchMode &lt; TOUCH_MODE_SCROLL) &#123;</span><br><span class="line">                View child = getChildAt(mMotionPosition - mFirstPosition);</span><br><span class="line">                if (child != null) positionSelector(child);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                mSelectedTop = 0;</span><br><span class="line">                mSelectorRect.setEmpty();</span><br><span class="line">            &#125;</span><br><span class="line">            // even if there is not selected position, we may need to restore</span><br><span class="line">            // focus (i.e. something focusable in touch mode)</span><br><span class="line">            if (hasFocus() &amp;&amp; focusLayoutRestoreView != null) &#123;</span><br><span class="line">                focusLayoutRestoreView.requestFocus();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        // tell focus view we are done mucking with it, if it is still in</span><br><span class="line">        // our view hierarchy.</span><br><span class="line">        if (focusLayoutRestoreView != null</span><br><span class="line">                &amp;&amp; focusLayoutRestoreView.getWindowToken() != null) &#123;</span><br><span class="line">            focusLayoutRestoreView.onFinishTemporaryDetach();</span><br><span class="line">        &#125;</span><br><span class="line">        mLayoutMode = LAYOUT_NORMAL;</span><br><span class="line">        mDataChanged = false;</span><br><span class="line">        mNeedSync = false;</span><br><span class="line">        setNextSelectedPositionInt(mSelectedPosition);</span><br><span class="line">        updateScrollIndicators();</span><br><span class="line">        if (mItemCount &gt; 0) &#123;</span><br><span class="line">            checkSelectionChanged();</span><br><span class="line">        &#125;</span><br><span class="line">        invokeOnItemScrollListener();</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        if (!blockLayoutRequests) &#123;</span><br><span class="line">            mBlockLayoutRequests = false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这段代码比较长，我们挑重点的看。首先可以确定的是，ListView当中目前还没有任何子View，数据都还是由Adapter管理的，并没有展示到界面上，因此第19行getChildCount()方法得到的值肯定是0。接着在第81行会根据dataChanged这个布尔型的值来判断执行逻辑，dataChanged只有在数据源发生改变的情况下才会变成true，其它情况都是false，因此这里会进入到第90行的执行逻辑，调用RecycleBin的fillActiveViews()方法。按理来说，调用fillActiveViews()方法是为了将ListView的子View进行缓存的，可是目前ListView中还没有任何的子View，因此这一行暂时还起不了任何作用。</p>
+<p>接下来在第114行会根据mLayoutMode的值来决定布局模式，默认情况下都是普通模式LAYOUT_NORMAL，因此会进入到第140行的default语句当中。而下面又会紧接着进行两次if判断，childCount目前是等于0的，并且默认的布局顺序是从上往下，因此会进入到第145行的fillFromTop()方法，我们跟进去瞧一瞧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Fills the list from top to bottom, starting with mFirstPosition</span><br><span class="line"> *</span><br><span class="line"> * @param nextTop The location where the top of the first item should be</span><br><span class="line"> *        drawn</span><br><span class="line"> *</span><br><span class="line"> * @return The view that is currently selected</span><br><span class="line"> */</span><br><span class="line">private View fillFromTop(int nextTop) &#123;</span><br><span class="line">    mFirstPosition = Math.min(mFirstPosition, mSelectedPosition);</span><br><span class="line">    mFirstPosition = Math.min(mFirstPosition, mItemCount - 1);</span><br><span class="line">    if (mFirstPosition &lt; 0) &#123;</span><br><span class="line">        mFirstPosition = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    return fillDown(mFirstPosition, nextTop);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从这个方法的注释中可以看出，它所负责的主要任务就是从mFirstPosition开始，自顶至底去填充ListView。而这个方法本身并没有什么逻辑，就是判断了一下mFirstPosition值的合法性，然后调用fillDown()方法，那么我们就有理由可以猜测，填充ListView的操作是在fillDown()方法中完成的。进入fillDown()方法，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Fills the list from pos down to the end of the list view.</span><br><span class="line"> *</span><br><span class="line"> * @param pos The first position to put in the list</span><br><span class="line"> *</span><br><span class="line"> * @param nextTop The location where the top of the item associated with pos</span><br><span class="line"> *        should be drawn</span><br><span class="line"> *</span><br><span class="line"> * @return The view that is currently selected, if it happens to be in the</span><br><span class="line"> *         range that we draw.</span><br><span class="line"> */</span><br><span class="line">private View fillDown(int pos, int nextTop) &#123;</span><br><span class="line">    View selectedView = null;</span><br><span class="line">    int end = (getBottom() - getTop()) - mListPadding.bottom;</span><br><span class="line">    while (nextTop &lt; end &amp;&amp; pos &lt; mItemCount) &#123;</span><br><span class="line">        // is this the selected item?</span><br><span class="line">        boolean selected = pos == mSelectedPosition;</span><br><span class="line">        View child = makeAndAddView(pos, nextTop, true, mListPadding.left, selected);</span><br><span class="line">        nextTop = child.getBottom() + mDividerHeight;</span><br><span class="line">        if (selected) &#123;</span><br><span class="line">            selectedView = child;</span><br><span class="line">        &#125;</span><br><span class="line">        pos++;</span><br><span class="line">    &#125;</span><br><span class="line">    return selectedView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，这里使用了一个while循环来执行重复逻辑，一开始nextTop的值是第一个子元素顶部距离整个ListView顶部的像素值，pos则是刚刚传入的mFirstPosition的值，而end是ListView底部减去顶部所得的像素值，mItemCount则是Adapter中的元素数量。因此一开始的情况下nextTop必定是小于end值的，并且pos也是小于mItemCount值的。那么每执行一次while循环，pos的值都会加1，并且nextTop也会增加，当nextTop大于等于end时，也就是子元素已经超出当前屏幕了，或者pos大于等于mItemCount时，也就是所有Adapter中的元素都被遍历结束了，就会跳出while循环。</p>
+<p>那么while循环当中又做了什么事情呢？值得让人留意的就是第18行调用的makeAndAddView()方法，进入到这个方法当中，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Obtain the view and add it to our list of children. The view can be made</span><br><span class="line"> * fresh, converted from an unused view, or used as is if it was in the</span><br><span class="line"> * recycle bin.</span><br><span class="line"> *</span><br><span class="line"> * @param position Logical position in the list</span><br><span class="line"> * @param y Top or bottom edge of the view to add</span><br><span class="line"> * @param flow If flow is true, align top edge to y. If false, align bottom</span><br><span class="line"> *        edge to y.</span><br><span class="line"> * @param childrenLeft Left edge where children should be positioned</span><br><span class="line"> * @param selected Is this position selected?</span><br><span class="line"> * @return View that was added</span><br><span class="line"> */</span><br><span class="line">private View makeAndAddView(int position, int y, boolean flow, int childrenLeft,</span><br><span class="line">        boolean selected) &#123;</span><br><span class="line">    View child;</span><br><span class="line">    if (!mDataChanged) &#123;</span><br><span class="line">        // Try to use an exsiting view for this position</span><br><span class="line">        child = mRecycler.getActiveView(position);</span><br><span class="line">        if (child != null) &#123;</span><br><span class="line">            // Found it -- we&apos;re using an existing child</span><br><span class="line">            // This just needs to be positioned</span><br><span class="line">            setupChild(child, position, y, flow, childrenLeft, selected, true);</span><br><span class="line">            return child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // Make a new view for this position, or convert an unused view if possible</span><br><span class="line">    child = obtainView(position, mIsScrap);</span><br><span class="line">    // This needs to be positioned and measured</span><br><span class="line">    setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[0]);</span><br><span class="line">    return child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里在第19行尝试从RecycleBin当中快速获取一个active view，不过很遗憾的是目前RecycleBin当中还没有缓存任何的View，所以这里得到的值肯定是null。那么取得了null之后就会继续向下运行，到第28行会调用obtainView()方法来再次尝试获取一个View，这次的obtainView()方法是可以保证一定返回一个View的，于是下面立刻将获取到的View传入到了setupChild()方法当中。那么obtainView()内部到底是怎么工作的呢？我们先进入到这个方法里面看一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Get a view and have it show the data associated with the specified</span><br><span class="line"> * position. This is called when we have already discovered that the view is</span><br><span class="line"> * not available for reuse in the recycle bin. The only choices left are</span><br><span class="line"> * converting an old view or making a new one.</span><br><span class="line"> * </span><br><span class="line"> * @param position</span><br><span class="line"> *            The position to display</span><br><span class="line"> * @param isScrap</span><br><span class="line"> *            Array of at least 1 boolean, the first entry will become true</span><br><span class="line"> *            if the returned view was taken from the scrap heap, false if</span><br><span class="line"> *            otherwise.</span><br><span class="line"> * </span><br><span class="line"> * @return A view displaying the data associated with the specified position</span><br><span class="line"> */</span><br><span class="line">View obtainView(int position, boolean[] isScrap) &#123;</span><br><span class="line">	isScrap[0] = false;</span><br><span class="line">	View scrapView;</span><br><span class="line">	scrapView = mRecycler.getScrapView(position);</span><br><span class="line">	View child;</span><br><span class="line">	if (scrapView != null) &#123;</span><br><span class="line">		child = mAdapter.getView(position, scrapView, this);</span><br><span class="line">		if (child != scrapView) &#123;</span><br><span class="line">			mRecycler.addScrapView(scrapView);</span><br><span class="line">			if (mCacheColorHint != 0) &#123;</span><br><span class="line">				child.setDrawingCacheBackgroundColor(mCacheColorHint);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			isScrap[0] = true;</span><br><span class="line">			dispatchFinishTemporaryDetach(child);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		child = mAdapter.getView(position, null, this);</span><br><span class="line">		if (mCacheColorHint != 0) &#123;</span><br><span class="line">			child.setDrawingCacheBackgroundColor(mCacheColorHint);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>obtainView()方法中的代码并不多，但却包含了非常非常重要的逻辑，不夸张的说，整个ListView中最重要的内容可能就在这个方法里了。那么我们还是按照执行流程来看，在第19行代码中调用了RecycleBin的getScrapView()方法来尝试获取一个废弃缓存中的View，同样的道理，这里肯定是获取不到的，getScrapView()方法会返回一个null。这时该怎么办呢？没有关系，代码会执行到第33行，调用mAdapter的getView()方法来去获取一个View。那么mAdapter是什么呢？当然就是当前ListView关联的适配器了。而getView()方法又是什么呢？还用说吗，这个就是我们平时使用ListView时最最经常重写的一个方法了，这里getView()方法中传入了三个参数，分别是position，null和this。</p>
+<p>那么我们平时写ListView的Adapter时，getView()方法通常会怎么写呢？这里我举个简单的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public View getView(int position, View convertView, ViewGroup parent) &#123;</span><br><span class="line">	Fruit fruit = getItem(position);</span><br><span class="line">	View view;</span><br><span class="line">	if (convertView == null) &#123;</span><br><span class="line">		view = LayoutInflater.from(getContext()).inflate(resourceId, null);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		view = convertView;</span><br><span class="line">	&#125;</span><br><span class="line">	ImageView fruitImage = (ImageView) view.findViewById(R.id.fruit_image);</span><br><span class="line">	TextView fruitName = (TextView) view.findViewById(R.id.fruit_name);</span><br><span class="line">	fruitImage.setImageResource(fruit.getImageId());</span><br><span class="line">	fruitName.setText(fruit.getName());</span><br><span class="line">	return view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>getView()方法接受的三个参数，第一个参数position代表当前子元素的的位置，我们可以通过具体的位置来获取与其相关的数据。第二个参数convertView，刚才传入的是null，说明没有convertView可以利用，因此我们会调用LayoutInflater的inflate()方法来去加载一个布局。接下来会对这个view进行一些属性和值的设定，最后将view返回。</p>
+<p>那么这个View也会作为obtainView()的结果进行返回，并最终传入到setupChild()方法当中。其实也就是说，第一次layout过程当中，所有的子View都是调用LayoutInflater的inflate()方法加载出来的，这样就会相对比较耗时，但是不用担心，后面就不会再有这种情况了，那么我们继续往下看：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Add a view as a child and make sure it is measured (if necessary) and</span><br><span class="line"> * positioned properly.</span><br><span class="line"> *</span><br><span class="line"> * @param child The view to add</span><br><span class="line"> * @param position The position of this child</span><br><span class="line"> * @param y The y position relative to which this view will be positioned</span><br><span class="line"> * @param flowDown If true, align top edge to y. If false, align bottom</span><br><span class="line"> *        edge to y.</span><br><span class="line"> * @param childrenLeft Left edge where children should be positioned</span><br><span class="line"> * @param selected Is this position selected?</span><br><span class="line"> * @param recycled Has this view been pulled from the recycle bin? If so it</span><br><span class="line"> *        does not need to be remeasured.</span><br><span class="line"> */</span><br><span class="line">private void setupChild(View child, int position, int y, boolean flowDown, int childrenLeft,</span><br><span class="line">        boolean selected, boolean recycled) &#123;</span><br><span class="line">    final boolean isSelected = selected &amp;&amp; shouldShowSelector();</span><br><span class="line">    final boolean updateChildSelected = isSelected != child.isSelected();</span><br><span class="line">    final int mode = mTouchMode;</span><br><span class="line">    final boolean isPressed = mode &gt; TOUCH_MODE_DOWN &amp;&amp; mode &lt; TOUCH_MODE_SCROLL &amp;&amp;</span><br><span class="line">            mMotionPosition == position;</span><br><span class="line">    final boolean updateChildPressed = isPressed != child.isPressed();</span><br><span class="line">    final boolean needToMeasure = !recycled || updateChildSelected || child.isLayoutRequested();</span><br><span class="line">    // Respect layout params that are already in the view. Otherwise make some up...</span><br><span class="line">    // noinspection unchecked</span><br><span class="line">    AbsListView.LayoutParams p = (AbsListView.LayoutParams) child.getLayoutParams();</span><br><span class="line">    if (p == null) &#123;</span><br><span class="line">        p = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                ViewGroup.LayoutParams.WRAP_CONTENT, 0);</span><br><span class="line">    &#125;</span><br><span class="line">    p.viewType = mAdapter.getItemViewType(position);</span><br><span class="line">    if ((recycled &amp;&amp; !p.forceAdd) || (p.recycledHeaderFooter &amp;&amp;</span><br><span class="line">            p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) &#123;</span><br><span class="line">        attachViewToParent(child, flowDown ? -1 : 0, p);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        p.forceAdd = false;</span><br><span class="line">        if (p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</span><br><span class="line">            p.recycledHeaderFooter = true;</span><br><span class="line">        &#125;</span><br><span class="line">        addViewInLayout(child, flowDown ? -1 : 0, p, true);</span><br><span class="line">    &#125;</span><br><span class="line">    if (updateChildSelected) &#123;</span><br><span class="line">        child.setSelected(isSelected);</span><br><span class="line">    &#125;</span><br><span class="line">    if (updateChildPressed) &#123;</span><br><span class="line">        child.setPressed(isPressed);</span><br><span class="line">    &#125;</span><br><span class="line">    if (needToMeasure) &#123;</span><br><span class="line">        int childWidthSpec = ViewGroup.getChildMeasureSpec(mWidthMeasureSpec,</span><br><span class="line">                mListPadding.left + mListPadding.right, p.width);</span><br><span class="line">        int lpHeight = p.height;</span><br><span class="line">        int childHeightSpec;</span><br><span class="line">        if (lpHeight &gt; 0) &#123;</span><br><span class="line">            childHeightSpec = MeasureSpec.makeMeasureSpec(lpHeight, MeasureSpec.EXACTLY);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            childHeightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);</span><br><span class="line">        &#125;</span><br><span class="line">        child.measure(childWidthSpec, childHeightSpec);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        cleanupLayoutState(child);</span><br><span class="line">    &#125;</span><br><span class="line">    final int w = child.getMeasuredWidth();</span><br><span class="line">    final int h = child.getMeasuredHeight();</span><br><span class="line">    final int childTop = flowDown ? y : y - h;</span><br><span class="line">    if (needToMeasure) &#123;</span><br><span class="line">        final int childRight = childrenLeft + w;</span><br><span class="line">        final int childBottom = childTop + h;</span><br><span class="line">        child.layout(childrenLeft, childTop, childRight, childBottom);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        child.offsetLeftAndRight(childrenLeft - child.getLeft());</span><br><span class="line">        child.offsetTopAndBottom(childTop - child.getTop());</span><br><span class="line">    &#125;</span><br><span class="line">    if (mCachingStarted &amp;&amp; !child.isDrawingCacheEnabled()) &#123;</span><br><span class="line">        child.setDrawingCacheEnabled(true);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>setupChild()方法当中的代码虽然比较多，但是我们只看核心代码的话就非常简单了，刚才调用obtainView()方法获取到的子元素View，这里在第40行调用了addViewInLayout()方法将它添加到了ListView当中。那么根据fillDown()方法中的while循环，会让子元素View将整个ListView控件填满然后就跳出，也就是说即使我们的Adapter中有一千条数据，ListView也只会加载第一屏的数据，剩下的数据反正目前在屏幕上也看不到，所以不会去做多余的加载工作，这样就可以保证ListView中的内容能够迅速展示到屏幕上。</p>
+<p>那么到此为止，第一次Layout过程结束。</p>
+<h2 id="第二次Layout"><a href="#第二次Layout" class="headerlink" title="第二次Layout"></a>第二次Layout</h2><p>虽然我在源码中并没有找出具体的原因，但如果你自己做一下实验的话就会发现，<strong>即使是一个再简单的View，在展示到界面上之前都会经历至少两次onMeasure()和两次onLayout()的过程</strong>。其实这只是一个很小的细节，平时对我们影响并不大，因为不管是onMeasure()或者onLayout()几次，反正都是执行的相同的逻辑，我们并不需要进行过多关心。但是在ListView中情况就不一样了，因为这就意味着layoutChildren()过程会执行两次，而这个过程当中涉及到向ListView中添加子元素，如果相同的逻辑执行两遍的话，那么ListView中就会存在一份重复的数据了。因此ListView在layoutChildren()过程当中做了第二次Layout的逻辑处理，非常巧妙地解决了这个问题，下面我们就来分析一下第二次Layout的过程。</p>
+<p>其实第二次Layout和第一次Layout的基本流程是差不多的，那么我们还是从layoutChildren()方法开始看起：</p>
+<p>同样还是在第19行，调用getChildCount()方法来获取子View的数量，只不过现在得到的值不会再是0了，而是ListView中一屏可以显示的子View数量，因为我们刚刚在第一次Layout过程当中向ListView添加了这么多的子View。下面在第90行调用了RecycleBin的fillActiveViews()方法，这次效果可就不一样了，因为目前ListView中已经有子View了，这样所有的子View都会被缓存到RecycleBin的mActiveViews数组当中，后面将会用到它们。</p>
+<p>接下来将会是非常非常重要的一个操作，<strong>在第113行调用了detachAllViewsFromParent()方法。这个方法会将所有ListView当中的子View全部清除掉，从而保证第二次Layout过程不会产生一份重复的数据。那有的朋友可能会问了，这样把已经加载好的View又清除掉，待会还要再重新加载一遍，这不是严重影响效率吗？不用担心，还记得我们刚刚调用了RecycleBin的fillActiveViews()方法来缓存子View吗，待会儿将会直接使用这些缓存好的View来进行加载，而并不会重新执行一遍inflate过程，因此效率方面并不会有什么明显的影响。</strong></p>
+<p>那么我们接着看，在第141行的判断逻辑当中，由于不再等于0了，因此会进入到else语句当中。而else语句中又有三个逻辑判断，第一个逻辑判断不成立，因为默认情况下我们没有选中任何子元素，mSelectedPosition应该等于-1。第二个逻辑判断通常是成立的，因为mFirstPosition的值一开始是等于0的，只要adapter中的数据大于0条件就成立。那么进入到fillSpecific()方法当中，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Put a specific item at a specific location on the screen and then build</span><br><span class="line"> * up and down from there.</span><br><span class="line"> *</span><br><span class="line"> * @param position The reference view to use as the starting point</span><br><span class="line"> * @param top Pixel offset from the top of this view to the top of the</span><br><span class="line"> *        reference view.</span><br><span class="line"> *</span><br><span class="line"> * @return The selected view, or null if the selected view is outside the</span><br><span class="line"> *         visible area.</span><br><span class="line"> */</span><br><span class="line">private View fillSpecific(int position, int top) &#123;</span><br><span class="line">    boolean tempIsSelected = position == mSelectedPosition;</span><br><span class="line">    View temp = makeAndAddView(position, top, true, mListPadding.left, tempIsSelected);</span><br><span class="line">    // Possibly changed again in fillUp if we add rows above this one.</span><br><span class="line">    mFirstPosition = position;</span><br><span class="line">    View above;</span><br><span class="line">    View below;</span><br><span class="line">    final int dividerHeight = mDividerHeight;</span><br><span class="line">    if (!mStackFromBottom) &#123;</span><br><span class="line">        above = fillUp(position - 1, temp.getTop() - dividerHeight);</span><br><span class="line">        // This will correct for the top of the first view not touching the top of the list</span><br><span class="line">        adjustViewsUpOrDown();</span><br><span class="line">        below = fillDown(position + 1, temp.getBottom() + dividerHeight);</span><br><span class="line">        int childCount = getChildCount();</span><br><span class="line">        if (childCount &gt; 0) &#123;</span><br><span class="line">            correctTooHigh(childCount);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        below = fillDown(position + 1, temp.getBottom() + dividerHeight);</span><br><span class="line">        // This will correct for the bottom of the last view not touching the bottom of the list</span><br><span class="line">        adjustViewsUpOrDown();</span><br><span class="line">        above = fillUp(position - 1, temp.getTop() - dividerHeight);</span><br><span class="line">        int childCount = getChildCount();</span><br><span class="line">        if (childCount &gt; 0) &#123;</span><br><span class="line">             correctTooLow(childCount);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (tempIsSelected) &#123;</span><br><span class="line">        return temp;</span><br><span class="line">    &#125; else if (above != null) &#123;</span><br><span class="line">        return above;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return below;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>fillSpecific()这算是一个新方法了，不过其实它和fillUp()、fillDown()方法功能也是差不多的，主要的区别在于，fillSpecific()方法会优先将指定位置的子View先加载到屏幕上，然后再加载该子View往上以及往下的其它子View。那么由于这里我们传入的position就是第一个子View的位置，于是fillSpecific()方法的作用就基本上和fillDown()方法是差不多的了，这里我们就不去关注太多它的细节，而是将精力放在makeAndAddView()方法上面。再次回到makeAndAddView()方法，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Obtain the view and add it to our list of children. The view can be made</span><br><span class="line"> * fresh, converted from an unused view, or used as is if it was in the</span><br><span class="line"> * recycle bin.</span><br><span class="line"> *</span><br><span class="line"> * @param position Logical position in the list</span><br><span class="line"> * @param y Top or bottom edge of the view to add</span><br><span class="line"> * @param flow If flow is true, align top edge to y. If false, align bottom</span><br><span class="line"> *        edge to y.</span><br><span class="line"> * @param childrenLeft Left edge where children should be positioned</span><br><span class="line"> * @param selected Is this position selected?</span><br><span class="line"> * @return View that was added</span><br><span class="line"> */</span><br><span class="line">private View makeAndAddView(int position, int y, boolean flow, int childrenLeft,</span><br><span class="line">        boolean selected) &#123;</span><br><span class="line">    View child;</span><br><span class="line">    if (!mDataChanged) &#123;</span><br><span class="line">        // Try to use an exsiting view for this position</span><br><span class="line">        child = mRecycler.getActiveView(position);</span><br><span class="line">        if (child != null) &#123;</span><br><span class="line">            // Found it -- we&apos;re using an existing child</span><br><span class="line">            // This just needs to be positioned</span><br><span class="line">            setupChild(child, position, y, flow, childrenLeft, selected, true);</span><br><span class="line">            return child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // Make a new view for this position, or convert an unused view if possible</span><br><span class="line">    child = obtainView(position, mIsScrap);</span><br><span class="line">    // This needs to be positioned and measured</span><br><span class="line">    setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[0]);</span><br><span class="line">    return child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>仍然还是在第19行尝试从RecycleBin当中获取Active View，然而这次就一定可以获取到了，因为前面我们调用了RecycleBin的fillActiveViews()方法来缓存子View。那么既然如此，就不会再进入到第28行的obtainView()方法，而是会直接进入setupChild()方法当中，这样也省去了很多时间，因为如果在obtainView()方法中又要去infalte布局的话，那么ListView的初始加载效率就大大降低了。</p>
+<p>注意在第23行，setupChild()方法的最后一个参数传入的是true，这个参数表明当前的View是之前被回收过的，那么我们再次回到setupChild()方法当中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Add a view as a child and make sure it is measured (if necessary) and</span><br><span class="line"> * positioned properly.</span><br><span class="line"> *</span><br><span class="line"> * @param child The view to add</span><br><span class="line"> * @param position The position of this child</span><br><span class="line"> * @param y The y position relative to which this view will be positioned</span><br><span class="line"> * @param flowDown If true, align top edge to y. If false, align bottom</span><br><span class="line"> *        edge to y.</span><br><span class="line"> * @param childrenLeft Left edge where children should be positioned</span><br><span class="line"> * @param selected Is this position selected?</span><br><span class="line"> * @param recycled Has this view been pulled from the recycle bin? If so it</span><br><span class="line"> *        does not need to be remeasured.</span><br><span class="line"> */</span><br><span class="line">private void setupChild(View child, int position, int y, boolean flowDown, int childrenLeft,</span><br><span class="line">        boolean selected, boolean recycled) &#123;</span><br><span class="line">    final boolean isSelected = selected &amp;&amp; shouldShowSelector();</span><br><span class="line">    final boolean updateChildSelected = isSelected != child.isSelected();</span><br><span class="line">    final int mode = mTouchMode;</span><br><span class="line">    final boolean isPressed = mode &gt; TOUCH_MODE_DOWN &amp;&amp; mode &lt; TOUCH_MODE_SCROLL &amp;&amp;</span><br><span class="line">            mMotionPosition == position;</span><br><span class="line">    final boolean updateChildPressed = isPressed != child.isPressed();</span><br><span class="line">    final boolean needToMeasure = !recycled || updateChildSelected || child.isLayoutRequested();</span><br><span class="line">    // Respect layout params that are already in the view. Otherwise make some up...</span><br><span class="line">    // noinspection unchecked</span><br><span class="line">    AbsListView.LayoutParams p = (AbsListView.LayoutParams) child.getLayoutParams();</span><br><span class="line">    if (p == null) &#123;</span><br><span class="line">        p = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                ViewGroup.LayoutParams.WRAP_CONTENT, 0);</span><br><span class="line">    &#125;</span><br><span class="line">    p.viewType = mAdapter.getItemViewType(position);</span><br><span class="line">    if ((recycled &amp;&amp; !p.forceAdd) || (p.recycledHeaderFooter &amp;&amp;</span><br><span class="line">            p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) &#123;</span><br><span class="line">        attachViewToParent(child, flowDown ? -1 : 0, p);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        p.forceAdd = false;</span><br><span class="line">        if (p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</span><br><span class="line">            p.recycledHeaderFooter = true;</span><br><span class="line">        &#125;</span><br><span class="line">        addViewInLayout(child, flowDown ? -1 : 0, p, true);</span><br><span class="line">    &#125;</span><br><span class="line">    if (updateChildSelected) &#123;</span><br><span class="line">        child.setSelected(isSelected);</span><br><span class="line">    &#125;</span><br><span class="line">    if (updateChildPressed) &#123;</span><br><span class="line">        child.setPressed(isPressed);</span><br><span class="line">    &#125;</span><br><span class="line">    if (needToMeasure) &#123;</span><br><span class="line">        int childWidthSpec = ViewGroup.getChildMeasureSpec(mWidthMeasureSpec,</span><br><span class="line">                mListPadding.left + mListPadding.right, p.width);</span><br><span class="line">        int lpHeight = p.height;</span><br><span class="line">        int childHeightSpec;</span><br><span class="line">        if (lpHeight &gt; 0) &#123;</span><br><span class="line">            childHeightSpec = MeasureSpec.makeMeasureSpec(lpHeight, MeasureSpec.EXACTLY);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            childHeightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);</span><br><span class="line">        &#125;</span><br><span class="line">        child.measure(childWidthSpec, childHeightSpec);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        cleanupLayoutState(child);</span><br><span class="line">    &#125;</span><br><span class="line">    final int w = child.getMeasuredWidth();</span><br><span class="line">    final int h = child.getMeasuredHeight();</span><br><span class="line">    final int childTop = flowDown ? y : y - h;</span><br><span class="line">    if (needToMeasure) &#123;</span><br><span class="line">        final int childRight = childrenLeft + w;</span><br><span class="line">        final int childBottom = childTop + h;</span><br><span class="line">        child.layout(childrenLeft, childTop, childRight, childBottom);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        child.offsetLeftAndRight(childrenLeft - child.getLeft());</span><br><span class="line">        child.offsetTopAndBottom(childTop - child.getTop());</span><br><span class="line">    &#125;</span><br><span class="line">    if (mCachingStarted &amp;&amp; !child.isDrawingCacheEnabled()) &#123;</span><br><span class="line">        child.setDrawingCacheEnabled(true);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，setupChild()方法的最后一个参数是recycled，然后在第32行会对这个变量进行判断，由于recycled现在是true，所以会执行attachViewToParent()方法，而第一次Layout过程则是执行的else语句中的addViewInLayout()方法。<strong>这两个方法最大的区别在于，如果我们需要向ViewGroup中添加一个新的子View，应该调用addViewInLayout()方法，而如果是想要将一个之前detach的View重新attach到ViewGroup上，就应该调用attachViewToParent()方法。</strong>那么由于前面在layoutChildren()方法当中调用了detachAllViewsFromParent()方法，这样ListView中所有的子View都是处于detach状态的，所以这里attachViewToParent()方法是正确的选择。</p>
+<p>经历了这样一个detach又attach的过程，ListView中所有的子View又都可以正常显示出来了，那么第二次Layout过程结束。</p>
+<h2 id="滑动加载更多数据"><a href="#滑动加载更多数据" class="headerlink" title="滑动加载更多数据"></a>滑动加载更多数据</h2><p>经历了两次Layout过程，虽说我们已经可以在ListView中看到内容了，然而关于ListView最神奇的部分我们却还没有接触到，因为目前ListView中只是加载并显示了第一屏的数据而已。比如说我们的Adapter当中有1000条数据，但是第一屏只显示了10条，ListView中也只有10个子View而已，那么剩下的990是怎样工作并显示到界面上的呢？这就要看一下ListView滑动部分的源码了，因为我们是通过手指滑动来显示更多数据的。</p>
+<p>由于滑动部分的机制是属于通用型的，即ListView和GridView都会使用同样的机制，因此这部分代码就肯定是写在AbsListView当中的了。那么监听触控事件是在onTouchEvent()方法当中进行的，我们就来看一下AbsListView中的这个方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onTouchEvent(MotionEvent ev) &#123;</span><br><span class="line">	if (!isEnabled()) &#123;</span><br><span class="line">		// A disabled view that is clickable still consumes the touch</span><br><span class="line">		// events, it just doesn&apos;t respond to them.</span><br><span class="line">		return isClickable() || isLongClickable();</span><br><span class="line">	&#125;</span><br><span class="line">	final int action = ev.getAction();</span><br><span class="line">	View v;</span><br><span class="line">	int deltaY;</span><br><span class="line">	if (mVelocityTracker == null) &#123;</span><br><span class="line">		mVelocityTracker = VelocityTracker.obtain();</span><br><span class="line">	&#125;</span><br><span class="line">	mVelocityTracker.addMovement(ev);</span><br><span class="line">	switch (action &amp; MotionEvent.ACTION_MASK) &#123;</span><br><span class="line">	case MotionEvent.ACTION_DOWN: &#123;</span><br><span class="line">		mActivePointerId = ev.getPointerId(0);</span><br><span class="line">		final int x = (int) ev.getX();</span><br><span class="line">		final int y = (int) ev.getY();</span><br><span class="line">		int motionPosition = pointToPosition(x, y);</span><br><span class="line">		if (!mDataChanged) &#123;</span><br><span class="line">			if ((mTouchMode != TOUCH_MODE_FLING) &amp;&amp; (motionPosition &gt;= 0)</span><br><span class="line">					&amp;&amp; (getAdapter().isEnabled(motionPosition))) &#123;</span><br><span class="line">				// User clicked on an actual view (and was not stopping a</span><br><span class="line">				// fling). It might be a</span><br><span class="line">				// click or a scroll. Assume it is a click until proven</span><br><span class="line">				// otherwise</span><br><span class="line">				mTouchMode = TOUCH_MODE_DOWN;</span><br><span class="line">				// FIXME Debounce</span><br><span class="line">				if (mPendingCheckForTap == null) &#123;</span><br><span class="line">					mPendingCheckForTap = new CheckForTap();</span><br><span class="line">				&#125;</span><br><span class="line">				postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				if (ev.getEdgeFlags() != 0 &amp;&amp; motionPosition &lt; 0) &#123;</span><br><span class="line">					// If we couldn&apos;t find a view to click on, but the down</span><br><span class="line">					// event was touching</span><br><span class="line">					// the edge, we will bail out and try again. This allows</span><br><span class="line">					// the edge correcting</span><br><span class="line">					// code in ViewRoot to try to find a nearby view to</span><br><span class="line">					// select</span><br><span class="line">					return false;</span><br><span class="line">				&#125;</span><br><span class="line"> </span><br><span class="line">				if (mTouchMode == TOUCH_MODE_FLING) &#123;</span><br><span class="line">					// Stopped a fling. It is a scroll.</span><br><span class="line">					createScrollingCache();</span><br><span class="line">					mTouchMode = TOUCH_MODE_SCROLL;</span><br><span class="line">					mMotionCorrection = 0;</span><br><span class="line">					motionPosition = findMotionRow(y);</span><br><span class="line">					reportScrollStateChange(OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		if (motionPosition &gt;= 0) &#123;</span><br><span class="line">			// Remember where the motion event started</span><br><span class="line">			v = getChildAt(motionPosition - mFirstPosition);</span><br><span class="line">			mMotionViewOriginalTop = v.getTop();</span><br><span class="line">		&#125;</span><br><span class="line">		mMotionX = x;</span><br><span class="line">		mMotionY = y;</span><br><span class="line">		mMotionPosition = motionPosition;</span><br><span class="line">		mLastY = Integer.MIN_VALUE;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	case MotionEvent.ACTION_MOVE: &#123;</span><br><span class="line">		final int pointerIndex = ev.findPointerIndex(mActivePointerId);</span><br><span class="line">		final int y = (int) ev.getY(pointerIndex);</span><br><span class="line">		deltaY = y - mMotionY;</span><br><span class="line">		switch (mTouchMode) &#123;</span><br><span class="line">		case TOUCH_MODE_DOWN:</span><br><span class="line">		case TOUCH_MODE_TAP:</span><br><span class="line">		case TOUCH_MODE_DONE_WAITING:</span><br><span class="line">			// Check if we have moved far enough that it looks more like a</span><br><span class="line">			// scroll than a tap</span><br><span class="line">			startScrollIfNeeded(deltaY);</span><br><span class="line">			break;</span><br><span class="line">		case TOUCH_MODE_SCROLL:</span><br><span class="line">			if (PROFILE_SCROLLING) &#123;</span><br><span class="line">				if (!mScrollProfilingStarted) &#123;</span><br><span class="line">					Debug.startMethodTracing(&quot;AbsListViewScroll&quot;);</span><br><span class="line">					mScrollProfilingStarted = true;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			if (y != mLastY) &#123;</span><br><span class="line">				deltaY -= mMotionCorrection;</span><br><span class="line">				int incrementalDeltaY = mLastY != Integer.MIN_VALUE ? y - mLastY : deltaY;</span><br><span class="line">				// No need to do all this work if we&apos;re not going to move</span><br><span class="line">				// anyway</span><br><span class="line">				boolean atEdge = false;</span><br><span class="line">				if (incrementalDeltaY != 0) &#123;</span><br><span class="line">					atEdge = trackMotionScroll(deltaY, incrementalDeltaY);</span><br><span class="line">				&#125;</span><br><span class="line">				// Check to see if we have bumped into the scroll limit</span><br><span class="line">				if (atEdge &amp;&amp; getChildCount() &gt; 0) &#123;</span><br><span class="line">					// Treat this like we&apos;re starting a new scroll from the</span><br><span class="line">					// current</span><br><span class="line">					// position. This will let the user start scrolling back</span><br><span class="line">					// into</span><br><span class="line">					// content immediately rather than needing to scroll</span><br><span class="line">					// back to the</span><br><span class="line">					// point where they hit the limit first.</span><br><span class="line">					int motionPosition = findMotionRow(y);</span><br><span class="line">					if (motionPosition &gt;= 0) &#123;</span><br><span class="line">						final View motionView = getChildAt(motionPosition - mFirstPosition);</span><br><span class="line">						mMotionViewOriginalTop = motionView.getTop();</span><br><span class="line">					&#125;</span><br><span class="line">					mMotionY = y;</span><br><span class="line">					mMotionPosition = motionPosition;</span><br><span class="line">					invalidate();</span><br><span class="line">				&#125;</span><br><span class="line">				mLastY = y;</span><br><span class="line">			&#125;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	case MotionEvent.ACTION_UP: &#123;</span><br><span class="line">		switch (mTouchMode) &#123;</span><br><span class="line">		case TOUCH_MODE_DOWN:</span><br><span class="line">		case TOUCH_MODE_TAP:</span><br><span class="line">		case TOUCH_MODE_DONE_WAITING:</span><br><span class="line">			final int motionPosition = mMotionPosition;</span><br><span class="line">			final View child = getChildAt(motionPosition - mFirstPosition);</span><br><span class="line">			if (child != null &amp;&amp; !child.hasFocusable()) &#123;</span><br><span class="line">				if (mTouchMode != TOUCH_MODE_DOWN) &#123;</span><br><span class="line">					child.setPressed(false);</span><br><span class="line">				&#125;</span><br><span class="line">				if (mPerformClick == null) &#123;</span><br><span class="line">					mPerformClick = new PerformClick();</span><br><span class="line">				&#125;</span><br><span class="line">				final AbsListView.PerformClick performClick = mPerformClick;</span><br><span class="line">				performClick.mChild = child;</span><br><span class="line">				performClick.mClickMotionPosition = motionPosition;</span><br><span class="line">				performClick.rememberWindowAttachCount();</span><br><span class="line">				mResurrectToPosition = motionPosition;</span><br><span class="line">				if (mTouchMode == TOUCH_MODE_DOWN || mTouchMode == TOUCH_MODE_TAP) &#123;</span><br><span class="line">					final Handler handler = getHandler();</span><br><span class="line">					if (handler != null) &#123;</span><br><span class="line">						handler.removeCallbacks(mTouchMode == TOUCH_MODE_DOWN ? mPendingCheckForTap</span><br><span class="line">								: mPendingCheckForLongPress);</span><br><span class="line">					&#125;</span><br><span class="line">					mLayoutMode = LAYOUT_NORMAL;</span><br><span class="line">					if (!mDataChanged &amp;&amp; mAdapter.isEnabled(motionPosition)) &#123;</span><br><span class="line">						mTouchMode = TOUCH_MODE_TAP;</span><br><span class="line">						setSelectedPositionInt(mMotionPosition);</span><br><span class="line">						layoutChildren();</span><br><span class="line">						child.setPressed(true);</span><br><span class="line">						positionSelector(child);</span><br><span class="line">						setPressed(true);</span><br><span class="line">						if (mSelector != null) &#123;</span><br><span class="line">							Drawable d = mSelector.getCurrent();</span><br><span class="line">							if (d != null &amp;&amp; d instanceof TransitionDrawable) &#123;</span><br><span class="line">								((TransitionDrawable) d).resetTransition();</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;</span><br><span class="line">						postDelayed(new Runnable() &#123;</span><br><span class="line">							public void run() &#123;</span><br><span class="line">								child.setPressed(false);</span><br><span class="line">								setPressed(false);</span><br><span class="line">								if (!mDataChanged) &#123;</span><br><span class="line">									post(performClick);</span><br><span class="line">								&#125;</span><br><span class="line">								mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;, ViewConfiguration.getPressedStateDuration());</span><br><span class="line">					&#125; else &#123;</span><br><span class="line">						mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">					&#125;</span><br><span class="line">					return true;</span><br><span class="line">				&#125; else if (!mDataChanged &amp;&amp; mAdapter.isEnabled(motionPosition)) &#123;</span><br><span class="line">					post(performClick);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">			break;</span><br><span class="line">		case TOUCH_MODE_SCROLL:</span><br><span class="line">			final int childCount = getChildCount();</span><br><span class="line">			if (childCount &gt; 0) &#123;</span><br><span class="line">				if (mFirstPosition == 0</span><br><span class="line">						&amp;&amp; getChildAt(0).getTop() &gt;= mListPadding.top</span><br><span class="line">						&amp;&amp; mFirstPosition + childCount &lt; mItemCount</span><br><span class="line">						&amp;&amp; getChildAt(childCount - 1).getBottom() &lt;= getHeight()</span><br><span class="line">								- mListPadding.bottom) &#123;</span><br><span class="line">					mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">					reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);</span><br><span class="line">				&#125; else &#123;</span><br><span class="line">					final VelocityTracker velocityTracker = mVelocityTracker;</span><br><span class="line">					velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);</span><br><span class="line">					final int initialVelocity = (int) velocityTracker</span><br><span class="line">							.getYVelocity(mActivePointerId);</span><br><span class="line">					if (Math.abs(initialVelocity) &gt; mMinimumVelocity) &#123;</span><br><span class="line">						if (mFlingRunnable == null) &#123;</span><br><span class="line">							mFlingRunnable = new FlingRunnable();</span><br><span class="line">						&#125;</span><br><span class="line">						reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);</span><br><span class="line">						mFlingRunnable.start(-initialVelocity);</span><br><span class="line">					&#125; else &#123;</span><br><span class="line">						mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">						reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">				reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);</span><br><span class="line">			&#125;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		setPressed(false);</span><br><span class="line">		// Need to redraw since we probably aren&apos;t drawing the selector</span><br><span class="line">		// anymore</span><br><span class="line">		invalidate();</span><br><span class="line">		final Handler handler = getHandler();</span><br><span class="line">		if (handler != null) &#123;</span><br><span class="line">			handler.removeCallbacks(mPendingCheckForLongPress);</span><br><span class="line">		&#125;</span><br><span class="line">		if (mVelocityTracker != null) &#123;</span><br><span class="line">			mVelocityTracker.recycle();</span><br><span class="line">			mVelocityTracker = null;</span><br><span class="line">		&#125;</span><br><span class="line">		mActivePointerId = INVALID_POINTER;</span><br><span class="line">		if (PROFILE_SCROLLING) &#123;</span><br><span class="line">			if (mScrollProfilingStarted) &#123;</span><br><span class="line">				Debug.stopMethodTracing();</span><br><span class="line">				mScrollProfilingStarted = false;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	case MotionEvent.ACTION_CANCEL: &#123;</span><br><span class="line">		mTouchMode = TOUCH_MODE_REST;</span><br><span class="line">		setPressed(false);</span><br><span class="line">		View motionView = this.getChildAt(mMotionPosition - mFirstPosition);</span><br><span class="line">		if (motionView != null) &#123;</span><br><span class="line">			motionView.setPressed(false);</span><br><span class="line">		&#125;</span><br><span class="line">		clearScrollingCache();</span><br><span class="line">		final Handler handler = getHandler();</span><br><span class="line">		if (handler != null) &#123;</span><br><span class="line">			handler.removeCallbacks(mPendingCheckForLongPress);</span><br><span class="line">		&#125;</span><br><span class="line">		if (mVelocityTracker != null) &#123;</span><br><span class="line">			mVelocityTracker.recycle();</span><br><span class="line">			mVelocityTracker = null;</span><br><span class="line">		&#125;</span><br><span class="line">		mActivePointerId = INVALID_POINTER;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	case MotionEvent.ACTION_POINTER_UP: &#123;</span><br><span class="line">		onSecondaryPointerUp(ev);</span><br><span class="line">		final int x = mMotionX;</span><br><span class="line">		final int y = mMotionY;</span><br><span class="line">		final int motionPosition = pointToPosition(x, y);</span><br><span class="line">		if (motionPosition &gt;= 0) &#123;</span><br><span class="line">			// Remember where the motion event started</span><br><span class="line">			v = getChildAt(motionPosition - mFirstPosition);</span><br><span class="line">			mMotionViewOriginalTop = v.getTop();</span><br><span class="line">			mMotionPosition = motionPosition;</span><br><span class="line">		&#125;</span><br><span class="line">		mLastY = y;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个方法中的代码就非常多了，因为它所处理的逻辑也非常多，要监听各种各样的触屏事件。但是我们目前所关心的就只有手指在屏幕上滑动这一个事件而已，对应的是ACTION_MOVE这个动作，那么我们就只看这部分代码就可以了。可以看到，ACTION_MOVE这个case里面又嵌套了一个switch语句，是根据当前的TouchMode来选择的。那这里我可以直接告诉大家，当手指在屏幕上滑动时，TouchMode是等于TOUCH_MODE_SCROLL这个值的。</p>
+<p>这样的话，代码就应该会走到第78行的这个case里面去了，在这个case当中并没有什么太多需要注意的东西，唯一一点非常重要的就是第92行调用的trackMotionScroll()方法，相当于我们手指只要在屏幕上稍微有一点点移动，这个方法就会被调用，而如果是正常在屏幕上滑动的话，那么这个方法就会被调用很多次。那么我们进入到这个方法中瞧一瞧，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">boolean trackMotionScroll(int deltaY, int incrementalDeltaY) &#123;</span><br><span class="line">	final int childCount = getChildCount();</span><br><span class="line">	if (childCount == 0) &#123;</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	final int firstTop = getChildAt(0).getTop();</span><br><span class="line">	final int lastBottom = getChildAt(childCount - 1).getBottom();</span><br><span class="line">	final Rect listPadding = mListPadding;</span><br><span class="line">	final int spaceAbove = listPadding.top - firstTop;</span><br><span class="line">	final int end = getHeight() - listPadding.bottom;</span><br><span class="line">	final int spaceBelow = lastBottom - end;</span><br><span class="line">	final int height = getHeight() - getPaddingBottom() - getPaddingTop();</span><br><span class="line">	if (deltaY &lt; 0) &#123;</span><br><span class="line">		deltaY = Math.max(-(height - 1), deltaY);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		deltaY = Math.min(height - 1, deltaY);</span><br><span class="line">	&#125;</span><br><span class="line">	if (incrementalDeltaY &lt; 0) &#123;</span><br><span class="line">		incrementalDeltaY = Math.max(-(height - 1), incrementalDeltaY);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		incrementalDeltaY = Math.min(height - 1, incrementalDeltaY);</span><br><span class="line">	&#125;</span><br><span class="line">	final int firstPosition = mFirstPosition;</span><br><span class="line">	if (firstPosition == 0 &amp;&amp; firstTop &gt;= listPadding.top &amp;&amp; deltaY &gt;= 0) &#123;</span><br><span class="line">		// Don&apos;t need to move views down if the top of the first position</span><br><span class="line">		// is already visible</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	if (firstPosition + childCount == mItemCount &amp;&amp; lastBottom &lt;= end &amp;&amp; deltaY &lt;= 0) &#123;</span><br><span class="line">		// Don&apos;t need to move views up if the bottom of the last position</span><br><span class="line">		// is already visible</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	final boolean down = incrementalDeltaY &lt; 0;</span><br><span class="line">	final boolean inTouchMode = isInTouchMode();</span><br><span class="line">	if (inTouchMode) &#123;</span><br><span class="line">		hideSelector();</span><br><span class="line">	&#125;</span><br><span class="line">	final int headerViewsCount = getHeaderViewsCount();</span><br><span class="line">	final int footerViewsStart = mItemCount - getFooterViewsCount();</span><br><span class="line">	int start = 0;</span><br><span class="line">	int count = 0;</span><br><span class="line">	if (down) &#123;</span><br><span class="line">		final int top = listPadding.top - incrementalDeltaY;</span><br><span class="line">		for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">			final View child = getChildAt(i);</span><br><span class="line">			if (child.getBottom() &gt;= top) &#123;</span><br><span class="line">				break;</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				count++;</span><br><span class="line">				int position = firstPosition + i;</span><br><span class="line">				if (position &gt;= headerViewsCount &amp;&amp; position &lt; footerViewsStart) &#123;</span><br><span class="line">					mRecycler.addScrapView(child);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		final int bottom = getHeight() - listPadding.bottom - incrementalDeltaY;</span><br><span class="line">		for (int i = childCount - 1; i &gt;= 0; i--) &#123;</span><br><span class="line">			final View child = getChildAt(i);</span><br><span class="line">			if (child.getTop() &lt;= bottom) &#123;</span><br><span class="line">				break;</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				start = i;</span><br><span class="line">				count++;</span><br><span class="line">				int position = firstPosition + i;</span><br><span class="line">				if (position &gt;= headerViewsCount &amp;&amp; position &lt; footerViewsStart) &#123;</span><br><span class="line">					mRecycler.addScrapView(child);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	mMotionViewNewTop = mMotionViewOriginalTop + deltaY;</span><br><span class="line">	mBlockLayoutRequests = true;</span><br><span class="line">	if (count &gt; 0) &#123;</span><br><span class="line">		detachViewsFromParent(start, count);</span><br><span class="line">	&#125;</span><br><span class="line">	offsetChildrenTopAndBottom(incrementalDeltaY);</span><br><span class="line">	if (down) &#123;</span><br><span class="line">		mFirstPosition += count;</span><br><span class="line">	&#125;</span><br><span class="line">	invalidate();</span><br><span class="line">	final int absIncrementalDeltaY = Math.abs(incrementalDeltaY);</span><br><span class="line">	if (spaceAbove &lt; absIncrementalDeltaY || spaceBelow &lt; absIncrementalDeltaY) &#123;</span><br><span class="line">		fillGap(down);</span><br><span class="line">	&#125;</span><br><span class="line">	if (!inTouchMode &amp;&amp; mSelectedPosition != INVALID_POSITION) &#123;</span><br><span class="line">		final int childIndex = mSelectedPosition - mFirstPosition;</span><br><span class="line">		if (childIndex &gt;= 0 &amp;&amp; childIndex &lt; getChildCount()) &#123;</span><br><span class="line">			positionSelector(getChildAt(childIndex));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	mBlockLayoutRequests = false;</span><br><span class="line">	invokeOnItemScrollListener();</span><br><span class="line">	awakenScrollBars();</span><br><span class="line">	return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个方法接收两个参数，deltaY表示从手指按下时的位置到当前手指位置的距离，incrementalDeltaY则表示据上次触发event事件手指在Y方向上位置的改变量，那么其实我们就可以通过incrementalDeltaY的正负值情况来判断用户是向上还是向下滑动的了。如第34行代码所示，如果incrementalDeltaY小于0，说明是向下滑动，否则就是向上滑动。</p>
+<p>下面将会进行一个边界值检测的过程，可以看到，从第43行开始，当ListView向下滑动的时候，就会进入一个for循环当中，从上往下依次获取子View，第47行当中，如果该子View的bottom值已经小于top值了，就说明这个子View已经移出屏幕了，所以会调用RecycleBin的addScrapView()方法将这个View加入到废弃缓存当中，并将count计数器加1，计数器用于记录有多少个子View被移出了屏幕。那么如果是ListView向上滑动的话，其实过程是基本相同的，只不过变成了从下往上依次获取子View，然后判断该子View的top值是不是大于bottom值了，如果大于的话说明子View已经移出了屏幕，同样把它加入到废弃缓存中，并将计数器加1。</p>
+<p>接下来在第76行，会根据当前计数器的值来进行一个detach操作，它的作用就是把所有移出屏幕的子View全部detach掉，在ListView的概念当中，所有看不到的View就没有必要为它进行保存，因为屏幕外还有成百上千条数据等着显示呢，一个好的回收策略才能保证ListView的高性能和高效率。<strong>紧接着在第78行调用了offsetChildrenTopAndBottom()方法，并将incrementalDeltaY作为参数传入，这个方法的作用是让ListView中所有的子View都按照传入的参数值进行相应的偏移，这样就实现了随着手指的拖动，ListView的内容也会随着滚动的效果。</strong></p>
+<p>然后在第84行会进行判断，如果ListView中最后一个View的底部已经移入了屏幕，或者ListView中第一个View的顶部移入了屏幕，就会调用fillGap()方法，那么因此我们就可以猜出fillGap()方法是用来加载屏幕外数据的，进入到这个方法中瞧一瞧，如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Fills the gap left open by a touch-scroll. During a touch scroll,</span><br><span class="line"> * children that remain on screen are shifted and the other ones are</span><br><span class="line"> * discarded. The role of this method is to fill the gap thus created by</span><br><span class="line"> * performing a partial layout in the empty space.</span><br><span class="line"> * </span><br><span class="line"> * @param down</span><br><span class="line"> *            true if the scroll is going down, false if it is going up</span><br><span class="line"> */</span><br><span class="line">abstract void fillGap(boolean down);</span><br><span class="line">OK，AbsListView中的fillGap()是一个抽象方法，那么我们立刻就能够想到，它的具体实现肯定是在ListView中完成的了。回到ListView当中，fillGap()方法的代码如下所示：</span><br><span class="line">void fillGap(boolean down) &#123;</span><br><span class="line">    final int count = getChildCount();</span><br><span class="line">    if (down) &#123;</span><br><span class="line">        final int startOffset = count &gt; 0 ? getChildAt(count - 1).getBottom() + mDividerHeight :</span><br><span class="line">                getListPaddingTop();</span><br><span class="line">        fillDown(mFirstPosition + count, startOffset);</span><br><span class="line">        correctTooHigh(getChildCount());</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        final int startOffset = count &gt; 0 ? getChildAt(0).getTop() - mDividerHeight :</span><br><span class="line">                getHeight() - getListPaddingBottom();</span><br><span class="line">        fillUp(mFirstPosition - 1, startOffset);</span><br><span class="line">        correctTooLow(getChildCount());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>down参数用于表示ListView是向下滑动还是向上滑动的，可以看到，如果是向下滑动的话就会调用fillDown()方法，而如果是向上滑动的话就会调用fillUp()方法。那么这两个方法我们都已经非常熟悉了，内部都是通过一个循环来去对ListView进行填充，所以这两个方法我们就不看了，但是填充ListView会通过调用makeAndAddView()方法来完成，又是makeAndAddView()方法，但这次的逻辑再次不同了，所以我们还是回到这个方法瞧一瞧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Obtain the view and add it to our list of children. The view can be made</span><br><span class="line"> * fresh, converted from an unused view, or used as is if it was in the</span><br><span class="line"> * recycle bin.</span><br><span class="line"> *</span><br><span class="line"> * @param position Logical position in the list</span><br><span class="line"> * @param y Top or bottom edge of the view to add</span><br><span class="line"> * @param flow If flow is true, align top edge to y. If false, align bottom</span><br><span class="line"> *        edge to y.</span><br><span class="line"> * @param childrenLeft Left edge where children should be positioned</span><br><span class="line"> * @param selected Is this position selected?</span><br><span class="line"> * @return View that was added</span><br><span class="line"> */</span><br><span class="line">private View makeAndAddView(int position, int y, boolean flow, int childrenLeft,</span><br><span class="line">        boolean selected) &#123;</span><br><span class="line">    View child;</span><br><span class="line">    if (!mDataChanged) &#123;</span><br><span class="line">        // Try to use an exsiting view for this position</span><br><span class="line">        child = mRecycler.getActiveView(position);</span><br><span class="line">        if (child != null) &#123;</span><br><span class="line">            // Found it -- we&apos;re using an existing child</span><br><span class="line">            // This just needs to be positioned</span><br><span class="line">            setupChild(child, position, y, flow, childrenLeft, selected, true);</span><br><span class="line">            return child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // Make a new view for this position, or convert an unused view if possible</span><br><span class="line">    child = obtainView(position, mIsScrap);</span><br><span class="line">    // This needs to be positioned and measured</span><br><span class="line">    setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[0]);</span><br><span class="line">    return child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>不管怎么说，这里首先仍然是会尝试调用RecycleBin的getActiveView()方法来获取子布局，只不过肯定是获取不到的了，因为在第二次Layout过程中我们已经从mActiveViews中获取过了数据，而根据RecycleBin的机制，mActiveViews是不能够重复利用的，因此这里返回的值肯定是null。</p>
+<p>既然getActiveView()方法返回的值是null，那么就还是会走到第28行的obtainView()方法当中，代码如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Get a view and have it show the data associated with the specified</span><br><span class="line"> * position. This is called when we have already discovered that the view is</span><br><span class="line"> * not available for reuse in the recycle bin. The only choices left are</span><br><span class="line"> * converting an old view or making a new one.</span><br><span class="line"> * </span><br><span class="line"> * @param position</span><br><span class="line"> *            The position to display</span><br><span class="line"> * @param isScrap</span><br><span class="line"> *            Array of at least 1 boolean, the first entry will become true</span><br><span class="line"> *            if the returned view was taken from the scrap heap, false if</span><br><span class="line"> *            otherwise.</span><br><span class="line"> * </span><br><span class="line"> * @return A view displaying the data associated with the specified position</span><br><span class="line"> */</span><br><span class="line">View obtainView(int position, boolean[] isScrap) &#123;</span><br><span class="line">	isScrap[0] = false;</span><br><span class="line">	View scrapView;</span><br><span class="line">	scrapView = mRecycler.getScrapView(position);</span><br><span class="line">	View child;</span><br><span class="line">	if (scrapView != null) &#123;</span><br><span class="line">		child = mAdapter.getView(position, scrapView, this);</span><br><span class="line">		if (child != scrapView) &#123;</span><br><span class="line">			mRecycler.addScrapView(scrapView);</span><br><span class="line">			if (mCacheColorHint != 0) &#123;</span><br><span class="line">				child.setDrawingCacheBackgroundColor(mCacheColorHint);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			isScrap[0] = true;</span><br><span class="line">			dispatchFinishTemporaryDetach(child);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		child = mAdapter.getView(position, null, this);</span><br><span class="line">		if (mCacheColorHint != 0) &#123;</span><br><span class="line">			child.setDrawingCacheBackgroundColor(mCacheColorHint);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>这里在第19行会调用RecyleBin的getScrapView()方法来尝试从废弃缓存中获取一个View，那么废弃缓存有没有View呢？当然有，因为刚才在trackMotionScroll()方法中我们就已经看到了，一旦有任何子View被移出了屏幕，就会将它加入到废弃缓存中，而从obtainView()方法中的逻辑来看，一旦有新的数据需要显示到屏幕上，就会尝试从废弃缓存中获取View。所以它们之间就形成了一个生产者和消费者的模式，那么ListView神奇的地方也就在这里体现出来了，不管你有任意多条数据需要显示，ListView中的子View其实来来回回就那么几个，移出屏幕的子View会很快被移入屏幕的数据重新利用起来，因而不管我们加载多少数据都不会出现OOM的情况，甚至内存都不会有所增加。</strong></p>
+<p>那么另外还有一点是需要大家留意的，这里获取到了一个scrapView，然后我们在第22行将它作为第二个参数传入到了Adapter的getView()方法当中。那么第二个参数是什么意思呢？我们再次看一下一个简单的getView()方法示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public View getView(int position, View convertView, ViewGroup parent) &#123;</span><br><span class="line">	Fruit fruit = getItem(position);</span><br><span class="line">	View view;</span><br><span class="line">	if (convertView == null) &#123;</span><br><span class="line">		view = LayoutInflater.from(getContext()).inflate(resourceId, null);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		view = convertView;</span><br><span class="line">	&#125;</span><br><span class="line">	ImageView fruitImage = (ImageView) view.findViewById(R.id.fruit_image);</span><br><span class="line">	TextView fruitName = (TextView) view.findViewById(R.id.fruit_name);</span><br><span class="line">	fruitImage.setImageResource(fruit.getImageId());</span><br><span class="line">	fruitName.setText(fruit.getName());</span><br><span class="line">	return view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>第二个参数就是我们最熟悉的convertView呀，难怪平时我们在写getView()方法是要判断一下convertView是不是等于null，如果等于null才调用inflate()方法来加载布局，不等于null就可以直接利用convertView，因为convertView就是我们之间利用过的View，只不过被移出屏幕后进入到了废弃缓存中，现在又重新拿出来使用而已。然后我们只需要把convertView中的数据更新成当前位置上应该显示的数据，那么看起来就好像是全新加载出来的一个布局一样，这背后的道理你是不是已经完全搞明白了？</p>
+<p>之后的代码又都是我们熟悉的流程了，从缓存中拿到子View之后再调用setupChild()方法将它重新attach到ListView当中，因为缓存中的View也是之前从ListView中detach掉的，这部分代码就不再重复进行分析了。</p>
+<p>为了方便大家理解，这里我再附上一张图解说明：<br><img src="/2019/09/05/android-listview/recycle_bin.png" alt></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/guolin_blog/article/details/44996879" target="_blank" rel="noopener">https://blog.csdn.net/guolin_blog/article/details/44996879</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/listView/" rel="tag"># listView</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/16/android-ndk-knowledge/" rel="next" title="Android NDK基础知识">
+                <i class="fa fa-chevron-left"></i> Android NDK基础知识
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Adapter作用"><span class="nav-number">1.</span> <span class="nav-text">Adapter作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RecycleBin机制"><span class="nav-number">2.</span> <span class="nav-text">RecycleBin机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第一次Layout"><span class="nav-number">3.</span> <span class="nav-text">第一次Layout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二次Layout"><span class="nav-number">4.</span> <span class="nav-text">第二次Layout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#滑动加载更多数据"><span class="nav-number">5.</span> <span class="nav-text">滑动加载更多数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
