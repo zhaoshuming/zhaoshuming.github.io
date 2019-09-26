@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="webview,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="离线缓存这个比较容易，开启webView的缓存功能就可以了。123456WebSettings settings = webView.getSettings();settings.setAppCacheEnabled(true);settings.setDatabaseEnabled(true);settings.setDomStorageEnabled(true);//开启DOM缓存，关闭的话H">
+<meta name="keywords" content="webview">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android WebView 性能优化">
+<meta property="og:url" content="http://yoursite.com/2019/09/26/android-webview/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="离线缓存这个比较容易，开启webView的缓存功能就可以了。123456WebSettings settings = webView.getSettings();settings.setAppCacheEnabled(true);settings.setDatabaseEnabled(true);settings.setDomStorageEnabled(true);//开启DOM缓存，关闭的话H">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-26T03:27:16.154Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android WebView 性能优化">
+<meta name="twitter:description" content="离线缓存这个比较容易，开启webView的缓存功能就可以了。123456WebSettings settings = webView.getSettings();settings.setAppCacheEnabled(true);settings.setDatabaseEnabled(true);settings.setDomStorageEnabled(true);//开启DOM缓存，关闭的话H">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/26/android-webview/">
+
+
+
+
+
+  <title>Android WebView 性能优化 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/android-webview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android WebView 性能优化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-26T09:44:09+08:00">
+                2019-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="离线缓存"><a href="#离线缓存" class="headerlink" title="离线缓存"></a>离线缓存</h2><p>这个比较容易，开启webView的缓存功能就可以了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WebSettings settings = webView.getSettings();</span><br><span class="line">settings.setAppCacheEnabled(true);</span><br><span class="line">settings.setDatabaseEnabled(true);</span><br><span class="line">settings.setDomStorageEnabled(true);//开启DOM缓存，关闭的话H5自身的一些操作是无效的</span><br><span class="line">settings.setCacheMode(WebSettings.LOAD_DEFAULT);</span><br><span class="line">settings.setJavaScriptEnabled(true);</span><br></pre></td></tr></table></figure></p>
+<p>这边我们通过setCacheMode方法来设置WebView的缓存策略，WebSettings.LOAD_DEFAULT是默认的缓存策略，它在缓存可获取并且没有过期的情况下加载缓存，否则通过网络获取资源。这样的话可以减少页面的网络请求次数，那我们如何在离线的情况下也能打开页面呢，这里我们在加载页面的时候可以通过判断网络状态，<strong>在无网络的情况下更改webview的缓存策略</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);</span><br><span class="line">NetworkInfo info = cm.getActiveNetworkInfo();</span><br><span class="line">if(info.isAvailable())</span><br><span class="line">&#123;</span><br><span class="line">    settings.setCacheMode(WebSettings.LOAD_DEFAULT);</span><br><span class="line">&#125;else </span><br><span class="line">&#123;</span><br><span class="line">    settings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);//不使用网络，只加载缓存</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样我们就可以使我们的混合应用在没有网络的情况下也能使用一部分的功能，不至于什么都显示不了了，当然如果我们将缓存做的更好一些，在网络好的时候，比如说在WIFI状态下，去后台加载一些网页缓存起来，这样处理的话，即使在无网络情况下第一次打开某些页面的时候，也能将该页面显示出来。<br>当然缓存资源后随之会带来一个问题，那就是<strong>资源无法及时更新，WebSettings.LOAD_DEFAULT中的页面中的缓存版本好像不是很起作用，所以我们这边可能需要自己做一个缓存版本控制</strong>。这个缓存版本控制可以放在APP版本更新中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (upgrade.cacheControl &gt; cacheControl)</span><br><span class="line">&#123;</span><br><span class="line">    webView.clearCache(true);//删除DOM缓存</span><br><span class="line">    VersionUtils.clearCache(mContext.getCacheDir());//删除APP缓存</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        mContext.deleteDatabase(&quot;webview.db&quot;);//删除数据库缓存</span><br><span class="line">        mContext.deleteDatabase(&quot;webviewCache.db&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    catch (Exception e)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="内存泄露"><a href="#内存泄露" class="headerlink" title="内存泄露"></a>内存泄露</h2><p>1.可以将 Webview 的 Activity 新起一个进程，结束的时候直接System.exit(0);退出当前进程；<br>启动新进程，主要代码： AndroidManifest.xml 配置文件代码如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;activity</span><br><span class="line">    android:name=&quot;.ui.activity.Html5Activity&quot;</span><br><span class="line">    android:process=&quot;:lyl.boon.process.web&quot;&gt;</span><br><span class="line">    &lt;intent-filter&gt;</span><br><span class="line">        &lt;action android:name=&quot;com.lyl.boon.ui.activity.htmlactivity&quot;/&gt;</span><br><span class="line">        &lt;category android:name=&quot;android.intent.category.DEFAULT&quot;/&gt;</span><br><span class="line">    &lt;/intent-filter&gt;</span><br><span class="line">&lt;/activity&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在新进程中启动 Activity ，里面传了 一个 Url：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Intent intent = new Intent(&quot;com.lyl.boon.ui.activity.htmlactivity&quot;);</span><br><span class="line">Bundle bundle = new Bundle();</span><br><span class="line">bundle.putString(&quot;url&quot;, gankDataEntity.getUrl());</span><br><span class="line">intent.putExtra(&quot;bundle&quot;,bundle);</span><br><span class="line">startActivity(intent);</span><br></pre></td></tr></table></figure></p>
+<p>然后在 Html5Activity 的onDestory() 最后加上 System.exit(0); 杀死当前进程。</p>
+<p>Android7.0系统以后，WebView相对来说是比较稳定的，无论承载WebView的容器是否在主进程，都不需要担心WebView崩溃导致应用也跟着崩溃。然后7.0以下的系统就没有这么幸运了，特别是低版本的WebView。考虑应用的稳定性，我们可以把7.0以下系统的WebView使用一个独立进程的Activity来包装，这样即使WebView崩溃了，也只是WebView所在的进程发生了崩溃，主进程还是不受影响的。</p>
+<p>2.不在xml中定义 Webview ，而是在需要的时候在Activity中创建，并且Context使用 getApplicationgContext()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">        mWebView = new WebView(getApplicationContext());</span><br><span class="line">        mWebView.setLayoutParams(params);</span><br><span class="line">        mLayout.addView(mWebView);</span><br></pre></td></tr></table></figure></p>
+<p>3.在 Activity 销毁（ WebView ）的时候，先让 WebView 加载null内容，然后移除 WebView，再销毁 WebView，最后置空<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onDestroy() &#123;</span><br><span class="line">        if (mWebView != null) &#123;</span><br><span class="line">            mWebView.loadDataWithBaseURL(null, &quot;&quot;, &quot;text/html&quot;, &quot;utf-8&quot;, null);</span><br><span class="line">			mWebView.getSettings().setJavaScriptEnabled(false);</span><br><span class="line">        	mWebView.clearFormData();</span><br><span class="line">            mWebView.clearHistory();</span><br><span class="line">			mWebView.stopLoading();</span><br><span class="line"></span><br><span class="line">            ((ViewGroup) mWebView.getParent()).removeView(mWebView);</span><br><span class="line">            mWebView.destroy();</span><br><span class="line">            mWebView = null;</span><br><span class="line">        &#125;</span><br><span class="line">        super.onDestroy();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="预加载"><a href="#预加载" class="headerlink" title="预加载"></a>预加载</h2><p>有时候一个页面资源比较多，图片，CSS，js比较多，还引用了JQuery这种庞然巨兽，从加载到页面渲染完成需要比较长的时间，有一个解决方案是<strong>将这些资源打包进APK里面，然后当页面加载这些资源的时候让它从本地获取</strong>，这样可以提升加载速度也能减少服务器压力。重写WebClient类中的shouldInterceptRequest方法，再将这个类设置给WebView。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">webView.setWebViewClient(new WebViewClient()</span><br><span class="line">&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public WebResourceResponse shouldInterceptRequest(WebView view, String url)</span><br><span class="line">    &#123;</span><br><span class="line">        if (url.contains(&quot;[tag]&quot;))</span><br><span class="line">        &#123;</span><br><span class="line">            String localPath = url.replaceFirst(&quot;^http.*[tag]\\]&quot;, &quot;&quot;);</span><br><span class="line">            try</span><br><span class="line">            &#123;</span><br><span class="line">                InputStream is = getApplicationContext().getAssets().open(localPath);</span><br><span class="line">                Log.d(TAG, &quot;shouldInterceptRequest: localPath &quot; + localPath);</span><br><span class="line">                String mimeType = &quot;text/javascript&quot;;</span><br><span class="line">                if (localPath.endsWith(&quot;css&quot;))</span><br><span class="line">                &#123;</span><br><span class="line">                    mimeType = &quot;text/css&quot;;</span><br><span class="line">                &#125;</span><br><span class="line">                return new WebResourceResponse(mimeType, &quot;UTF-8&quot;, is);</span><br><span class="line">            &#125;</span><br><span class="line">            catch (Exception e)</span><br><span class="line">            &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                return null;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>这里我们队页面中带有特殊标记的请求进行过滤替换，也就是上面代码中的[tag]，这个可以跟做后台开发的同事约定好来就行了。对图片资源或者其他资源进行替换也是可以的。补充一个小点<strong>可以通过settings.setLoadsImagesAutomatically(true);来设置在页面装载完成之后再去加载图片。</strong>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">webView.getSettings().setBlockNetworkImage(true);  </span><br><span class="line">webView.setWebChromeClient(new WebChromeClient() &#123;  </span><br><span class="line">            @Override  </span><br><span class="line">            public void onProgressChanged(WebView view, int newProgress) &#123;  </span><br><span class="line">                if (newProgress == 100) &#123;  </span><br><span class="line">                    // 网页加载完成  </span><br><span class="line">                    loadDialog.dismiss();  </span><br><span class="line">                    webView.getSettings().setBlockNetworkImage(false);  </span><br><span class="line">                &#125; else &#123;  </span><br><span class="line">                    // 网页加载中  </span><br><span class="line">                    loadDialog.show();  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure></p>
+<h2 id="白屏"><a href="#白屏" class="headerlink" title="白屏"></a>白屏</h2><h3 id="SSL问题"><a href="#SSL问题" class="headerlink" title="SSL问题"></a>SSL问题</h3><p>通常情况下，通过WebView的loadUrl(String url)方法，可以顺利加载页面。但是，当load通过SSL加密的HTTPS页面时，如果这个页面的安全证书无法得到认证，WebView就会显示成空白页。</p>
+<p>解决方式：<br>通过重写WebViewClient的onReceivedSslError方法来接受所有网站的证书，忽略SSL错误。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) &#123;</span><br><span class="line">    handler.proceed();</span><br><span class="line">    super.onReceivedSslError(view, handler, error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="低版本兼容问题"><a href="#低版本兼容问题" class="headerlink" title="低版本兼容问题"></a>低版本兼容问题</h3><p>由于现在h5大部分都是 vue的形式打包，（可能过个一两年就变了，但是万变不离其中），这个时候要注意了， 由于是webv加载的h5，在Android老的机型上  webview 内核可能不支持  最新的h5 框架，这时候 就需要我们找h5 的同学 搞事情了，  对于 vue，想要老机器不出现白屏其实也很简单，让h5的同学 做一下老版本的兼容，具体方法：</p>
+<p>虽然vue-cli引入了babel对js语法进行降级，但是还是有些老旧的机型会发生各种各样的问题，这里需要引入一个叫babel-polyfill的包。所以你只需只在你引入import vue之前 import babel-polyfill进来就可以了，主要是为了让es6对个别机型做到兼容。</p>
+<h2 id="301-302重定向问题"><a href="#301-302重定向问题" class="headerlink" title="301/302重定向问题"></a>301/302重定向问题</h2><p>WebView的301/302重定向问题，绝对在踩坑排行榜里名列前茅。。。随便搜了几个解决方案，要么不能满足业务需求，要么清一色没有彻底解决问题。</p>
+<p><a href="https://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser" target="_blank" rel="noopener">https://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser</a><br><a href="http://blog.csdn.net/jdsjlzx/article/details/51698250" target="_blank" rel="noopener">http://blog.csdn.net/jdsjlzx/article/details/51698250</a><br><a href="http://www.cnblogs.com/pedro-neer/p/5318354.html" target="_blank" rel="noopener">http://www.cnblogs.com/pedro-neer/p/5318354.html</a><br><a href="http://www.jianshu.com/p/c01769ababfa" target="_blank" rel="noopener">http://www.jianshu.com/p/c01769ababfa</a></p>
+<h3 id="301-302业务场景及白屏问题"><a href="#301-302业务场景及白屏问题" class="headerlink" title="301/302业务场景及白屏问题"></a>301/302业务场景及白屏问题</h3><p>先来分析一下业务场景。对于需要对url进行拦截以及在url中需要拼接特定参数的WebView来说，301和302发生的情景主要有以下几种：</p>
+<ul>
+<li>首次进入，有重定向，然后直接加载H5页面，如http跳转https</li>
+<li>首次进入，有重定向，然后跳转到native页面，如扫一扫短链，然后跳转到native</li>
+<li>二次加载，有重定向，跳转到native页面</li>
+<li>对于考拉业务来说，还有类似登录后跳转到某个页面的需求。如我的拼团，未登录状态下点击我的拼团跳转到登录页面，登录完成后再加载我的拼团页。</li>
+</ul>
+<p>第一种情况属于正常情况，暂时没遇到什么坑。</p>
+<p>第二种情况，会遇到<strong>WebView空白页问题</strong>，属于原始url不能拦截到native页面，但301/302后的url拦截到native页面的情况，当遇到这种情况时，需要把WebView对应的Activity结束，否则当用户从拦截后的页面返回上一个页面时，是一个WebView空白页。</p>
+<p>第三种情况，也会遇到<strong>WebView空白页问题</strong>，原因在于加载的第一个页面发生了重定向到了第二个页面，第二个页面被客户端拦截跳转到native页面，那么WebView就停留在第一个页面的状态了，第一个页面显然是空白页。</p>
+<p>第四种情况，会遇到<strong>无限加载登录页面的问题</strong>。考拉的登录链接是类似下面这种格式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://m.kaola.com/login.html?target=登录后跳转的url</span><br></pre></td></tr></table></figure></p>
+<p>如果登录成功后还重新加载这个url，那么就会循环跳转到登录页面。第四点解决起来比较简单，登录成功以后拿到target后的跳转url再重新加载即可。</p>
+<h3 id="301-302回退栈问题"><a href="#301-302回退栈问题" class="headerlink" title="301/302回退栈问题"></a>301/302回退栈问题</h3><p>无论是哪种重定向场景，都不可避免地会遇到回退栈的处理问题，如果处理不当，用户按返回键的时候不一定能回到重定向之前的那个页面。很多开发者在覆写WebViewClient.shouldOverrideUrlLoading()方法时，会简单地使用以下方式粗暴处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WebView.setWebViewClient(new WebViewClient() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">    	view.loadUrl(url);</span><br><span class="line">    	return true;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>这种方法最致命的弱点就是如果不经过特殊处理，那么按返回键是没有效果的，还会停留在302之前的页面。现有的解决方案无非就几种：</p>
+<ol>
+<li>手动管理回退栈，遇到重定向时回退两次<a href="https://qbeenslee.com/article/android-webview-302-redirect/" target="_blank" rel="noopener">^6</a>。</li>
+<li>通过HitTestResult判断是否是重定向，从而决定是否自己加载url<a href="https://www.cnblogs.com/zimengfang/p/6183869.html" target="_blank" rel="noopener">^7</a>。</li>
+<li>通过设置标记位，在onPageStarted和onPageFinished分别标记变量避免重定向<a href="https://blog.csdn.net/dg_summer/article/details/78105582" target="_blank" rel="noopener">^9</a>。</li>
+</ol>
+<p>可以说，这几种解决方案都不是完美的，都有缺陷。以下给出301/302较优解决方案：</p>
+<h3 id="解决301-302回退栈问题"><a href="#解决301-302回退栈问题" class="headerlink" title="解决301/302回退栈问题"></a>解决301/302回退栈问题</h3><p>能否结合上面的几种方案，来更加准确地判断301/302的情况呢？下面说一下本文的解决思路。在提供解决方案之前，我们需要了解一下shouldOverrideUrlLoading方法的返回值代表什么意思。</p>
+<blockquote>
+<p>Give the host application a chance to take over the control when a new url is about to be loaded in the current WebView. If WebViewClient is not provided, by default WebView will ask Activity Manager to choose the proper handler for the url. If WebViewClient is provided, return true means the host application handles the url, while return false means the current WebView handles the url.</p>
+</blockquote>
+<p>简单地说，就是返回true，那么url就已经由客户端处理了，WebView就不管了，如果返回false，那么当前的WebView实现就会去处理这个url。</p>
+<p>WebView能否知道某个url是不是301/302呢？当然知道，WebView能够拿到url的请求信息和响应信息，根据header里的code很轻松就可以实现，事实正是如此，交给WebView来处理重定向(return false)，这时候按返回键，是可以正常地回到重定向之前的那个页面的。（PS：WebView在5.0以后是一个独立的apk，可以单独升级，新版本的WebView实现肯定处理了重定向问题）</p>
+<p>但是，业务对url拦截有需求，肯定不能把所有的情况都交给系统WebView处理。为了解决url拦截问题，本文引入了另一种思想——通过用户的touch事件来判断重定向。下面通过代码来说明。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * WebView基础类，处理一些基础的公有操作</span><br><span class="line"> *</span><br><span class="line"> * @author xingli</span><br><span class="line"> * @time 2017-12-06</span><br><span class="line"> */</span><br><span class="line">public class BaseWebView extends WebView &#123;</span><br><span class="line">    private boolean mTouchByUser;</span><br><span class="line">    public BaseWebView(Context context) &#123;</span><br><span class="line">        super(context);</span><br><span class="line">    &#125;</span><br><span class="line">    public BaseWebView(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">    &#125;</span><br><span class="line">    public BaseWebView(Context context, AttributeSet attrs, int defStyleAttr) &#123;</span><br><span class="line">        super(context, attrs, defStyleAttr);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadUrl(String url, Map&lt;String, String&gt; additionalHttpHeaders) &#123;</span><br><span class="line">        super.loadUrl(url, additionalHttpHeaders);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void loadUrl(String url) &#123;</span><br><span class="line">        super.loadUrl(url);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void postUrl(String url, byte[] postData) &#123;</span><br><span class="line">        super.postUrl(url, postData);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadData(String data, String mimeType, String encoding) &#123;</span><br><span class="line">        super.loadData(data, mimeType, encoding);</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding,</span><br><span class="line">            String historyUrl) &#123;</span><br><span class="line">        super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void reload() &#123;</span><br><span class="line">        super.reload();</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean isTouchByUser() &#123;</span><br><span class="line">        return mTouchByUser;</span><br><span class="line">    &#125;</span><br><span class="line">    private void resetAllStateInternal(String url) &#123;</span><br><span class="line">        if (!TextUtils.isEmpty(url) &amp;&amp; url.startsWith(&quot;javascript:&quot;)) &#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        resetAllState();</span><br><span class="line">    &#125;</span><br><span class="line">	// 加载url时重置touch状态</span><br><span class="line">    protected void resetAllState() &#123;</span><br><span class="line">        mTouchByUser = false;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onTouchEvent(MotionEvent event) &#123;</span><br><span class="line">        switch (event.getAction()) &#123;</span><br><span class="line">            case MotionEvent.ACTION_DOWN:</span><br><span class="line">            	//用户按下到下一个链接加载之前，置为true</span><br><span class="line">                mTouchByUser = true;</span><br><span class="line">                break;</span><br><span class="line">        &#125;</span><br><span class="line">        return super.onTouchEvent(event);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void setWebViewClient(final WebViewClient client) &#123;</span><br><span class="line">        super.setWebViewClient(new WebViewClient() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">                boolean handleByChild = null != client &amp;&amp; client.shouldOverrideUrlLoading(view, url);</span><br><span class="line">            	   if (handleByChild) &#123;</span><br><span class="line">             		// 开放client接口给上层业务调用，如果返回true，表示业务已处理。</span><br><span class="line">                    return true;</span><br><span class="line">            	   &#125; else if (!isTouchByUser()) &#123;</span><br><span class="line">             		// 如果业务没有处理，并且在加载过程中用户没有再次触摸屏幕，认为是301/302事件，直接交由系统处理。</span><br><span class="line">                    return super.shouldOverrideUrlLoading(view, url);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                	//否则，属于二次加载某个链接的情况，为了解决拼接参数丢失问题，重新调用loadUrl方法添加固有参数。</span><br><span class="line">                    loadUrl(url);</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            @RequiresApi(api = Build.VERSION_CODES.N)</span><br><span class="line">            @Override</span><br><span class="line">            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) &#123;</span><br><span class="line">                boolean handleByChild = null != client &amp;&amp; client.shouldOverrideUrlLoading(view, request);</span><br><span class="line">                if (handleByChild) &#123;</span><br><span class="line">                    return true;</span><br><span class="line">                &#125; else if (!isTouchByUser()) &#123;</span><br><span class="line">                    return super.shouldOverrideUrlLoading(view, request);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    loadUrl(request.getUrl().toString());</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上述代码解决了正常情况下的回退栈问题。</p>
+<h3 id="解决业务白屏问题"><a href="#解决业务白屏问题" class="headerlink" title="解决业务白屏问题"></a>解决业务白屏问题</h3><p>为了解决白屏问题，考拉目前的解决思路和上面的回退栈问题思路有些类似，通过监听touch事件分发以及onPageFinished事件来判断是否产生白屏，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">public class KaolaWebview extends BaseWebView implements DownloadListener, Lifeful, OnActivityResultListener &#123;</span><br><span class="line">    private boolean mIsBlankPageRedirect;  //是否因重定向导致的空白页面。</span><br><span class="line">    public KaolaWebview(Context context) &#123;</span><br><span class="line">        super(context);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    public KaolaWebview(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    public KaolaWebview(Context context, AttributeSet attrs, int defStyleAttr) &#123;</span><br><span class="line">        super(context, attrs, defStyleAttr);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    protected void back() &#123;</span><br><span class="line">        if (mBackStep &lt; 1) &#123;</span><br><span class="line">            mJsApi.trigger2(&quot;kaolaGoback&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            realBack();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean dispatchTouchEvent(MotionEvent ev) &#123;</span><br><span class="line">        if (ev.getAction() == MotionEvent.ACTION_UP) &#123;</span><br><span class="line">            mIsBlankPageRedirect = true;</span><br><span class="line">        &#125;</span><br><span class="line">        return super.dispatchTouchEvent(ev);</span><br><span class="line">    &#125;</span><br><span class="line">    private WebViewClient mWebViewClient = new WebViewClient() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">            url = WebViewUtils.removeBlank(url);</span><br><span class="line">            //允许启动第三方应用客户端</span><br><span class="line">            if (WebViewUtils.canHandleUrl(url)) &#123;</span><br><span class="line">                boolean handleByCaller = false;</span><br><span class="line">                // 如果不是用户触发的操作，就没有必要交给上层处理了，直接走url拦截规则。</span><br><span class="line">                if (null != mIWebViewClient &amp;&amp; isTouchByUser()) &#123;</span><br><span class="line">                    handleByCaller = mIWebViewClient.shouldOverrideUrlLoading(view, url);</span><br><span class="line">                &#125;</span><br><span class="line">                if (!handleByCaller) &#123;</span><br><span class="line">                    handleByCaller = handleOverrideUrl(url);</span><br><span class="line">                &#125;</span><br><span class="line">                return handleByCaller || super.shouldOverrideUrlLoading(view, url);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    notifyBeforeLoadUrl(url);</span><br><span class="line">                    Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);</span><br><span class="line">                    intent.addCategory(Intent.CATEGORY_BROWSABLE);</span><br><span class="line">                    mContext.startActivity(intent);</span><br><span class="line">                    if (!mIsBlankPageRedirect) &#123;</span><br><span class="line">                    	// 如果遇到白屏问题，手动后退</span><br><span class="line">                        back();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    ExceptionUtils.printExceptionTrace(e);</span><br><span class="line">                &#125;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)</span><br><span class="line">        @Override</span><br><span class="line">        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) &#123;</span><br><span class="line">            return shouldOverrideUrlLoading(view, request.getUrl().toString());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        private boolean handleOverrideUrl(final String url) &#123;</span><br><span class="line">           RouterResult result =  WebActivityRouter.startFromWeb(</span><br><span class="line">                    new IntentBuilder(mContext, url).setRouterActivityResult(new RouterActivityResult() &#123;</span><br><span class="line">                        @Override</span><br><span class="line">                        public void onActivityFound() &#123;</span><br><span class="line">                            if (!mIsBlankPageRedirect) &#123;</span><br><span class="line">                    			// 路由已经拦截到跳转到native页面，但此时可能发生了</span><br><span class="line">                    			// 301/302跳转，那么执行后退动作，防止白屏。</span><br><span class="line">                                back();</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        @Override</span><br><span class="line">                        public void onActivityNotFound() &#123;</span><br><span class="line">                            if (mIWebViewClient != null) &#123;</span><br><span class="line">                                mIWebViewClient.onActivityNotFound();</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;));</span><br><span class="line">            return result.isSuccess();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPageFinished(WebView view, String url) &#123;</span><br><span class="line">        mIsBlankPageRedirect = true;</span><br><span class="line">        if (null != mIWebViewClient) &#123;</span><br><span class="line">            mIWebViewClient.onPageReallyFinish(view, url);</span><br><span class="line">        &#125;</span><br><span class="line">        super.onPageFinished(view, url);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>本来上面的两个问题可以用同一个变量控制解决的，但由于历史代码遗留问题，目前还没有时间优化测试，这也是代码暂不公布的原因之一。</p>
+<h2 id="loadUrl-url-map-方法加载带hash（带-号）的url导致刷新问题或请求头缓存问题"><a href="#loadUrl-url-map-方法加载带hash（带-号）的url导致刷新问题或请求头缓存问题" class="headerlink" title="loadUrl(url,map)方法加载带hash（带#号）的url导致刷新问题或请求头缓存问题"></a>loadUrl(url,map)方法加载带hash（带#号）的url导致刷新问题或请求头缓存问题</h2><p>1.如果调用loadUrl(url,map)方法去加载资源，那么在此调用loadUrl(ur),reload,loadUrl(url,map)造成无法刷新的问题。这个现象主要出现在Android 8.0的系统中。<br>可尝试调用如下url尝试：</p>
+<pre><code>https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#/
+https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#/?a=123
+https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#3
+</code></pre><p>2.loadUrl(url,map) 第二个参数map中传入的数据用于请求头，此外这个请求头数据会被webview缓存下来，刷新时，请求头中的数据还是原来的，因此，不适用传入需要进程变化的“状态”信息。</p>
+<p>解决方法：不要使用loadUrl(url,map)，推荐使用loadUrl(url)，如果非要传输参数，还不如在url中添加参数。</p>
+<h2 id="是否应该开启硬件加速"><a href="#是否应该开启硬件加速" class="headerlink" title="是否应该开启硬件加速"></a>是否应该开启硬件加速</h2><p>由于碎片化问题太多，建议保持默认状态【默认表示由系统决定，不要手动设置】，否则可能产生问题。</p>
+<h2 id="Cookie同步导致的内存泄漏"><a href="#Cookie同步导致的内存泄漏" class="headerlink" title="Cookie同步导致的内存泄漏"></a>Cookie同步导致的内存泄漏</h2><p>使用CookieSyncManager同步时，会永久引用第一个acitivity的的Context，为了避免此种情况，请使用ApplicationContext<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> if (Build.VERSION.SDK_INT &lt; 21) &#123;</span><br><span class="line">        android.webkit.CookieSyncManager.createInstance(context.getApplicationContext());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Android5-0-WebView中Http和Https混合问题"><a href="#Android5-0-WebView中Http和Https混合问题" class="headerlink" title="Android5.0 WebView中Http和Https混合问题"></a>Android5.0 WebView中Http和Https混合问题</h2><p>在Android 5.0上 Webview 默认不允许加载 Http 与 Https 混合内容：</p>
+<p>解决办法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">     webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>参数类型说明：<br>MIXED_CONTENT_ALWAYS_ALLOW：允许从任何来源加载内容，即使起源是不安全的；<br>MIXED_CONTENT_NEVER_ALLOW：不允许Https加载Http的内容，即不允许从安全的起源去加载一个不安全的资源；<br>MIXED_CONTENT_COMPATIBILITY_MODE：当涉及到混合式内容时，WebView 会尝试去兼容最新Web浏览器的风格。</p>
+<p>在5.0以下 Android 默认是 全允许，但是到了5.0以上，就是不允许，实际情况下很我们很难确定所有的网页都是https的，所以就需要这一步的操作。</p>
+<h2 id="onPageFinished被调用多次"><a href="#onPageFinished被调用多次" class="headerlink" title="onPageFinished被调用多次"></a>onPageFinished被调用多次</h2><p>使用onPageProgressChanged代替<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">private void  handleProgress(WebView view, int newProgress)&#123;</span><br><span class="line">    if(progressPending.get()!=newProgress)&#123;</span><br><span class="line">        progressPending.set(newProgress);</span><br><span class="line">        onProgressChanged(newProgress);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">@Override</span><br><span class="line">public final void onProgressChanged(WebView view, int newProgress) &#123;</span><br><span class="line">    super.onProgressChanged(view, newProgress);</span><br><span class="line">    handleProgress(view,newProgress);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void onProgressChanged(int newProgress)&#123;</span><br><span class="line">   Log.i(&quot;WebChromeClient&quot;,&quot;progress=&quot;+newProgress+&quot;%&quot;);</span><br><span class="line">   if(newProgress==100)&#123;</span><br><span class="line">       Log.i(&quot;WebChromeClient&quot;,&quot;加载完成&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="H5优化"><a href="#H5优化" class="headerlink" title="H5优化"></a>H5优化</h2><p>Android的OnPageFinished事件会在Javascript脚本执行完成之后才会触发。如果在页面中使 用JQuery，会在处理完DOM对象，执行完$(document).ready(function() {});事件自会后才会渲染并显示页面。而同样的页面在iPhone上却是载入相当的快，因为iPhone是显示完页面才会触发脚本的执行。所以我们这边的解决方案延迟JS脚本的载入，这个方面的问题是需要Web前端工程师帮忙优化的，网上应该有比较多LazyLoad插件，这里放一个比较老的链接<a href="https://wonko.com/post/painless_javascript_lazy_loading_with_lazyload/" target="_blank" rel="noopener">Painless JavaScript lazy loading with LazyLoad</a>,同样也放上一小段前端代码，仅供参考。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=&quot;/css/j/lazyload-min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot; charset=&quot;utf-8&quot;&gt;</span><br><span class="line">  loadComplete() &#123;</span><br><span class="line">    //instead of document.read();</span><br><span class="line">  &#125; </span><br><span class="line">  function loadscript() &#123;</span><br><span class="line">    LazyLoad.loadOnce([</span><br><span class="line">      &apos;/css/j/jquery-1.6.2.min.js&apos;,</span><br><span class="line">      &apos;/css/j/flow/jquery.flow.1.1.min.js&apos;,</span><br><span class="line">      &apos;/css/j/min.js?v=2011100852&apos;</span><br><span class="line">      ], loadComplete);</span><br><span class="line">  &#125;</span><br><span class="line">  setTimeout(loadscript,10);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/427600ca2107" target="_blank" rel="noopener">https://www.jianshu.com/p/427600ca2107</a><br><a href="https://my.oschina.net/ososchina/blog/1799575" target="_blank" rel="noopener">https://my.oschina.net/ososchina/blog/1799575</a><br><a href="https://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/" target="_blank" rel="noopener">https://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/webview/" rel="tag"># webview</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/05/android-listview/" rel="next" title="Android ListView原理完全解析">
+                <i class="fa fa-chevron-left"></i> Android ListView原理完全解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#离线缓存"><span class="nav-number">1.</span> <span class="nav-text">离线缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存泄露"><span class="nav-number">2.</span> <span class="nav-text">内存泄露</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预加载"><span class="nav-number">3.</span> <span class="nav-text">预加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#白屏"><span class="nav-number">4.</span> <span class="nav-text">白屏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSL问题"><span class="nav-number">4.1.</span> <span class="nav-text">SSL问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低版本兼容问题"><span class="nav-number">4.2.</span> <span class="nav-text">低版本兼容问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#301-302重定向问题"><span class="nav-number">5.</span> <span class="nav-text">301/302重定向问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#301-302业务场景及白屏问题"><span class="nav-number">5.1.</span> <span class="nav-text">301/302业务场景及白屏问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#301-302回退栈问题"><span class="nav-number">5.2.</span> <span class="nav-text">301/302回退栈问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决301-302回退栈问题"><span class="nav-number">5.3.</span> <span class="nav-text">解决301/302回退栈问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决业务白屏问题"><span class="nav-number">5.4.</span> <span class="nav-text">解决业务白屏问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loadUrl-url-map-方法加载带hash（带-号）的url导致刷新问题或请求头缓存问题"><span class="nav-number">6.</span> <span class="nav-text">loadUrl(url,map)方法加载带hash（带#号）的url导致刷新问题或请求头缓存问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#是否应该开启硬件加速"><span class="nav-number">7.</span> <span class="nav-text">是否应该开启硬件加速</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie同步导致的内存泄漏"><span class="nav-number">8.</span> <span class="nav-text">Cookie同步导致的内存泄漏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android5-0-WebView中Http和Https混合问题"><span class="nav-number">9.</span> <span class="nav-text">Android5.0 WebView中Http和Https混合问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#onPageFinished被调用多次"><span class="nav-number">10.</span> <span class="nav-text">onPageFinished被调用多次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#H5优化"><span class="nav-number">11.</span> <span class="nav-text">H5优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">12.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
