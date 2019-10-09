@@ -1062,6 +1062,10 @@ compile (&quot;io.reactivex.rxjava2:rxandroid::2.0.1@aar&quot;) {
 <p>AspectJ是通过对目标工程的.class文件进行代码注入的方式将通知(Advise)插入到目标代码中：<br>第一步：根据pointCut切点规则匹配的joinPoint；<br>第二步：将Advise插入到目标JoinPoint中。<br>这样在程序运行时被重构的连接点将会回调Advise方法，就实现了AspectJ代码与目标代码之间的连接。<br><img src="/2019/08/12/android-note/aspectj.png" alt></p>
 <h2 id="Gradle-Transform"><a href="#Gradle-Transform" class="headerlink" title="Gradle Transform"></a>Gradle Transform</h2><p>Gradle Transform是Android官方提供给开发者在项目构建阶段即由class到dex转换期间修改class文件的一套api。目前比较经典的应用是字节码插桩、代码注入技术。Gradle Transform更多的是提供一种可以让开发者参与项目构建的机制，而诸如修改字节码等更加具体的细节则需要开发者去实现。</p>
 <h2 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h2><p>代理Hook:如果我们自己创建代理对象，然后把原始对象替换为我们的代理对象，那么就可以在这个代理对象为所欲为了；修改参数，替换返回值，我们称之为Hook。</p>
+<p>hook，又叫钩子，通常是指对一些方法进行拦截。这样当这些方法被调用时，也能够执行我们自己的代码，这也是面向切面编程的思想（AOP）</p>
+<p>大致思路：<br>1.找到需要Hook方法的系统类<br>2.利用代理模式来代理系统类的运行拦截我们需要拦截的方法<br>3.使用反射的方法把这个系统类替换成你的代理类</p>
+<p>案例可参考：<br><a href="https://blog.csdn.net/yulong0809/article/details/56842027" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/56842027</a></p>
+<h2 id="反射机制"><a href="#反射机制" class="headerlink" title="反射机制"></a>反射机制</h2><p>JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。</p>
 <h2 id="Watchdog"><a href="#Watchdog" class="headerlink" title="Watchdog"></a>Watchdog</h2><p>能通过关闭FinalizerWatchdogDaemon来减少TimeoutException的触发。需要注意的是，此种方法并不是去解决问题，而是为了避免上报异常采取的一种 hack 方案，并没有真正的解决引起 finialize() 超时的问题。</p>
 <pre><code>// Android P 以后不能反射FinalizerWatchdogDaemon
 if (Build.VERSION.SDK_INT &gt;= 28) {

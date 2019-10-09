@@ -93,7 +93,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_data.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_data_des.png">
 <meta property="og:image" content="http://yoursite.com/2019/05/10/android-dex/dex_class.png">
-<meta property="og:updated_time" content="2019-05-20T08:00:49.777Z">
+<meta property="og:updated_time" content="2019-10-09T01:48:24.976Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="类加载器ClassLoader及Dex&#x2F;Class">
 <meta name="twitter:description" content="ClassLoader顾名思义，类加载器用来加载 Java 类到 Java 虚拟机中。一般来说，Java 虚拟机使用 Java 类的方式如下：Java 源程序（.java 文件）在经过 Java 编译器编译之后就被转换成 Java 字节代码（.class 文件）。类加载器负责读取 Java 字节代码，并转换成 java.lang.Class类的一个实例，每个这样的实例用来表示一个 Java 类，通">
@@ -422,26 +422,10 @@
 <li>DexClassLoader（Java的Custom ClassLoader）<br>用于加载指定目录中的class文件(可以加载jar/apk/dex，可以从SD卡中加载未安装的apk)。</li>
 <li>BaseDexClassLoader<br>是PathClassLoader和DexClassLoader的父类。<br><img src="/2019/05/10/android-dex/class_loader.png" alt></li>
 </ul>
+<p>为了解决65535这个问题，Google提出了multidex方案，即一个apk文件可以包含多个dex文件。<br>不过值得注意的是，除了第一个dex文件以外，其他的dex文件都是以资源的形式被加载的， 换句话说就是在Application初始化前将dex文件注入到系统的ClassLoader中的。<br>根据Android虚拟机的类加载机制，同一个类只会被加载一次，所以热修复也使用了这样的机制，要让修复后的类替换原有的类就必须让补丁包的类被优先加载，也就是插入到原有dex之前。</p>
 <h4 id="PathClassLoader加载已安装的apk插件"><a href="#PathClassLoader加载已安装的apk插件" class="headerlink" title="PathClassLoader加载已安装的apk插件"></a>PathClassLoader加载已安装的apk插件</h4><p>使用PathClassLoader加载已安装的apk插件。sharedUserId要一致，简单的说，应用从一开始安装在Android系统上时，系统都会给它分配一个linux user id，之<br>后该应用在今后都将运行在独立的一个进程中，其它应用程序不能访问它的资源，那么如果两个应用的sharedUserId相同，那么它们将共同运行在相同的linux进程中，从而便可以数据共享、资源访问了。所以我们在宿主app和插件app的manifest上都定义一个相同的sharedUserId。</p>
-<p>下面看一个样例：加载包名为packageName的插件，然后获得插件内名为one.png的图片的资源id，进而供宿主app使用该图片</p>
-<pre><code>/**
- * 加载已安装的apk
- * @param packageName 应用的包名
- * @param pluginContext 插件app的上下文
- * @return 对应资源的id
- */
-private int dynamicLoadApk(String packageName, Context pluginContext) throws Exception {
-    //第一个参数为包含dex的apk或者jar的路径，第二个参数为父加载器
-    PathClassLoader pathClassLoader = new PathClassLoader(pluginContext.getPackageResourcePath(),ClassLoader.getSystemClassLoader());
-    //Class&lt;?&gt; clazz = pathClassLoader.loadClass(packageName + &quot;.R$mipmap&quot;);//通过使用自身的加载器反射出mipmap类进而使用该类的功能
-    //参数：1、类的全名，2、是否初始化类，3、加载时使用的类加载器
-    Class&lt;?&gt; clazz = Class.forName(packageName + &quot;.R$mipmap&quot;, true, pathClassLoader);
-    //使用上述两种方式都可以，这里我们得到R类中的内部类mipmap，通过它得到对应的图片id，进而给我们使用
-    Field field = clazz.getDeclaredField(&quot;one&quot;);
-    int resourceId = field.getInt(R.mipmap.class);
-    return resourceId;
-}
-</code></pre><ul>
+<p>下面看一个样例：加载包名为packageName的插件，然后获得插件内名为one.png的图片的资源id，进而供宿主app使用该图片<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">    * 加载已安装的apk</span><br><span class="line">    * @param packageName 应用的包名</span><br><span class="line">    * @param pluginContext 插件app的上下文</span><br><span class="line">    * @return 对应资源的id</span><br><span class="line">    */</span><br><span class="line">   private int dynamicLoadApk(String packageName, Context pluginContext) throws Exception &#123;</span><br><span class="line">       //第一个参数为包含dex的apk或者jar的路径，第二个参数为父加载器</span><br><span class="line">       PathClassLoader pathClassLoader = new PathClassLoader(pluginContext.getPackageResourcePath(),ClassLoader.getSystemClassLoader());</span><br><span class="line">	//Class&lt;?&gt; clazz = pathClassLoader.loadClass(packageName + &quot;.R$mipmap&quot;);//通过使用自身的加载器反射出mipmap类进而使用该类的功能</span><br><span class="line">       //参数：1、类的全名，2、是否初始化类，3、加载时使用的类加载器</span><br><span class="line">       Class&lt;?&gt; clazz = Class.forName(packageName + &quot;.R$mipmap&quot;, true, pathClassLoader);</span><br><span class="line">       //使用上述两种方式都可以，这里我们得到R类中的内部类mipmap，通过它得到对应的图片id，进而给我们使用</span><br><span class="line">       Field field = clazz.getDeclaredField(&quot;one&quot;);</span><br><span class="line">       int resourceId = field.getInt(R.mipmap.class);</span><br><span class="line">       return resourceId;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
 <li>首先就是new出一个PathClassLoader对象，它的构造方法为：public PathClassLoader(String dexPath, ClassLoader parent)。其中第一个参数是通过插件的上下文来获取插件apk的路径，其实获取到的就是/data/app/apkthemeplugin.apk，那么插件的上下文怎么获取呢？在宿主app中我们只有本app的上下文啊，答案就是为插件app创建一个上下文：Context plugnContext = this.createPackageContext(packageName, CONTEXT_IGNORE_SECURITY | CONTEXT_INCLUDE_CODE。<strong> 通过插件的包名来创建上下文，不过这种方法只适合获取已安装的app上下文</strong>。或者不需要通过反射直接通过插件上下文getResource().getxxx(R.<em>.</em>);也行，而这里用的是反射方法。第二个参数是父加载器，都是ClassLoader.getSystemClassLoader()。</li>
 </ul>
 <h4 id="DexClassLoader加载已安装的apk插件"><a href="#DexClassLoader加载已安装的apk插件" class="headerlink" title="DexClassLoader加载已安装的apk插件"></a>DexClassLoader加载已安装的apk插件</h4><p>关于动态加载未安装的apk，先描述下思路：首先我们得到事先知道我们的插件apk存放在哪个目录下，然后分别得到插件apk的信息（名称、包名等），然后显示可用的插件，最后动态加载apk获得资源。</p>
