@@ -293,6 +293,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/25/architecture-basics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/25/architecture-basics/" itemprop="url">架构的概念</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-25T11:26:13+08:00">
+                2019-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>架构设计的主要目的是为了解决软件系统复杂度带来的问题。</strong>个人感悟是：架构及（重要）决策，是在一个有约束的盒子里去求解或接近最合适的解。这个有约束的盒子是团队经验、成本、资源、进度、业务所处阶段等所编织、掺杂在一起的综合体（人、财、时间等）。架构无优劣，但是存在恰当的架构用在合适的系统中，而这些就是决策的结果。不要过分设计。</p>
+<h3 id="架构概念"><a href="#架构概念" class="headerlink" title="架构概念"></a>架构概念</h3><p>软件架构指软件系统的顶层结构；框架是面向编程或配置的半成品；组件是从技术维度上的复用；模块是从业务维度上职责的划分；系统是相互协同可运行的实体。</p>
+<p>软件架构指软件系统的“基础结构”，创造这些基础结构的准则，以及对这些结构的描述。</p>
+<p>软件模块（Module）是一套一致而互相有紧密关连的软件组织。它分别包含了程序和数据结构两部分。现代软件开发往往利用模块作为合成的单位。模块的接口表达了由该模块提供的功能和调用它时所需的元素。模块是可能分开被编写的单位。这使它们可再用和允许人员同时协作、编写及研究不同的模块。</p>
+<p>软件组件定义为自包含的、可编程的、可重用的、与语言无关的软件单元，软件组件可以很容易被用于组装应用程序中。</p>
+<h3 id="高性能"><a href="#高性能" class="headerlink" title="高性能"></a>高性能</h3><p>性能是软件的一个重要质量属性。衡量软件性能包括了响应时间、TPS、服务器资源利用率等客观指标，也可以是用户的主观感受（从程序员、业务用户、终端用户/客户不同的视角，可能会得出不同的结论）。</p>
+<p>在说性能的时候，有一个概念与之紧密相关—伸缩性，这是两个有区别的概念。性能更多的是衡量软件系统处理一个请求或执行一个任务需要耗费的时间长短；而伸缩性则更加关注软件系统在不影响用户体验的前提下，能够随着请求数量或执行任务数量的增加（减少）而相应地拥有相适应的处理能力。</p>
+<p>但是，什么是“高”性能？这可能是一个动态概念，与当前的技术发展状况与业务所处的阶段紧密相关。比如，现在在行业/企业内部认为的高性能，站在5年后来看，未必是高性能。因此，站在架构师、设计师的角度，高性能需要和业务所处的阶段来衡量。高到什么程度才能与当前或可预见的未来业务增长相匹配。一味去追求绝对意义上的高，没有太大的实际意义。因为，伴随性能越来越高，相应的方法和系统复杂度也是越来越高，而这可能会与当前团队的人力、技术、资源等不相匹配。但是什么才合适的高性能了？这可能需要从国、内外的同行业规模相当、比自己强的竞争者、终端用户使用反馈中获取答案并不断迭代发展。</p>
+<p>软件系统中高性能带来的复杂度主要体现在两方面，一方面是单台计算机内部为了高性能带来的复杂度；另一方面是多台计算机集群为了高性能带来的复杂度。</p>
+<p>2 WHY 为什么需要高性能？<br>追求良好的用户体验；<br>满足业务增长的需要。</p>
+<p>3 HOW 如何做好高性能？<br>可以从垂直与水平两个维度来考虑。垂直维度主要是针对单台计算机，通过升级软、硬件能力实现性能提升；水平维度则主要针对集群系统，利用合理的任务分配与任务分解实现性能的提升。</p>
+<p>垂直维度可包括以下措施：<br>增大内存减少I/O操作<br>更换为固态硬盘（SSD）提升I/O访问速度<br>使用RAID增加I/O吞吐能力<br>置换服务器获得更多的处理器或分配更多的虚拟核<br>升级网络接口或增加网络接口</p>
+<p>水平维度可包括以下措施：<br>功能分解：基于功能将系统分解为更小的子系统<br>多实例副本：同一组件重复部署到多台不同的服务器<br>数据分割：在每台机器上都只部署一部分数据</p>
+<p>垂直维度方案比较适合业务阶段早期和成本可接受的阶段，该方案是提升性能最简单直接的方式，但是受成本与硬件能力天花板的限制。</p>
+<p>水平维度方案所带来的好处要在业务发展的后期才能体现出来。起初，该方案会花费更多的硬件成本，另外一方面对技术团队也提出了更高的要求；但是，没有垂直方案的天花板问题。一旦达到一定的业务阶段，水平维度是技术发展的必由之路。因此，作为技术部门，需要提前布局 ，未雨绸缪，不要被业务抛的太远。</p>
+<h3 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h3><p><strong>高可用基础是“状态决策”。本质上是通过“冗余”来实现高可用。</strong></p>
+<p>高可用保证的原则是“集群化”，或者叫“冗余”：只有一个单点，挂了服务会受影响；如果有冗余备份，挂了还有其他backup能够顶上。保证系统高可用，架构设计的核心准则是：冗余。有了冗余之后，还不够，每次出现故障需要人工介入恢复势必会增加系统的不可服务实践。所以，又往往是通过“自动故障转移”来实现系统的高可用。</p>
+<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p><strong>核心是：封装变化，隔离可变性。</strong></p>
+<p>应对变化方案：<br>1）将“变化”封装在一个“变化层”，将不变的部分封装在一个独立的“稳定层”<br>2）提炼出一个“抽象层”和一个“实现层”。抽象层是稳定的，而实现层是根据业务进行定制的，当加入新功能时，只需要更改实现层，无须修改抽象层。</p>
+<h3 id="可伸缩性"><a href="#可伸缩性" class="headerlink" title="可伸缩性"></a>可伸缩性</h3><p>当前大型互联网网站需要面对大量用户高并发访问、存储更多数据、处理更高频次的用户交互。网站系统一般通过多种分布式技术将多台服务器组成集群对外提供服务。<strong>伸缩性一般是系统可以根据需求和成本调整自身处理能力的一种能力</strong>。伸缩性常意味着系统可以通过低成本并能够快速改变自身的处理能力以满足更多用户访问、处理更多数据而不会对用户体验造成任何影响。</p>
+<p>伸缩性度量指标包括（1）处理更高并发；（2）处理更多数据；（3）处理更高频次的用户交互。</p>
+<p>其复杂度体现在（1）伸——增强系统在上述三个方面的处理能力；（2）缩——缩减系统处理能力；（3）上述伸缩过程还必须相对低成本和快速。</p>
+<h3 id="成本、安全、规模"><a href="#成本、安全、规模" class="headerlink" title="成本、安全、规模"></a>成本、安全、规模</h3><p>低成本是架构设计中需要考虑一个约束条件，但不会是首要目标。低成本本质上是与高性能和高可用冲突的，当无法设计出满足成本要求的方案，就只能协调并调整成本目标。<br>往往只有“创新”才能达到低成本目标。1）引入新技术。主要复杂度在于需要去熟悉新技术，并且将新技术与已有技术结合；一般中小型公司基本采用该方式达到目标。2）开创一个全新技术领域。主要复杂度在于需要去创造全新的理念和技术，并且与旧技术相比，需要有质的飞跃，复杂度更高；一般大公司拥有更多的资源、技术实力会采用该方式来达到低成本的目标。</p>
+<p>安全在技术角度上将包括功能安全和架构安全。1）功能安全-“防小偷”，减少系统潜在的缺陷（是一个逐步完善的过程，而且往往都是在问题出现后才能有针对性的提出解决方案，与编码实现有关），阻止黑客的破坏行为。2）架构安全-“防强盗”，保护系统不受恶意访问与攻击，保护系统的重要数据不被窃取（传统企业主要通过防火墙实现不同区域的访问控制，功能强大、性能一般，但是成本更高；互联网企业更多的是依靠运营商或者云服务商强大的带宽和流量清洗的能力，较少自己来设计和实现）。</p>
+<p>规模带来复杂度的主要原因是“量变引起质变”。1）功能越来越多，调用逻辑越来越复杂，会导致系统复杂度指数级上升。2）数据容量、类型、关联关系越来越多。<br>规模问题需要与高性能、高可用、高扩展、高伸缩性统一考虑。常采用“分而治之，各个击破”的方法策略。</p>
+<h3 id="架构设计三原则"><a href="#架构设计三原则" class="headerlink" title="架构设计三原则"></a>架构设计三原则</h3><p><strong>不断演化是架构发展的主旋律，而满足适合、追求简单是架构决策的重要依据。</strong>需求驱动技术的创新演化；技术反哺业务的发展升级。<br>1）合适原则<br>合适原则宣言：合适优于业界领先<br>失败原因：没有那么多人，却想干那么多活；没有那么多积累，却想一步登天；没有卓越的业务场景，却幻想灵光一闪成为天才。设计的目的不是为了证明自己，而是更快更好的满足业务需求。</p>
+<p>2）简单原则<br>简单原则宣言：简单优于复杂<br>定位一个复杂系统中的问题总是比简单系统更为复杂</p>
+<p>3）演化原则<br>演化原则宣言：演化优于一步到位<br><strong>对于软件来说，变化才是主题</strong>。罗马不是一天建成的，架构也不是一开始就设计成完美的样子，然后可以一劳永逸的用下去。</p>
+<p>各个公司的架构都是逐渐演进成当前的样子，在达到同样目的的过程中实现手段确并不完全相同，蚂蚁和阿里都进行了多地多中心部署的架构改造，但二者在诸如配置中心、跨ldc访问管控等方面都不尽相同，即使在蚂蚁内部也出现了后续实现推翻原始规划的情况。在多地多中心部署架构改造完成后，为进一步降低成本，避免大促活动中机器的浪费，又开始了弹性部署的改造，希望能够在大促高峰来临的前几个小时再临时增加服务器，等活动结束服务器就立即回收。等这个搞定，又开始在线离线混布的改造，进一步降低整体成本。<br>这些改造之所以一个接一个的能够实现，也在于使用的主要中间件和框架都是自研的，知根知底，可以快速迭代修改，如果是使用第三方的或者购买的，一方面可能非常贵，另一方面可能根本不支持，要重新设计改造部署所需的时间要远远大于自研的成本。</p>
+<h3 id="软件活动中没有“银弹”"><a href="#软件活动中没有“银弹”" class="headerlink" title="软件活动中没有“银弹”"></a>软件活动中没有“银弹”</h3><p>在古代的狼人传说中，只有用银质子弹（银弹）才能制服这些异常凶残的怪兽。在软件开发活动中，“银弹”特指人们渴望找到用于制服软件项目这头难缠的“怪兽”的“万能钥匙”。</p>
+<p>软件开发过程包括了分析、设计、实现、测试、验证、部署、运维等多个环节。从IT技术的发展历程来看，先辈们在上述不同的环节中提出过很多在当时看来很先进的方法与理念。但是，这些方法、理念在摩尔定律、业务创新、技术发展面前都被一一验证了以下观点：我们可以通过诸多方式去接近“银弹”，但很遗憾，软件活动中没有“银弹”。</p>
+<p>布鲁克斯发表《人月神话》三十年后，又写了《设计原本》。他认为一个成功的软件项目的最重要因素就是设计，架构师、设计师需要在业务需求和IT技术中寻找到一个平衡点。个人觉得，对这个平衡点的把握，就是架构设计中的取舍问题。而这种决策大部分是靠技术，但是一定程度上也依赖于架构师的“艺术”，技术可以依靠新工具、方法论、管理模式去提升，但是“艺术”无法量化 ，是一种权衡。</p>
+<p><strong>软件设计过程中，模块、对象、组件本质上是对一定规模软件在不同粒度和层次上的“拆分”方法论，软件架构是一种对软件的“组织”方法论。一分一合，其目的是为了软件研发过程中的成本、进度、质量得到有效控制</strong>。但是，一个成功的软件设计是要适应并满足业务需求，同时不断“演化”的。设计需要根据业务的变化、技术的发展不断进行“演进”，这就决定了这是一个动态活动，出现新问题，解决新问题，没有所谓的“一招鲜”。</p>
+<p>以上只是针对设计领域的银弹讨论，放眼到软件全生命周期，银弹问题会更加突出。</p>
+<p>小到一个软件开发团队，大到一个行业，没有银弹，但是“行业最佳实践”可以作为指路明灯，这个可以有。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/android-retrofit/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3071,359 +3247,6 @@ void signalAll();
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/04/java-volatile/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/04/java-volatile/" itemprop="url">Java中的volatile</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-04T18:08:50+08:00">
-                2019-03-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/同步/" itemprop="url" rel="index">
-                    <span itemprop="name">同步</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>volatile是Java提供的一种轻量级的同步机制，在并发编程中，它也扮演着比较重要的角色。同synchronized相比（synchronized通常称为重量级锁），volatile更轻量级。</p>
-<p>volatile关键字是与Java的内存模型有关的，因此在讲述volatile关键之前，我们先来了解一下与内存模型相关的概念和知识</p>
-<h2 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h2><p>首先来看看如下代码</p>
-<pre><code>public class TestVolatile {
-    boolean status = false;
-
-    /**
-     * 状态切换为true
-     */
-    public void changeStatus(){
-        status = true;
-    }
-
-    /**
-     * 若状态为true，则running。
-     */
-    public void run(){
-        if(status){
-            System.out.println(&quot;running....&quot;);
-        }
-    }
-}
-</code></pre><p>上面这个例子，在多线程环境里，假设线程1执行changeStatus()方法后,线程2运行run()方法，可以保证输出”running…..”吗？答案是NO! 因为对于共享变量status来说，线程A的修改，对于线程B来讲，是”不可见”的。也就是说，线程B此时可能无法观测到status已被修改为true。那么什么是可见性呢？<br>所谓<strong>可见性，是指当一条线程修改了共享变量的值，新值对于其他线程来说是可以立即得知的</strong>。很显然，上述的例子中是没有办法做到内存可见性的。</p>
-<p>java虚拟机有自己的内存模型（Java Memory Model，JMM），<strong>JMM可以屏蔽掉各种硬件和操作系统的内存访问差异，以实现让java程序在各种平台下都能达到一致的内存访问效果</strong>。</p>
-<p>JMM决定一个线程对共享变量的写入何时对另一个线程可见，JMM定义了线程和主内存之间的抽象关系：<strong>共享变量存储在主内存(Main Memory)中，每个线程都有一个私有的本地内存（Local Memory），本地内存保存了被该线程使用到的主内存的副本拷贝，线程对变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量</strong>。这三者之间的交互关系如下<br><img src="/2019/03/04/java-volatile/volatile_memory.png" alt><br>需要注意的是，JMM是个抽象的内存模型，所以所谓的本地内存，主内存都是抽象概念，并不一定就真实的对应cpu缓存和物理内存。当然如果是出于理解的目的，这样对应起来也无不可。</p>
-<p>大概了解了JMM的简单定义后，问题就很容易理解了，对于普通的共享变量来讲，比如我们上文中的status，线程1将其修改为true这个动作发生在线程1的本地内存中，此时还未同步到主内存中去；而线程2缓存了status的初始值false，此时可能没有观测到status的值被修改了，所以就导致了上述的问题。那么这种共享变量在多线程模型中的不可见性如何解决呢？比较粗暴的方式自然就是加锁，但是此处使用synchronized或者Lock这些方式太重量级了。比较合理的方式其实就是volatile</p>
-<p>volatile具备两种特性：</p>
-<blockquote>
-<p>1.<strong>保证此变量对所有的线程的可见性</strong>。 当写一个volatile变量时，JMM会把该线程对应的本地内存中的变量强制刷新到主内存中去，这个写会操作会导致其他线程中的缓存无效<br>2.<strong>禁止指令重排序优化</strong>。 有volatile修饰的变量，赋值后多执行了一个“load addl $0x0, (%esp)”操作，这个操作相当于一个内存屏障（指令重排序时不能把后面的指令重排序到内存屏障之前的位置；指令重排序是指CPU采用了允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理）</p>
-</blockquote>
-<p>上面的例子只需将status声明为volatile，即可保证在线程A将其修改为true时，线程B可以立刻得知</p>
-<pre><code>volatile boolean status = false;
-</code></pre><ol>
-<li>可见性：</li>
-</ol>
-<p>　　通常，我们无法确保执行读操作的线程能适时地看到其他线程写入的值，有时甚至是根本不可能的事情。为了确保多个线程之间对内存写入操作的可见性，必须使用同步机制。</p>
-<p>　　<strong>可见性，是指线程之间的可见性，一个线程修改的状态对另一个线程是可见的</strong>。也就是一个线程修改的结果。另一个线程马上就能看到。比如：用volatile修饰的变量，就会具有可见性。volatile修饰的变量不允许线程内部缓存和重排序，即直接修改内存。所以对其他线程是可见的。但是这里需要注意一个问题，volatile只能让被他修饰内容具有可见性，但不能保证它具有原子性。比如 volatile int a = 0；之后有一个操作 a++；这个变量a具有可见性，但是a++ 依然是一个非原子操作，也就是这个操作同样存在线程安全问题。</p>
-<p>　　在Java 中 volatile、synchronized 和 final 实现可见性。</p>
-<ol start="2">
-<li>原子性：</li>
-</ol>
-<p>　　<strong>原子是世界上的最小单位，具有不可分割性</strong>。比如 a=0；（a非long和double类型） 这个操作是不可分割的，那么我们说这个操作时原子操作。再比如：a++； 这个操作实际是a = a + 1；是可分割的，所以他不是一个原子操作。再比如y = x;实际上包含2个操作，它先要去读取x的值，再将x的值写入工作内存，虽然读取x的值以及 将x的值写入工作内存 这2个操作都是原子性操作，但是合起来就不是原子性操作了。非原子操作都会存在线程安全问题，需要我们使用同步技术（sychronized）来让它变成一个原子操作。一个操作是原子操作，那么我们称它具有原子性。java的concurrent包下提供了一些原子类，我们可以通过阅读API来了解这些原子类的用法。比如：AtomicInteger、AtomicLong、AtomicReference等。</p>
-<p>　　在 Java 中 synchronized 和在 lock、unlock 中操作保证原子性。</p>
-<ol start="3">
-<li>有序性：</li>
-</ol>
-<p>　　Java 语言提供了 volatile 和 synchronized 两个关键字来保证线程之间操作的有序性，<strong>volatile 是因为其本身包含“禁止指令重排序”</strong>的语义，<strong>synchronized 是由“一个变量在同一个时刻只允许一条线程对其进行 lock 操作”</strong>这条规则获得的，此规则决定了持有同一个对象锁的两个同步块只能串行执行。</p>
-<h2 id="Volatile原理"><a href="#Volatile原理" class="headerlink" title="Volatile原理"></a>Volatile原理</h2><p>　　Java语言提供了一种稍弱的同步机制，即volatile变量，用来<strong>确保将变量的更新操作通知到其他线程</strong>。当把变量声明为volatile类型后，编译器与运行时都会注意到这个变量是共享的，因此<strong>不会将该变量上的操作与其他内存操作一起重排序</strong>。volatile变量不会被缓存在寄存器或者对其他处理器不可见的地方，因此在读取volatile类型的变量时总会返回最新写入的值。</p>
-<p>　　在<strong>访问volatile变量时不会执行加锁操作</strong>，因此也就不会使执行线程阻塞，因此volatile变量是一种比sychronized关键字更轻量级的同步机制。</p>
-<p>　　当对非 volatile 变量进行读写的时候，每个线程先从内存拷贝变量到CPU缓存中。如果计算机有多个CPU，每个线程可能在不同的CPU上被处理，这意味着每个线程可以拷贝到不同的 CPU cache 中。</p>
-<p>　　而声明变量是 volatile 的，JVM 保证了每次读变量都从内存中读，跳过上图的 CPU cache 这一步。</p>
-<p>　　volatile 的读性能消耗与普通变量几乎相同，但是写操作稍慢，因为它需要在本地代码中插入许多内存屏障指令来保证处理器不发生乱序执行。</p>
-<h2 id="留意复合类操作"><a href="#留意复合类操作" class="headerlink" title="留意复合类操作"></a>留意复合类操作</h2><p>需要注意的是，我们一直在拿volatile和synchronized做对比，仅仅是因为这两个关键字在某些内存语义上有共通之处，volatile并不能完全替代synchronized，它依然是个轻量级锁，在很多场景下，volatile并不能胜任。看下这个例子：</p>
-<pre><code>public class Counter {
-    public static volatile int num = 0;
-    //使用CountDownLatch来等待计算线程执行完
-    static CountDownLatch countDownLatch = new CountDownLatch(30);
-    public static void main(String []args) throws InterruptedException {
-        //开启30个线程进行累加操作
-        for(int i=0;i&lt;30;i++){
-            new Thread(){
-                public void run(){
-                    for(int j=0;j&lt;10000;j++){
-                        num++;//自加操作
-                    }
-                    countDownLatch.countDown();
-                }
-            }.start();
-        }
-        //等待计算线程执行完
-        countDownLatch.await();
-        System.out.println(num);
-    }
-}
-</code></pre><p>执行结果： 238921</p>
-<p>针对这个示例，一些同学可能会觉得疑惑，如果用volatile修饰的共享变量可以保证可见性，那么结果不应该是300000么?</p>
-<p>问题就出在num++这个操作上，因为<strong>num++不是个原子性的操作，而是个复合操作</strong>。我们可以简单讲这个操作理解为由这三步组成:</p>
-<p>　　1.读取</p>
-<p>　　2.加一</p>
-<p>　　3.赋值</p>
-<p>所以，在多线程环境下，有可能线程A将num读取到本地内存中，此时其他线程可能已经将num增大了很多，线程A依然对过期的num进行自加，重新写到主存中，最终导致了num的结果不合预期，而是小于30000。</p>
-<h2 id="解决num-操作的原子性问题"><a href="#解决num-操作的原子性问题" class="headerlink" title="解决num++操作的原子性问题"></a>解决num++操作的原子性问题</h2><p>针对num++这类复合类的操作，<strong>可以使用java并发包中的原子操作类原子操作类是通过循环CAS的方式来保证其原子性的</strong>。</p>
-<pre><code>public class Counter {
-　　//使用原子操作类
-    public static AtomicInteger num = new AtomicInteger(0);
-    //使用CountDownLatch来等待计算线程执行完
-    static CountDownLatch countDownLatch = new CountDownLatch(30);
-    public static void main(String []args) throws InterruptedException {
-        //开启30个线程进行累加操作
-        for(int i=0;i&lt;30;i++){
-            new Thread(){
-                public void run(){
-                    for(int j=0;j&lt;10000;j++){
-                        num.incrementAndGet();//原子性的num++,通过循环CAS方式
-                    }
-                    countDownLatch.countDown();
-                }
-            }.start();
-        }
-        //等待计算线程执行完
-        countDownLatch.await();
-        System.out.println(num);
-    }
-}
-</code></pre><p>执行结果: 300000</p>
-<h2 id="禁止指令重排序"><a href="#禁止指令重排序" class="headerlink" title="禁止指令重排序"></a>禁止指令重排序</h2><p>volatile还有一个特性：禁止指令重排序优化。</p>
-<p>重排序是指编译器和处理器为了优化程序性能而对指令序列进行排序的一种手段。但是重排序也需要遵守一定规则：</p>
-<p>  <strong>1.重排序操作不会对存在数据依赖关系的操作进行重排序。</strong></p>
-<p>　　　　比如：a=1;b=a; 这个指令序列，由于第二个操作依赖于第一个操作，所以在编译时和处理器运行时这两个操作不会被重排序。</p>
-<p><strong>2.重排序是为了优化性能，但是不管怎么重排序，单线程下程序的执行结果不能被改变</strong></p>
-<p>　　　　比如：a=1;b=2;c=a+b这三个操作，第一步（a=1)和第二步(b=2)由于不存在数据依赖关系，所以可能会发生重排序，但是c=a+b这个操作是不会被重排序的，因为需要保证最终的结果一定是c=a+b=3。</p>
-<p>　　重排序在单线程模式下是一定会保证最终结果的正确性，但是在多线程环境下，问题就出来了，来开个例子，我们对第一个TestVolatile的例子稍稍改进，再增加个共享变量a</p>
-<pre><code>public class TestVolatile {
-    int a = 1;
-    boolean status = false;
-
-    /**
-     * 状态切换为true
-     */
-    public void changeStatus(){
-        a = 2;//1
-        status = true;//2
-    }
-
-    /**
-     * 若状态为true，则running。
-     */
-    public void run(){
-        if(status){//3
-            int b = a+1;//4
-            System.out.println(b);
-        }
-    }
-}
-</code></pre><p>假设线程A执行changeStatus后，线程B执行run，我们能保证在4处，b一定等于3么？ 答案依然是无法保证！<br>上面我们提到过，为了提供程序并行度，编译器和处理器可能会对指令进行重排序，而上例中的1和2由于不存在数据依赖关系，则有可能会被重排序，先执行status=true再执行a=2。而此时线程B会顺利到达4处，而线程A中a=2这个操作还未被执行，所以b=a+1的结果也有可能依然等于2。</p>
-<p>使用volatile关键字修饰共享变量便可以禁止这种重排序。<strong>若用volatile修饰共享变量，在编译时，会在指令序列中插入内存屏障来禁止特定类型的处理器重排序</strong></p>
-<p>　　volatile禁止指令重排序也有一些规则，简单列举一下：</p>
-<pre><code>　　1.当第二个操作是voaltile写时，无论第一个操作是什么，都不能进行重排序
-
-　　2.当地一个操作是volatile读时，不管第二个操作是什么，都不能进行重排序
-
-　　3.当第一个操作是volatile写时，第二个操作是volatile读时，不能进行重排序
-</code></pre><h2 id="使用volatile关键字的场景"><a href="#使用volatile关键字的场景" class="headerlink" title="使用volatile关键字的场景"></a>使用volatile关键字的场景</h2><p>ynchronized关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而volatile关键字在某些情况下性能要优于synchronized，但是要注意volatile关键字是无法替代synchronized关键字的，因为volatile关键字无法保证操作的原子性。通常来说，使用volatile必须具备以下2个条件：</p>
-<blockquote>
-<p>1）对变量的写操作不依赖于当前值<br>2）该变量没有包含在具有其他变量的不变式中</p>
-</blockquote>
-<p>实际上，这些条件表明，可以被写入 volatile 变量的这些有效值独立于任何程序的状态，包括变量的当前状态。<br>事实上，我的理解就是上面的2个条件<strong>需要保证操作是原子性操作</strong>，才能保证使用volatile关键字的程序在并发时能够正确执行。</p>
-<p>下面代码显示了一个非线程安全的数值范围类。它包含了一个不变式 —— 下界总是小于或等于上界：</p>
-<pre><code>@NotThreadSafe 
-public class NumberRange {
-    private int lower, upper;
-
-    public int getLower() { return lower; }
-    public int getUpper() { return upper; }
-
-    public void setLower(int value) { 
-        if (value &gt; upper) 
-            throw new IllegalArgumentException(...);
-        lower = value;
-    }
-
-    public void setUpper(int value) { 
-        if (value &lt; lower) 
-            throw new IllegalArgumentException(...);
-        upper = value;
-    }
-}
-</code></pre><p>这种方式限制了范围的状态变量，因此将 lower 和 upper 字段定义为 volatile 类型不能够充分实现类的线程安全；从而仍然需要使用同步。否则，如果凑巧两个线程在同一时间使用不一致的值执行 setLower 和 setUpper 的话，则会使范围处于不一致的状态。例如，如果初始状态是 (0, 5)，同一时间内，线程 A 调用 setLower(4) 并且线程 B 调用 setUpper(3)，显然这两个操作交叉存入的值是不符合条件的，那么两个线程都会通过用于保护不变式的检查，使得最后的范围值是 (4, 3) —— 一个无效值。至于针对范围的其他操作，我们需要使 setLower() 和 setUpper() 操作原子化 —— 而将字段定义为 volatile 类型是无法实现这一目的的。</p>
-<p>　　下面列举几个Java中使用volatile的几个场景。</p>
-<p>1.状态标记量</p>
-<pre><code>volatile boolean flag = false;
-
-while(!flag){
-    doSomething();
-}
-
-public void setFlag() {
-    flag = true;
-}
-
-
-
-volatile boolean inited = false;
-//线程1:
-context = loadContext();  
-inited = true;            
-
-//线程2:
-while(!inited ){
-sleep()
-}
-doSomethingwithconfig(context);    
-</code></pre><p>2.double check</p>
-<pre><code>class Singleton{
-    private volatile static Singleton instance = null;
-
-    private Singleton() {
-
-    }
-
-    public static Singleton getInstance() {
-        if(instance==null) {
-            synchronized (Singleton.class) {
-                if(instance==null)
-                    instance = new Singleton();
-            }
-        }
-        return instance;
-    }
-}
-</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>　　简单总结下，volatile是一种轻量级的同步机制，它主要有两个特性：<strong>一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化</strong>。同时需要注意的是，volatile对于单个的共享变量的读/写具有原子性，但是像num++这种复合操作，volatile无法保证其<strong>原子性</strong>，当然文中也提出了解决方案，就是使用并发包中的原子操作类，通过循环CAS地方式来保证num++操作的原子性。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/zhengbin/p/5654805.html" target="_blank" rel="noopener">https://www.cnblogs.com/zhengbin/p/5654805.html</a><br><a href="https://www.cnblogs.com/chengxiao/p/6528109.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6528109.html</a><br><a href="https://www.cnblogs.com/dolphin0520/p/3920373.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3920373.html</a><br><a href="https://www.ibm.com/developerworks/cn/java/j-jtp06197.html" target="_blank" rel="noopener">不变式举例</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3476,7 +3299,7 @@ doSomethingwithconfig(context);
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-count">35</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3487,7 +3310,7 @@ doSomethingwithconfig(context);
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3498,7 +3321,7 @@ doSomethingwithconfig(context);
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

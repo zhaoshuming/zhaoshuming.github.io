@@ -293,6 +293,157 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/ds-hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/16/ds-hashmap/" itemprop="url">HashMap实现原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T15:26:44+08:00">
+                2019-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK7的HashMap源码进行分析。</p>
+<h2 id="什么是哈希表"><a href="#什么是哈希表" class="headerlink" title="什么是哈希表"></a>什么是哈希表</h2><p>　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能</p>
+<p>　　数组：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)</p>
+<p>　　线性链表：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历链表逐一进行比对，复杂度为O(n)</p>
+<p>　　二叉树：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。</p>
+<p>　　哈希表：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)，接下来我们就来看看哈希表是如何实现达到惊艳的常数阶O(1)的。</p>
+<p>　　我们知道，数据结构的物理存储结构只有两种：顺序存储结构和链式存储结构（像栈，队列，树，图等是从逻辑结构去抽象的，映射到内存中，也这两种物理组织形式），而在上面我们提到过，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，哈希表的主干就是数组。</p>
+<p>　　比如我们要新增或查找某个元素，我们通过把当前元素的关键字 通过某个函数映射到数组中的某个位置，通过数组下标一次定位就可完成操作。</p>
+<p>　　　　　　　　存储位置 = f(关键字)</p>
+<p>　　其中，这个函数f一般称为哈希函数，这个函数的设计好坏会直接影响到哈希表的优劣。举个例子，比如我们要在哈希表中执行插入操作：</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/android-webview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1028,6 +1179,12 @@ ADD_SUBDIRECTORY(two)
 <p>2、执行效率<br>三者在执行速度方面的比较：StringBuilder &gt; StringBuffer &gt; String</p>
 <p>3、应用场景<br>如果要操作少量的数据用 = String<br>单线程操作字符串缓冲区 下操作大量数据 = StringBuilder<br>多线程操作字符串缓冲区 下操作大量数据 = StringBuffer</p>
 <p>StringBuffer 中的方法大都采用了 synchronized 关键字进行修饰，因此是线程安全的，而 StringBuilder 没有这个修饰，可以被认为是线程不安全的。</p>
+<h2 id="Java中Vector和ArrayList的区别"><a href="#Java中Vector和ArrayList的区别" class="headerlink" title="Java中Vector和ArrayList的区别"></a>Java中Vector和ArrayList的区别</h2><p>首先看这两类都实现List接口，而List接口一共有三个实现类，分别是ArrayList、Vector和LinkedList。List用于存放多个元素，能够维护元素的次序，并且允许元素的重复。3个具体实现类的相关区别如下：</p>
+<ol>
+<li>ArrayList是最常用的List实现类，内部是通过数组实现的，它允许对元素进行快速随机访问。数组的缺点是每个元素之间不能有间隔，当数组大小不满足时需要增加存储能力，就要讲已经有数组的数据复制到新的存储空间中。当从ArrayList的中间位置插入或者删除元素时，需要对数组进行复制、移动、代价比较高。因此，它适合随机查找和遍历，不适合插入和删除。</li>
+<li>Vector与ArrayList一样，<strong>也是通过数组实现的，不同的是它支持线程的同步</strong>，即某一时刻只有一个线程能够写Vector，避免多线程同时写而引起的不一致性，但实现同步需要很高的花费，因此，访问它比访问ArrayList慢。</li>
+<li><strong>LinkedList是用链表结构存储数据的，很适合数据的动态插入和删除，随机访问和遍历速度比较慢</strong>。另外，他还提供了List接口中没有定义的方法，专门用于操作表头和表尾元素，可以当作堆栈、队列和双向队列使用。</li>
+</ol>
 <h2 id="LiveData"><a href="#LiveData" class="headerlink" title="LiveData"></a>LiveData</h2><p><img src="/2019/08/12/android-note/livedata.png" alt></p>
 <p>LiveData有个内部类LifecycleBoundObserver，它实现了GenericLifecycleObserver，而GenericLifecycleObserver继承了LifecycleObserver接口。当组件（Fragment、Activity）生命周期变化时会通过onStateChanged()方法回调过来。</p>
 <p>LiveData主要涉及到的时序有三个：<br>在Fragment/Activity中通过LiveData.observer()添加观察者（observer()方法中的第二个参数）。<br>根据Fragment/Activity生命周期发生变化时，移除观察者或者通知观察者更新数据。<br>当调用LiveData的setValue()、postValue()方法后，通知观察者更新数据。</p>
@@ -1066,6 +1223,11 @@ compile (&quot;io.reactivex.rxjava2:rxandroid::2.0.1@aar&quot;) {
 <p>大致思路：<br>1.找到需要Hook方法的系统类<br>2.利用代理模式来代理系统类的运行拦截我们需要拦截的方法<br>3.使用反射的方法把这个系统类替换成你的代理类</p>
 <p>案例可参考：<br><a href="https://blog.csdn.net/yulong0809/article/details/56842027" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/56842027</a></p>
 <h2 id="反射机制"><a href="#反射机制" class="headerlink" title="反射机制"></a>反射机制</h2><p>JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。</p>
+<h2 id="应用的启动过程"><a href="#应用的启动过程" class="headerlink" title="应用的启动过程"></a>应用的启动过程</h2><p>1.首先我们要启动的Activity会去ActivityManagerService中去校检是否合法</p>
+<p>2.通过回调ActivityThread中内部类ApplicationThread的scheduleLaunchActivity去发送一个消息到ActivityThread中的内部类H中，H继承于Handler</p>
+<p>3.然后会通过反射创建Activity对象及Application对象，并回调响应生命周期方法</p>
+<p>这里说一点ActivityManagerService和我们应用间沟通几乎都是ActivityThread，ApplicationThread，H这几个类之间来回调用，而且不只是Activity，我们Android的四大组件几乎都用了这种模式</p>
+<p>参考：<br><a href="https://blog.csdn.net/yulong0809/article/details/58589715" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/58589715</a></p>
 <h2 id="Watchdog"><a href="#Watchdog" class="headerlink" title="Watchdog"></a>Watchdog</h2><p>能通过关闭FinalizerWatchdogDaemon来减少TimeoutException的触发。需要注意的是，此种方法并不是去解决问题，而是为了避免上报异常采取的一种 hack 方案，并没有真正的解决引起 finialize() 超时的问题。</p>
 <pre><code>// Android P 以后不能反射FinalizerWatchdogDaemon
 if (Build.VERSION.SDK_INT &gt;= 28) {
@@ -5644,645 +5806,6 @@ void microtask(){
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/flutter-knowledge/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/25/flutter-knowledge/" itemprop="url">Flutter知识点</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T18:22:12+08:00">
-                2019-06-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Views"><a href="#Views" class="headerlink" title="Views"></a>Views</h2><p>在Flutter中，View相当于是Widget。<strong>Widget仅支持一帧</strong>，并且在每一帧上，Flutter的框架都会创建一个Widget实例树(相当于一次性绘制整个界面)。在Flutter中的widget是不可变的，这允许widget变得超级轻量。</p>
-<h3 id="Widget状态"><a href="#Widget状态" class="headerlink" title="Widget状态"></a>Widget状态</h3><p>在Flutter中Widget是不可变的，不会直接更新，而必须使用Widget的状态。这是<strong>Stateful和Stateless widget</strong>的概念的来源。一个Stateless Widget就像它的名字，是一个没有状态信息的widget。</p>
-<p>这里要注意的重要一点是无状态和有状态widget的核心特性是相同的。每一帧它们都会重新构建，不同之处在于<strong>StatefulWidget有一个State对象，它可以跨帧存储状态数据并恢复它</strong>。</p>
-<p>如果你有疑问，那么要记住这个规则：<strong>如果一个widget发生了变化（例如用户与它交互），它就是有状态的。但是，如果一个子widget对变化做出反应，而其父widget对变化没有反应，那么包含的父widget仍然可以是无状态的widget。</strong></p>
-<h3 id="Widget编写"><a href="#Widget编写" class="headerlink" title="Widget编写"></a>Widget编写</h3><p>在Android中，您通过XML编写布局，但在Flutter中，使用widget树来编写布局。<br>可以查看Flutter所提供的所有布局: <a href="https://flutterchina.club/widgets/layout/" target="_blank" rel="noopener">Flutter widget layout</a></p>
-<p>在Android中，您可以从父级控件调用addChild或removeChild以动态添加或删除View。 在Flutter中，因为widget是不可变的，所以没有addChild。相反，您可以传入一个函数，该函数返回一个widget给父项，并通过布尔值控制该widget的创建。</p>
-<p>在Flutter中，可以通过动画库给widget添加动画，将widget包装到Animation中。与Android相似，在Flutter中，您有一个AnimationController和一个Interpolator， 它是Animation类的扩展，例如CurvedAnimation。您将控制器和动画传递到AnimationWidget中，并告诉控制器启动动画。<br>See <a href="https://flutter.io/widgets/animation/" target="_blank" rel="noopener">https://flutter.io/widgets/animation/</a> and <a href="https://flutter.io/tutorials/animation" target="_blank" rel="noopener">https://flutter.io/tutorials/animation</a> for more specific details.</p>
-<p>Flutter有两个类可以帮助您绘制画布，CustomPaint和CustomPainter，它们实现您的算法以绘制到画布。<br>在这个人气较高的的StackOverFlow答案中，您可以看到签名painter是如何实现的：请参阅<a href="https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter" target="_blank" rel="noopener">https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter</a></p>
-<h3 id="如何构建自定义-Widgets"><a href="#如何构建自定义-Widgets" class="headerlink" title="如何构建自定义 Widgets"></a>如何构建自定义 Widgets</h3><p>在Flutter中，<strong>一个自定义widget通常是通过组合其它widget来实现的，而不是继承</strong>。</p>
-<p>我们来看看如何构建持有一个label的CustomButton。这是通过将Text与RaisedButton组合来实现的，而不是扩展RaisedButton并重写其绘制方法实现：</p>
-<pre><code>class CustomButton extends StatelessWidget {
-  final String label;
-  CustomButton(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return new RaisedButton(onPressed: () {}, child: new Text(label));
-  }
-}
-</code></pre><h2 id="Intents"><a href="#Intents" class="headerlink" title="Intents"></a>Intents</h2><p>Flutter不具有Intents的概念，但如果需要的话，Flutter可以通过Native整合来触发Intents。</p>
-<p>要在Flutter中切换屏幕，您可以访问路由以绘制新的Widget。 管理多个屏幕有两个核心概念和类：<strong>Route 和 Navigator</strong>。Route是应用程序的“屏幕”或“页面”的抽象（可以认为是Activity）， Navigator是管理Route的Widget。Navigator可以通过push和pop route以实现页面切换。</p>
-<p>在Flutter中，可以将具有指定Route的Map传递到顶层MaterialApp实例</p>
-<pre><code>void main() {
-  runApp(new MaterialApp(
-    home: new MyAppHome(), // becomes the route named &apos;/&apos;
-    routes: &lt;String, WidgetBuilder&gt; {
-      &apos;/a&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page A&apos;),
-      &apos;/b&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page B&apos;),
-      &apos;/c&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page C&apos;),
-    },
-  ));
-}
-</code></pre><p>然后，您可以通过Navigator来切换到命名路由的页面。</p>
-<pre><code>Navigator.of(context).pushNamed(&apos;/b&apos;);
-</code></pre><p>Intents的另一个主要的用途是调用外部组件，如Camera或File picker。为此，您需要和native集成（或使用现有的库）</p>
-<h3 id="处理外部传入的Intents"><a href="#处理外部传入的Intents" class="headerlink" title="处理外部传入的Intents"></a>处理外部传入的Intents</h3><p>Flutter可以通过直接与Android层通信并请求共享的数据来处理来自Android的Intents</p>
-<p>在这个例子中，我们注册文本共享intent，所以其他应用程序可以共享文本到我们的Flutter应用程序</p>
-<p>这个应用程序的基本流程是我们<strong>首先处理Android端的共享文本数据，然后等待Flutter请求数据，然后通过MethodChannel发送</strong>。</p>
-<p>首先在在AndroidManifest.xml中注册我们想要处理的intent:</p>
-<pre><code>&lt;activity
-       android:name=&quot;.MainActivity&quot;
-       android:launchMode=&quot;singleTop&quot;
-       android:theme=&quot;@style/LaunchTheme&quot;
-       android:configChanges=&quot;orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection&quot;
-       android:hardwareAccelerated=&quot;true&quot;
-       android:windowSoftInputMode=&quot;adjustResize&quot;&gt;
-       &lt;!-- This keeps the window background of the activity showing
-            until Flutter renders its first frame. It can be removed if
-            there is no splash screen (such as the default splash screen
-            defined in @style/LaunchTheme). --&gt;
-       &lt;meta-data
-           android:name=&quot;io.flutter.app.android.SplashScreenUntilFirstFrame&quot;
-           android:value=&quot;true&quot; /&gt;
-       &lt;intent-filter&gt;
-           &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
-           &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
-       &lt;/intent-filter&gt;
-       &lt;intent-filter&gt;
-           &lt;action android:name=&quot;android.intent.action.SEND&quot; /&gt;
-           &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;
-           &lt;data android:mimeType=&quot;text/plain&quot; /&gt;
-       &lt;/intent-filter&gt;
-   &lt;/activity&gt;
-</code></pre><p>然后，在MainActivity中处理intent，一旦我们从intent中获得共享文本数据，我们就会持有它，直到Flutter在完成准备就绪时请求它。</p>
-<pre><code>public class MainActivity extends FlutterActivity {
-    String sharedText;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GeneratedPluginRegistrant.registerWith(this);
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
-
-        if (Intent.ACTION_SEND.equals(action) &amp;&amp; type != null) {
-            if (&quot;text/plain&quot;.equals(type)) {
-                handleSendText(intent); // Handle text being sent
-            }
-        }
-
-        new MethodChannel(getFlutterView(), &quot;app.channel.shared.data&quot;).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-            @Override
-            public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-                if (methodCall.method.contentEquals(&quot;getSharedText&quot;)) {
-                    result.success(sharedText);
-                    sharedText = null;
-                }
-            }
-        });
-    }
-
-
-    void handleSendText(Intent intent) {
-        sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-    }
-}
-</code></pre><p>最后，在Flutter中，在渲染Flutter视图时请求数据：</p>
-<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
-  static const platform = const MethodChannel(&apos;app.channel.shared.data&apos;);
-  String dataShared = &quot;No data&quot;;
-
-  @override
-  void initState() {
-    super.initState();
-    getSharedText();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(body: new Center(child: new Text(dataShared)));
-  }
-
-  getSharedText() async {
-    var sharedData = await platform.invokeMethod(&quot;getSharedText&quot;);
-    if (sharedData != null) {
-      setState(() {
-        dataShared = sharedData;
-      });
-    }
-  }
-}
-</code></pre><h3 id="startActivityForResult-在Flutter中等价于什么"><a href="#startActivityForResult-在Flutter中等价于什么" class="headerlink" title="startActivityForResult 在Flutter中等价于什么"></a>startActivityForResult 在Flutter中等价于什么</h3><p>处理Flutter中所有路由的Navigator类可用于从已经push到栈的路由中获取结果。 这可以通过等待push返回的Future来完成。例如，如果您要启动让用户选择其位置的位置的路由，则可以执行以下操作：</p>
-<pre><code>Map coordinates = await Navigator.of(context).pushNamed(&apos;/location&apos;);
-</code></pre><p>然后在你的位置路由中，一旦用户选择了他们的位置，你可以将结果”pop”出栈：</p>
-<pre><code>Navigator.of(context).pop({&quot;lat&quot;:43.821757,&quot;long&quot;:-79.226392});
-</code></pre><h2 id="异步UI"><a href="#异步UI" class="headerlink" title="异步UI"></a>异步UI</h2><h3 id="runOnUiThread-在Flutter中等价于什么"><a href="#runOnUiThread-在Flutter中等价于什么" class="headerlink" title="runOnUiThread 在Flutter中等价于什么"></a>runOnUiThread 在Flutter中等价于什么</h3><p>Dart是单线程执行模型，<strong>支持Isolates（在另一个线程上运行Dart代码的方式）、事件循环和异步编程</strong>。 除非您启动一个Isolate，否则您的Dart代码将在主UI线程中运行，并由事件循环驱动（译者语：和JavaScript一样）。</p>
-<h3 id="AsyncTask和IntentService在Flutter中等价于什么"><a href="#AsyncTask和IntentService在Flutter中等价于什么" class="headerlink" title="AsyncTask和IntentService在Flutter中等价于什么"></a>AsyncTask和IntentService在Flutter中等价于什么</h3><p>由于Flutter是单线程的，运行一个事件循环（如Node.js），所以您不必担心线程管理或者使用AsyncTasks、IntentServices。</p>
-<p>要异步运行代码，可以将函数声明为异步函数，并在该函数中等待这个耗时任务</p>
-<pre><code>loadData() async {
-  String dataURL = &quot;https://jsonplaceholder.typicode.com/posts&quot;;
-  http.Response response = await http.get(dataURL);
-  setState(() {
-    widgets = JSON.decode(response.body);
-  });
-}
-</code></pre><p>这就是典型的进行网络或数据库调用的方式</p>
-<p>在Android上，当您继承AsyncTask时，通常会覆盖3个方法，OnPreExecute、doInBackground和onPostExecute。 在Flutter中没有这种模式的等价物，因为您只需等待一个长时间运行的函数，而Dart的事件循环将负责其余的事情。但是，有时您可能需要处理大量数据，导致UI可能会挂起。在这种情况下，与AsyncTask一样，在Flutter中，可以利用多个CPU内核来执行耗时或计算密集型任务。这是通过使用<strong>Isolates</strong>来完成的。</p>
-<p>Isolate是一个独立的执行线程，它运行时不会与主线程共享任何内存。这意味着你不能从该线程访问变量或通过调用setState来更新你的UI。</p>
-<h3 id="OkHttp在Flutter中等价于什么"><a href="#OkHttp在Flutter中等价于什么" class="headerlink" title="OkHttp在Flutter中等价于什么"></a>OkHttp在Flutter中等价于什么</h3><p>当使用受欢迎的“http”package时，Flutter进行网络信非常简单。</p>
-<p>虽然<a href="https://pub.dartlang.org/packages/http" target="_blank" rel="noopener">“http” package </a>没有实现OkHttp的所有功能，但“http” package 抽象出了许多常用的API，可以简单有效的发起网络请求。</p>
-<p>您可以通过在pubspec.yaml中添加依赖项来使用它</p>
-<pre><code>dependencies:
-  ...
-  http: &apos;&gt;=0.11.3+12&apos;
-</code></pre><p>在Android中，当您执行耗时任务时，通常会显示进度指示器。在Flutter中，这可以通过渲染<strong>Progress Indicator widget</strong>来实现。您可以通过编程方式显示Progress Indicator ， 通过布尔值通知Flutter在耗时任务发起之前更新其状态。</p>
-<h2 id="项目结构和资源"><a href="#项目结构和资源" class="headerlink" title="项目结构和资源"></a>项目结构和资源</h2><h3 id="在哪里存储分辨率相关的图片文件-HDPI-XXHDPI"><a href="#在哪里存储分辨率相关的图片文件-HDPI-XXHDPI" class="headerlink" title="在哪里存储分辨率相关的图片文件? HDPI/XXHDPI"></a>在哪里存储分辨率相关的图片文件? HDPI/XXHDPI</h3><p>Flutter遵循像iOS这样简单的3种分辨率格式: 1x, 2x, and 3x.</p>
-<p>创建一个名为images的文件夹，并为每个图像文件生成一个@2x和@3x文件，并将它们放置在如下这样的文件夹中:</p>
-<pre><code>…/my_icon.png
-…/2.0x/my_icon.png
-…/3.0x/my_icon.png
-</code></pre><p>然后，您需要在pubspec.yaml文件中声明这些图片:</p>
-<pre><code>assets:
- - images/a_dot_burr.jpeg
- - images/a_dot_ham.jpeg
-</code></pre><p>然后您可以使用AssetImage访问您的图像</p>
-<pre><code>return new AssetImage(&quot;images/a_dot_burr.jpeg&quot;);
-</code></pre><h3 id="在哪里存储字符串-如何存储不同的语言"><a href="#在哪里存储字符串-如何存储不同的语言" class="headerlink" title="在哪里存储字符串? 如何存储不同的语言"></a>在哪里存储字符串? 如何存储不同的语言</h3><p>目前，最好的做法是创建一个名为Strings的类</p>
-<pre><code>class Strings{
-  static String welcomeMessage = &quot;Welcome To Flutter&quot;;
-}
-</code></pre><p>然后在你的代码中，你可以像访问你的字符串一样：</p>
-<pre><code>new Text(Strings.welcomeMessage)
-</code></pre><p>Flutter对Android的可访问性提供了基本的支持，虽然这个功能正在进行中。</p>
-<p>鼓励Flutter开发者使用<a href="https://pub.dev/packages/intl" target="_blank" rel="noopener">intl package</a>进行国际化和本地化</p>
-<h3 id="Android-Gradle-vs-Flutter-pubspec-yaml"><a href="#Android-Gradle-vs-Flutter-pubspec-yaml" class="headerlink" title="Android Gradle vs Flutter pubspec.yaml"></a>Android Gradle vs Flutter pubspec.yaml</h3><p>在Android中，您可以在Gradle文件来添加依赖项。</p>
-<p>在Flutter中，虽然在Flutter项目中的Android文件夹下有Gradle文件，但只有在添加平台相关所需的依赖关系时才使用这些文件。 否则，应该使用pubspec.yaml声明用于Flutter的外部依赖项。</p>
-<p>发现好的flutter packages的一个好地方 <a href="https://pub.dartlang.org/flutter/packages/" target="_blank" rel="noopener">Pub</a></p>
-<h2 id="Activities-和-Fragments"><a href="#Activities-和-Fragments" class="headerlink" title="Activities 和 Fragments"></a>Activities 和 Fragments</h2><p>在Flutter中，这两个概念都等同于Widget。</p>
-<h3 id="如何监听Android-Activity生命周期事件"><a href="#如何监听Android-Activity生命周期事件" class="headerlink" title="如何监听Android Activity生命周期事件"></a>如何监听Android Activity生命周期事件</h3><p>在Android中，您可以覆盖Activity的方法来捕获Activity的生命周期回调。</p>
-<p>在Flutter中您可以通过<strong>挂接到WidgetsBinding观察并监听didChangeAppLifecycleState更改事件来监听</strong>生命周期事件</p>
-<p>您可以监听到的生命周期事件是</p>
-<ul>
-<li>resumed - 应用程序可见并响应用户输入。这是来自Android的onResume</li>
-<li>inactive - 应用程序处于非活动状态，并且未接收用户输入。此事件在Android上未使用，仅适用于iOS</li>
-<li>paused - 应用程序当前对用户不可见，不响应用户输入，并在后台运行。这是来自Android的暂停</li>
-<li><p>suspending - 该应用程序将暂时中止。这在iOS上未使用</p>
-<p>  class _LifecycleWatcherState extends State<lifecyclewatcher> with WidgetsBindingObserver {</lifecyclewatcher></p>
-<pre><code>AppLifecycleState _lastLifecyleState;
-
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addObserver(this);
-}
-
-@override
-void dispose() {
-  WidgetsBinding.instance.removeObserver(this);
-  super.dispose();
-}
-
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  setState(() {
-    _lastLifecyleState = state;
-  });
-}
-
-@override
-Widget build(BuildContext context) {
-  if (_lastLifecyleState == null)
-    return new Text(&apos;This widget has not observed any lifecycle changes.&apos;, textDirection: TextDirection.ltr);
-  return new Text(&apos;The most recent lifecycle state this widget observed was: $_lastLifecyleState.&apos;,
-      textDirection: TextDirection.ltr);
-}
-</code></pre><p>  }</p>
-</li>
-</ul>
-<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><h3 id="LinearLayout在Flutter中相当于什么"><a href="#LinearLayout在Flutter中相当于什么" class="headerlink" title="LinearLayout在Flutter中相当于什么"></a>LinearLayout在Flutter中相当于什么</h3><p>在Android中，使用LinearLayout来使您的控件呈水平或垂直排列。在Flutter中，您可以使用Row或Co​​lumn来实现相同的结果:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: &lt;Widget&gt;[
-      new Text(&apos;Row One&apos;),
-      new Text(&apos;Row Two&apos;),
-      new Text(&apos;Row Three&apos;),
-      new Text(&apos;Row Four&apos;),
-    ],
-  );
-}
-</code></pre><h3 id="RelativeLayout在Flutter中等价于什么"><a href="#RelativeLayout在Flutter中等价于什么" class="headerlink" title="RelativeLayout在Flutter中等价于什么"></a>RelativeLayout在Flutter中等价于什么</h3><p>RelativeLayout用于使widget相对于彼此位置排列。在Flutter中，有几种方法可以实现相同的结果</p>
-<p>您可以通过使用Column、Row和Stack的组合来实现RelativeLayout的效果。您可以为widget构造函数指定相对于父组件的布局规则。</p>
-<p>一个在Flutter中构建RelativeLayout的好例子，请参考在StackOverflow上: <a href="https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in" target="_blank" rel="noopener">https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in</a> -flutter</p>
-<h3 id="ScrollView在Flutter中等价于什么"><a href="#ScrollView在Flutter中等价于什么" class="headerlink" title="ScrollView在Flutter中等价于什么"></a>ScrollView在Flutter中等价于什么</h3><p>在Android中，ScrollView允许您包含一个子控件，以便在用户设备的屏幕比控件内容小的情况下，使它们可以滚动。</p>
-<p>在Flutter中，最简单的方法是使用ListView。但<strong>在Flutter中，一个ListView既是一个ScrollView，也是一个Android ListView</strong>。</p>
-<h2 id="手势检测和触摸事件处理"><a href="#手势检测和触摸事件处理" class="headerlink" title="手势检测和触摸事件处理"></a>手势检测和触摸事件处理</h2><h3 id="如何将一个onClick监听器添加到Flutter中的widget"><a href="#如何将一个onClick监听器添加到Flutter中的widget" class="headerlink" title="如何将一个onClick监听器添加到Flutter中的widget"></a>如何将一个onClick监听器添加到Flutter中的widget</h3><p>在Flutter中，添加触摸监听器有两种方法:</p>
-<ol>
-<li><p>如果Widget支持事件监听，则可以将一个函数传递给它并进行处理。例如，RaisedButton有一个onPressed参数:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new RaisedButton(
-      onPressed: () {
-        print(&quot;click&quot;);
-      },
-      child: new Text(&quot;Button&quot;));
-}
-</code></pre></li>
-<li><p>如果Widget不支持事件监听，则可以将该Widget包装到GestureDetector中，并将处理函数传递给onTap参数:</p>
-<pre><code>class SampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        body: new Center(
-      child: new GestureDetector(
-        child: new FlutterLogo(
-          size: 200.0,
-        ),
-        onTap: () {
-          print(&quot;tap&quot;);
-        },
-      ),
-    ));
-  }
-}
-</code></pre></li>
-</ol>
-<h3 id="如何处理widget上的其他手势"><a href="#如何处理widget上的其他手势" class="headerlink" title="如何处理widget上的其他手势"></a>如何处理widget上的其他手势</h3><p>使用GestureDetector，可以监听多种手势，例如:</p>
-<p>Tap</p>
-<blockquote>
-<p>onTapDown<br>onTapUp<br>onTap<br>onTapCancel</p>
-</blockquote>
-<p>Double tap</p>
-<blockquote>
-<p>onDoubleTap 用户快速连续两次在同一位置轻敲屏幕.</p>
-</blockquote>
-<p>长按</p>
-<blockquote>
-<p>onLongPress</p>
-</blockquote>
-<p>垂直拖动</p>
-<blockquote>
-<p>onVerticalDragStart<br>onVerticalDragUpdate<br>onVerticalDragEnd</p>
-</blockquote>
-<p>水平拖拽</p>
-<blockquote>
-<p>onHorizontalDragStart<br>onHorizontalDragUpdate<br>onHorizontalDragEnd</p>
-</blockquote>
-<h2 id="Listview-amp-Adapter"><a href="#Listview-amp-Adapter" class="headerlink" title="Listview &amp; Adapter"></a>Listview &amp; Adapter</h2><h3 id="ListView在Flutter中相当于什么"><a href="#ListView在Flutter中相当于什么" class="headerlink" title="ListView在Flutter中相当于什么"></a>ListView在Flutter中相当于什么</h3><p>在Flutter中，ListView就是一个ListView！</p>
-<p>在Android ListView中，您可以创建一个适配器，然后您可以将它传递给ListView，该适配器将使用适配器返回的内容来展示每一行。 然而，你必须确保在合适的时机回收行，否则，你会得到各种疯狂的视觉和内存问题。</p>
-<p>在Flutter中，由于Flutter的不可变的widget模型，将一个Widgets列表传递给的ListView，而Flutter将负责确保它们快速平滑地滚动。</p>
-<h3 id="怎么知道哪个列表项被点击"><a href="#怎么知道哪个列表项被点击" class="headerlink" title="怎么知道哪个列表项被点击"></a>怎么知道哪个列表项被点击</h3><p>在Android中，ListView有一个方法’onItemClickListener’来确定哪个列表项被点击。 Flutter中可以更轻松地通过您传入的处理回调来进行操作：</p>
-<pre><code>_getListData() {
-   List&lt;Widget&gt; widgets = [];
-   for (int i = 0; i &lt; 100; i++) {
-     widgets.add(new GestureDetector(
-       child: new Padding(
-           padding: new EdgeInsets.all(10.0),
-           child: new Text(&quot;Row $i&quot;)),
-       onTap: () {
-         print(&apos;row tapped&apos;);
-       },
-     ));
-   }
-   return widgets;
- }
-</code></pre><h3 id="如何动态更新ListView"><a href="#如何动态更新ListView" class="headerlink" title="如何动态更新ListView"></a>如何动态更新ListView</h3><p>需要更新适配器并调用notifyDataSetChanged。在Flutter中，如果setState（）中更新widget列表，您会发现没有变化， 这是因为当setState被调用时，Flutter渲染引擎会遍历所有的widget以查看它们是否已经改变。 当遍历到你的ListView时，它会做一个==运算，以查看两个ListView是否相同，因为没有任何改变，因此没有更新数据。</p>
-<p>要更新您的ListView，然后在setState中创建一个新的List（）并将所有旧数据复制到新列表中。这是实现更新的简单方法（译者语：此时状态改变，ListView被<strong>重新构建</strong>）</p>
-<p>然而，<strong>推荐的方法是使用ListView.Builder</strong>。当您拥有动态列表或包含大量数据的列表时，此方法非常有用。 这实际上相当于在Android上使用RecyclerView，它会自动为您回收列表元素：</p>
-<pre><code>@override
- Widget build(BuildContext context) {
-   return new Scaffold(
-       appBar: new AppBar(
-         title: new Text(&quot;Sample App&quot;),
-       ),
-       body: new ListView.builder(
-           itemCount: widgets.length,
-           itemBuilder: (BuildContext context, int position) {
-             return getRow(position);
-           }));
- }
-
-Widget getRow(int i) {
-   return new GestureDetector(
-     child: new Padding(
-         padding: new EdgeInsets.all(10.0),
-         child: new Text(&quot;Row $i&quot;)),
-     onTap: () {
-       setState(() {
-         widgets.add(getRow(widgets.length + 1));
-         print(&apos;row $i&apos;);
-       });
-     },
-   );
- }
-</code></pre><p>我们不是创建一个“新的ListView”，而是创建一个新的ListView.builder，它接受两个参数，即列表的初始长度和一个ItemBuilder函数。ItemBuilder函数非常类似于Android适配器中的getView函数，它需要一个位置并返回要为该位置渲染的行。</p>
-<p>最后，但最重要的是，如果您注意到onTap函数，在里面，我们不会再重新创建列表，而只是添加新元素到列表。</p>
-<h2 id="使用-Text"><a href="#使用-Text" class="headerlink" title="使用 Text"></a>使用 Text</h2><h3 id="如何在-Text-widget上设置自定义字体"><a href="#如何在-Text-widget上设置自定义字体" class="headerlink" title="如何在 Text widget上设置自定义字体"></a>如何在 Text widget上设置自定义字体</h3><p>在Android SDK（从Android O开始）中，创建一个Font资源文件并将其传递到TextView的FontFamily参数中。</p>
-<p>在Flutter中，首先你需要把你的字体文件放在项目文件夹中（最好的做法是创建一个名为assets的文件夹）</p>
-<p>接下来在pubspec.yaml文件中，声明字体：</p>
-<pre><code>fonts:
-   - family: MyCustomFont
-     fonts:
-       - asset: fonts/MyCustomFont.ttf
-       - style: italic
-</code></pre><p>最后，将字体应用到Text widget:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new Scaffold(
-    appBar: new AppBar(
-      title: new Text(&quot;Sample App&quot;),
-    ),
-    body: new Center(
-      child: new Text(
-        &apos;This is a custom font text&apos;,
-        style: new TextStyle(fontFamily: &apos;MyCustomFont&apos;),
-      ),
-    ),
-  );
-}
-</code></pre><h3 id="如何在Text上定义样式"><a href="#如何在Text上定义样式" class="headerlink" title="如何在Text上定义样式"></a>如何在Text上定义样式</h3><p>Text的样式参数需要一个TextStyle对象，您可以在其中自定义许多参数。</p>
-<h2 id="表单输入"><a href="#表单输入" class="headerlink" title="表单输入"></a>表单输入</h2><h3 id="Input的”hint”在flutter中相当于什么"><a href="#Input的”hint”在flutter中相当于什么" class="headerlink" title="Input的”hint”在flutter中相当于什么"></a>Input的”hint”在flutter中相当于什么</h3><p>在Flutter中，您可以通过向Text Widget的装饰构造函数参数添加<strong>InputDecoration对象</strong>，轻松地为输入框显示占位符文本</p>
-<pre><code>body: new Center(
-  child: new TextField(
-    decoration: new InputDecoration(hintText: &quot;This is a hint&quot;),
-  )
-)
-</code></pre><h3 id="如何显示验证错误"><a href="#如何显示验证错误" class="headerlink" title="如何显示验证错误"></a>如何显示验证错误</h3><p>就像您如何使用“hint”一样，您可以将InputDecoration对象传递给Text的装饰构造函数。</p>
-<p>但是，您不希望首先显示错误，并且通常会在用户输入一些无效数据时显示该错误。这可以通过更新状态并传递一个新的InputDecoration对象来完成：</p>
-<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
-  String _errorText;
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(&quot;Sample App&quot;),
-      ),
-      body: new Center(
-        child: new TextField(
-          onSubmitted: (String text) {
-            setState(() {
-              if (!isEmail(text)) {
-                _errorText = &apos;Error: This is not an email&apos;;
-              } else {
-                _errorText = null;
-              }
-            });
-          },
-          decoration: new InputDecoration(hintText: &quot;This is a hint&quot;, errorText: _getErrorText()),
-        ),
-      ),
-    );
-  }
-
-  _getErrorText() {
-    return _errorText;
-  }
-
-  bool isEmail(String em) {
-    String emailRegexp =
-        r&apos;^(([^&lt;&gt;()[\]\\.,;:\s@\&quot;]+(\.[^&lt;&gt;()[\]\\.,;:\s@\&quot;]+)*)|(\&quot;.+\&quot;))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$&apos;;
-
-    RegExp regExp = new RegExp(p);
-
-    return regExp.hasMatch(em);
-  }
-}
-</code></pre><h2 id="Flutter-插件"><a href="#Flutter-插件" class="headerlink" title="Flutter 插件"></a>Flutter 插件</h2><p>如何使用 GPS sensor<br>要访问GPS传感器，您可以使用社区插件 <a href="https://pub.dartlang.org/packages/location" target="_blank" rel="noopener">https://pub.dartlang.org/packages/location</a></p>
-<p>如何访问相机<br>访问相机的流行社区插件是 <a href="https://pub.dartlang.org/packages/image_picker" target="_blank" rel="noopener">https://pub.dartlang.org/packages/image_picker</a></p>
-<p>如何使用Facebook登陆<br>要访问Facebook Connect功能，您可以使用 <a href="https://pub.dartlang.org/packages/flutter_facebook_connect" target="_blank" rel="noopener">https://pub.dartlang.org/packages/flutter_facebook_connect</a> .</p>
-<p>如何构建自定义集成Native功能<br>如果有Flutter或其社区插件缺失的平台特定功能，那么您可以自己按照以下教程构建<a href="https://flutterchina.club/developing-packages/" target="_blank" rel="noopener">https://flutterchina.club/developing-packages/</a><br>简而言之，Flutter的插件架构就像在Android中使用Event bus一样：您可以发出消息并让接收者进行处理并将结果返回给您，在这种情况下，接收者将是iOS或Android。</p>
-<p>如何在我的Flutter应用程序中使用NDK<br>自定义插件首先会与Android应用程序通信，您可以在其中调用native标记的函数。一旦Native完成了相应操作，就可以将响应消息发回给Flutter并呈现结果。</p>
-<h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><p>Flutter很好的实现了一个美丽的Material Design，它会满足很多样式和主题的需求。 与Android中使用XML声明主题不同，在Flutter中，您可以<strong>通过顶层widget声明主题</strong>。</p>
-<p>MaterialApp是一个方便的widget，它包装了许多Material Design应用通常需要的widget，它通过添加Material特定功能构建在WidgetsApp上。</p>
-<p>如果你不想使用Material Components，那么你可以声明一个顶级widget-WidgetsApp，它是一个便利的类，它包装了许多应用程序通常需要的widget。</p>
-<p>要自定义Material Components的颜色和样式，您可以将ThemeData对象传递到MaterialApp widget中，例如在下面的代码中，您可以看到主色板设置为蓝色，并且所有选择区域的文本颜色都应为红色。</p>
-<pre><code>class SampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: &apos;Sample App&apos;,
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-        textSelectionColor: Colors.red
-      ),
-      home: new SampleAppPage(),
-    );
-  }
-}
-</code></pre><p>Scaffold 是 Material library 中提供的一个widget, 它提供了默认的导航栏、标题和包含主屏幕widget树的body属性。widget树可以很复杂。</p>
-<h2 id="数据库和本地存储"><a href="#数据库和本地存储" class="headerlink" title="数据库和本地存储"></a>数据库和本地存储</h2><h3 id="如何在Flutter中访问Shared-Preferences"><a href="#如何在Flutter中访问Shared-Preferences" class="headerlink" title="如何在Flutter中访问Shared Preferences ?"></a>如何在Flutter中访问Shared Preferences ?</h3><p>在Flutter中，您可以通过使用插件Shared_Preferences来访问此功能</p>
-<p>这个插件包装了<a href="https://pub.dartlang.org/packages/shared_preferences" target="_blank" rel="noopener">Shared Preferences</a>和NSUserDefaults（与iOS相同）的功能</p>
-<pre><code>import &apos;package:flutter/material.dart&apos;;
-import &apos;package:shared_preferences/shared_preferences.dart&apos;;
-
-void main() {
-  runApp(
-    new MaterialApp(
-      home: new Scaffold(
-        body: new Center(
-          child: new RaisedButton(
-            onPressed: _incrementCounter,
-            child: new Text(&apos;Increment Counter&apos;),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-_incrementCounter() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int counter = (prefs.getInt(&apos;counter&apos;) ?? 0) + 1;
-  print(&apos;Pressed $counter times.&apos;);
-  prefs.setInt(&apos;counter&apos;, counter);
-}
-</code></pre><h3 id="如何在Flutter中访问SQLite"><a href="#如何在Flutter中访问SQLite" class="headerlink" title="如何在Flutter中访问SQLite"></a>如何在Flutter中访问SQLite</h3><p>在Android中，您可以使用SQLite存储，通过SQL查询的结构化数据。</p>
-<p>在Flutter中，您可以使用<a href="https://pub.dartlang.org/packages/sqflite" target="_blank" rel="noopener">SQFlite插件</a>来访问SQFlite此功能</p>
-<h2 id="通知"><a href="#通知" class="headerlink" title="通知"></a>通知</h2><p>在Android中，您可以使用Firebase云消息传递为您的应用设置推送通知。</p>
-<p>在Flutter中，您可以使用<a href="https://github.com/flutter/plugins/tree/master/packages/firebase_messaging" target="_blank" rel="noopener">Firebase_Messaging</a>插件访问此功能</p>
-<blockquote>
-<p>注意：在中国无法使用Firebase服务。</p>
-</blockquote>
-<h2 id="yaml"><a href="#yaml" class="headerlink" title="yaml"></a>yaml</h2><p>YAML是一个类似 XML的标记语言。YAML强调以数据为中心，并不是以标识语言为重点</p>
-<p>规范：</p>
-<ul>
-<li>大小写敏感</li>
-<li>缩进代表层级，使用空格，默认2个空格（flutter工具做了处理，tab也可以）</li>
-<li>#表示注释内容</li>
-<li>: 表示键值对，注意后面要空格</li>
-<li>{} 表示键值表</li>
-<li>表示列表，注意后面要空格</li>
-<li>[] 表示数组，注意每项之间有空格</li>
-<li><p>? 表示复杂的键</p>
-<pre><code># 依赖库
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^0.1.2
-
-flutter:
-  #使用Material图标
-  uses-material-design: true
-  #assets文件
-  assets:
-    - images/1.png
-    - images/2.gif
-  #字体样式
-  fonts:
-     #family与fonts是一个整体，列表的一项
-     - family: Schyler
-       fonts:
-         - asset: fonts/Schyler-Regular.ttf
-         - asset: fonts/Schyler-Italic.ttf
-           style: italic
-     - family: Trajan Pro
-       fonts:
-         - asset: fonts/TrajanPro.ttf
-         - asset: fonts/TrajanPro_Bold.ttf
-           weight: 700
-</code></pre></li>
-</ul>
-<p>-可转化为[]，:也可以转化为{}，转化后类似json</p>
-<pre><code>dependencies: {flutter: {sdk: flutter}, cupertino_icons: ^0.1.2}
-assets: [images/1.png, images/2.gif]
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/flutter-for-android" target="_blank" rel="noopener">Flutter for Android 开发者</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -6335,7 +5858,7 @@ assets: [images/1.png, images/2.gif]
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-count">35</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -6346,7 +5869,7 @@ assets: [images/1.png, images/2.gif]
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -6357,7 +5880,7 @@ assets: [images/1.png, images/2.gif]
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

@@ -69,7 +69,7 @@
 
 
 
-  <meta name="keywords" content="annotation,">
+  <meta name="keywords" content="HashMap,">
 
 
 
@@ -80,18 +80,18 @@
 
 
 
-<meta name="description" content="Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。 注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvoca">
-<meta name="keywords" content="annotation">
+<meta name="description" content="哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK7的HashMap源码进行分析。 什么是哈希表　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能 　　数组：采用一段连续">
+<meta name="keywords" content="HashMap">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java注解（Annotation）">
-<meta property="og:url" content="http://yoursite.com/2019/05/28/java-annotation/index.html">
+<meta property="og:title" content="HashMap实现原理">
+<meta property="og:url" content="http://yoursite.com/2019/10/16/ds-hashmap/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。 注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvoca">
+<meta property="og:description" content="哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK7的HashMap源码进行分析。 什么是哈希表　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能 　　数组：采用一段连续">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-05-28T10:35:15.673Z">
+<meta property="og:updated_time" content="2019-10-16T07:29:26.130Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java注解（Annotation）">
-<meta name="twitter:description" content="Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。 注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvoca">
+<meta name="twitter:title" content="HashMap实现原理">
+<meta name="twitter:description" content="哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK7的HashMap源码进行分析。 什么是哈希表　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能 　　数组：采用一段连续">
 
 
 
@@ -121,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/05/28/java-annotation/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/16/ds-hashmap/">
 
 
 
 
 
-  <title>Java注解（Annotation） | Blog</title>
+  <title>HashMap实现原理 | Blog</title>
   
 
 
@@ -297,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/28/java-annotation/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/ds-hashmap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -314,7 +314,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java注解（Annotation）</h1>
+          <h1 class="post-title" itemprop="name headline">HashMap实现原理</h1>
         
 
         <div class="post-meta">
@@ -326,8 +326,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-28T18:11:29+08:00">
-                2019-05-28
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T15:26:44+08:00">
+                2019-10-16
               </time>
             
 
@@ -349,8 +349,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">Java知识点</span>
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
                   </a>
                 </span>
 
@@ -386,27 +386,16 @@
       
 
       
-        <p>Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。</p>
-<p>注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。</p>
-<h3 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h3><p>java.lang.annotation 提供了四种元注解，专门注解其他的注解（在自定义注解的时候，需要使用到元注解）：<br>   @Documented – 注解是否将包含在JavaDoc中<br>   @Retention – 什么时候使用该注解<br>   @Target – 注解用于什么地方<br>   @Inherited – 是否允许子类继承该注解</p>
-<p>  1.）@Retention – 定义该注解的生命周期<br>  ●   RetentionPolicy.SOURCE : 在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。@Override, @SuppressWarnings都属于这类注解。<br>  ●   RetentionPolicy.CLASS : 在类加载的时候丢弃。在字节码文件的处理中有用。注解默认使用这种方式<br>  ●   RetentionPolicy.RUNTIME : 始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。我们自定义的注解通常使用这种方式。</p>
-<p>  2.）Target – 表示该注解用于什么地方。默认值为任何元素，表示该注解用于什么地方。可用的ElementType 参数包括<br>  ● ElementType.CONSTRUCTOR: 用于描述构造器<br>  ● ElementType.FIELD: 成员变量、对象、属性（包括enum实例）<br>  ● ElementType.LOCAL_VARIABLE: 用于描述局部变量<br>  ● ElementType.METHOD: 用于描述方法<br>  ● ElementType.PACKAGE: 用于描述包<br>  ● ElementType.PARAMETER: 用于描述参数<br>  ● ElementType.TYPE: 用于描述类、接口(包括注解类型) 或enum声明</p>
-<p> 3.)@Documented – 一个简单的Annotations 标记注解，没有成员，表示是否将注解信息添加在java 文档中。</p>
-<p> 4.)@Inherited – 定义该注释和子类的关系<br>   @Inherited 元注解是一个标记注解，@Inherited 阐述了某个被标注的类型是被继承的。如果一个使用了@Inherited 修饰的annotation 类型被用于一个class，则这个annotation 将被用于该class 的子类。<br>   注意：Inherited annotation类型是被标注过的class的子类所继承。类并不从它所实现的接口继承annotation，方法并不从它所重载的方法继承annotation。<br>   当Inherited annotation类型标注的annotation的Retention是RetentionPolicy.RUNTIME，则反射API增强了这种继承性。如果我们使用java.lang.reflect去查询一个Inherited annotation类型的annotation时，反射代码检查将展开工作：检查class和其父类，直到发现指定的annotation类型被发现，或者到达类继承结构的顶层。</p>
-<h3 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h3><p>自定义注解类编写的一些规则:</p>
-<ol>
-<li>Annotation 型定义为@interface, 所有的Annotation 会自动继承java.lang.Annotation这一接口,并且不能再去继承别的类或是接口.</li>
-<li>参数成员只能用public 或默认(default) 这两个访问权修饰</li>
-<li>参数成员只能用基本类型byte、short、char、int、long、float、double、boolean八种基本数据类型和String、Enum、Class、annotations等数据类型，以及这一些类型的数组.</li>
-<li>要获取类方法和字段的注解信息，必须通过Java的反射技术来获取 Annotation 对象，因为你除此之外没有别的获取注解对象的方法</li>
-<li>注解也可以没有定义成员,，不过这样注解就没啥用了<br>PS:自定义注解需要使用到元注解</li>
-</ol>
-<h3 id="注解实现"><a href="#注解实现" class="headerlink" title="注解实现"></a>注解实现</h3><p>创建注解处理器，利用反射对注解加以处理。AnnotatedElement 接口是所有程序元素（Class、Method和Constructor）的父接口。所以程序通过反射获取了某个类的AnnotatedElement对象之后，程序就可以调用该对象的如下四个个方法来访问Annotation信息：</p>
-<p>方法1：<t extends annotation> T getAnnotation(Class<t> annotationClass):返回改程序元素上存在的、指定类型的注解，如果该类型注解不存在，则返回null。</t></t></p>
-<p>方法2：Annotation[] getAnnotations():返回该程序元素上存在的所有注解。</p>
-<p>方法3：boolean is AnnotationPresent(Class annotationClass):判断该程序元素上是否包含指定类型的注解，存在则返回true，否则返回false.</p>
-<p>方法4：Annotation[] getDeclaredAnnotations()：返回直接存在于此元素上的所有注释。与此接口中的其他方法不同，该方法将忽略继承的注释。（如果没有注释直接存在于此元素上，则返回长度为零的一个数组。）该方法的调用者可以随意修改返回的数组；这不会对其他调用者返回的数组产生任何影响。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/lylwo317/article/details/52163304" target="_blank" rel="noopener">Java注解（Annotation）原理详解</a><br><a href="https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html" target="_blank" rel="noopener">https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html</a></p>
+        <p>哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK7的HashMap源码进行分析。</p>
+<h2 id="什么是哈希表"><a href="#什么是哈希表" class="headerlink" title="什么是哈希表"></a>什么是哈希表</h2><p>　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能</p>
+<p>　　数组：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)</p>
+<p>　　线性链表：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历链表逐一进行比对，复杂度为O(n)</p>
+<p>　　二叉树：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。</p>
+<p>　　哈希表：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)，接下来我们就来看看哈希表是如何实现达到惊艳的常数阶O(1)的。</p>
+<p>　　我们知道，数据结构的物理存储结构只有两种：顺序存储结构和链式存储结构（像栈，队列，树，图等是从逻辑结构去抽象的，映射到内存中，也这两种物理组织形式），而在上面我们提到过，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，哈希表的主干就是数组。</p>
+<p>　　比如我们要新增或查找某个元素，我们通过把当前元素的关键字 通过某个函数映射到数组中的某个位置，通过数组下标一次定位就可完成操作。</p>
+<p>　　　　　　　　存储位置 = f(关键字)</p>
+<p>　　其中，这个函数f一般称为哈希函数，这个函数的设计好坏会直接影响到哈希表的优劣。举个例子，比如我们要在哈希表中执行插入操作：</p>
 
       
     </div>
@@ -424,7 +413,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/annotation/" rel="tag"># annotation</a>
+            <a href="/tags/HashMap/" rel="tag"># HashMap</a>
           
         </div>
       
@@ -437,8 +426,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/05/10/android-dex/" rel="next" title="类加载器ClassLoader及Dex/Class">
-                <i class="fa fa-chevron-left"></i> 类加载器ClassLoader及Dex/Class
+              <a href="/2019/09/26/android-webview/" rel="next" title="Android WebView 性能优化">
+                <i class="fa fa-chevron-left"></i> Android WebView 性能优化
               </a>
             
           </div>
@@ -446,10 +435,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/29/java-constant-pool/" rel="prev" title="Java常量池">
-                Java常量池 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -583,7 +568,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#元注解"><span class="nav-number">1.</span> <span class="nav-text">元注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义注解"><span class="nav-number">2.</span> <span class="nav-text">自定义注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解实现"><span class="nav-number">3.</span> <span class="nav-text">注解实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是哈希表"><span class="nav-number">1.</span> <span class="nav-text">什么是哈希表</span></a></li></ol></div>
             
 
           </div>
