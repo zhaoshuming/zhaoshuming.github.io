@@ -80,13 +80,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog">
-<meta property="og:url" content="http://yoursite.com/archives/2019/10/index.html">
+<meta name="description" content="Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。） 单例模式有以下特点：1、单例类只能有一个实例。2、单例类必须自己创建自己的唯一实例。3、单例类必须给">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单例模式">
+<meta property="og:url" content="http://yoursite.com/2019/10/17/design-mode-singleton/index.html">
 <meta property="og:site_name" content="Blog">
+<meta property="og:description" content="Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。） 单例模式有以下特点：1、单例类只能有一个实例。2、单例类必须自己创建自己的唯一实例。3、单例类必须给">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-17T09:16:49.953Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Blog">
+<meta name="twitter:title" content="单例模式">
+<meta name="twitter:description" content="Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。） 单例模式有以下特点：1、单例类只能有一个实例。2、单例类必须自己创建自己的唯一实例。3、单例类必须给">
 
 
 
@@ -116,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2019/10/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/17/design-mode-singleton/">
 
 
 
 
 
-  <title>归档 | Blog</title>
+  <title>单例模式 | Blog</title>
   
 
 
@@ -141,7 +145,7 @@
     
   
 
-  <div class="container sidebar-position-right page-archive">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 	
 
@@ -278,141 +282,159 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        OK! 目前共计 37 篇日志。 继续努力。
-      </span>
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-singleton/">
 
-      
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
 
         
         
+          <h1 class="post-title" itemprop="name headline">单例模式</h1>
         
 
-        
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T16:17:38+08:00">
+                2019-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
 
-        
+          
+            
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/17/design-mode-singleton/" itemprop="url">
-              
-                <span itemprop="name">单例模式</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-17T16:17:38+08:00" content="2019-10-17">
-          10-17
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+          
 
+        </div>
+      </header>
+    
 
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/17/design-mode-principle/" itemprop="url">
-              
-                <span itemprop="name">面向对象6大原则</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-17T15:51:03+08:00" content="2019-10-17">
-          10-17
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/16/ds-hashmap/" itemprop="url">
-              
-                <span itemprop="name">HashMap实现原理</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-16T15:26:44+08:00" content="2019-10-16">
-          10-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+      
+        <p>Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。）</p>
+<p>单例模式有以下特点：<br>1、单例类只能有一个实例。<br>2、单例类必须自己创建自己的唯一实例。<br>3、单例类必须给所有其他对象提供这一实例。</p>
+<p>以下列出单例模式的几种写法及单例模式的漏洞解决方案：</p>
+<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><p>类初始化时创建对象，不管需不需要实例对象，都会创建。不存在线程安全问题，因为实例是在类创建和初始化时创建，是由类加载器完成的，类加载器是线程安全的。</p>
+<p>缺点，无法延时加载,没有使用就已经加载了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static final Singleton mInstance = new Singleton();</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>优化了恶汉式无法延迟加载的问题。<br>缺点：存在同步问题，多线程并发的时候会失效，getInstance不同步。比如：一个线程在创建mInstance时，还未创建完成，另一个线程访问mInstance此时还是为空，又创建了一次。</p>
+<p>对懒汉式的优化，主要是在线程安全方面，使用synchronized关键字或同步代码块修饰，使得同时只能有一个线程访问。但存在性能缺陷的，因为使用了synchronized关键字。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static Singleton mInstance;</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123;</span><br><span class="line">            mInstance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="DCL双重检查锁"><a href="#DCL双重检查锁" class="headerlink" title="DCL双重检查锁"></a>DCL双重检查锁</h2><p>DCL双重检查锁，是对第三种方法性能缺陷的优化。</p>
+<p>DCL双重检查锁仅在真正创建mInstance实例的时候加上了synchronized关键字。而且使用volatile关键字修饰，是为了禁止编译器对volatile变量重排序，并且保证volatile变量的读操作发生在写操作之后。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static volatile Singleton mInstance =null; //volatile关键字是为了禁止编译器对 volatile关键字修饰的变量进行重排序，并保证volatile变量的读操作发生在写操作之后</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123; //第一次检查</span><br><span class="line">            synchronized (Singleton.class)&#123; //同步代码块</span><br><span class="line">                if(mInstance == null)&#123; //第二次检查</span><br><span class="line">                    mInstance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h2><p>利用static final关键字的同步机制，初始化后就无法修改保证了线程安全。使用静态内部类的方式保证了延迟加载，不使用不会被加载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123; //完成了懒汉式的延迟加载，同时static保证了线程安全。</span><br><span class="line"> </span><br><span class="line">    private  Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getIntance()&#123;</span><br><span class="line">        return SingletonHolder.mIntance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    private static class SingletonHolder&#123; //私有的，初始化的时候，没有调用getIntance方法则不会加载</span><br><span class="line">        private static final Singleton mIntance = new Singleton();  //static,final是jvm提供的同步机制，初始化后就无法修改了</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="枚举（推荐用法）"><a href="#枚举（推荐用法）" class="headerlink" title="枚举（推荐用法）"></a>枚举（推荐用法）</h2><p>1.简洁<br>2.线程安全<br>3.可以防止反射注入,反序列化它也不会重新生成新的实例</p>
+<p>所有的枚举类型隐性地继承自java.lang.Enum 。枚举实质上还是类！而每个枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final 修饰的。可以直接通过枚举类型名使用它们。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line"></span><br><span class="line">  INSTANCE;</span><br><span class="line"></span><br><span class="line">  public void doSomething()&#123;</span><br><span class="line">     System.out.println(&quot;do sth.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="单例模式存在的漏洞"><a href="#单例模式存在的漏洞" class="headerlink" title="单例模式存在的漏洞"></a>单例模式存在的漏洞</h2><p>1、 通过反射获取单例对象</p>
+<p>我们观察反射获取单例的代码，发现它还是调用了私有的构造方法获取对象【声明为私有的构造方法就是为了不让类外直接new对象】。如果只让私有的构造器只能调用一次就可以避免反射。</p>
+<p>2、 反序列化获得单例模式对象</p>
+<p>传统的单例模式的另外一个问题是一旦你实现了serializable接口，他们就不再是单例的了，因为readObject()方法总是返回一个 新的实例对象，就像java中的构造器一样。如果定义了readResolve()则直接返回此方法指定的对象，而不需要再创建新的对象！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 序列化必须实现Serializable接口，否则序列化时会报错</span><br><span class="line"> */</span><br><span class="line">public class Singleton implements Serializable&#123;</span><br><span class="line">     </span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"> </span><br><span class="line">    private static Singleton sl;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    private Singleton() &#123;</span><br><span class="line">        //如果sl不为空即这不是第一次调用该构造器</span><br><span class="line">        if(sl != null)</span><br><span class="line">            throw new RuntimeException();</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    public static Singleton getInstance() &#123;</span><br><span class="line">        if(sl == null) &#123;</span><br><span class="line">            sl = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return sl;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    /**</span><br><span class="line">     * 反序列化时，如果定义了readResolve()则直接返回此方法指定的对象，而不需要在创建新的对象！</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    private Object readResolve() &#123; </span><br><span class="line">        return getInstance(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d9d9dcf23359" target="_blank" rel="noopener">为什么说枚举是最好的Java单例实现方法？</a></p>
 
       
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/17/design-mode-principle/" rel="next" title="面向对象6大原则">
+                <i class="fa fa-chevron-left"></i> 面向对象6大原则
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -420,6 +442,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -440,8 +466,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -503,6 +538,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#饿汉式"><span class="nav-number">1.</span> <span class="nav-text">饿汉式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#懒汉式"><span class="nav-number">2.</span> <span class="nav-text">懒汉式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DCL双重检查锁"><span class="nav-number">3.</span> <span class="nav-text">DCL双重检查锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态内部类"><span class="nav-number">4.</span> <span class="nav-text">静态内部类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#枚举（推荐用法）"><span class="nav-number">5.</span> <span class="nav-text">枚举（推荐用法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单例模式存在的漏洞"><span class="nav-number">6.</span> <span class="nav-text">单例模式存在的漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -654,6 +705,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

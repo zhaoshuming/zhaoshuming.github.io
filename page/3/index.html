@@ -293,6 +293,332 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/28/architecture-design-flow/" itemprop="url">架构设计流程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-28T17:55:33+08:00">
+                2019-04-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="如何识别复杂度"><a href="#如何识别复杂度" class="headerlink" title="如何识别复杂度"></a>如何识别复杂度</h3><p>架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是：</p>
+<p>（1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。</p>
+<p>（2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？</p>
+<p>“高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从用户的主观感受方面去考虑。</p>
+<p>“可用性”主要从服务不中断等质量属性，符合行业政策、国家法规等方面去考虑。</p>
+<p>“扩展性”则主要从功能需求的未来变更幅度等方面去考虑。</p>
+<p>（3）按照上述的分析结论，得到复杂度按照优先级的排序清单，越是排在前面的复杂度，就越关键，就越优先解决。</p>
+<p>需要特别注意的是：随着所处的业务阶段不同、外部的技术条件和环境的不同，得到的复杂度问题的优先级排序就会有所不同。一切皆变化。</p>
+<h3 id="备选方案设计"><a href="#备选方案设计" class="headerlink" title="备选方案设计"></a>备选方案设计</h3><p>经过架构设计流程第 1 步——识别复杂度，确定了系统面临的主要复杂度问题，进而明确了设计方案的目标，就可以开展架构设计流程第 2 步——设计备选方案。架构设计备选方案的工作更多的是从需求、团队、技术、资源等综合情况出发，对主流、成熟的架构模式进行选择、组合、调整、创新。</p>
+<p>1.几种常见的架构设计误区</p>
+<p>（1）设计最优秀的方案。不要面向“简历”进行架构设计，而是要根据“合适”、“简单”、“演进”的架构设计原则，决策出与需求、团队、技术能力相匹配的合适方案。</p>
+<p>（2）只做一个方案。一个方案容易陷入思考问题片面、自我坚持的认知陷阱。</p>
+<p>2.备选方案设计的注意事项</p>
+<p>（1）备选方案不要过于详细。备选阶段解决的是技术选型问题，而不是技术细节。</p>
+<p>（2）备选方案的数量以 3~5个为最佳。</p>
+<p>（3）备选方案的技术差异要明显。</p>
+<p>（4）备选方案不要只局限于已经熟悉的技术。</p>
+<p>3.问题思考</p>
+<p>可以从开源、自研的角度提出架构设计方案</p>
+<p>如果是创业公司的业务早、中期阶段，可直接考虑采用阿里云/腾讯云，性能、HA、伸缩性都有保证。</p>
+<p>最大的感悟是：做事情永远都要有B方案。</p>
+<h3 id="评估和选择备选方案"><a href="#评估和选择备选方案" class="headerlink" title="评估和选择备选方案"></a>评估和选择备选方案</h3><p>1 评估和选择备选方案的方法<br><strong>列出我们需要关注的质量属性点，然后分别从这些质量属性的维度去评估每个方案，再综合挑选适合当时情况的最优方案。</strong>常见的质量属性点有：性能、可用性、硬件成本、项目投入、复杂度、安全性、可扩展性。<br>按优先级选择，即架构师综合当前的业务发展情况、团队人员规模和技能、业务发展预测等因素，将质量属性按照优先级排序，首先挑选满足第一优先级的，如果方案都满足，那就再看第二优先级……以此类推。</p>
+<p>2 RocketMQ 和 Kafka 有什么区别？</p>
+<p>（1） 适用场景<br>Kafka适合日志处理；RocketMQ适合业务处理。</p>
+<p>（2） 性能<br>Kafka单机写入TPS号称在百万条/秒；RocketMQ大约在10万条/秒。Kafka单机性能更高。</p>
+<p>（3） 可靠性<br>RocketMQ支持异步/同步刷盘;异步/同步Replication；Kafka使用异步刷盘方式，异步Replication。RocketMQ所支持的同步方式提升了数据的可靠性。</p>
+<p>（4） 实时性<br>均支持pull长轮询，RocketMQ消息实时性更好</p>
+<p>（5） 支持的队列数<br>Kafka单机超过64个队列/分区，消息发送性能降低严重；RocketMQ单机支持最高5万个队列，性能稳定（这也是适合业务处理的原因之一）</p>
+<p>3 为什么阿里会自研RocketMQ？</p>
+<p>（1） Kafka的业务应用场景主要定位于日志传输；对于复杂业务支持不够<br>（2） 阿里很多业务场景对数据可靠性、数据实时性、消息队列的个数等方面的要求很高<br>（3）当业务成长到一定规模，采用开源方案的技术成本会变高（开源方案无法满足业务的需要；旧版本、自开发代码与新版本的兼容等）<br>（4） 阿里在团队、成本、资源投入等方面约束性条件几乎没有</p>
+<h3 id="详细设计方案"><a href="#详细设计方案" class="headerlink" title="详细设计方案"></a>详细设计方案</h3><p>完成备选方案的设计和选择后，接下来需要将确定的备选方案细化，使得备选方案变成一个可以落地的设计方案。</p>
+<p>1）架构师不但要进行备选方案的设计和选型，还需要对备选方案的关键细节有较深入的理解。<br>2）通过分步骤、分阶段、分系统等方式，尽量减低方案复杂度，方案本身的复杂度越高，某个细节推翻整个方案的可能性就越大，适当降低复杂度，可以降低这种风险。<br>3）如果方案本身就很复杂，那就采取设计团队的方式来进行设计，博采众长，防止可能出现的盲点或经验误区。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/26/flutter-package-size/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/26/flutter-package-size/" itemprop="url">Flutter APP体积为何比较大</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-26T11:11:39+08:00">
+                2019-04-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>flutter构建的App体积比native的大一些，是什么原因造成App体积大呢？</p>
+<p>其实flutter 在release时App体积和native的大小差不多，而debug时体积通常会大。debug版本体积较大是为了Hot reload和快速编译。如果有flutter开发经验的朋友都体验过，如果您修改一下App的背景颜色，只需save一下就可以立刻看到修改后效果。我称之为“像艺术家一样在创造App”，因此为了实现这些目标，提高开发的效率，debug将占用全部资源。而当我们构建release版时，flutter又会采用AOT策略，提高App运行效率，release版只打包必需的资源，因而体积又会减少。</p>
+<p>另外，flutter团队也一直在寻找减小程序大小的方法。</p>
+<p>现在开发 App 的方式非常多，原生、ReactNative、Flutter 都是不错的选择。那你有没有关注过，使用不同的方式，编译生成的 Apk ，大小是否会有什么影响呢？本文就以一个最简单的 Hello World App，来看看不同的框架，编译出来的 Apk 大小，有什么区别。</p>
+<h3 id="Java（539-KB）"><a href="#Java（539-KB）" class="headerlink" title="Java（539 KB）"></a>Java（539 KB）</h3><p>首先使用 Java 来开始这次实验，使用 Java 开发 Android 算是最常规也是最简单的一种方式。正如前面描述的那样，由于我们仅仅使用了 Java 和 Android 框架来创建这个应用程序，所以它将是最小的，唯一的依赖是 Android 支持库，它占用了整个 Apk 内相当多的空间。</p>
+<h3 id="Flutter（7-5MB）"><a href="#Flutter（7-5MB）" class="headerlink" title="Flutter（7.5MB）"></a>Flutter（7.5MB）</h3><p>由 Flutter 的 cli 生成的 Release 版本的应用程序中，包含 C / C ++ 引擎和 Dart VM，它们构成了 Apk 的几乎所有部分。该应用程序直接使用本机指令集运行，不涉及任何解释器。<br><img src="/2019/04/26/flutter-package-size/flutter_app_size.jpg" alt><br>本文里介绍的几种编写 App 的方法，都存在优缺点，在实际工作中，应该根据需求选择适合的方式。你还可以混合搭配这些框架，仅仅用它们的优点来开发 App 的部分功能。</p>
+<h3 id="React-Native（7MB）"><a href="#React-Native（7MB）" class="headerlink" title="React Native（7MB）"></a>React Native（7MB）</h3><p>如果你有前端（Web）的开发经验，并希望使用 JavaScript 来开发 App，那么 React Native 是一个不错的选择。</p>
+<p>如果你希望在已发布的 App 上，进行更快的功能迭代，使用 React Native 也可以让你不必为每个小改动都发布应用市场。</p>
+<p>由 React Native 生成的 Release apk 在 classes.dex 文件中有几个类，这些类有 12193 个针对此应用程序的引用方法。<br>它还在 x86 和 armeabi-v7a 的 lib 目录中添加了一些 so 库。总共添加了大约 6.4 MB 的空间。</p>
+<hr>
+<p>ReactNative 和 Flutter 因为其内部还需要包含一些解析器和引擎，本身就会有一些基础库在其内，所以变大也是符合预期的。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.jianshu.com/p/0e223b472f41" target="_blank" rel="noopener">https://www.jianshu.com/p/0e223b472f41</a><br><a href="https://www.cnblogs.com/plokmju/p/release_apk.html" target="_blank" rel="noopener">https://www.cnblogs.com/plokmju/p/release_apk.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/25/architecture-basics/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2772,481 +3098,6 @@ public interface HomeActivityComponent {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/12/mpchart-point-label/" itemprop="url">MpAndroidChart实现多点的特殊标记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-12T18:36:14+08:00">
-                2019-03-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android-ui/" itemprop="url" rel="index">
-                    <span itemprop="name">android ui</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）：</p>
-<p><img src="/2019/03/12/mpchart-point-label/chart_label.png" alt><br>在网上并没有相关资料，在此做下记录分享</p>
-<p>下面上代码:</p>
-<p>首先创建一个类继承LineChart,重写init()方法：</p>
-<pre><code>@Override
-protected void init() {
-    super.init();
-    //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配
-    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-    DisplayMetrics metrics = new DisplayMetrics();
-    wm.getDefaultDisplay().getMetrics(metrics);
-    mRenderer = new HbFundLineChartRenderer(this, mAnimator, mViewPortHandler, metrics.widthPixels);
-}
-</code></pre><p>接下来是主要内容,也就是自己实现的LineChartRenderer即渲染器,用来画点、线等.<br>首先是一些变量,分别是标记控件的宽高边距等,这里写的是一些根据我们需求来的默认值：</p>
-<pre><code>private int mWidth;//屏幕宽度,在构造方法中传进来赋值
-private float hViewLength = Utils.convertDpToPixel(30f);//vie宽30dp
-private float vViewLength = Utils.convertDpToPixel(20f);//view高20dp
-private float viewRect= Utils.convertDpToPixel(4f);//矩形高低差
-</code></pre><p>然后,在LineChartRenderer中有一个drawValues,它是主要负责根据值来画点的,我们要做的就是在super()之后加上我们自己的东西：</p>
-<pre><code>@Override
-public void drawValues(Canvas c) {
-    super.drawValues(c);
-    if (isShowLabel) {
-        LineDataSet dataSetByIndex = (LineDataSet) mChart.getLineData().getDataSetByIndex(0);
-        Transformer trans = mChart.getTransformer(dataSetByIndex.getAxisDependency());
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿画笔
-        paint.setTextSize(Utils.convertDpToPixel(textSixe));//设置字体大小
-
-        //画首中尾三个label
-        float[] firstFloat = getFloat(dataSetByIndex.getValues(), 0);//根据数据集获取点
-        drawPointLabel(trans, paint, c, firstFloat);
-        float[] middleFloat = getFloat(dataSetByIndex.getValues(), (dataSetByIndex.getValues().size() - 1) / 2);
-        drawPointLabel(trans, paint, c, middleFloat);
-        float[] endFloat = getFloat(dataSetByIndex.getValues(), dataSetByIndex.getValues().size() - 1);
-        drawPointLabel(trans, paint, c, endFloat);
-    }
-}
-</code></pre><p>首先获取点的数据集,然后得到Transformer,它可以根据点数据集里的某一点来得到这个点在屏幕中的位置<br>然后分别传入transformer、画笔、画布对象、点,进行绘制：</p>
-<pre><code>private void drawPointLabel(Transformer trans, Paint paint, Canvas c, float[] floatPosition) {
-    MPPointD maxPoint = trans.getPixelForValues(floatPosition[0], floatPosition[1]);
-    float highX = (float) maxPoint.x;
-    float highY = (float) maxPoint.y;
-    TextView view = (TextView) LayoutInflater.from(mContext).inflate(R.layout.mark_view, null, false);
-    if (highX &gt; mWidth - mWidth / 4) {//标识朝左
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_r);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength), (int) (highY - vViewLength - viewRect), paint);
-    } else if (highX &lt; mWidth / 4) {//标识朝右
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_l);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX), (int) (highY - vViewLength - viewRect), paint);
-    } else {//标识居中
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_c);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength / 2), (int) (highY - vViewLength - viewRect), paint);
-    }
-}
-</code></pre><p>此处，我们随意定义几个点，可以根据实际需求进行设置：</p>
-<pre><code>private float[] getFloat(List&lt;Entry&gt; lists, int index) {
-    float[] maxEntry = new float[2];
-    maxEntry[0] = lists.get(index).getX();
-    maxEntry[1] = lists.get(index).getY();
-    return maxEntry;
-}
-</code></pre><p>view转bitmap方法如下：</p>
-<pre><code>private Bitmap createBitmap(View v, int width, int height) {
-    //测量使得view指定大小
-    int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
-    int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
-    v.measure(measuredWidth, measuredHeight);
-    //调用layout方法布局后，可以得到view的尺寸大小
-    v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-    Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-    Canvas c = new Canvas(bmp);
-    v.draw(c);
-    return bmp;
-}
-</code></pre><p>最后附上<a href="https://github.com/zhaoshuming/TestAcharView" target="_blank" rel="noopener">代码（内部测试demo，多余功能请忽略）</a></p>
-<p>参考资料：<br><a href="https://www.jianshu.com/p/1877b8c2fc6c" target="_blank" rel="noopener">https://www.jianshu.com/p/1877b8c2fc6c</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/java-reentrantlock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/07/java-reentrantlock/" itemprop="url">Java Lock</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-07T09:59:25+08:00">
-                2019-03-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/同步/" itemprop="url" rel="index">
-                    <span itemprop="name">同步</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
-<p>如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：</p>
-<blockquote>
-<p>1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有<br>2）线程执行发生异常，此时JVM会让线程自动释放锁<br>3）这个主要是在等待唤醒机制里面的wait()方法，在等待的时候立即释放锁，方便其他的线程使用锁。</p>
-</blockquote>
-<p>那么如果这个获取锁的线程由于要等待IO或者其他原因（比如调用sleep方法）被阻塞了，但是又没有释放锁，其他线程便只能干巴巴地等待，试想一下，这多么影响程序执行效率。因此<strong>我们需要不论程序的代码块执行的如何最终都将锁对象进行释放，方便其他线程的执行</strong>。</p>
-<p>虽然我们可以理解同步代码块和同步方法的锁对象问题，但是我们并没有直接看到在哪里加上了锁，在哪里释放了锁，同时为了更好地释放锁。为了更清晰的表达如何加锁和释放锁,JDK5以后提供了一个新的锁对象Lock。另外，通过Lock可以知道线程有没有成功获取到锁。这个是synchronized无法办到的。</p>
-<p>总结一下，也就是说Lock提供了比synchronized更多的功能。但是要注意以下几点：</p>
-<blockquote>
-<p>1）<strong>Lock不是Java语言内置的</strong>，synchronized是Java语言的关键字，因此是内置特性。<br>2）synchronized是在JVM层面上实现的，不但可以通过一些监控工具监控synchronized的锁定，而且在代码执行时出现异常，JVM会自动释放锁定，但是使用Lock则不行，<strong>lock是通过代码实现的，必须要手动释放锁</strong><br>3）在资源竞争不是很激烈的情况下，Synchronized的性能要优于ReetrantLock，但是在<strong>资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态</strong><br>4）<strong>Lock可以让等待锁的线程响应中断</strong>，而synchronized却不行，使用synchronized时，等待的线程会一直等待下去，不能够响应中断；<br>5）通过<strong>Lock可以知道有没有成功获取锁</strong>，而synchronized却无法办到。<br>6）Lock可以<strong>提高多个线程进行读操作的效率</strong>。</p>
-</blockquote>
-<h2 id="locks包结构"><a href="#locks包结构" class="headerlink" title="locks包结构"></a>locks包结构</h2><p>java.util.concurrent.locks包为锁和等待条件提供一个框架的接口和类，结构如下图所示：</p>
-<p><img src="/2019/03/07/java-reentrantlock/lock.png" alt></p>
-<ol>
-<li><p>Lock和ReadWriteLock是两大锁根接口，Lock代表实现类是ReentrantLock（可重入锁），ReadWriteLock（读写锁）的代表实现类是ReentrantReadWriteLock。<br>Lock 接口支持那些语义不同（重入、公平等）的锁规则，可以在非阻塞式结构的上下文（包括 hand-over-hand 和锁重排算法）中使用这些规则。主要的实现是 ReentrantLock。<br>ReadWriteLock 接口以类似方式定义了一些读取者可以共享而写入者独占的锁。此包只提供了一个实现，即 ReentrantReadWriteLock，因为它适用于大部分的标准用法上下文。但程序员可以创建自己的、适用于非标准要求的实现。</p>
-</li>
-<li><p><strong>Condition 接口描述了可能会与锁有关联的条件变量</strong>。这些变量在用法上与使用 Object.wait 访问的隐式监视器类似，但提供了更强大的功能。需要特别指出的是，单个 Lock 可能与多个 Condition 对象关联。为了避免兼容性问题，Condition 方法的名称与对应的 Object 版本中的不同。</p>
-</li>
-</ol>
-<h2 id="Lock的使用"><a href="#Lock的使用" class="headerlink" title="Lock的使用"></a>Lock的使用</h2><p>下面我们就来探讨一下java.util.concurrent.locks包中常用的类和接口。通过查看Lock的源码可知，Lock是一个接口：</p>
-<pre><code>public interface Lock {
-    void lock();
-    void lockInterruptibly() throws InterruptedException;
-    boolean tryLock();
-    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
-    void unlock();
-    Condition newCondition();
-}
-</code></pre><p>由于在前面讲到如果采用Lock，必须主动去释放锁，并且在发生异常时，不会自动释放锁。因此一般来说，使用Lock必须在try{}catch{}块中进行，并且将释放锁的操作放在finally块中进行，以保证锁一定被被释放，防止死锁的发生。通常使用Lock来进行同步的话，是以下面这种形式去使用的：</p>
-<pre><code>Lock lock = ...;
-lock.lock();
-try{
-    //处理任务
-}catch(Exception ex){
-
-}finally{
-    lock.unlock();   //释放锁
-}
-</code></pre><p>tryLock()方法是有返回值的，它表示用<strong>来尝试获取锁，如果获取成功，则返回true，如果获取失败（即锁已被其他线程获取），则返回false</strong>，也就说这个方法无论如何都会立即返回。在拿不到锁时不会一直在那等待。<br>tryLock(long time, TimeUnit unit)方法和tryLock()方法是类似的，只不过区别在于这个方法在拿不到锁时会等待一定的时间，在时间期限之内如果还拿不到锁，就返回false。如果如果一开始拿到锁或者在等待期间内拿到了锁，则返回true。</p>
-<pre><code>Lock lock = ...;
-if(lock.tryLock()) {
-     try{
-         //处理任务
-     }catch(Exception ex){
-
-     }finally{
-         lock.unlock();   //释放锁
-     } 
-}else {
-    //如果不能获取锁，则直接做其他事情
-}
-</code></pre><p>lockInterruptibly()方法比较特殊，当通过这个方法去<strong>获取锁时，如果线程正在等待获取锁，则这个线程能够响应中断，即中断线程的等待状态</strong>。也就使说，当两个线程同时通过lock.lockInterruptibly()想获取某个锁时，假若此时线程A获取到了锁，而线程B只有在等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程。<br>由于lockInterruptibly()的声明中抛出了异常，所以lock.lockInterruptibly()必须放在try块中或者在调用lockInterruptibly()的方法外声明抛出InterruptedException。因此lockInterruptibly()一般的使用形式如下：</p>
-<pre><code>public void method() throws InterruptedException {
-    lock.lockInterruptibly();
-    try {  
-     //.....
-    }catch (InterruptedException e){  
-
-    }
-    finally {
-        lock.unlock();
-    }  
-}
-</code></pre><p>注意，当一个线程获取了锁之后，是不会被interrupt()方法中断的。调用interrupt()方法不能中断正在运行过程中的线程，<strong>只能中断阻塞过程中的线程</strong>。<br>因此当通过lockInterruptibly()方法获取某个锁时，如果不能获取到，只有在进行等待的情况下，是可以响应中断的。而用synchronized修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一直等待下去。</p>
-<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。</p>
-<p>ReentrantLock的类图如下：<br><img src="/2019/03/07/java-reentrantlock/reentrantlock.png" alt><br>ReentrantLock的内部类Sync继承了AQS(AQS根本上是通过一个双向队列来实现的;线程构造成一个节点，一个线程先尝试获得锁，如果获取锁失败，就将该线程加到队列尾部)，<strong>分为公平锁FairSync和非公平锁NonfairSync</strong>。公平锁的获取，也就是等待时间最长的线程最优先获取锁，也可以说锁获取是顺序的。ReentrantLock的公平与否，可以通过它的构造函数来决定。</p>
-<p>在获取锁的tryAcquire（）方法中，非公平锁与公平锁唯一不同是多了以下判断hasQueuedPredecessors()。该方法主要是对同步队列中当前节点是否有前驱节点进行判断，如果该方法返回true，则表示有线程比当前线程更早地请求获取锁，因此需要等待前驱线程获取并释放锁之后才能继续获取锁。方法如下：</p>
-<pre><code>public final boolean hasQueuedPredecessors() {
-    // The correctness of this depends on head being initialized
-    // before tail and on head.next being accurate if the current
-    // thread is first in queue.
-    // 同步队列尾节点
-    Node t = tail; // Read fields in reverse initialization order
-    // 同步队列头节点
-    Node h = head;
-    Node s;
-    return h != t &amp;&amp;
-        ((s = h.next) == null || s.thread != Thread.currentThread());
-}
-</code></pre><p>事实上，<strong>公平锁往往没有非公平锁的效率高</strong>，但是，并不是任何场景都是以TPS作为唯一指标，<strong>公平锁能够减少“饥饿”发生的概率，等待越久的请求越能够得到优先满足</strong>。</p>
-<p>平锁与非公平锁相比，耗时更多，线程上下文切换次数更多。公平锁保证了锁的获取按照FIFO原则，而代价则是进行大量的线程切换。非<strong>公平锁虽然可能导致线程饥饿，但却有极少的线程切换，保证了其更大的吞吐量</strong>。</p>
-<h2 id="Condition"><a href="#Condition" class="headerlink" title="Condition"></a>Condition</h2><p>同jdk中的等待/通知机制类似，只不过Condition是用在重入锁这里的。有了Condition，线程就可以在合适的时间等待，在合适的时间继续执行。</p>
-<p>Condition接口包含以下方法：</p>
-<pre><code>// 让当前线程等待，并释放锁
-void await() throws InterruptedException;
-// 和await类似，但在等待过程中不会相应中断
-void awaitUninterruptibly();
-long awaitNanos(long nanosTimeout) throws InterruptedException;
-boolean await(long time, TimeUnit unit) throws InterruptedException;
-boolean awaitUntil(Date deadline) throws InterruptedException;
-// 唤醒等待中的线程
-void signal();
-// 唤醒等待中的所有线程
-void signalAll();
-</code></pre><h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
-<pre><code>public interface ReadWriteLock {
-    Lock readLock();
-    Lock writeLock();
-}
-</code></pre><p>一个用来获取读锁，一个用来获取写锁。也就是说将文件的读写操作分开，分成2个锁来分配给线程，从而使得多个线程可以同时进行读操作。</p>
-<h2 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h2><p>ReentrantReadWriteLock实现了ReadWriteLock接口。ReentrantReadWriteLock里面提供了很多丰富的方法，不过最主要的有两个方法：readLock()和writeLock()用来获取读锁和写锁。</p>
-<p>thread1和thread2<strong>可以同时进行读操作</strong>，这样就大大提升了读操作的效率。</p>
-<p>不过要注意的是，如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</p>
-<h2 id="锁的相关概念"><a href="#锁的相关概念" class="headerlink" title="锁的相关概念"></a>锁的相关概念</h2><ol>
-<li><p>可重入锁<br>&#160;&#160;&#160;&#160;如果锁具备可重入性，则称作为可重入锁。像synchronized和Lock都是可重入锁，可重入性在我看来实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。<br>&#160;&#160;&#160;&#160;我们在之前文章已经讲解过，详见： <a href="https://zhaoshuming.github.io/2019/03/01/Java-Synchronized/" target="_blank" rel="noopener">Java Synchronized探究</a></p>
-</li>
-<li><p>可中断锁<br>&#160;&#160;&#160;&#160;顾名思义，就是可以相应中断的锁。在Java中，synchronized就不是可中断锁，而Lock是可中断锁。<br>&#160;&#160;&#160;&#160;前面的lockInterruptibly()已经体现了Lock的可中断性。</p>
-</li>
-<li><p>公平锁<br>&#160;&#160;&#160;&#160;公平锁即<strong>尽量以请求锁的顺序来获取锁</strong>。比如同是有多个线程在等待一个锁，当这个锁被释放时，等待时间最久的线程（最先请求的线程）会获得该所，这种就是公平锁。<br>&#160;&#160;&#160;&#160;非公平锁即无法保证锁的获取是按照请求锁的顺序进行的。这样就可能导致某个或者一些线程永远获取不到锁。<br>&#160;&#160;&#160;&#160;在Java中，synchronized就是非公平锁，它无法保证等待的线程获取锁的顺序。<br>&#160;&#160;&#160;&#160;而对于ReentrantLock和ReentrantReadWriteLock，它默认情况下是非公平锁，但是可以设置为公平锁。</p>
-</li>
-<li><p>读写锁<br>&#160;&#160;&#160;&#160;读写锁将对一个资源（比如文件）的访问分成了2个锁，一个读锁和一个写锁。正因为有了读写锁，才使得多个线程之间的读操作不会发生冲突。<br>&#160;&#160;&#160;&#160;ReadWriteLock就是读写锁，它是一个接口，ReentrantReadWriteLock实现了这个接口。可以通过readLock()获取读锁，通过writeLock()获取写锁。</p>
-</li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a><br><a href="https://blog.csdn.net/chengyuqiang/article/details/79181229" target="_blank" rel="noopener">https://blog.csdn.net/chengyuqiang/article/details/79181229</a><br><a href="https://www.cnblogs.com/fuck1/p/5432806.html" target="_blank" rel="noopener">https://www.cnblogs.com/fuck1/p/5432806.html</a><br><a href="https://blog.csdn.net/qq_38293564/article/details/80515718#t3" target="_blank" rel="noopener">https://blog.csdn.net/qq_38293564/article/details/80515718#t3</a><br><a href="https://blog.csdn.net/i_am_kop/article/details/80958856" target="_blank" rel="noopener">https://blog.csdn.net/i_am_kop/article/details/80958856</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3299,7 +3150,7 @@ void signalAll();
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">37</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3310,7 +3161,7 @@ void signalAll();
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

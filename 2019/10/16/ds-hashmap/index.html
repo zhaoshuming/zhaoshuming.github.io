@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/10/16/ds-hashmap/rehash2.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/16/ds-hashmap/rehash3.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/16/ds-hashmap/hashmap-extends-tree.png">
-<meta property="og:updated_time" content="2019-10-16T09:38:16.319Z">
+<meta property="og:updated_time" content="2019-10-17T06:49:47.794Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HashMap实现原理">
 <meta name="twitter:description" content="哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。 什么是哈希表　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能 　　 数组：采用一段连">
@@ -443,6 +443,12 @@
 <p>因此，我们在扩充HashMap的时候，只需要看看原来的hash值新增的那个bit是1还是0就好了，是0的话索引没变，是1的话索引变成“原索引+oldCap”，可以看看下图为16扩充为32的resize示意图：</p>
 <p><img src="/2019/10/16/ds-hashmap/rehash3.png" alt></p>
 <p>这个设计确实非常的巧妙，既省去了重新计算hash值的时间，而且同时，由于新增的1bit是0还是1可以认为是随机的，因此resize的过程，均匀的把之前的冲突的节点分散到新的bucket了。这一块就是JDK1.8新增的优化点。有一点注意区别，JDK1.7中resize的时候，旧链表迁移新链表的时候，如果在新表的数组索引位置相同，则链表元素会倒置，但是从上图可以看出，JDK1.8不会倒置。</p>
+<p>JDK 1.8 以后哈希表的 添加、删除、查找、扩容方法都增加了一种 节点为 TreeNode 的情况：</p>
+<ul>
+<li>添加时，当桶中链表个数超过 8 时会转换成红黑树；</li>
+<li>删除、扩容时，如果桶中结构为红黑树，并且树中元素个数太少的话，会进行修剪或者直接还原成链表结构；</li>
+<li>查找时即使哈希函数不优，大量元素集中在一个桶中，由于有红黑树结构，性能也不会差。</li>
+</ul>
 <h2 id="HashMap死锁形成原理"><a href="#HashMap死锁形成原理" class="headerlink" title="HashMap死锁形成原理"></a>HashMap死锁形成原理</h2><p>HashMap非线程安全，即任一时刻可以有多个线程同时写HashMap，可能会导致数据的不一致。如果需要满足线程安全，可以用 Collections的synchronizedMap方法使HashMap具有线程安全的能力，或者使用线程安全的ConcurrentHashMap。</p>
 <p>要理解HashMap死锁形成的原理，我们要对HashMap的resize里的transfer过程有所了解，transfer过程是将旧数组中的元素复制到新数组中，在Java 8之前，复制过程会导致链表倒置，这也是形成死锁的重要原因（Java 8中已经不会倒置），transfer的基本过程如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 新建节点e指向当前节点，新建节点next指向e.next</span><br><span class="line">2. 将e.next指向新数组中指定位置newTable[i]</span><br><span class="line">3. newTable[i] = e</span><br><span class="line">4. e = next</span><br></pre></td></tr></table></figure></p>
 <p>举个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">现在有链表1-&gt;2-&gt;3，要将它复制到新数组的newTable[i]位置</span><br><span class="line">1. Node e = 1, next = e.next;</span><br><span class="line">2. e.next = newTable[i];</span><br><span class="line">3. newTable[i] = e;</span><br><span class="line">4. e = next, next = e.next;</span><br><span class="line">执行完后会得到这样的结果：</span><br><span class="line">newTable[i]=3-&gt;2-&gt;1</span><br></pre></td></tr></table></figure></p>
@@ -498,6 +504,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/17/design-mode-principle/" rel="prev" title="面向对象6大原则">
+                面向对象6大原则 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -576,7 +586,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">37</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -587,7 +597,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
