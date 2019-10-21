@@ -293,6 +293,715 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/20/java-http/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/20/java-http/" itemprop="url">HTTP基础</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T10:52:03+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>HTTP（HyperText Transfer Protocol)超文本传输协议是互联网上应用最为广泛的一种网络协议。由于信息是明文传输，所以被认为是不安全的。</p>
+<p>为了理解HTTP，我们有必要事先了解一下TCP/IP协议族。其是互联网相关联的协议集合的总称，通常使用的网络就是在TCP/IP协议族的基础上运作的，而HTTP属于它内部的一个子集，除此之外，还包括大家所熟知的FTP，DNS，TCP，UDP，IP等等协议。</p>
+<h4 id="OSI的七层协议"><a href="#OSI的七层协议" class="headerlink" title="OSI的七层协议"></a>OSI的七层协议</h4><p><img src="/2019/03/20/java-http/osi_seven.png" alt><br>其<strong>核心思想就是把数据信息包装起来，即封装：发送端在层与层之间传输数据时，每经过一层时必定会被打上一个该层所属的首部信息。反之，接收端在层与层传输数据时，每经过一层时会把对应的首部消去</strong>。值得一提的是，层次化之后，设计也变得相对简单了。处于应用层上的应用可以只考虑分派给自己的任务，而不需要弄清对方在地球上哪个地方、对方的传输线路是怎样的、是否能确保传输送达等问题。</p>
+<p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。<br>下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置：<br><img src="/2019/03/20/java-http/osi.webp" alt></p>
+<h4 id="HTTP-方法"><a href="#HTTP-方法" class="headerlink" title="HTTP 方法"></a>HTTP 方法</h4><p>下面的表格比较了两种 HTTP 方法：GET 和 POST<br><img src="http_get_post.png" alt><br>HTTP 请求方法<br><img src="http_method.png" alt></p>
+<h4 id="持久连接"><a href="#持久连接" class="headerlink" title="持久连接"></a>持久连接</h4><p>HTTP 协议的初始版本中，每进行一个 HTTP 通信都要断开一次 TCP 连接。比如使用浏览器浏览一个包含多张图片的 HTML 页面时，在发送请求访问 HTML 页面资源的同时，也会请求该 HTML 页面里包含的其他资源。因此，每次的请求都会造成无畏的 TCP 连接建立和断开，增加通信量的开销。<br>为了解决上述 TCP 连接的问题，HTTP/1.1 和部分 HTTP/1.0 想出了持久连接的方法。其<strong>特点是，只要任意一端没有明确提出断开连接，则保持 TCP 连接状态</strong>。旨在建立一次 TCP 连接后进行多次请求和响应的交互。在 HTTP/1.1 中，所有的连接默认都是持久连接。</p>
+<h4 id="管线化"><a href="#管线化" class="headerlink" title="管线化"></a>管线化</h4><p>持久连接使得多数请求以管线化方式发送成为可能。以前发送请求后需等待并接收到响应，才能发送下一个请求。管线化技术出现后，不用等待亦可发送下一个请求。这样就能做到<strong>同时并行发送多个请求</strong>，而不需要一个接一个地等待响应了。<br>比如，当请求一个包含多张图片的 HTML 页面时，与挨个连接相比，用持久连接可以让请求更快结束。而管线化技术要比持久连接速度更快。请求数越多，时间差就越明显。</p>
+<h4 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h4><p>HTTP 是一种无状态协议。协议自身不对请求和响应之间的通信状态进行保存。也就是说在 HTTP 这个级别，协议对于发送过的请求或响应都不做持久化处理。这是为了更快地处理大量事务，确保协议的可伸缩性，而特意把 HTTP 协议设计成如此简单的。<br>可是随着 Web 的不断发展，我们的很多业务都需要对通信状态进行保存。于是我们引入了 Cookie 技术。有了 Cookie 再用 HTTP 协议通信，就可以<strong>管理状态</strong>了。<br>Cookie 技术通过在请求和响应报文中写入 Cookie 信息来控制客户端的状态。Cookie 会根据从服务器端发送的响应报文内的一个叫做 Set-Cookie 的首部字段信息，通知客户端保存Cookie。当下次客户端再往该服务器发送请求时，客户端会自动在请求报文中加入 Cookie 值后发送出去。服务器端发现客户端发送过来的 Cookie 后，会去检查究竟是从哪一个客户端发来的连接请求，然后对比服务器上的记录，最后得到之前的状态信息。<br>Cookie是服务器保存在浏览器的一小段文本信息，每个 Cookie 的大小一般不能超过4KB。浏览器每次向服务器发出请求，就会自动附上这段信息。</p>
+<h5 id="cookie的用途"><a href="#cookie的用途" class="headerlink" title="cookie的用途"></a>cookie的用途</h5><ol>
+<li><p>会话管理<br>1.1 记录用户的登录状态是cookie最常用的用途。通常web服务器会在用户登录成功后下发一个签名来标记session的有效性，这样免去了用户多次认证和登录网站。<br>1.2 记录用户的访问状态，例如导航啊，用户的注册流程啊。</p>
+</li>
+<li><p>个性化信息<br>2.1 Cookie也经常用来记忆用户相关的信息，以方便用户在使用和自己相关的站点服务。例如：ptlogin会记忆上一次登录的用户的QQ号码，这样在下次登录的时候会默认填写好这个QQ号码。<br>2.2 Cookie也被用来记忆用户自定义的一些功能。用户在设置自定义特征的时候，仅仅是保存在用户的浏览器中，在下一次访问的时候服务器会根据用户本地的cookie来表现用户的设置。例如google将搜索设置（使用语言、每页的条数，以及打开搜索结果的方式等等）保存在一个COOKIE里。</p>
+</li>
+<li><p>记录用户的行为<br>最典型的是公司的TCSS系统。它使用Cookie来记录用户的点击流和某个产品或商业行为的操作率和流失率。当然功能可以通过IP或http header中的referrer实现，但是Cookie更精准一些。</p>
+</li>
+</ol>
+<h5 id="WebView中的Cookie机制"><a href="#WebView中的Cookie机制" class="headerlink" title="WebView中的Cookie机制"></a>WebView中的Cookie机制</h5><p>WebView是基于webkit内核的UI控件，相当于一个浏览器客户端。它会在本地维护每次会话的cookie(保存在data/data/package_name/app_WebView/Cookies)<br>数据就保存在Cookies那个文件里，其实是个数据库，把后缀改成.db用数据库打开可以看到里面的表结构，主要有host_key, name, value, path等，host_key其实就是domain.<br>当WebView加载URL的时候,WebView会从本地读取该URL对应的cookie，并携带该cookie与服务器进行通信。WebView通过android.webkit.CookieManager类来维护cookie。CookieManager是 WebView的cookie管理类。</p>
+<h5 id="okhttp中的cookie"><a href="#okhttp中的cookie" class="headerlink" title="okhttp中的cookie"></a>okhttp中的cookie</h5><p>详见之前的文章：<a href="https://zhaoshuming.github.io/2019/02/27/OKHttp%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_blank" rel="noopener">OKHttp深入理解</a></p>
+<h5 id="Cookie的缺陷"><a href="#Cookie的缺陷" class="headerlink" title="Cookie的缺陷"></a>Cookie的缺陷</h5><p>cookie会被附加在每个HTTP请求中，所以无形中增加了流量。<br>由于在HTTP请求中的cookie是明文传递的，所以安全性成问题。（除非用HTTPS)<br>Cookie的大小限制在4KB左右。对于复杂的存储需求来说是不够用的。</p>
+<h4 id="HTTP报文简介"><a href="#HTTP报文简介" class="headerlink" title="HTTP报文简介"></a>HTTP报文简介</h4><p>HTTP 报文本身是由多行（用 CR+LF 作换行符）数据构成的字符串文本。HTTP 报文大致可分为报文首部和报文主体两部分。两者由最初出现的空行（CR+LF）来划分。通常，并不一定有报文主体。</p>
+<h5 id="请求报文结构"><a href="#请求报文结构" class="headerlink" title="请求报文结构"></a>请求报文结构</h5><p><img src="/2019/03/20/java-http/message_request.webp" alt><br>请求报文的首部内容由以下数据组成：</p>
+<blockquote>
+<p>请求行 —— 包含用于请求的方法、请求 URI 和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、请求首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
+</blockquote>
+<p>请求报文的示例，如下：<br><img src="/2019/03/20/java-http/message_request_demo.webp" alt></p>
+<h5 id="响应报文结构"><a href="#响应报文结构" class="headerlink" title="响应报文结构"></a>响应报文结构</h5><p><img src="/2019/03/20/java-http/message_response.webp" alt><br>响应报文的首部内容由以下数据组成：</p>
+<blockquote>
+<p>状态行 —— 包含表明响应结果的状态码、原因短语和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、响应首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
+</blockquote>
+<p>响应报文的示例，如下：<br><img src="/2019/03/20/java-http/message_response_demo.webp" alt></p>
+<h4 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h4><p>HTTP 状态码的职责是当客户端向服务端发送请求时，描述返回的请求结果。<br>状态码类型:</p>
+<blockquote>
+<p>1XX：Informational(信息性状态码)，接收的请求正在处理<br>2XX：Success(成功状态码)，请求正常处理完毕<br>3XX：Redirection(重定向状态码)，需要进行附加操作以完成请求<br>4XX：Client Error(客户端错误状态码)，服务器无法处理请求<br>5XX：Server Error(服务器错误状态码)，服务器处理请求出错</p>
+</blockquote>
+<h4 id="TCP三次握手四次挥手"><a href="#TCP三次握手四次挥手" class="headerlink" title="TCP三次握手四次挥手"></a>TCP三次握手四次挥手</h4><p>在TCP/IP协议中，TCP协议<strong>提供可靠的连接服务</strong>，采用三次握手建立一个连接。 </p>
+<p>如下图所示，SYN（synchronous）是TCP/IP建立连接时使用的握手信号、Sequence number（序列号）、Acknowledge number（确认号码），三个箭头指向就代表三次握手，完成三次握手，客户端与服务器开始传送数据。</p>
+<p><img src="/2019/03/20/java-http/tcp_handshake.jpg" alt><br>第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；</p>
+<p>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；</p>
+<p>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</p>
+<p>四次挥手:<br><img src="/2019/03/20/java-http/tcp_handwave.png" alt></p>
+<p>第一次挥手:客户端A发送一个FIN.用来关闭客户A到服务器B的数据传送</p>
+<p>第二次挥手:服务器B收到这个FIN. 它发回一个ACK，确认序号为收到的序号+1。和SYN一样，一个FIN将占用一个序号</p>
+<p>第三次挥手:服务器B关闭与客户端A的连接，发送一个FIN给客户端A</p>
+<p>第四次挥手:客户端A发回ACK报文确认，并将确认序号设置为序号加1</p>
+<h4 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h4><p>我这里简单列举几个:<br>  1、基于连接与无连接;UDP是无连接的，即发送数据之前不需要建立连接</p>
+<p>  2、TCP保证数据正确性，UDP可能丢包，TCP保证数据顺序，UDP不保证。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付 ，即不保证可靠交付Tcp通过校验和，重传控制，序号标识，滑动窗口、确认应答实现可靠传输。如丢包时的重发控制，还可以对次序乱掉的分包进行顺序控制。</p>
+<p>  3、UDP具有较好的实时性，工作效率比TCP高，适用于对高速传输和实时性有较高的通信或广播通信。</p>
+<p>  4、每一条TCP连接只能是点到点的;UDP支持一对一，一对多，多对一和多对多的交互通信。</p>
+<p>  5、TCP对系统资源要求较多，UDP对系统资源要求较少。</p>
+<h4 id="HTTP-2-0"><a href="#HTTP-2-0" class="headerlink" title="HTTP 2.0"></a>HTTP 2.0</h4><p>目标是改善用户在Web时的速度体验。可以说HTTP 2.0是SPDY的升级版(其实也是基于SPDY设计的)。<br><img src="http_2_1_diff.png" alt></p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.jianshu.com/p/8962f1f175e8" target="_blank" rel="noopener">HTTP基础</a><br><a href="https://blog.csdn.net/kelaker/article/details/82751287" target="_blank" rel="noopener">Cookie介绍及在Android中的使用</a><br><a href="https://www.cnblogs.com/qdhxhz/p/8470997.html" target="_blank" rel="noopener">TCP三次握手和四次挥手</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
+                2019-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
+<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
+<blockquote>
+<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
+</blockquote>
+<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
+<ol>
+<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
+<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
+<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
+<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
+<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
+</ol>
+<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
+<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
+<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
+<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
+<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
+<ol>
+<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
+</li>
+<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
+</li>
+<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
+</li>
+</ol>
+<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
+<blockquote>
+<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
+</blockquote>
+<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
+<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
+<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
+<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
+<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
+<pre><code>public class DataEncryptInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //请求
+        Request request = chain.request();
+        RequestBody oldRequestBody = request.body();
+        Buffer requestBuffer = new Buffer();
+        oldRequestBody.writeTo(requestBuffer);
+        String oldBodyStr = requestBuffer.readUtf8();
+        requestBuffer.close();
+        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
+        //生成随机AES密钥并用serverPublicKey进行RSA加密
+        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
+        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
+        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
+        //计算body 哈希 并使用app私钥RSA签名
+        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
+        //随机AES密钥加密oldBodyStr
+        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
+        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
+        //构造新的request
+        request = request.newBuilder()
+                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
+                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
+                .method(request.method(), newBody)
+                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
+                .header(&quot;appSignature&quot;, appSignature)
+                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
+                .build();
+        //响应
+        Response response = chain.proceed(request);
+        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
+            //获取响应头
+            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
+            //用app的RSA私钥解密AES加密密钥
+            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
+            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
+            //用AES密钥解密oldResponseBodyStr
+            ResponseBody oldResponseBody = response.body();
+            String oldResponseBodyStr = oldResponseBody.string();
+            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
+            oldResponseBody.close();
+            //构造新的response
+            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
+            response = response.newBuilder().body(newResponseBody).build();
+        }
+        response.close();
+        //返回
+        return response;
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/18/android-https/" itemprop="url">android中使用https</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
+                2019-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本案例将ca证书放在本地，这里使用.pfx格式的证书</p>
+<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>第二种写法，同样有效:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
+
+        //key管理器工厂
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
+<blockquote>
+<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
+</blockquote>
+<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
+</code></pre><p>如果是.cer的话那么，就用:</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
+<p>通过jks文件生成对应的cer文件：</p>
+<blockquote>
+<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
+</blockquote>
+<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
+<blockquote>
+<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
+</blockquote>
+<p>客户端代码如下：</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //双向验证，配置服务器验证客户端的证书
+        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
+        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><h3 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h3><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
+<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
+<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
+<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2202,7 +2911,7 @@ tags: #文章標籤 可以省略
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">40</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

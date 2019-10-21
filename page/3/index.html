@@ -293,6 +293,690 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/10/android-dex/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/10/android-dex/" itemprop="url">类加载器ClassLoader及Dex/Class</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-10T14:41:50+08:00">
+                2019-05-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h3><p>顾名思义，类加载器用来加载 Java 类到 Java 虚拟机中。一般来说，Java 虚拟机使用 Java 类的方式如下：Java 源程序（.java 文件）在经过 Java 编译器编译之后就被转换成 Java 字节代码（.class 文件）。类加载器负责读取 Java 字节代码，并转换成 java.lang.Class类的一个实例，每个这样的实例用来表示一个 Java 类，通过此实例的 newInstance()方法就可以创建出该类的一个对象。</p>
+<p>类加载器是 Java 语言的一个创新。<strong>它使得动态安装和更新软件组件成为可能</strong>。</p>
+<p><strong>Java 虚拟机是如何判定两个Java类是相同的：Java 虚拟机不仅要看类的全名是否相同，还要看加载此类的类加载器是否一样</strong>。只有两者都相同的情况，才认为两个类是相同的。</p>
+<h4 id="类加载器的代理模式"><a href="#类加载器的代理模式" class="headerlink" title="类加载器的代理模式"></a>类加载器的代理模式</h4><p>类加载器在尝试自己去查找某个类的字节代码并定义它时，会先代理给其父类加载器，由父类加载器先去尝试加载这个类，依次类推。</p>
+<p>代理模式是为了保证 Java 核心库的类型安全。所有 Java 应用都至少需要引用 java.lang.Object类，也就是说在运行的时候，java.lang.Object这个类需要被加载到 Java 虚拟机中。如果这个加载过程由 Java 应用自己的类加载器来完成的话，很可能就存在多个版本的 java.lang.Object类，而且这些类之间是不兼容的。通过代理模式，对于 Java 核心库的类的加载工作由引导类加载器来统一完成，保证了 Java 应用所使用的都是同一个版本的 Java 核心库的类，是互相兼容的。</p>
+<p><strong>不同的类加载器为相同名称的类创建了额外的名称空间。相同名称的类可以并存在 Java 虚拟机中，只需要用不同的类加载器来加载它们即可。不同类加载器加载的类之间是不兼容的，这就相当于在 Java 虚拟机内部创建了一个个相互隔离的 Java 类空间。</strong></p>
+<p>ClassLoader特点：<strong>遵循双亲委派模型</strong></p>
+<blockquote>
+<p>ClassLoader在加载一个class文件时：会询问当前ClassLoader是否已经加载过此类，如果已经加载过则直接返回，不再重复加载。如果没有加载过，会去查询当前ClassLoader的parent是否已经加载过。</p>
+</blockquote>
+<p>因为遵循双亲委派模型，Android中的classLoader具有两个特点：</p>
+<ul>
+<li>类加载共享<br>当一个class文件被任何一个ClassLoader加载过，就不会再被其他ClassLoader加载。</li>
+<li>类加载隔离<br>不同ClassLoader加载的class文件肯定不是一个。举个栗子，一些系统层级的class文件在系统初始化的时候被加载，比如java.net.String，这个是在应用启动前就被系统加载好的。如果在一个应用里能简单地用一个自定义的String类把这个String类替换掉的话，将有严重的安全问题。</li>
+</ul>
+<h4 id="线程上下文类加载器"><a href="#线程上下文类加载器" class="headerlink" title="线程上下文类加载器"></a>线程上下文类加载器</h4><p>线程上下文类加载器（context class loader）是从 JDK 1.2 开始引入的。类 java.lang.Thread中的方法 getContextClassLoader()和 setContextClassLoader(ClassLoader cl)用来获取和设置线程的上下文类加载器。如果没有通过 setContextClassLoader(ClassLoader cl)方法进行设置的话，线程将继承其父线程的上下文类加载器。Java 应用运行的初始线程的上下文类加载器是系统类加载器。在线程中运行的代码可以通过此类加载器来加载类和资源。</p>
+<h4 id="类加载器与-OSGi"><a href="#类加载器与-OSGi" class="headerlink" title="类加载器与 OSGi"></a>类加载器与 OSGi</h4><p>OSGi™是 Java 上的动态模块系统。它为开发人员提供了面向服务和基于组件的运行环境，并提供标准的方式用来管理软件的生命周期。OSGi 已经被实现和部署在很多产品上，在开源社区也得到了广泛的支持。Eclipse 就是基于 OSGi 技术来构建的。</p>
+<p>OSGi 中的每个模块（bundle）都包含 Java 包和类。模块可以声明它所依赖的需要导入（import）的其它模块的 Java 包和类（通过 Import-Package），也可以声明导出（export）自己的包和类，供其它模块使用（通过 Export-Package）。也就是说需要能够隐藏和共享一个模块中的某些 Java 包和类。这是通过 OSGi 特有的类加载器机制来实现的。<strong>OSGi 中的每个模块都有对应的一个类加载器。它负责加载模块自己包含的 Java 包和类。当它需要加载 Java 核心库的类时（以 java开头的包和类），它会代理给父类加载器（通常是启动类加载器）来完成。当它需要加载所导入的 Java 类时，它会代理给导出此 Java 类的模块来完成加载。</strong>模块也可以显式的声明某些 Java 包和类，必须由父类加载器来加载。只需要设置系统属性 org.osgi.framework.bootdelegation的值即可。</p>
+<p>OSGi 模块的这种类加载器结构，使得一个类的不同版本可以共存在 Java 虚拟机中，带来了很大的灵活性。不过它的这种不同，也会给开发人员带来一些麻烦，尤其当模块需要使用第三方提供的库的时候。下面提供几条比较好的建议：</p>
+<ul>
+<li>如果一个类库只有一个模块使用，把该类库的 jar 包放在模块中，在 Bundle-ClassPath中指明即可。</li>
+<li>如果一个类库被多个模块共用，可以为这个类库单独的创建一个模块，把其它模块需要用到的 Java 包声明为导出的。其它模块声明导入这些类。</li>
+<li>如果类库提供了 SPI 接口，并且利用线程上下文类加载器来加载 SPI 实现的 Java 类，有可能会找不到 Java 类。如果出现了 NoClassDefFoundError异常，首先检查当前线程的上下文类加载器是否正确。通过 Thread.currentThread().getContextClassLoader()就可以得到该类加载器。该类加载器应该是该模块对应的类加载器。如果不是的话，可以首先通过 class.getClassLoader()来得到模块对应的类加载器，再通过 Thread.currentThread().setContextClassLoader()来设置当前线程的上下文类加载器。</li>
+</ul>
+<h4 id="ClassLoader种类"><a href="#ClassLoader种类" class="headerlink" title="ClassLoader种类"></a>ClassLoader种类</h4><ul>
+<li>BootClassLoader（Java的BootStrap ClassLoader）<br>用于加载Android Framework层class文件。</li>
+<li>PathClassLoader（Java的App ClassLoader）<br>用于加载已经安装到系统中的apk中的class文件（要传入系统中apk的存放Path，所以只能加载已经安装的apk文件）。</li>
+<li>DexClassLoader（Java的Custom ClassLoader）<br>用于加载指定目录中的class文件(可以加载jar/apk/dex，可以从SD卡中加载未安装的apk)。</li>
+<li>BaseDexClassLoader<br>是PathClassLoader和DexClassLoader的父类。<br><img src="/2019/05/10/android-dex/class_loader.png" alt></li>
+</ul>
+<p>为了解决65535这个问题，Google提出了multidex方案，即一个apk文件可以包含多个dex文件。<br>不过值得注意的是，<strong>除了第一个dex文件以外，其他的dex文件都是以资源的形式被加载的， 换句话说就是在Application初始化前将dex文件注入到系统的ClassLoader中的。 </strong><br>根据Android虚拟机的类加载机制，同一个类只会被加载一次，所以热修复也使用了这样的机制，<strong>要让修复后的类替换原有的类就必须让补丁包的类被优先加载，也就是插入到原有dex之前。</strong></p>
+<h4 id="PathClassLoader加载已安装的apk插件"><a href="#PathClassLoader加载已安装的apk插件" class="headerlink" title="PathClassLoader加载已安装的apk插件"></a>PathClassLoader加载已安装的apk插件</h4><p>使用PathClassLoader加载已安装的apk插件。sharedUserId要一致，简单的说，应用从一开始安装在Android系统上时，系统都会给它分配一个linux user id，之<br>后该应用在今后都将运行在独立的一个进程中，其它应用程序不能访问它的资源，那么如果两个应用的sharedUserId相同，那么它们将共同运行在相同的linux进程中，从而便可以数据共享、资源访问了。所以我们在宿主app和插件app的manifest上都定义一个相同的sharedUserId。</p>
+<p>下面看一个样例：加载包名为packageName的插件，然后获得插件内名为one.png的图片的资源id，进而供宿主app使用该图片<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">    * 加载已安装的apk</span><br><span class="line">    * @param packageName 应用的包名</span><br><span class="line">    * @param pluginContext 插件app的上下文</span><br><span class="line">    * @return 对应资源的id</span><br><span class="line">    */</span><br><span class="line">   private int dynamicLoadApk(String packageName, Context pluginContext) throws Exception &#123;</span><br><span class="line">       //第一个参数为包含dex的apk或者jar的路径，第二个参数为父加载器</span><br><span class="line">       PathClassLoader pathClassLoader = new PathClassLoader(pluginContext.getPackageResourcePath(),ClassLoader.getSystemClassLoader());</span><br><span class="line">	//Class&lt;?&gt; clazz = pathClassLoader.loadClass(packageName + &quot;.R$mipmap&quot;);//通过使用自身的加载器反射出mipmap类进而使用该类的功能</span><br><span class="line">       //参数：1、类的全名，2、是否初始化类，3、加载时使用的类加载器</span><br><span class="line">       Class&lt;?&gt; clazz = Class.forName(packageName + &quot;.R$mipmap&quot;, true, pathClassLoader);</span><br><span class="line">       //使用上述两种方式都可以，这里我们得到R类中的内部类mipmap，通过它得到对应的图片id，进而给我们使用</span><br><span class="line">       Field field = clazz.getDeclaredField(&quot;one&quot;);</span><br><span class="line">       int resourceId = field.getInt(R.mipmap.class);</span><br><span class="line">       return resourceId;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>首先就是new出一个PathClassLoader对象，它的构造方法为：public PathClassLoader(String dexPath, ClassLoader parent)。其中第一个参数是通过插件的上下文来获取插件apk的路径，其实获取到的就是/data/app/apkthemeplugin.apk，那么插件的上下文怎么获取呢？在宿主app中我们只有本app的上下文啊，答案就是为插件app创建一个上下文：Context plugnContext = this.createPackageContext(packageName, CONTEXT_IGNORE_SECURITY | CONTEXT_INCLUDE_CODE。<strong> 通过插件的包名来创建上下文，不过这种方法只适合获取已安装的app上下文</strong>。或者不需要通过反射直接通过插件上下文getResource().getxxx(R.<em>.</em>);也行，而这里用的是反射方法。第二个参数是父加载器，都是ClassLoader.getSystemClassLoader()。</li>
+</ul>
+<h4 id="DexClassLoader加载已安装的apk插件"><a href="#DexClassLoader加载已安装的apk插件" class="headerlink" title="DexClassLoader加载已安装的apk插件"></a>DexClassLoader加载已安装的apk插件</h4><p>关于动态加载未安装的apk，先描述下思路：首先我们得到事先知道我们的插件apk存放在哪个目录下，然后分别得到插件apk的信息（名称、包名等），然后显示可用的插件，最后动态加载apk获得资源。</p>
+<p>按照上面这个思路，我们需要解决几个问题：<br>1、怎么得到未安装的apk的信息<br>2、怎么得到插件的context或者Resource，因为它是未安装的不可能通过createPackageContext(…);方法来构建出一个context，所以这时只有在Resource上下功夫。</p>
+<p>现在我们就一一来解答这些问题吧：<br>1、得到未安装的apk信息可以通过mPackageManager.getPackageArchiveInfo()方法获得</p>
+<pre><code>/**
+ * 获取未安装apk的信息
+ * @param context
+ * @param archiveFilePath apk文件的path
+ * @return
+ */
+private String[] getUninstallApkInfo(Context context, String archiveFilePath) {
+    String[] info = new String[2];
+    PackageManager pm = context.getPackageManager();
+    PackageInfo pkgInfo = pm.getPackageArchiveInfo(archiveFilePath, PackageManager.GET_ACTIVITIES);
+    if (pkgInfo != null) {
+        ApplicationInfo appInfo = pkgInfo.applicationInfo;
+        String versionName = pkgInfo.versionName;//版本号
+        Drawable icon = pm.getApplicationIcon(appInfo);//图标
+        String appName = pm.getApplicationLabel(appInfo).toString();//app名称
+        String pkgName = appInfo.packageName;//包名
+        info[0] = appName;
+        info[1] = pkgName;
+    }
+    return info;
+}
+</code></pre><p>2、得到对应未安装apk的Resource对象，我们需要通过反射来获得：</p>
+<pre><code>/**
+ * @param apkName 
+ * @return 得到对应插件的Resource对象
+ */
+private Resources getPluginResources(String apkName) {
+    try {
+        AssetManager assetManager = AssetManager.class.newInstance();
+        Method addAssetPath = assetManager.getClass().getMethod(&quot;addAssetPath&quot;, String.class);//反射调用方法addAssetPath(String path)
+        //第二个参数是apk的路径：Environment.getExternalStorageDirectory().getPath()+File.separator+&quot;plugin&quot;+File.separator+&quot;apkplugin.apk&quot;
+        addAssetPath.invoke(assetManager, apkDir+File.separator+apkName);//将未安装的Apk文件的添加进AssetManager中，第二个参数为apk文件的路径带apk名
+        Resources superRes = this.getResources();
+        Resources mResources = new Resources(assetManager, superRes.getDisplayMetrics(),
+                superRes.getConfiguration());
+        return mResources;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+</code></pre><p>通过得到AssetManager中的内部的方法addAssetPath，将未安装的apk路径传入从而添加进assetManager中，然后通过new Resource把assetManager传入构造方法中，进而得到未安装apk对应的Resource对象。</p>
+<p>3、接下来就是加载未安装的apk获得它的内部资源</p>
+<pre><code>/**
+ * 加载apk获得内部资源
+ * @param apkDir apk目录
+ * @param apkName apk名字,带.apk
+ * @throws Exception
+ */
+private void dynamicLoadApk(String apkDir, String apkName, String apkPackageName) throws Exception {
+    File optimizedDirectoryFile = getDir(&quot;dex&quot;, Context.MODE_PRIVATE);//在应用安装目录下创建一个名为app_dex文件夹目录,如果已经存在则不创建
+    Log.v(&quot;zxy&quot;, optimizedDirectoryFile.getPath().toString());// /data/data/com.example.dynamicloadapk/app_dex
+    //参数：1、包含dex的apk文件或jar文件的路径，2、apk、jar解压缩生成dex存储的目录，3、本地library库目录，一般为null，4、父ClassLoader
+    DexClassLoader dexClassLoader = new DexClassLoader(apkDir+File.separator+apkName, optimizedDirectoryFile.getPath(), null, ClassLoader.getSystemClassLoader());
+    Class&lt;?&gt; clazz = dexClassLoader.loadClass(apkPackageName + &quot;.R$mipmap&quot;);//通过使用apk自己的类加载器，反射出R类中相应的内部类进而获取我们需要的资源id
+    Field field = clazz.getDeclaredField(&quot;one&quot;);//得到名为one的这张图片字段
+    int resId = field.getInt(R.id.class);//得到图片id
+    Resources mResources = getPluginResources(apkName);//得到插件apk中的Resource
+    if (mResources != null) {
+        //通过插件apk中的Resource得到resId对应的资源
+        findViewById(R.id.background).setBackgroundDrawable(mResources.getDrawable(resId));
+    }
+}
+</code></pre><p>其中通过new DexClassLoader()来创建未安装apk的类加载器，我们来看看它的参数：</p>
+<pre><code>public class DexClassLoader extends BaseDexClassLoader {
+    public DexClassLoader(String dexPath, String optimizedDirectory,
+            String libraryPath, ClassLoader parent) {
+        super(dexPath, new File(optimizedDirectory), libraryPath, parent);
+    }
+}
+</code></pre><p>可以看到DexClassLoader的源码非常简单，只有一个构造方法。我们来看下其四个参数都是什么含义：</p>
+<ul>
+<li>dexPath：要加载的dex文件路径。</li>
+<li>optimizedDirectory：dex文件要被copy到的目录路径。此位置一定要是可读写且仅该应用可读写（安全性考虑），所以只能放在data/data下。看官方文档：<br>This class loader requires an application-private, writable directory to cache optimized classes. Use Context.getDir(String, int) to create such a directory: File dexOutputDir = context.getDir(“dex”, 0);</li>
+<li>libraryPath：apk文件中类要使用的c/c++代码，指向包含本地库(so)的文件夹路径，可以设为null。</li>
+<li>parent：父装载器，也就是真正loadclass的装载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。<br>在Android中加载class，其实最终是通过DexPathList的findClass来加载的。</li>
+</ul>
+<h3 id="Dex文件"><a href="#Dex文件" class="headerlink" title="Dex文件"></a>Dex文件</h3><p>定义：能够被DVM或者Art虚拟机执行并且加载的文件格式。</p>
+<p>作用：<strong>dex文件的作用是记录整个工程（通常是一个Android工程）的所有类文件的信息</strong>。</p>
+<p>Android支持动态加载的两种方式是：DexClassLoader和PathClassLoader。DexClassLoader可加载jar/apk/dex，且支持从SD卡加载；PathClassLoader据说只能加载已经安装在Android系统内APK文件,以下这一段是摘录：PathClassLoader 的限制要更多一些，它只能加载已经安装到 Android 系统中的 apk 文件，也就是 /data/app 目录下的 apk 文件。其它位置的文件加载的时候都会出现 ClassNotFoundException。</p>
+<p>dex文件的生成：</p>
+<pre><code>先生成class文件（注意执行低版本的JDK版本，否则手机无法运行），然后执行：
+dx --dex --output Test.dex Test.class
+然后把生成的dex文件拷贝到手机：
+adb push C:\Users\Administrator\Desktop\Test.dex /storage/emulated/0
+adb shell
+dalvikvm -cp /sdcard/Test.dex Test
+</code></pre><p>dex文件的结构：</p>
+<pre><code>8位字节的二进制流文件
+各个数据紧密排列，无间隙，减少了文件体积，加快加载速度
+整个工程的类信息都存放在一个dex文件中（不考虑dex分包的情况下）
+</code></pre><p><img src="/2019/05/10/android-dex/dex.webp" alt><br>注意：<br>文件头包含了dex文件的信息，所有数据的大致分布情况<br>链接数据区：主要是指so库</p>
+<h4 id="Dex文件头格式"><a href="#Dex文件头格式" class="headerlink" title="Dex文件头格式"></a>Dex文件头格式</h4><p><img src="/2019/05/10/android-dex/dex_data.png" alt title="数据格式"><br><img src="/2019/05/10/android-dex/dex_data_des.png" alt><br>上图和上表就是dex的文件头的结构和各个位置的意思。其中最开始的64 65 78 0A 30 33 3500（dex.035.）表示这是按照dex解析的。</p>
+<h3 id="Class文件"><a href="#Class文件" class="headerlink" title="Class文件"></a>Class文件</h3><p>定义：能够被JVM识别，加载并执行的文件格式。</p>
+<p>作用：记录一个类文件的所有信息，记住所有。例如记住了当前类的引用this、父类super等等。class文件记录的信息往往比java文件多。</p>
+<p>class文件的结构:</p>
+<pre><code>8位字节的二进制流文件
+各个数据紧密排列，无间隙，减少了文件体积，加快加载速度
+每个类或者接口单独占据一个class文件，每个类单独管理，没有交叉
+</code></pre><p>class文件中的字段如下所示：</p>
+<pre><code>magic 加密字段，虚拟机判断当前的class文件是否被篡改过
+minor_version 支持最低版本的jdk
+major_version 编译使用的jdk版本
+constant_pool_count 常量池的数量，一般为一个
+cp_info constant_pool 常量池的结构体，数量不定（类型是cp_info结构体）
+access_flags 访问级别，例如public等
+this_class 当前类
+super_class 父类
+interfaces_count 类实现接口的数量
+fields_count 类成员变量的数量
+methods_count 类方法的数量
+method_info methods 类方法的结构体
+attributes_count 类属性的数量
+attribute_info attributes 类属性的结构体
+</code></pre><p>constant_pool包括：</p>
+<pre><code>CONSTANT_Integer_info、CONSTANT_Long_info、CONSTANT_String_info等等 
+CONSTANT_Class_info：类的相关信息，包括当前类、引用到的类的信息 
+CONSTANT_Fieldref_info：类的域信息 
+CONSTANT_Methodref_info：类的方法信息
+</code></pre><p>class文件的弊端：</p>
+<pre><code>内存占用大，不适合移动端
+堆栈的加栈模式，加载速度慢。
+文件IO操作多，类加载慢。
+</code></pre><h3 id="Class文件与Dex文件的比较"><a href="#Class文件与Dex文件的比较" class="headerlink" title="Class文件与Dex文件的比较"></a>Class文件与Dex文件的比较</h3><p>本质上都是一样的，都是二进制流文件格式，dex文件是从class文件演变而来的。<br><strong>class文件存在冗余信息，dex文件则去掉了冗余，并且整合了整个工程的类信息。</strong><br><img src="/2019/05/10/android-dex/dex_class.png" alt></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-classloader/" target="_blank" rel="noopener">深入探讨 Java 类加载器</a><br><a href="https://blog.csdn.net/u010687392/article/details/47121729?hmsr=toutiao.io" target="_blank" rel="noopener">插件化开发—动态加载技术加载已安装和未安装的apk</a><br><a href="https://blog.csdn.net/ll458524906/article/details/78303557" target="_blank" rel="noopener">Android_dex详解</a><br><a href="https://blog.csdn.net/colinandroid/article/details/80712045" target="_blank" rel="noopener">ClassLoader详解</a><br><a href="https://blog.csdn.net/developandroid/article/details/81780477" target="_blank" rel="noopener">class文件和dex文件</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/05/architecture-extensible/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/05/architecture-extensible/" itemprop="url">可扩展架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-05T09:42:14+08:00">
+                2019-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>可扩展架构的基本思想是：拆</p>
+<p>不同的拆分方式，本质上决定了系统的可扩展性。常见的拆分思路有三种：</p>
+<p>1）面向流程拆分：分层架构<br>分层架构的本质：固定的内核，移动的数据。<br>扩展时大部分情况只需要修改其一层，少部分情况可能修改关联的两层，不会出现所有层都同时要修改。<br>以简单的学生信息管理系统为例：展示层–&gt;业务层–&gt;数据层–&gt;存储层</p>
+<p>2）面向服务拆分：SOA、微服务<br>服务是一组相似功能的集合。<br>对于某个服务扩展，或者要增加新的服务时，只需要扩展相关服务即可。<br>以简单的学生信息管理系统为例：将系统拆分为注册、登录、信息管理、安全设置等服务</p>
+<p>3）面向功能拆分:微内核架构<br>以简单的学生信息管理系统为例：每个服务都可以拆分为更多细粒度的功能</p>
+<p>当然，这几个系统架构并不是非彼既此的，而是可以组合使用。</p>
+<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>分层架构也叫N层架构，通常情况下，N至少是两层。</p>
+<p>分层架构的本质在于<strong>隔离关注点</strong>（separation of concerns），即每个层中的组件只会处理本层的逻辑，核心就是需要<strong>保证各层之间的差异足够清晰，边界足够明显，</strong>让人看到架构图后就能看懂整个架构。</p>
+<p>根据不同的划分维度和对象，可以得到多种不同的分层架构：<br>1）C/S、B/S架构<br>2）MVC、MVP架构<br>3）逻辑分层架构<br>逻辑分层架构中的层是自顶向下依赖的，如andoid操作系统的架构</p>
+<h3 id="SOA架构"><a href="#SOA架构" class="headerlink" title="SOA架构"></a>SOA架构</h3><p>SOA(Service Oriented Architecture)提出来三个关键概念：</p>
+<p>1）服务<br>所有业务功能都是一项服务，服务意味着要对外提供开发的能力，当其他系统需要使用这项功能时，无须定制化开发。</p>
+<p>2）ESB(Enterprise Service Bus)<br>ESB是将企业中各个不同的服务连接到一起。SOA使用ESB来屏蔽异构系统对外提供各种不同的接口方式，以此来达到服务间高效的互联互通。</p>
+<p>3）松耦合<br>目的是减少各个服务间的依赖和相互影响。</p>
+<p>SOA架构是集成的思想，是解决服务孤岛打通链条，是无奈之举。ESB集中化的管理带来了性能不佳、厚重等问题，也无法快速扩展。所以不适合互联网的业务特点。</p>
+<h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p>微服务是一种和SOA相似但本质上不同的架构理念。两者都关注于“服务”，都是通过服务的拆分来解决可扩展性问题。本质上不同在于几个核心理念的差异：是否有ESB、服务的粒度、架构设计的目标（<strong>small、lightweight、automated</strong>）等。</p>
+<p>微服务架构其实相当复杂，可以分成几个阶段理解：<br>1）第一阶段，微服务架构就是去掉了ESB的SOA架构，只不过是通信的方式和结构变了。对于初级的使用者而言，这样理解没有太大问题。<br>2）第二阶段，没有了ESB，原本很多由ESB组件做的事儿，转到服务的提供者和调用者这里了。他们需要考虑服务的拆分粒。大体仍然算是SOA架构。<br>3）第三阶段，随着服务的数量大幅增加，服务的管理越来越困难，此时DevOps出现了。这个阶段的微服务架构，已经是跟SOA架构完全不同的东西了。<br>要逐步演进和迭代，不要过于激进，更不要拆分过细，拆分的粒度，要与团队的架构相互匹配。（康威定律）</p>
+<p>SOA和微服务的区别：<br>1）服务粒度<br>2）服务通讯<br>微服务推荐使用统一的协议和格式。<br>3）服务交付<br>SOA更多的是考虑兼容已有的系统；微服务的架构理念要求“快速交付”，相应的要求自动化测试、持续集成、自动化部署等敏捷开发相关的最佳实践。<br>4）应用场景<br>SOA更适合庞大、复杂、异构的企业级系统，这也是SOA诞生的背景。<br>微服务更适合快速、轻量级、基于Web的物联网系统。</p>
+<h4 id="微服务的陷阱及问题"><a href="#微服务的陷阱及问题" class="headerlink" title="微服务的陷阱及问题"></a>微服务的陷阱及问题</h4><p>1）服务划分过细，服务间关系复杂<br>2）服务数量太多，团队效率急剧下降<br>3）调用链太长，性能下降<br>4）调用链太长，问题定位困难<br>5）没有自动化支撑，无法快速交付<br>6）没有服务治理，数量多了之后管理混乱</p>
+<h4 id="微服务架构实践"><a href="#微服务架构实践" class="headerlink" title="微服务架构实践"></a>微服务架构实践</h4><p>1.服务粒度<br>三个火枪手原则。亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。</p>
+<p>2.拆分方法<br>1）基于业务逻辑拆分</p>
+<p>2）基于可扩展拆分：区分稳定服务、可变服务</p>
+<p>3）基于可靠性拆分<br>好处：避免非核心业务故障影响核心业务；核心服务高可用方案可以更简单；能够降低高可用成本</p>
+<p>4）基于性能拆分<br>将性能要求高或者性能压力大的模块拆分出来，避免性能压力大的服务影响其他服务。</p>
+<p>以上方案可自由排列组合。</p>
+<p>3.基础设施<br>1）服务发现、服务路由、服务容错：这是最基本的微服务基础设施</p>
+<p>2）接口框架、API网关：主要是为了提升开发效率</p>
+<p>3）自动化部署、自动化测试、配置中心：主要为了提升测试和运维效率</p>
+<p>4）服务监控、服务跟踪、服务安全：主要是为了进一步提升运维效率</p>
+<p>以上3、4会随着微服务节点数量增加而越来越重要，当节点较少时，可以通过人工支撑，虽然效率不高，但也基本能够顶得住。</p>
+<h3 id="微内核架构"><a href="#微内核架构" class="headerlink" title="微内核架构"></a>微内核架构</h3><p>微内核架构也被称为插件化架构，是一种面向功能进行拆分的可扩展性架构。</p>
+<p>微内核架构包含两类组件：核心系统和插件模块。核心模块负责和具体业务功能无关的通用功能，如模块加载、模块间通信等；插件模块负责实现具体的业务逻辑。</p>
+<p>微内核的核心系统设计的关键技术有：插件管理、插件链接和插件通信。</p>
+<p>常见架构有：OSGI、规则引擎架构、Atlas容器化框架等。</p>
+<p>android架构模式参考：<br>1.<a href="https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&amp;mid=2247488375&amp;idx=1&amp;sn=3af36be489393783a95d5c5e3fc73b65&amp;source=41#wechat_redirect" target="_blank" rel="noopener">Atlas：手淘Native容器化框架和思考</a><br>2.<a href="https://www.infoq.cn/article/wechat-android-app-architecture" target="_blank" rel="noopener">微信 Android 客户端架构演进之路</a></p>
+<h3 id="康威定律"><a href="#康威定律" class="headerlink" title="康威定律"></a>康威定律</h3><p>微服务很多核心理念其实在半个世纪前的一篇文章中就被阐述过了，而且这篇文章中的很多论点在软件开发飞速发展的这半个世纪中竟然一再被验证，这就是康威定律（Conway’s Law）。</p>
+<p>在康威的这篇文章中，最有名的一句话就是：</p>
+<blockquote>
+<p>Organizations which design systems are constrained to produce designs which are copies of the communication structures of these organizations. - Melvin Conway(1967)</p>
+</blockquote>
+<p>中文直译大概的意思就是：<strong>设计系统的组织，其产生的设计等同于组织之内、组织之间的沟通结构。</strong></p>
+<p>Mike从他的角度归纳这篇论文中的其他一些核心观点，如下：</p>
+<ul>
+<li>第一定律：企业沟通方式会通过系统设计表达出来——Communication dictates design</li>
+<li>第二定律：再多的时间也没办法让任务完美至极，但总有时间能将它完成——There is never enough time to do something right, but there is always enough time to do it over</li>
+<li>第三定律：线型系统和线型组织架构间有潜在的异质同态特性——There is a homomorphism from the linear graph of a system to the linear graph of its design organization</li>
+<li>第四定律：大系统比小系统更适用于任务分解——The structures of large systems tend to disintegrate during development, qualitatively more so than with small systems</li>
+</ul>
+<h4 id="康威第一定律"><a href="#康威第一定律" class="headerlink" title="康威第一定律"></a>康威第一定律</h4><p>“人类是复杂的社会动物。”</p>
+<p>《The Mythical Man-Month》 这本书里有一句令人难忘的话：在应用项目后期加大人员的投资，会更加拖慢它的速度。——Fred Brooks（1975）</p>
+<p>沟通的问题会影响系统设计，进而影响整个系统的开发效率以及最终结果。</p>
+<h4 id="康威第二定律"><a href="#康威第二定律" class="headerlink" title="康威第二定律"></a>康威第二定律</h4><p>罗马不是一天建成的，学会先解决首要问题。</p>
+<p>敏捷开发巨头之一Erik Hollnagel 在他的书中阐述了类似的观点：</p>
+<blockquote>
+<p>问题太复杂？那么不妨忽略不必要的细节。<br>没有足够的资源？放弃无用的功能。<br>——Erik Hollnagel（2009）</p>
+</blockquote>
+<p>系统的复杂性、功能数量、市场竞争以及投资人的期望值都在增加，而人的智力是有上限的，没有企业能说一定能找到合适的人，对于一个极其复杂的系统，总会有考虑不周全的地方，Erik认为这个问题最好的解决办法就是：不去管它。</p>
+<p>最佳解决方案不是消除所有问题，而是允许它们存在，在发生故障时实现自动恢复。<br>在由微服务组成的系统中，每个微服务都可能停止响应，这是完全正常的，只需要确保足够的冗余和备份，这就是弹性或高可用性设计。</p>
+<h4 id="康威第三定律"><a href="#康威第三定律" class="headerlink" title="康威第三定律"></a>康威第三定律</h4><p>创建独立的子系统，减少沟通成本。</p>
+<p>团队中微服务的理念应是Inter-Operate，而不是Integrate ，Inter-Operate是指定义系统边界和接口，并为整个团队提供完整的堆栈，实现完全的自制。如此就能降低系统间的依赖性，减少通信成本。</p>
+<h4 id="康威第四定律"><a href="#康威第四定律" class="headerlink" title="康威第四定律"></a>康威第四定律</h4><p>前面提到，人类是复杂的社会动物，人与人之间的交流是非常复杂的，当涉及到一个系统时，人们经常选择增加人力去减少复杂性，对于企业来说，该如何处理这样的沟通问题？答案是：分而治之。</p>
+<h4 id="康威定律与微服务"><a href="#康威定律与微服务" class="headerlink" title="康威定律与微服务"></a>康威定律与微服务</h4><p>再来看一下康威定律是如何在半个世纪前就奠定了微服务理论基础的。</p>
+<ul>
+<li>人与人之间的交流很复杂，每个人的精力是有限的，因此当问题很复杂，需要协调地去解决时，需要将组织划分进而提高沟通效率。</li>
+<li>团队成员工作的系统设计依赖于成员之间的沟通，管理人员可以调整划分模式，实现团队之间的不同沟通方式，这也会影响系统的设计。</li>
+<li>如果子系统有清晰的外部通信便捷，那么就可以有效地降低通信成本，响应地设计将更加适合和有效。</li>
+<li>需要不断优化一个复杂的系统，并容错性和故障恢复率的帮助下进行优化，不要期望大而全面的设计或架构，因为它们的开发以迭代的方式发生。</li>
+</ul>
+<p>以下是一些具体的实践建议：</p>
+<ul>
+<li>利用一切手段提高通信效率，如Slack、Github和Wiki，且只与相关人员进行沟通，每个人和每个系统必须有明确的职责，在遇到问题时，知道该找谁去解决。</li>
+<li>在MVP模式下设计一套系统，以迭代的方式优化及验证，并确保系统的弹性。</li>
+<li>采用与系统设计相一致的团队，以扁平化和以业务为基准的方式去简化团队，每个小团队之间必须有对应负责的模块，避免模糊的界限，以免在发生问题时互相推卸责任。</li>
+<li>要做小而美的团队，人员数量的增加会降低效率以及加大成本，亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。一般来说，一家互联网公司的产品团队由7到8个人组成（包括前端和后端测试、交互和用户体验师，一些人可能身兼数职）。</li>
+</ul>
+<p>在查看以下微服务标准时，我们可以很容易地看到微服务与康威定律之间的密切关系：</p>
+<ul>
+<li>由分布式服务组成的系统</li>
+<li>企业部门的业务线</li>
+<li>开发优秀的产品</li>
+<li>Smart endpoints and dumb pipes</li>
+<li>DevOps</li>
+<li>容错</li>
+<li>快速发展</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://segmentfault.com/a/1190000011118897" target="_blank" rel="noopener">康威定律</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/29/architecture-high-performance/" itemprop="url">数据库高性能</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-29T18:02:13+08:00">
+                2019-04-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><p>读写分离的基本原理是将数据库读写操作分散到不同的节点上。</p>
+<p>读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。<br>不适用的情况:<br>1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。<br>2）通过缓存技术或者程序优化能够满足要求</p>
+<p>读写分离的基本实现是：<br>1）数据库服务器搭建主从集群，一主一从，一主多从都可以<br>2）数据库主机负责写操作，从机负责读操作<br>3）数据库主机通过复制将数据同步到数据库从机，每台数据库服务器都存储了所有的业务数据<br>4）业务服务器将写操作发给数据库主机，将读操作发给数据库从机</p>
+<p>但有两个细节点引入了复杂度：<strong>主从复制延时</strong>和<strong>分配机制</strong>，以下为解决方案</p>
+<p>复制延时：<br>1）写操作后的读操作指定发给数据库主机<br>2）读从机失败后再度一次主机<br>3）关键业务读写操作全部指向主机，非关键业务采用读写分离</p>
+<p>分配机制：<br>将读写操作区分开来，然后访问不同的数据库，一般有两种方式：<strong>程序代码封装</strong>和<strong>中间件封装</strong></p>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3><p>分库分表会带来很多复杂度。在引入分库分表之前，应该是这些操作依次尝试：<br>1.做硬件优化，例如从机械硬盘改成使用固态硬盘，当然固态硬盘不适合服务器使用，只是举个例子<br>2.先做数据库服务器的调优操作，例如增加索引，oracle有很多的参数调整;<br>3.引入缓存技术，例如Redis，减少数据库压力<br>4.程序与数据库表优化，重构，例如根据业务逻辑对程序逻辑做优化，减少不必要的查询;<br>5.在这些操作都不能大幅度优化性能的情况下，不能满足将来的发展，再考虑分库分表，也要有预估性</p>
+<h4 id="分库"><a href="#分库" class="headerlink" title="分库"></a>分库</h4><p>业务分库是指按照业务模块将数据分散到不同的数据库服务器。</p>
+<p>存在问题：<br>1）join问题<br>2）事务问题<br>3）成本问题</p>
+<h4 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h4><p>分两种方式：垂直分表、水平分表</p>
+<p>水平分表：<br>水平分表后，某条数据具体属于哪个子表，需要增加路由算法进行计算，这个算法会引入一定的复杂性。<br>常见的路由算法有：<br>1）范围路由<br>2）hash路由<br>3）配置路由</p>
+<p>其他常见的复杂性问题：join，count，order by等</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2389,715 +3073,6 @@ public interface HomeActivityComponent {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/20/java-http/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/20/java-http/" itemprop="url">HTTP基础</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T10:52:03+08:00">
-                2019-03-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>HTTP（HyperText Transfer Protocol)超文本传输协议是互联网上应用最为广泛的一种网络协议。由于信息是明文传输，所以被认为是不安全的。</p>
-<p>为了理解HTTP，我们有必要事先了解一下TCP/IP协议族。其是互联网相关联的协议集合的总称，通常使用的网络就是在TCP/IP协议族的基础上运作的，而HTTP属于它内部的一个子集，除此之外，还包括大家所熟知的FTP，DNS，TCP，UDP，IP等等协议。</p>
-<h4 id="OSI的七层协议"><a href="#OSI的七层协议" class="headerlink" title="OSI的七层协议"></a>OSI的七层协议</h4><p><img src="/2019/03/20/java-http/osi_seven.png" alt><br>其<strong>核心思想就是把数据信息包装起来，即封装：发送端在层与层之间传输数据时，每经过一层时必定会被打上一个该层所属的首部信息。反之，接收端在层与层传输数据时，每经过一层时会把对应的首部消去</strong>。值得一提的是，层次化之后，设计也变得相对简单了。处于应用层上的应用可以只考虑分派给自己的任务，而不需要弄清对方在地球上哪个地方、对方的传输线路是怎样的、是否能确保传输送达等问题。</p>
-<p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。<br>下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置：<br><img src="/2019/03/20/java-http/osi.webp" alt></p>
-<h4 id="HTTP-方法"><a href="#HTTP-方法" class="headerlink" title="HTTP 方法"></a>HTTP 方法</h4><p>下面的表格比较了两种 HTTP 方法：GET 和 POST<br><img src="http_get_post.png" alt><br>HTTP 请求方法<br><img src="http_method.png" alt></p>
-<h4 id="持久连接"><a href="#持久连接" class="headerlink" title="持久连接"></a>持久连接</h4><p>HTTP 协议的初始版本中，每进行一个 HTTP 通信都要断开一次 TCP 连接。比如使用浏览器浏览一个包含多张图片的 HTML 页面时，在发送请求访问 HTML 页面资源的同时，也会请求该 HTML 页面里包含的其他资源。因此，每次的请求都会造成无畏的 TCP 连接建立和断开，增加通信量的开销。<br>为了解决上述 TCP 连接的问题，HTTP/1.1 和部分 HTTP/1.0 想出了持久连接的方法。其<strong>特点是，只要任意一端没有明确提出断开连接，则保持 TCP 连接状态</strong>。旨在建立一次 TCP 连接后进行多次请求和响应的交互。在 HTTP/1.1 中，所有的连接默认都是持久连接。</p>
-<h4 id="管线化"><a href="#管线化" class="headerlink" title="管线化"></a>管线化</h4><p>持久连接使得多数请求以管线化方式发送成为可能。以前发送请求后需等待并接收到响应，才能发送下一个请求。管线化技术出现后，不用等待亦可发送下一个请求。这样就能做到<strong>同时并行发送多个请求</strong>，而不需要一个接一个地等待响应了。<br>比如，当请求一个包含多张图片的 HTML 页面时，与挨个连接相比，用持久连接可以让请求更快结束。而管线化技术要比持久连接速度更快。请求数越多，时间差就越明显。</p>
-<h4 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h4><p>HTTP 是一种无状态协议。协议自身不对请求和响应之间的通信状态进行保存。也就是说在 HTTP 这个级别，协议对于发送过的请求或响应都不做持久化处理。这是为了更快地处理大量事务，确保协议的可伸缩性，而特意把 HTTP 协议设计成如此简单的。<br>可是随着 Web 的不断发展，我们的很多业务都需要对通信状态进行保存。于是我们引入了 Cookie 技术。有了 Cookie 再用 HTTP 协议通信，就可以<strong>管理状态</strong>了。<br>Cookie 技术通过在请求和响应报文中写入 Cookie 信息来控制客户端的状态。Cookie 会根据从服务器端发送的响应报文内的一个叫做 Set-Cookie 的首部字段信息，通知客户端保存Cookie。当下次客户端再往该服务器发送请求时，客户端会自动在请求报文中加入 Cookie 值后发送出去。服务器端发现客户端发送过来的 Cookie 后，会去检查究竟是从哪一个客户端发来的连接请求，然后对比服务器上的记录，最后得到之前的状态信息。<br>Cookie是服务器保存在浏览器的一小段文本信息，每个 Cookie 的大小一般不能超过4KB。浏览器每次向服务器发出请求，就会自动附上这段信息。</p>
-<h5 id="cookie的用途"><a href="#cookie的用途" class="headerlink" title="cookie的用途"></a>cookie的用途</h5><ol>
-<li><p>会话管理<br>1.1 记录用户的登录状态是cookie最常用的用途。通常web服务器会在用户登录成功后下发一个签名来标记session的有效性，这样免去了用户多次认证和登录网站。<br>1.2 记录用户的访问状态，例如导航啊，用户的注册流程啊。</p>
-</li>
-<li><p>个性化信息<br>2.1 Cookie也经常用来记忆用户相关的信息，以方便用户在使用和自己相关的站点服务。例如：ptlogin会记忆上一次登录的用户的QQ号码，这样在下次登录的时候会默认填写好这个QQ号码。<br>2.2 Cookie也被用来记忆用户自定义的一些功能。用户在设置自定义特征的时候，仅仅是保存在用户的浏览器中，在下一次访问的时候服务器会根据用户本地的cookie来表现用户的设置。例如google将搜索设置（使用语言、每页的条数，以及打开搜索结果的方式等等）保存在一个COOKIE里。</p>
-</li>
-<li><p>记录用户的行为<br>最典型的是公司的TCSS系统。它使用Cookie来记录用户的点击流和某个产品或商业行为的操作率和流失率。当然功能可以通过IP或http header中的referrer实现，但是Cookie更精准一些。</p>
-</li>
-</ol>
-<h5 id="WebView中的Cookie机制"><a href="#WebView中的Cookie机制" class="headerlink" title="WebView中的Cookie机制"></a>WebView中的Cookie机制</h5><p>WebView是基于webkit内核的UI控件，相当于一个浏览器客户端。它会在本地维护每次会话的cookie(保存在data/data/package_name/app_WebView/Cookies)<br>数据就保存在Cookies那个文件里，其实是个数据库，把后缀改成.db用数据库打开可以看到里面的表结构，主要有host_key, name, value, path等，host_key其实就是domain.<br>当WebView加载URL的时候,WebView会从本地读取该URL对应的cookie，并携带该cookie与服务器进行通信。WebView通过android.webkit.CookieManager类来维护cookie。CookieManager是 WebView的cookie管理类。</p>
-<h5 id="okhttp中的cookie"><a href="#okhttp中的cookie" class="headerlink" title="okhttp中的cookie"></a>okhttp中的cookie</h5><p>详见之前的文章：<a href="https://zhaoshuming.github.io/2019/02/27/OKHttp%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_blank" rel="noopener">OKHttp深入理解</a></p>
-<h5 id="Cookie的缺陷"><a href="#Cookie的缺陷" class="headerlink" title="Cookie的缺陷"></a>Cookie的缺陷</h5><p>cookie会被附加在每个HTTP请求中，所以无形中增加了流量。<br>由于在HTTP请求中的cookie是明文传递的，所以安全性成问题。（除非用HTTPS)<br>Cookie的大小限制在4KB左右。对于复杂的存储需求来说是不够用的。</p>
-<h4 id="HTTP报文简介"><a href="#HTTP报文简介" class="headerlink" title="HTTP报文简介"></a>HTTP报文简介</h4><p>HTTP 报文本身是由多行（用 CR+LF 作换行符）数据构成的字符串文本。HTTP 报文大致可分为报文首部和报文主体两部分。两者由最初出现的空行（CR+LF）来划分。通常，并不一定有报文主体。</p>
-<h5 id="请求报文结构"><a href="#请求报文结构" class="headerlink" title="请求报文结构"></a>请求报文结构</h5><p><img src="/2019/03/20/java-http/message_request.webp" alt><br>请求报文的首部内容由以下数据组成：</p>
-<blockquote>
-<p>请求行 —— 包含用于请求的方法、请求 URI 和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、请求首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
-</blockquote>
-<p>请求报文的示例，如下：<br><img src="/2019/03/20/java-http/message_request_demo.webp" alt></p>
-<h5 id="响应报文结构"><a href="#响应报文结构" class="headerlink" title="响应报文结构"></a>响应报文结构</h5><p><img src="/2019/03/20/java-http/message_response.webp" alt><br>响应报文的首部内容由以下数据组成：</p>
-<blockquote>
-<p>状态行 —— 包含表明响应结果的状态码、原因短语和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、响应首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
-</blockquote>
-<p>响应报文的示例，如下：<br><img src="/2019/03/20/java-http/message_response_demo.webp" alt></p>
-<h4 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h4><p>HTTP 状态码的职责是当客户端向服务端发送请求时，描述返回的请求结果。<br>状态码类型:</p>
-<blockquote>
-<p>1XX：Informational(信息性状态码)，接收的请求正在处理<br>2XX：Success(成功状态码)，请求正常处理完毕<br>3XX：Redirection(重定向状态码)，需要进行附加操作以完成请求<br>4XX：Client Error(客户端错误状态码)，服务器无法处理请求<br>5XX：Server Error(服务器错误状态码)，服务器处理请求出错</p>
-</blockquote>
-<h4 id="TCP三次握手四次挥手"><a href="#TCP三次握手四次挥手" class="headerlink" title="TCP三次握手四次挥手"></a>TCP三次握手四次挥手</h4><p>在TCP/IP协议中，TCP协议<strong>提供可靠的连接服务</strong>，采用三次握手建立一个连接。 </p>
-<p>如下图所示，SYN（synchronous）是TCP/IP建立连接时使用的握手信号、Sequence number（序列号）、Acknowledge number（确认号码），三个箭头指向就代表三次握手，完成三次握手，客户端与服务器开始传送数据。</p>
-<p><img src="/2019/03/20/java-http/tcp_handshake.jpg" alt><br>第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；</p>
-<p>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；</p>
-<p>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</p>
-<p>四次挥手:<br><img src="/2019/03/20/java-http/tcp_handwave.png" alt></p>
-<p>第一次挥手:客户端A发送一个FIN.用来关闭客户A到服务器B的数据传送</p>
-<p>第二次挥手:服务器B收到这个FIN. 它发回一个ACK，确认序号为收到的序号+1。和SYN一样，一个FIN将占用一个序号</p>
-<p>第三次挥手:服务器B关闭与客户端A的连接，发送一个FIN给客户端A</p>
-<p>第四次挥手:客户端A发回ACK报文确认，并将确认序号设置为序号加1</p>
-<h4 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h4><p>我这里简单列举几个:<br>  1、基于连接与无连接;UDP是无连接的，即发送数据之前不需要建立连接</p>
-<p>  2、TCP保证数据正确性，UDP可能丢包，TCP保证数据顺序，UDP不保证。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付 ，即不保证可靠交付Tcp通过校验和，重传控制，序号标识，滑动窗口、确认应答实现可靠传输。如丢包时的重发控制，还可以对次序乱掉的分包进行顺序控制。</p>
-<p>  3、UDP具有较好的实时性，工作效率比TCP高，适用于对高速传输和实时性有较高的通信或广播通信。</p>
-<p>  4、每一条TCP连接只能是点到点的;UDP支持一对一，一对多，多对一和多对多的交互通信。</p>
-<p>  5、TCP对系统资源要求较多，UDP对系统资源要求较少。</p>
-<h4 id="HTTP-2-0"><a href="#HTTP-2-0" class="headerlink" title="HTTP 2.0"></a>HTTP 2.0</h4><p>目标是改善用户在Web时的速度体验。可以说HTTP 2.0是SPDY的升级版(其实也是基于SPDY设计的)。<br><img src="http_2_1_diff.png" alt></p>
-<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.jianshu.com/p/8962f1f175e8" target="_blank" rel="noopener">HTTP基础</a><br><a href="https://blog.csdn.net/kelaker/article/details/82751287" target="_blank" rel="noopener">Cookie介绍及在Android中的使用</a><br><a href="https://www.cnblogs.com/qdhxhz/p/8470997.html" target="_blank" rel="noopener">TCP三次握手和四次挥手</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
-                2019-03-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
-<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
-<blockquote>
-<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
-</blockquote>
-<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
-<ol>
-<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
-<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
-<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
-<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
-<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
-</ol>
-<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
-<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
-<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
-<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
-<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
-<ol>
-<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
-</li>
-<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
-</li>
-<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
-</li>
-</ol>
-<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
-<blockquote>
-<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
-</blockquote>
-<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
-<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
-<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
-<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
-<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
-<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
-<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
-<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
-<pre><code>public class DataEncryptInterceptor implements Interceptor {
-    @Override
-    public Response intercept(Chain chain) throws IOException {
-        //请求
-        Request request = chain.request();
-        RequestBody oldRequestBody = request.body();
-        Buffer requestBuffer = new Buffer();
-        oldRequestBody.writeTo(requestBuffer);
-        String oldBodyStr = requestBuffer.readUtf8();
-        requestBuffer.close();
-        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
-        //生成随机AES密钥并用serverPublicKey进行RSA加密
-        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
-        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
-        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
-        //计算body 哈希 并使用app私钥RSA签名
-        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
-        //随机AES密钥加密oldBodyStr
-        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
-        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
-        //构造新的request
-        request = request.newBuilder()
-                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
-                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
-                .method(request.method(), newBody)
-                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
-                .header(&quot;appSignature&quot;, appSignature)
-                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
-                .build();
-        //响应
-        Response response = chain.proceed(request);
-        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
-            //获取响应头
-            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
-            //用app的RSA私钥解密AES加密密钥
-            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
-            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
-            //用AES密钥解密oldResponseBodyStr
-            ResponseBody oldResponseBody = response.body();
-            String oldResponseBodyStr = oldResponseBody.string();
-            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
-            oldResponseBody.close();
-            //构造新的response
-            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
-            response = response.newBuilder().body(newResponseBody).build();
-        }
-        response.close();
-        //返回
-        return response;
-    }
-}
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/18/android-https/" itemprop="url">android中使用https</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
-                2019-03-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本案例将ca证书放在本地，这里使用.pfx格式的证书</p>
-<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>第二种写法，同样有效:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
-
-        //key管理器工厂
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
-<blockquote>
-<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
-</blockquote>
-<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
-</code></pre><p>如果是.cer的话那么，就用:</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
-<p>通过jks文件生成对应的cer文件：</p>
-<blockquote>
-<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
-</blockquote>
-<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
-<blockquote>
-<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
-</blockquote>
-<p>客户端代码如下：</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //双向验证，配置服务器验证客户端的证书
-        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
-        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><h3 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h3><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
-<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
-<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
-<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3150,7 +3125,7 @@ public interface HomeActivityComponent {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">40</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
