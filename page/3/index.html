@@ -293,6 +293,1393 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/flutter-knowledge/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/25/flutter-knowledge/" itemprop="url">Flutter知识点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T18:22:12+08:00">
+                2019-06-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Views"><a href="#Views" class="headerlink" title="Views"></a>Views</h2><p>在Flutter中，View相当于是Widget。<strong>Widget仅支持一帧</strong>，并且在每一帧上，Flutter的框架都会创建一个Widget实例树(相当于一次性绘制整个界面)。在Flutter中的widget是不可变的，这允许widget变得超级轻量。</p>
+<h3 id="Widget状态"><a href="#Widget状态" class="headerlink" title="Widget状态"></a>Widget状态</h3><p>在Flutter中Widget是不可变的，不会直接更新，而必须使用Widget的状态。这是<strong>Stateful和Stateless widget</strong>的概念的来源。一个Stateless Widget就像它的名字，是一个没有状态信息的widget。</p>
+<p>这里要注意的重要一点是无状态和有状态widget的核心特性是相同的。每一帧它们都会重新构建，不同之处在于<strong>StatefulWidget有一个State对象，它可以跨帧存储状态数据并恢复它</strong>。</p>
+<p>如果你有疑问，那么要记住这个规则：<strong>如果一个widget发生了变化（例如用户与它交互），它就是有状态的。但是，如果一个子widget对变化做出反应，而其父widget对变化没有反应，那么包含的父widget仍然可以是无状态的widget。</strong></p>
+<h3 id="Widget编写"><a href="#Widget编写" class="headerlink" title="Widget编写"></a>Widget编写</h3><p>在Android中，您通过XML编写布局，但在Flutter中，使用widget树来编写布局。<br>可以查看Flutter所提供的所有布局: <a href="https://flutterchina.club/widgets/layout/" target="_blank" rel="noopener">Flutter widget layout</a></p>
+<p>在Android中，您可以从父级控件调用addChild或removeChild以动态添加或删除View。 在Flutter中，因为widget是不可变的，所以没有addChild。相反，您可以传入一个函数，该函数返回一个widget给父项，并通过布尔值控制该widget的创建。</p>
+<p>在Flutter中，可以通过动画库给widget添加动画，将widget包装到Animation中。与Android相似，在Flutter中，您有一个AnimationController和一个Interpolator， 它是Animation类的扩展，例如CurvedAnimation。您将控制器和动画传递到AnimationWidget中，并告诉控制器启动动画。<br>See <a href="https://flutter.io/widgets/animation/" target="_blank" rel="noopener">https://flutter.io/widgets/animation/</a> and <a href="https://flutter.io/tutorials/animation" target="_blank" rel="noopener">https://flutter.io/tutorials/animation</a> for more specific details.</p>
+<p>Flutter有两个类可以帮助您绘制画布，CustomPaint和CustomPainter，它们实现您的算法以绘制到画布。<br>在这个人气较高的的StackOverFlow答案中，您可以看到签名painter是如何实现的：请参阅<a href="https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter" target="_blank" rel="noopener">https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter</a></p>
+<h3 id="如何构建自定义-Widgets"><a href="#如何构建自定义-Widgets" class="headerlink" title="如何构建自定义 Widgets"></a>如何构建自定义 Widgets</h3><p>在Flutter中，<strong>一个自定义widget通常是通过组合其它widget来实现的，而不是继承</strong>。</p>
+<p>我们来看看如何构建持有一个label的CustomButton。这是通过将Text与RaisedButton组合来实现的，而不是扩展RaisedButton并重写其绘制方法实现：</p>
+<pre><code>class CustomButton extends StatelessWidget {
+  final String label;
+  CustomButton(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return new RaisedButton(onPressed: () {}, child: new Text(label));
+  }
+}
+</code></pre><h2 id="Intents"><a href="#Intents" class="headerlink" title="Intents"></a>Intents</h2><p>Flutter不具有Intents的概念，但如果需要的话，Flutter可以通过Native整合来触发Intents。</p>
+<p>要在Flutter中切换屏幕，您可以访问路由以绘制新的Widget。 管理多个屏幕有两个核心概念和类：<strong>Route 和 Navigator</strong>。Route是应用程序的“屏幕”或“页面”的抽象（可以认为是Activity）， Navigator是管理Route的Widget。Navigator可以通过push和pop route以实现页面切换。</p>
+<p>在Flutter中，可以将具有指定Route的Map传递到顶层MaterialApp实例</p>
+<pre><code>void main() {
+  runApp(new MaterialApp(
+    home: new MyAppHome(), // becomes the route named &apos;/&apos;
+    routes: &lt;String, WidgetBuilder&gt; {
+      &apos;/a&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page A&apos;),
+      &apos;/b&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page B&apos;),
+      &apos;/c&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page C&apos;),
+    },
+  ));
+}
+</code></pre><p>然后，您可以通过Navigator来切换到命名路由的页面。</p>
+<pre><code>Navigator.of(context).pushNamed(&apos;/b&apos;);
+</code></pre><p>Intents的另一个主要的用途是调用外部组件，如Camera或File picker。为此，您需要和native集成（或使用现有的库）</p>
+<h3 id="处理外部传入的Intents"><a href="#处理外部传入的Intents" class="headerlink" title="处理外部传入的Intents"></a>处理外部传入的Intents</h3><p>Flutter可以通过直接与Android层通信并请求共享的数据来处理来自Android的Intents</p>
+<p>在这个例子中，我们注册文本共享intent，所以其他应用程序可以共享文本到我们的Flutter应用程序</p>
+<p>这个应用程序的基本流程是我们<strong>首先处理Android端的共享文本数据，然后等待Flutter请求数据，然后通过MethodChannel发送</strong>。</p>
+<p>首先在在AndroidManifest.xml中注册我们想要处理的intent:</p>
+<pre><code>&lt;activity
+       android:name=&quot;.MainActivity&quot;
+       android:launchMode=&quot;singleTop&quot;
+       android:theme=&quot;@style/LaunchTheme&quot;
+       android:configChanges=&quot;orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection&quot;
+       android:hardwareAccelerated=&quot;true&quot;
+       android:windowSoftInputMode=&quot;adjustResize&quot;&gt;
+       &lt;!-- This keeps the window background of the activity showing
+            until Flutter renders its first frame. It can be removed if
+            there is no splash screen (such as the default splash screen
+            defined in @style/LaunchTheme). --&gt;
+       &lt;meta-data
+           android:name=&quot;io.flutter.app.android.SplashScreenUntilFirstFrame&quot;
+           android:value=&quot;true&quot; /&gt;
+       &lt;intent-filter&gt;
+           &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
+           &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
+       &lt;/intent-filter&gt;
+       &lt;intent-filter&gt;
+           &lt;action android:name=&quot;android.intent.action.SEND&quot; /&gt;
+           &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;
+           &lt;data android:mimeType=&quot;text/plain&quot; /&gt;
+       &lt;/intent-filter&gt;
+   &lt;/activity&gt;
+</code></pre><p>然后，在MainActivity中处理intent，一旦我们从intent中获得共享文本数据，我们就会持有它，直到Flutter在完成准备就绪时请求它。</p>
+<pre><code>public class MainActivity extends FlutterActivity {
+    String sharedText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        GeneratedPluginRegistrant.registerWith(this);
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) &amp;&amp; type != null) {
+            if (&quot;text/plain&quot;.equals(type)) {
+                handleSendText(intent); // Handle text being sent
+            }
+        }
+
+        new MethodChannel(getFlutterView(), &quot;app.channel.shared.data&quot;).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+            @Override
+            public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+                if (methodCall.method.contentEquals(&quot;getSharedText&quot;)) {
+                    result.success(sharedText);
+                    sharedText = null;
+                }
+            }
+        });
+    }
+
+
+    void handleSendText(Intent intent) {
+        sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+    }
+}
+</code></pre><p>最后，在Flutter中，在渲染Flutter视图时请求数据：</p>
+<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
+  static const platform = const MethodChannel(&apos;app.channel.shared.data&apos;);
+  String dataShared = &quot;No data&quot;;
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedText();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(body: new Center(child: new Text(dataShared)));
+  }
+
+  getSharedText() async {
+    var sharedData = await platform.invokeMethod(&quot;getSharedText&quot;);
+    if (sharedData != null) {
+      setState(() {
+        dataShared = sharedData;
+      });
+    }
+  }
+}
+</code></pre><h3 id="startActivityForResult-在Flutter中等价于什么"><a href="#startActivityForResult-在Flutter中等价于什么" class="headerlink" title="startActivityForResult 在Flutter中等价于什么"></a>startActivityForResult 在Flutter中等价于什么</h3><p>处理Flutter中所有路由的Navigator类可用于从已经push到栈的路由中获取结果。 这可以通过等待push返回的Future来完成。例如，如果您要启动让用户选择其位置的位置的路由，则可以执行以下操作：</p>
+<pre><code>Map coordinates = await Navigator.of(context).pushNamed(&apos;/location&apos;);
+</code></pre><p>然后在你的位置路由中，一旦用户选择了他们的位置，你可以将结果”pop”出栈：</p>
+<pre><code>Navigator.of(context).pop({&quot;lat&quot;:43.821757,&quot;long&quot;:-79.226392});
+</code></pre><h2 id="异步UI"><a href="#异步UI" class="headerlink" title="异步UI"></a>异步UI</h2><h3 id="runOnUiThread-在Flutter中等价于什么"><a href="#runOnUiThread-在Flutter中等价于什么" class="headerlink" title="runOnUiThread 在Flutter中等价于什么"></a>runOnUiThread 在Flutter中等价于什么</h3><p>Dart是单线程执行模型，<strong>支持Isolates（在另一个线程上运行Dart代码的方式）、事件循环和异步编程</strong>。 除非您启动一个Isolate，否则您的Dart代码将在主UI线程中运行，并由事件循环驱动（译者语：和JavaScript一样）。</p>
+<h3 id="AsyncTask和IntentService在Flutter中等价于什么"><a href="#AsyncTask和IntentService在Flutter中等价于什么" class="headerlink" title="AsyncTask和IntentService在Flutter中等价于什么"></a>AsyncTask和IntentService在Flutter中等价于什么</h3><p>由于Flutter是单线程的，运行一个事件循环（如Node.js），所以您不必担心线程管理或者使用AsyncTasks、IntentServices。</p>
+<p>要异步运行代码，可以将函数声明为异步函数，并在该函数中等待这个耗时任务</p>
+<pre><code>loadData() async {
+  String dataURL = &quot;https://jsonplaceholder.typicode.com/posts&quot;;
+  http.Response response = await http.get(dataURL);
+  setState(() {
+    widgets = JSON.decode(response.body);
+  });
+}
+</code></pre><p>这就是典型的进行网络或数据库调用的方式</p>
+<p>在Android上，当您继承AsyncTask时，通常会覆盖3个方法，OnPreExecute、doInBackground和onPostExecute。 在Flutter中没有这种模式的等价物，因为您只需等待一个长时间运行的函数，而Dart的事件循环将负责其余的事情。但是，有时您可能需要处理大量数据，导致UI可能会挂起。在这种情况下，与AsyncTask一样，在Flutter中，可以利用多个CPU内核来执行耗时或计算密集型任务。这是通过使用<strong>Isolates</strong>来完成的。</p>
+<p>Isolate是一个独立的执行线程，它运行时不会与主线程共享任何内存。这意味着你不能从该线程访问变量或通过调用setState来更新你的UI。</p>
+<h3 id="OkHttp在Flutter中等价于什么"><a href="#OkHttp在Flutter中等价于什么" class="headerlink" title="OkHttp在Flutter中等价于什么"></a>OkHttp在Flutter中等价于什么</h3><p>当使用受欢迎的“http”package时，Flutter进行网络信非常简单。</p>
+<p>虽然<a href="https://pub.dartlang.org/packages/http" target="_blank" rel="noopener">“http” package </a>没有实现OkHttp的所有功能，但“http” package 抽象出了许多常用的API，可以简单有效的发起网络请求。</p>
+<p>您可以通过在pubspec.yaml中添加依赖项来使用它</p>
+<pre><code>dependencies:
+  ...
+  http: &apos;&gt;=0.11.3+12&apos;
+</code></pre><p>在Android中，当您执行耗时任务时，通常会显示进度指示器。在Flutter中，这可以通过渲染<strong>Progress Indicator widget</strong>来实现。您可以通过编程方式显示Progress Indicator ， 通过布尔值通知Flutter在耗时任务发起之前更新其状态。</p>
+<h2 id="项目结构和资源"><a href="#项目结构和资源" class="headerlink" title="项目结构和资源"></a>项目结构和资源</h2><h3 id="在哪里存储分辨率相关的图片文件-HDPI-XXHDPI"><a href="#在哪里存储分辨率相关的图片文件-HDPI-XXHDPI" class="headerlink" title="在哪里存储分辨率相关的图片文件? HDPI/XXHDPI"></a>在哪里存储分辨率相关的图片文件? HDPI/XXHDPI</h3><p>Flutter遵循像iOS这样简单的3种分辨率格式: 1x, 2x, and 3x.</p>
+<p>创建一个名为images的文件夹，并为每个图像文件生成一个@2x和@3x文件，并将它们放置在如下这样的文件夹中:</p>
+<pre><code>…/my_icon.png
+…/2.0x/my_icon.png
+…/3.0x/my_icon.png
+</code></pre><p>然后，您需要在pubspec.yaml文件中声明这些图片:</p>
+<pre><code>assets:
+ - images/a_dot_burr.jpeg
+ - images/a_dot_ham.jpeg
+</code></pre><p>然后您可以使用AssetImage访问您的图像</p>
+<pre><code>return new AssetImage(&quot;images/a_dot_burr.jpeg&quot;);
+</code></pre><h3 id="在哪里存储字符串-如何存储不同的语言"><a href="#在哪里存储字符串-如何存储不同的语言" class="headerlink" title="在哪里存储字符串? 如何存储不同的语言"></a>在哪里存储字符串? 如何存储不同的语言</h3><p>目前，最好的做法是创建一个名为Strings的类</p>
+<pre><code>class Strings{
+  static String welcomeMessage = &quot;Welcome To Flutter&quot;;
+}
+</code></pre><p>然后在你的代码中，你可以像访问你的字符串一样：</p>
+<pre><code>new Text(Strings.welcomeMessage)
+</code></pre><p>Flutter对Android的可访问性提供了基本的支持，虽然这个功能正在进行中。</p>
+<p>鼓励Flutter开发者使用<a href="https://pub.dev/packages/intl" target="_blank" rel="noopener">intl package</a>进行国际化和本地化</p>
+<h3 id="Android-Gradle-vs-Flutter-pubspec-yaml"><a href="#Android-Gradle-vs-Flutter-pubspec-yaml" class="headerlink" title="Android Gradle vs Flutter pubspec.yaml"></a>Android Gradle vs Flutter pubspec.yaml</h3><p>在Android中，您可以在Gradle文件来添加依赖项。</p>
+<p>在Flutter中，虽然在Flutter项目中的Android文件夹下有Gradle文件，但只有在添加平台相关所需的依赖关系时才使用这些文件。 否则，应该使用pubspec.yaml声明用于Flutter的外部依赖项。</p>
+<p>发现好的flutter packages的一个好地方 <a href="https://pub.dartlang.org/flutter/packages/" target="_blank" rel="noopener">Pub</a></p>
+<h2 id="Activities-和-Fragments"><a href="#Activities-和-Fragments" class="headerlink" title="Activities 和 Fragments"></a>Activities 和 Fragments</h2><p>在Flutter中，这两个概念都等同于Widget。</p>
+<h3 id="如何监听Android-Activity生命周期事件"><a href="#如何监听Android-Activity生命周期事件" class="headerlink" title="如何监听Android Activity生命周期事件"></a>如何监听Android Activity生命周期事件</h3><p>在Android中，您可以覆盖Activity的方法来捕获Activity的生命周期回调。</p>
+<p>在Flutter中您可以通过<strong>挂接到WidgetsBinding观察并监听didChangeAppLifecycleState更改事件来监听</strong>生命周期事件</p>
+<p>您可以监听到的生命周期事件是</p>
+<ul>
+<li>resumed - 应用程序可见并响应用户输入。这是来自Android的onResume</li>
+<li>inactive - 应用程序处于非活动状态，并且未接收用户输入。此事件在Android上未使用，仅适用于iOS</li>
+<li>paused - 应用程序当前对用户不可见，不响应用户输入，并在后台运行。这是来自Android的暂停</li>
+<li><p>suspending - 该应用程序将暂时中止。这在iOS上未使用</p>
+<p>  class _LifecycleWatcherState extends State<lifecyclewatcher> with WidgetsBindingObserver {</lifecyclewatcher></p>
+<pre><code>AppLifecycleState _lastLifecyleState;
+
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addObserver(this);
+}
+
+@override
+void dispose() {
+  WidgetsBinding.instance.removeObserver(this);
+  super.dispose();
+}
+
+@override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  setState(() {
+    _lastLifecyleState = state;
+  });
+}
+
+@override
+Widget build(BuildContext context) {
+  if (_lastLifecyleState == null)
+    return new Text(&apos;This widget has not observed any lifecycle changes.&apos;, textDirection: TextDirection.ltr);
+  return new Text(&apos;The most recent lifecycle state this widget observed was: $_lastLifecyleState.&apos;,
+      textDirection: TextDirection.ltr);
+}
+</code></pre><p>  }</p>
+</li>
+</ul>
+<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><h3 id="LinearLayout在Flutter中相当于什么"><a href="#LinearLayout在Flutter中相当于什么" class="headerlink" title="LinearLayout在Flutter中相当于什么"></a>LinearLayout在Flutter中相当于什么</h3><p>在Android中，使用LinearLayout来使您的控件呈水平或垂直排列。在Flutter中，您可以使用Row或Co​​lumn来实现相同的结果:</p>
+<pre><code>@override
+Widget build(BuildContext context) {
+  return new Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: &lt;Widget&gt;[
+      new Text(&apos;Row One&apos;),
+      new Text(&apos;Row Two&apos;),
+      new Text(&apos;Row Three&apos;),
+      new Text(&apos;Row Four&apos;),
+    ],
+  );
+}
+</code></pre><h3 id="RelativeLayout在Flutter中等价于什么"><a href="#RelativeLayout在Flutter中等价于什么" class="headerlink" title="RelativeLayout在Flutter中等价于什么"></a>RelativeLayout在Flutter中等价于什么</h3><p>RelativeLayout用于使widget相对于彼此位置排列。在Flutter中，有几种方法可以实现相同的结果</p>
+<p>您可以通过使用Column、Row和Stack的组合来实现RelativeLayout的效果。您可以为widget构造函数指定相对于父组件的布局规则。</p>
+<p>一个在Flutter中构建RelativeLayout的好例子，请参考在StackOverflow上: <a href="https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in" target="_blank" rel="noopener">https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in</a> -flutter</p>
+<h3 id="ScrollView在Flutter中等价于什么"><a href="#ScrollView在Flutter中等价于什么" class="headerlink" title="ScrollView在Flutter中等价于什么"></a>ScrollView在Flutter中等价于什么</h3><p>在Android中，ScrollView允许您包含一个子控件，以便在用户设备的屏幕比控件内容小的情况下，使它们可以滚动。</p>
+<p>在Flutter中，最简单的方法是使用ListView。但<strong>在Flutter中，一个ListView既是一个ScrollView，也是一个Android ListView</strong>。</p>
+<h2 id="手势检测和触摸事件处理"><a href="#手势检测和触摸事件处理" class="headerlink" title="手势检测和触摸事件处理"></a>手势检测和触摸事件处理</h2><h3 id="如何将一个onClick监听器添加到Flutter中的widget"><a href="#如何将一个onClick监听器添加到Flutter中的widget" class="headerlink" title="如何将一个onClick监听器添加到Flutter中的widget"></a>如何将一个onClick监听器添加到Flutter中的widget</h3><p>在Flutter中，添加触摸监听器有两种方法:</p>
+<ol>
+<li><p>如果Widget支持事件监听，则可以将一个函数传递给它并进行处理。例如，RaisedButton有一个onPressed参数:</p>
+<pre><code>@override
+Widget build(BuildContext context) {
+  return new RaisedButton(
+      onPressed: () {
+        print(&quot;click&quot;);
+      },
+      child: new Text(&quot;Button&quot;));
+}
+</code></pre></li>
+<li><p>如果Widget不支持事件监听，则可以将该Widget包装到GestureDetector中，并将处理函数传递给onTap参数:</p>
+<pre><code>class SampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        body: new Center(
+      child: new GestureDetector(
+        child: new FlutterLogo(
+          size: 200.0,
+        ),
+        onTap: () {
+          print(&quot;tap&quot;);
+        },
+      ),
+    ));
+  }
+}
+</code></pre></li>
+</ol>
+<h3 id="如何处理widget上的其他手势"><a href="#如何处理widget上的其他手势" class="headerlink" title="如何处理widget上的其他手势"></a>如何处理widget上的其他手势</h3><p>使用GestureDetector，可以监听多种手势，例如:</p>
+<p>Tap</p>
+<blockquote>
+<p>onTapDown<br>onTapUp<br>onTap<br>onTapCancel</p>
+</blockquote>
+<p>Double tap</p>
+<blockquote>
+<p>onDoubleTap 用户快速连续两次在同一位置轻敲屏幕.</p>
+</blockquote>
+<p>长按</p>
+<blockquote>
+<p>onLongPress</p>
+</blockquote>
+<p>垂直拖动</p>
+<blockquote>
+<p>onVerticalDragStart<br>onVerticalDragUpdate<br>onVerticalDragEnd</p>
+</blockquote>
+<p>水平拖拽</p>
+<blockquote>
+<p>onHorizontalDragStart<br>onHorizontalDragUpdate<br>onHorizontalDragEnd</p>
+</blockquote>
+<h2 id="Listview-amp-Adapter"><a href="#Listview-amp-Adapter" class="headerlink" title="Listview &amp; Adapter"></a>Listview &amp; Adapter</h2><h3 id="ListView在Flutter中相当于什么"><a href="#ListView在Flutter中相当于什么" class="headerlink" title="ListView在Flutter中相当于什么"></a>ListView在Flutter中相当于什么</h3><p>在Flutter中，ListView就是一个ListView！</p>
+<p>在Android ListView中，您可以创建一个适配器，然后您可以将它传递给ListView，该适配器将使用适配器返回的内容来展示每一行。 然而，你必须确保在合适的时机回收行，否则，你会得到各种疯狂的视觉和内存问题。</p>
+<p>在Flutter中，由于Flutter的不可变的widget模型，将一个Widgets列表传递给的ListView，而Flutter将负责确保它们快速平滑地滚动。</p>
+<h3 id="怎么知道哪个列表项被点击"><a href="#怎么知道哪个列表项被点击" class="headerlink" title="怎么知道哪个列表项被点击"></a>怎么知道哪个列表项被点击</h3><p>在Android中，ListView有一个方法’onItemClickListener’来确定哪个列表项被点击。 Flutter中可以更轻松地通过您传入的处理回调来进行操作：</p>
+<pre><code>_getListData() {
+   List&lt;Widget&gt; widgets = [];
+   for (int i = 0; i &lt; 100; i++) {
+     widgets.add(new GestureDetector(
+       child: new Padding(
+           padding: new EdgeInsets.all(10.0),
+           child: new Text(&quot;Row $i&quot;)),
+       onTap: () {
+         print(&apos;row tapped&apos;);
+       },
+     ));
+   }
+   return widgets;
+ }
+</code></pre><h3 id="如何动态更新ListView"><a href="#如何动态更新ListView" class="headerlink" title="如何动态更新ListView"></a>如何动态更新ListView</h3><p>需要更新适配器并调用notifyDataSetChanged。在Flutter中，如果setState（）中更新widget列表，您会发现没有变化， 这是因为当setState被调用时，Flutter渲染引擎会遍历所有的widget以查看它们是否已经改变。 当遍历到你的ListView时，它会做一个==运算，以查看两个ListView是否相同，因为没有任何改变，因此没有更新数据。</p>
+<p>要更新您的ListView，然后在setState中创建一个新的List（）并将所有旧数据复制到新列表中。这是实现更新的简单方法（译者语：此时状态改变，ListView被<strong>重新构建</strong>）</p>
+<p>然而，<strong>推荐的方法是使用ListView.Builder</strong>。当您拥有动态列表或包含大量数据的列表时，此方法非常有用。 这实际上相当于在Android上使用RecyclerView，它会自动为您回收列表元素：</p>
+<pre><code>@override
+ Widget build(BuildContext context) {
+   return new Scaffold(
+       appBar: new AppBar(
+         title: new Text(&quot;Sample App&quot;),
+       ),
+       body: new ListView.builder(
+           itemCount: widgets.length,
+           itemBuilder: (BuildContext context, int position) {
+             return getRow(position);
+           }));
+ }
+
+Widget getRow(int i) {
+   return new GestureDetector(
+     child: new Padding(
+         padding: new EdgeInsets.all(10.0),
+         child: new Text(&quot;Row $i&quot;)),
+     onTap: () {
+       setState(() {
+         widgets.add(getRow(widgets.length + 1));
+         print(&apos;row $i&apos;);
+       });
+     },
+   );
+ }
+</code></pre><p>我们不是创建一个“新的ListView”，而是创建一个新的ListView.builder，它接受两个参数，即列表的初始长度和一个ItemBuilder函数。ItemBuilder函数非常类似于Android适配器中的getView函数，它需要一个位置并返回要为该位置渲染的行。</p>
+<p>最后，但最重要的是，如果您注意到onTap函数，在里面，我们不会再重新创建列表，而只是添加新元素到列表。</p>
+<h2 id="使用-Text"><a href="#使用-Text" class="headerlink" title="使用 Text"></a>使用 Text</h2><h3 id="如何在-Text-widget上设置自定义字体"><a href="#如何在-Text-widget上设置自定义字体" class="headerlink" title="如何在 Text widget上设置自定义字体"></a>如何在 Text widget上设置自定义字体</h3><p>在Android SDK（从Android O开始）中，创建一个Font资源文件并将其传递到TextView的FontFamily参数中。</p>
+<p>在Flutter中，首先你需要把你的字体文件放在项目文件夹中（最好的做法是创建一个名为assets的文件夹）</p>
+<p>接下来在pubspec.yaml文件中，声明字体：</p>
+<pre><code>fonts:
+   - family: MyCustomFont
+     fonts:
+       - asset: fonts/MyCustomFont.ttf
+       - style: italic
+</code></pre><p>最后，将字体应用到Text widget:</p>
+<pre><code>@override
+Widget build(BuildContext context) {
+  return new Scaffold(
+    appBar: new AppBar(
+      title: new Text(&quot;Sample App&quot;),
+    ),
+    body: new Center(
+      child: new Text(
+        &apos;This is a custom font text&apos;,
+        style: new TextStyle(fontFamily: &apos;MyCustomFont&apos;),
+      ),
+    ),
+  );
+}
+</code></pre><h3 id="如何在Text上定义样式"><a href="#如何在Text上定义样式" class="headerlink" title="如何在Text上定义样式"></a>如何在Text上定义样式</h3><p>Text的样式参数需要一个TextStyle对象，您可以在其中自定义许多参数。</p>
+<h2 id="表单输入"><a href="#表单输入" class="headerlink" title="表单输入"></a>表单输入</h2><h3 id="Input的”hint”在flutter中相当于什么"><a href="#Input的”hint”在flutter中相当于什么" class="headerlink" title="Input的”hint”在flutter中相当于什么"></a>Input的”hint”在flutter中相当于什么</h3><p>在Flutter中，您可以通过向Text Widget的装饰构造函数参数添加<strong>InputDecoration对象</strong>，轻松地为输入框显示占位符文本</p>
+<pre><code>body: new Center(
+  child: new TextField(
+    decoration: new InputDecoration(hintText: &quot;This is a hint&quot;),
+  )
+)
+</code></pre><h3 id="如何显示验证错误"><a href="#如何显示验证错误" class="headerlink" title="如何显示验证错误"></a>如何显示验证错误</h3><p>就像您如何使用“hint”一样，您可以将InputDecoration对象传递给Text的装饰构造函数。</p>
+<p>但是，您不希望首先显示错误，并且通常会在用户输入一些无效数据时显示该错误。这可以通过更新状态并传递一个新的InputDecoration对象来完成：</p>
+<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
+  String _errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(&quot;Sample App&quot;),
+      ),
+      body: new Center(
+        child: new TextField(
+          onSubmitted: (String text) {
+            setState(() {
+              if (!isEmail(text)) {
+                _errorText = &apos;Error: This is not an email&apos;;
+              } else {
+                _errorText = null;
+              }
+            });
+          },
+          decoration: new InputDecoration(hintText: &quot;This is a hint&quot;, errorText: _getErrorText()),
+        ),
+      ),
+    );
+  }
+
+  _getErrorText() {
+    return _errorText;
+  }
+
+  bool isEmail(String em) {
+    String emailRegexp =
+        r&apos;^(([^&lt;&gt;()[\]\\.,;:\s@\&quot;]+(\.[^&lt;&gt;()[\]\\.,;:\s@\&quot;]+)*)|(\&quot;.+\&quot;))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$&apos;;
+
+    RegExp regExp = new RegExp(p);
+
+    return regExp.hasMatch(em);
+  }
+}
+</code></pre><h2 id="Flutter-插件"><a href="#Flutter-插件" class="headerlink" title="Flutter 插件"></a>Flutter 插件</h2><p>如何使用 GPS sensor<br>要访问GPS传感器，您可以使用社区插件 <a href="https://pub.dartlang.org/packages/location" target="_blank" rel="noopener">https://pub.dartlang.org/packages/location</a></p>
+<p>如何访问相机<br>访问相机的流行社区插件是 <a href="https://pub.dartlang.org/packages/image_picker" target="_blank" rel="noopener">https://pub.dartlang.org/packages/image_picker</a></p>
+<p>如何使用Facebook登陆<br>要访问Facebook Connect功能，您可以使用 <a href="https://pub.dartlang.org/packages/flutter_facebook_connect" target="_blank" rel="noopener">https://pub.dartlang.org/packages/flutter_facebook_connect</a> .</p>
+<p>如何构建自定义集成Native功能<br>如果有Flutter或其社区插件缺失的平台特定功能，那么您可以自己按照以下教程构建<a href="https://flutterchina.club/developing-packages/" target="_blank" rel="noopener">https://flutterchina.club/developing-packages/</a><br>简而言之，Flutter的插件架构就像在Android中使用Event bus一样：您可以发出消息并让接收者进行处理并将结果返回给您，在这种情况下，接收者将是iOS或Android。</p>
+<p>如何在我的Flutter应用程序中使用NDK<br>自定义插件首先会与Android应用程序通信，您可以在其中调用native标记的函数。一旦Native完成了相应操作，就可以将响应消息发回给Flutter并呈现结果。</p>
+<h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><p>Flutter很好的实现了一个美丽的Material Design，它会满足很多样式和主题的需求。 与Android中使用XML声明主题不同，在Flutter中，您可以<strong>通过顶层widget声明主题</strong>。</p>
+<p>MaterialApp是一个方便的widget，它包装了许多Material Design应用通常需要的widget，它通过添加Material特定功能构建在WidgetsApp上。</p>
+<p>如果你不想使用Material Components，那么你可以声明一个顶级widget-WidgetsApp，它是一个便利的类，它包装了许多应用程序通常需要的widget。</p>
+<p>要自定义Material Components的颜色和样式，您可以将ThemeData对象传递到MaterialApp widget中，例如在下面的代码中，您可以看到主色板设置为蓝色，并且所有选择区域的文本颜色都应为红色。</p>
+<pre><code>class SampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: &apos;Sample App&apos;,
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+        textSelectionColor: Colors.red
+      ),
+      home: new SampleAppPage(),
+    );
+  }
+}
+</code></pre><p>Scaffold 是 Material library 中提供的一个widget, 它提供了默认的导航栏、标题和包含主屏幕widget树的body属性。widget树可以很复杂。</p>
+<h2 id="数据库和本地存储"><a href="#数据库和本地存储" class="headerlink" title="数据库和本地存储"></a>数据库和本地存储</h2><h3 id="如何在Flutter中访问Shared-Preferences"><a href="#如何在Flutter中访问Shared-Preferences" class="headerlink" title="如何在Flutter中访问Shared Preferences ?"></a>如何在Flutter中访问Shared Preferences ?</h3><p>在Flutter中，您可以通过使用插件Shared_Preferences来访问此功能</p>
+<p>这个插件包装了<a href="https://pub.dartlang.org/packages/shared_preferences" target="_blank" rel="noopener">Shared Preferences</a>和NSUserDefaults（与iOS相同）的功能</p>
+<pre><code>import &apos;package:flutter/material.dart&apos;;
+import &apos;package:shared_preferences/shared_preferences.dart&apos;;
+
+void main() {
+  runApp(
+    new MaterialApp(
+      home: new Scaffold(
+        body: new Center(
+          child: new RaisedButton(
+            onPressed: _incrementCounter,
+            child: new Text(&apos;Increment Counter&apos;),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+_incrementCounter() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int counter = (prefs.getInt(&apos;counter&apos;) ?? 0) + 1;
+  print(&apos;Pressed $counter times.&apos;);
+  prefs.setInt(&apos;counter&apos;, counter);
+}
+</code></pre><h3 id="如何在Flutter中访问SQLite"><a href="#如何在Flutter中访问SQLite" class="headerlink" title="如何在Flutter中访问SQLite"></a>如何在Flutter中访问SQLite</h3><p>在Android中，您可以使用SQLite存储，通过SQL查询的结构化数据。</p>
+<p>在Flutter中，您可以使用<a href="https://pub.dartlang.org/packages/sqflite" target="_blank" rel="noopener">SQFlite插件</a>来访问SQFlite此功能</p>
+<h2 id="通知"><a href="#通知" class="headerlink" title="通知"></a>通知</h2><p>在Android中，您可以使用Firebase云消息传递为您的应用设置推送通知。</p>
+<p>在Flutter中，您可以使用<a href="https://github.com/flutter/plugins/tree/master/packages/firebase_messaging" target="_blank" rel="noopener">Firebase_Messaging</a>插件访问此功能</p>
+<blockquote>
+<p>注意：在中国无法使用Firebase服务。</p>
+</blockquote>
+<h2 id="yaml"><a href="#yaml" class="headerlink" title="yaml"></a>yaml</h2><p>YAML是一个类似 XML的标记语言。YAML强调以数据为中心，并不是以标识语言为重点</p>
+<p>规范：</p>
+<ul>
+<li>大小写敏感</li>
+<li>缩进代表层级，使用空格，默认2个空格（flutter工具做了处理，tab也可以）</li>
+<li>#表示注释内容</li>
+<li>: 表示键值对，注意后面要空格</li>
+<li>{} 表示键值表</li>
+<li>表示列表，注意后面要空格</li>
+<li>[] 表示数组，注意每项之间有空格</li>
+<li><p>? 表示复杂的键</p>
+<pre><code># 依赖库
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^0.1.2
+
+flutter:
+  #使用Material图标
+  uses-material-design: true
+  #assets文件
+  assets:
+    - images/1.png
+    - images/2.gif
+  #字体样式
+  fonts:
+     #family与fonts是一个整体，列表的一项
+     - family: Schyler
+       fonts:
+         - asset: fonts/Schyler-Regular.ttf
+         - asset: fonts/Schyler-Italic.ttf
+           style: italic
+     - family: Trajan Pro
+       fonts:
+         - asset: fonts/TrajanPro.ttf
+         - asset: fonts/TrajanPro_Bold.ttf
+           weight: 700
+</code></pre></li>
+</ul>
+<p>-可转化为[]，:也可以转化为{}，转化后类似json</p>
+<pre><code>dependencies: {flutter: {sdk: flutter}, cupertino_icons: ^0.1.2}
+assets: [images/1.png, images/2.gif]
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/flutter-for-android" target="_blank" rel="noopener">Flutter for Android 开发者</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/hybird-redux/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/25/hybird-redux/" itemprop="url">Redux概念</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T16:36:23+08:00">
+                2019-06-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Redux是一个状态管理器。</p>
+<p>Redux最主要是用作应用状态的管理。简言之，Redux用一个单独的常量状态树（对象）保存这一整个应用的状态，这个对象不能直接被改变。当一些数据变化了，一个新的对象就会被创建（使用actions和reducers）。</p>
+<h3 id="Redux核心概念"><a href="#Redux核心概念" class="headerlink" title="Redux核心概念"></a>Redux核心概念</h3><ul>
+<li>actions</li>
+<li>store</li>
+<li>reducers</li>
+</ul>
+<p><img src="/2019/06/25/hybird-redux/redux.jpg" alt></p>
+<p><strong>Actions</strong><br>简单地，<strong>Actions就是事件。Actions传递来自这个应用（用户接口，内部事件比如API调用和表单提交）的数据给store。store只获取来自Actions的信息</strong>。内部Actions就是简单的具有一个type属性（通常是常量）的JavaScript对象，这个对象描述了action的类型以及传递给store的负载信息:</p>
+<pre><code>{
+    type: LOGIN_FORM_SUBMIT,
+    payload: {username: &apos;alex&apos;, password: &apos;123456&apos;}
+}
+</code></pre><p><strong>Reducers</strong><br>在函数式JavaScript中reducer基于数组reduce方法，接收一个回调（reducer）让你从多个值中获得单个值，整数和，或者一个一系列值的累积。在Redux中，<strong>reducer就是获得这个应用的当前状态和事件然后返回一个新状态的函数</strong>。理解reducer是怎样工作的至关重要，因为它们完成大部分工作。这是一个非常简单的reducer，通过获取当前state和一个action作为参数，再返回下一个state：</p>
+<pre><code>function handleAuth(state, action) {
+    return _.assign({}, state, {
+        auth: action.payload  
+    });
+}
+</code></pre><p>对于更多复杂的项目，使用Redux提供的combineReducers()实例是必要的（推荐）。它把在这个应用中所有的reducer结合在一起成为单个索引reducer。每一个reducer负责它自己那部分应用的状态，这个状态参数和其他reducer的不一样。<strong>combineReducers()实例使文件结构更容易维护</strong>。<br>如果一个对象（state）只改变一些值，Redux就创建一个新的对象，那些没有改变的值将会指向旧的对象而且新的值将会被创建。这对性能是极好的。为了让它更有效率你可以添加 Immutable.js</p>
+<pre><code>const rootReducer = combineReducers({
+    handleAuth: handleAuth,
+    editProfile: editProfile,
+    changePassword: changePassword
+});
+</code></pre><p><strong>Store</strong><br>Store对象<strong>保存应用的状态并提供一些帮助方法来存取状态，分发状态以及注册监听。全部state由一个store来表示</strong>。任何action通过reducer返回一个新的状态对象。这就使得Redux非常简单以及可预测。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5d04790a6fb9a07efa09164d" target="_blank" rel="noopener">完全理解 redux（从零实现一个 redux）</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/30/android-binder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/30/android-binder/" itemprop="url">Android IBinder机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-30T13:15:05+08:00">
+                2019-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Android系统Binder机制中的四个组件Client、Server、Service Manager和Binder驱动程序的关系如下图所示：</p>
+<p><img src="/2019/05/30/android-binder/binder.jpg" alt></p>
+<ol>
+<li><p>Client、Server和Service Manager实现在用户空间中，Binder驱动程序实现在内核空间中</p>
+</li>
+<li><p>Binder驱动程序和Service Manager在Android平台中已经实现，开发者只需要在用户空间实现自己的Client和Server</p>
+</li>
+<li><p>Binder驱动程序提供设备文件/dev/binder与用户空间交互，Client、Server和Service Manager通过open和ioctl文件操作函数与Binder驱动程序进行通信</p>
+</li>
+<li><p>Client和Server之间的进程间通信通过Binder驱动程序间接实现</p>
+</li>
+<li><p>Service Manager是一个守护进程，用来管理Server，并向Client提供查询Server接口的能力</p>
+</li>
+</ol>
+<h3 id="Android-整体架构"><a href="#Android-整体架构" class="headerlink" title="Android 整体架构"></a>Android 整体架构</h3><p>我们先来大概看下 Android 这座大山的整体轮廓。我们先从 Android 的整体架构来看看 Binder 是处于什么地位，这张图引自 Android 项目开源网站：<a href="https://source.android.com：" target="_blank" rel="noopener">https://source.android.com：</a></p>
+<p><img src="/2019/05/30/android-binder/android-system.webp" alt></p>
+<p>从下往上依次为</p>
+<ul>
+<li>内核层：Linux 内核和各类硬件设备的驱动，这里需要注意的是，Binder IPC 驱动也是在这一层实现，比较特殊</li>
+<li>硬件抽象层：封装「内核层」硬件驱动，提供可供「系统服务层」调用的统一硬件接口</li>
+<li>系统服务层：提供核心服务，并且提供可供「应用程序框架层」调用的接口</li>
+<li>Binder IPC 层：作为「系统服务层」与「应用程序框架层」的 IPC 桥梁，互相传递接口调用的数据，实现跨进层的通讯</li>
+<li>应用程序框架层：这一层可以理解为 Android SDK，提供四大组件，View 绘制体系等平时开发中用到的基础部件</li>
+</ul>
+<p>在一个大的项目里面，<strong>分层</strong>是非常重要的，处于最底层的接口最具有「通用性」，接口粒度最细，越往上层通用性降低。理论上来说上面的每一层都可以「开放」给开发者调用，例如开发者可以直接调用硬件抽象层的接口去操作硬件，或者直接调用系统服务层中的接口去直接操作系统服务，甚至是像 Windows 开发一样，开发者可以在内核层写程序，运行在内核中。不过开放带来的问题就是开发者权利太大，对于系统的稳定性是没有任何好处的，一个病毒制作者写了一个内核层的病毒，系统也许永远也起不来了。所以谷歌的做法是将开发者的权利收拢到了「应用程序框架层」，开发者只能调用这一层提供的接口。</p>
+<p>上面的层次中，内核层与硬件抽象层均用 C/C++ 实现，系统服务层是以 Java 实现，硬件抽象层编译为 so 文件，以 JNI 的形式供系统服务层使用。系统服务层中的服务随系统的启动而启动，只要不关机，就会一直运行。这些服务干什么事情呢？其实很简单，就是完成一个手机该有的核心功能如短信的收发管理、电话的接听、挂断以及应用程序的包管理、Activity 的管理等等。每一个服务均运行在一个独立进程中，因为是以 Java 实现，所以本质上来说就是运行在一个独立进程的 Dalvik 虚拟机中。问题就来了，开发者的 APP 运行在一个新的进程空间，如何调用到系统服务层中的接口呢？答案是 IPC（Inter-Process Communication），进程间通讯，缩写与 RPC（Remote Procedure Call）是不一样的，实现原理也是不一样的。每一个系统服务在应用层序框架层都有一个 Manager 与之对应，方便开发者调用其相关的功能，具体关系大致如下</p>
+<p><img src="/2019/05/30/android-binder/ipc.webp" alt></p>
+<p>IPC 的方式有很多种，例如 socket、共享内存、管道、消息队列等等，我们就不去深究为何要使用 Binder 而不使用其他方式去做，到目前为止，这座大山的面目算是有个大概的轮廓了。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><ul>
+<li><strong>Android 从下而上分了内核层、硬件抽象层、系统服务层、Binder IPC 层、应用程序框架层</strong></li>
+<li><strong>Android 中「应用程序框架层」以 SDK 的形式开放给开发者使用，「系统服务层」中的核心服务随系统启动而运行，通过应用层序框架层提供的 Manager 实时为应用程序提供服务调用。系统服务层中每一个服务运行在自己独立的进程空间中，应用程序框架层中的 Manager 通过 Binder IPC 的方式调用系统服务层中的服务。</strong></li>
+</ul>
+<h3 id="Binder-IPC-的架构"><a href="#Binder-IPC-的架构" class="headerlink" title="Binder IPC 的架构"></a>Binder IPC 的架构</h3><p>下面我们就来看看 Binder IPC 的架构是怎样的</p>
+<p><img src="/2019/05/30/android-binder/ipc-binder.webp" alt></p>
+<p>Binder IPC 属于 C/S 结构，Client 部分是用户代码，用户代码最终会调用 Binder Driver 的 transact 接口，Binder Driver 会调用 Server，这里的 Server 与 service 不同，可以理解为 Service 中 onBind 返回的 Binder 对象，请注意区分下:</p>
+<ul>
+<li>Client：用户需要实现的代码，如 AIDL 自动生成的接口类</li>
+<li>Binder Driver：在内核层实现的 Driver</li>
+<li>Server：这个 Server 就是 Service 中 onBind 返回的 IBinder 对象</li>
+</ul>
+<p>需要注意的是，上面绿色的色块部分都是属于用户需要实现的部分，而蓝色部分是系统去实现了。也就是说 Binder Driver 这块并不需要知道，Server 中会开启一个线程池去处理客户端调用。为什么要用线程池而不是一个单线程队列呢？试想一下，如果用单线程队列，则会有任务积压，多个客户端同时调用一个服务的时候就会有来不及响应的情况发生，这是绝对不允许的。</p>
+<p>对于调用 Binder Driver 中的 transact 接口，客户端可以手动调用，也可以通过 AIDL 的方式生成的代理类来调用，服务端可以继承 Binder 对象，也可以继承 AIDL 生成的接口类的 Stub 对象。</p>
+<p>切记，这里 Server 的实现是线程池的方式，而不是单线程队列的方式，区别在于，单线程队列的话，Server 的代码是线程安全的，线程池的话，Server 的代码则不是线程安全的，需要开发者自己做好多线程同步。</p>
+<h4 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h4><ul>
+<li><strong>Binder IPC 属于 C/S 架构，包括 Client、Driver、Server 三个部分</strong></li>
+<li><strong>Client 可以手动调用 Driver 的 transact 接口，也可以通过 AIDL 生成的 Proxy 调用</strong></li>
+<li><strong>Server 中会启动一个「线程池」来处理 Client 的调用请求，处理完成后将结果返回给 Driver，Driver 再返回给 Client</strong></li>
+</ul>
+<p>这里就回答了两个问题：Service 中通过 AIDL 提供的接口并不是线程安全的，同理 ContentProvider 底层也是使用 Binder，同样不是线程安全的，至于是否需要做多线程保护，看业务而定，最好是做好多线程同步，以防万一。</p>
+<h3 id="使用-AIDL-实现-Binder-IPC"><a href="#使用-AIDL-实现-Binder-IPC" class="headerlink" title="使用 AIDL 实现 Binder IPC"></a>使用 AIDL 实现 Binder IPC</h3><p>Android 给了我们更好用的方式那就是 AIDL，假如我们要做一个上报数据的功能，运行在 Service 中，在后台上报数据，接口定义如下</p>
+<h4 id="IReporter-aidl"><a href="#IReporter-aidl" class="headerlink" title="IReporter.aidl"></a>IReporter.aidl</h4><pre><code>package com.android.binder;
+
+interface IReporter {
+
+    int report(String values, int type);
+}
+</code></pre><h4 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h4><p>AidlService.java</p>
+<pre><code>public class AidlService extends Service {
+
+    public static final class Reporter extends IReporter.Stub {
+
+        @Override
+        public int report(String values, int type) throws RemoteException {
+            return type;
+        }
+    }
+
+    private Reporter mReporter;
+
+    public AidlService() {
+        mReporter = new Reporter();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mReporter;
+    }
+}
+</code></pre><p>继承了 AIDL 自动生成的 Stub 对象，它是什么呢？我们可以看下它的定义</p>
+<h4 id="IReporter-java"><a href="#IReporter-java" class="headerlink" title="IReporter.java"></a>IReporter.java</h4><pre><code>public interface IReporter extends android.os.IInterface
+{
+
+    public static abstract class Stub extends android.os.Binder implements com.android.binder.IReporter {
+        ...
+
+        @Override
+        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException
+        {
+            switch (code)
+            {
+                case INTERFACE_TRANSACTION:
+                {
+                    reply.writeString(DESCRIPTOR);
+                    return true;
+                }
+                case TRANSACTION_report:
+                {
+                    data.enforceInterface(DESCRIPTOR);
+                    java.lang.String _arg0;
+                    _arg0 = data.readString();
+                    int _arg1;
+                    _arg1 = data.readInt();
+                    int _result = this.report(_arg0, _arg1);
+                    reply.writeNoException();
+                    reply.writeInt(_result);
+                    return true;
+                }
+            }
+            return super.onTransact(code, data, reply, flags);
+        }
+    }
+
+...
+
+}
+</code></pre><p>自动生成的 IReporter 类自动给我们处理了一些参数的组包和解包而已，在 case 语句中调用了 this.report 即可调用到自己的业务逻辑部分了。</p>
+<h4 id="Driver"><a href="#Driver" class="headerlink" title="Driver"></a>Driver</h4><p>该部分已经被 Binder 类给封装了，暴露给开发者的已经是很简单的使用方式了，即继承 Binder，实现 onTransact 即可。</p>
+<h4 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h4><p>MainActivity.java</p>
+<pre><code>private IReporter mReporterAidl;
+
+private class AidlConnection implements ServiceConnection {
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mReporterAidl = IReporter.Stub.asInterface(service);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        mReporterAidl = null;
+    }
+}
+
+...
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+
+    ...
+
+    Intent intent = new Intent(this, AidlService.class);
+    bindService(intent, new AidlConnection(), BIND_AUTO_CREATE);
+}
+</code></pre><p>这里调用了 Stub 对象的 asInterface，具体做了什么呢？</p>
+<pre><code>public static com.android.binder.IReporter asInterface(android.os.IBinder obj)
+{
+    if ((obj==null)) {
+        return null;
+    }
+    android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);
+    if (((iin!=null)&amp;&amp;(iin instanceof com.android.binder.IReporter))) {
+        return ((com.android.binder.IReporter)iin);
+    }
+    return new com.android.binder.IReporter.Stub.Proxy(obj);
+}
+</code></pre><p>先查找本地接口是否存在，判断是否是本地调用，如果是则直接返回 IReporter 的对象，否则返回 Stub.Proxy 对象，这个 Proxy 对象是做什么的呢？</p>
+<pre><code>private static class Proxy implements com.android.binder.IReporter
+{
+    private android.os.IBinder mRemote;
+    Proxy(android.os.IBinder remote)
+    {
+        mRemote = remote;
+    }
+    @Override public android.os.IBinder asBinder()
+    {
+        return mRemote;
+    }
+    public java.lang.String getInterfaceDescriptor()
+    {
+        return DESCRIPTOR;
+    }
+    @Override public int report(java.lang.String values, int type) throws android.os.RemoteException
+    {
+        android.os.Parcel _data = android.os.Parcel.obtain();
+        android.os.Parcel _reply = android.os.Parcel.obtain();
+        int _result;
+        try {
+            _data.writeInterfaceToken(DESCRIPTOR);
+            _data.writeString(values);
+            _data.writeInt(type);
+            mRemote.transact(Stub.TRANSACTION_report, _data, _reply, 0);
+            _reply.readException();
+            _result = _reply.readInt();
+        }
+        finally {
+            _reply.recycle();
+            _data.recycle();
+        }
+        return _result;
+    }
+}
+</code></pre><p>基本上已经很明了了，就是一个代理对象，对调用接口参数做组包而已，然后调用了 mRemote.transact 接口。</p>
+<h4 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h4><ul>
+<li><strong>AIDL 自动生成了 Stub 类</strong></li>
+<li><strong>在 Service 端继承 Stub 类，Stub 类中实现了 onTransact 方法实现了「解包」的功能</strong></li>
+<li><strong>在 Client 端使用 Stub 类的 Proxy 对象，该对象实现了「组包」并且调用 transact 的功能</strong></li>
+</ul>
+<p>有了 AIDL 之后，IReporter 接口就变得有意义了，Client 调用接口，Server 端实现接口，一切「组包」、「解包」的逻辑封装在了 Stub 类中，一切就是那么完美。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.jianshu.com/p/bdef9e3178c9" target="_blank" rel="noopener">https://www.jianshu.com/p/bdef9e3178c9</a><br><a href="https://blog.csdn.net/luoshengyang/article/details/6618363" target="_blank" rel="noopener">https://blog.csdn.net/luoshengyang/article/details/6618363</a><br><a href="https://blog.csdn.net/Mr_LiaBill/article/details/49837851" target="_blank" rel="noopener">Android IBinder机制简单介绍</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/29/java-constant-pool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/29/java-constant-pool/" itemprop="url">Java常量池</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-29T10:32:54+08:00">
+                2019-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Java知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>常量池是为了避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享。</p>
+<h3 id="Jvm虚拟内存分布"><a href="#Jvm虚拟内存分布" class="headerlink" title="Jvm虚拟内存分布"></a>Jvm虚拟内存分布</h3><p><img src="/2019/05/29/java-constant-pool/java_memory.png" alt><br> <strong>程序计数器</strong>是jvm执行程序的流水线，存放一些跳转指令。</p>
+<p> <strong>本地方法栈</strong>是jvm调用操作系统方法所使用的栈。</p>
+<p> <strong>虚拟机栈</strong>是jvm执行java代码所使用的栈。</p>
+<p> <strong>方法区</strong>存放了一些常量、静态变量、类信息等，可以理解成class文件在内存中的存放位置。</p>
+<p> <strong>虚拟机堆</strong>是jvm执行java代码所使用的堆。</p>
+<h3 id="Java常量池分类"><a href="#Java常量池分类" class="headerlink" title="Java常量池分类"></a>Java常量池分类</h3><p>Java中的常量池，实际上分为两种形态：<strong>静态常量池和运行时常量池</strong>。</p>
+<p>所谓<strong>静态常量池，即*.class文件中的常量池</strong>，class文件中的常量池不仅仅包含字符串(数字)字面量，还包含类、方法的信息，占用class文件绝大部分空间。这种常量池主要用于存放两大类常量：<strong>字面量(Literal)和符号引用量(Symbolic References)</strong>，字面量相当于Java语言层面常量的概念，如文本字符串，声明为final的常量值等，符号引用则属于编译原理方面的概念，包括了如下三种类型的常量：</p>
+<blockquote>
+<p><strong>类和接口的全限定名<br>字段名称和描述符<br>方法名称和描述符</strong></p>
+</blockquote>
+<p>而<strong>运行时常量池</strong>，则是jvm虚拟机在完成类装载操作后，将class文件中的常量池载入到内存中，并保存在方法区中，我们常说的常量池，就是指方法区中的运行时常量池。</p>
+<p>运行时常量池相对于CLass文件常量池的另外一个重要特征是具备<strong>动态性</strong>，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入CLass文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中，这种特性被开发人员利用比较多的就是String类的intern()方法。String的intern()方法会查找在常量池中是否存在一份equal相等的字符串,如果有则返回该字符串的引用,如果没有则添加自己的字符串进入常量池。</p>
+<h3 id="常量池的好处"><a href="#常量池的好处" class="headerlink" title="常量池的好处"></a>常量池的好处</h3><p>常量池是为了<strong>避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享</strong>。<br>例如字符串常量池，在编译阶段就把所有的字符串文字放到一个常量池中。<br>（1）节省内存空间：常量池中所有相同的字符串常量被合并，只占用一个空间。<br>（2）节省运行时间：比较字符串时，==比equals()快。对于两个引用变量，只用==判断引用是否相等，也就可以判断实际值是否相等。</p>
+<p>享元模式（Flyweight Pattern）主要用于减少创建对象的数量，以减少内存占用和提高性能。这种类型的设计模式属于结构型模式，减少对象数量从而改善应用所需的对象结构的方式。实现方式一般是通过HashMap完成。java常量池的设计初中也是为了减少内存占用，同时保证访问安全。继承Number的包装类常量池存储使用数组，String使用继承自HashTable的StringTable</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>接下来我们引用一些网络上流行的常量池例子，然后借以讲解。</p>
+<pre><code> 1 String s1 = &quot;Hello&quot;;
+ 2 String s2 = &quot;Hello&quot;;
+ 3 String s3 = &quot;Hel&quot; + &quot;lo&quot;;
+ 4 String s4 = &quot;Hel&quot; + new String(&quot;lo&quot;);
+ 5 String s5 = new String(&quot;Hello&quot;);
+ 6 String s6 = s5.intern();
+ 7 String s7 = &quot;H&quot;;
+ 8 String s8 = &quot;ello&quot;;
+ 9 String s9 = s7 + s8;
+10           
+11 System.out.println(s1 == s2);  // true
+12 System.out.println(s1 == s3);  // true
+13 System.out.println(s1 == s4);  // false
+14 System.out.println(s1 == s9);  // false
+15 System.out.println(s4 == s5);  // false
+16 System.out.println(s1 == s6);  // true
+</code></pre><p> 首先说明一点，在java 中，直接使用==操作符，比较的是两个字符串的引用地址，并不是比较内容，比较内容请用String.equals()。</p>
+<p> s1 == s2这个非常好理解，s1、s2在赋值时，均使用的字符串字面量，说白话点，就是直接把字符串写死，在编译期间，这种字面量会直接放入class文件的常量池中，从而实现复用，载入运行时常量池后，s1、s2指向的是同一个内存地址，所以相等。</p>
+<p> s1 == s3这个地方有个坑，s3虽然是动态拼接出来的字符串，但是所有参与拼接的部分都是已知的字面量，在编译期间，这种拼接会被优化，编译器直接帮你拼好，因此String s3 = “Hel” + “lo”;在class文件中被优化成String s3 = “Hello”，所以s1 == s3成立。只有使用引号包含文本的方式创建的String对象之间使用“+”连接产生的新对象才会被加入字符串池中。</p>
+<p> s1 == s4当然不相等，s4虽然也是拼接出来的，但new String(“lo”)这部分不是已知字面量，是一个不可预料的部分，编译器不会优化，必须等到运行时才可以确定结果，结合字符串不变定理，鬼知道s4被分配到哪去了，所以地址肯定不同。对于所有包含new方式新建对象（包括null）的“+”连接表达式，它所产生的新对象都不会被加入字符串池中。</p>
+<p>配上一张简图理清思路：</p>
+<p><img src="/2019/05/29/java-constant-pool/constant_1.jpg" alt><br>s1 == s9也不相等，道理差不多，虽然s7、s8在赋值的时候使用的字符串字面量，但是拼接成s9的时候，s7、s8作为两个变量，都是不可预料的，编译器毕竟是编译器，不可能当解释器用，不能在编译期被确定，所以不做优化，只能等到运行时，在堆中创建s7、s8拼接成的新字符串，在堆中地址不确定，不可能与方法区常量池中的s1地址相同。</p>
+<p><img src="/2019/05/29/java-constant-pool/constant_2.png" alt><br> s4 == s5已经不用解释了，绝对不相等，二者都在堆中，但地址不同。<br> s1 == s6这两个相等完全归功于intern方法，s5在堆中，内容为Hello ，intern方法会尝试将Hello字符串添加到常量池中，并返回其在常量池中的地址，因为常量池中已经有了Hello字符串，所以intern方法直接返回地址；而s1在编译期就已经指向常量池了，因此s1和s6指向同一地址，相等。</p>
+<p>特例1</p>
+<pre><code>public static final String A = &quot;ab&quot;; // 常量A
+public static final String B = &quot;cd&quot;; // 常量B
+public static void main(String[] args) {
+     String s = A + B;  // 将两个常量用+连接对s进行初始化 
+     String t = &quot;abcd&quot;;   
+    if (s == t) {   
+         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
+     } else {   
+         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
+     }   
+ } 
+s等于t，它们是同一个对象
+</code></pre><p>A和B都是常量，值是固定的，因此s的值也是固定的，它在类被编译时就已经确定了。也就是说：String s=A+B; 等同于：String s=”ab”+”cd”;</p>
+<p>特例2</p>
+<pre><code>public static final String A; // 常量A
+public static final String B;    // 常量B
+static {   
+     A = &quot;ab&quot;;   
+     B = &quot;cd&quot;;   
+ }   
+ public static void main(String[] args) {   
+    // 将两个常量用+连接对s进行初始化   
+     String s = A + B;   
+     String t = &quot;abcd&quot;;   
+    if (s == t) {   
+         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
+     } else {   
+         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
+     }   
+ } 
+s不等于t，它们不是同一个对象
+</code></pre><p>A和B虽然被定义为常量，但是它们都没有马上被赋值。在运算出s的值之前，他们何时被赋值，以及被赋予什么样的值，都是个变数。因此A和B在被赋值之前，性质类似于一个变量。那么s就不能在编译期被确定，而只能在运行时被创建了。</p>
+<p>至此，我们可以得出三个非常重要的结论：</p>
+<blockquote>
+<p><strong>必须要关注编译期的行为，才能更好的理解常量池。<br>运行时常量池中的常量，基本来源于各个class文件中的常量池。<br>程序运行时，除非手动向常量池中添加常量(比如调用intern方法)，否则jvm不会自动添加常量到常量池。</strong></p>
+</blockquote>
+<p>以上所讲仅涉及字符串常量池，实际上还有整型常量池、浮点型常量池(java中基本类型的包装类的大部分都实现了常量池技术，即Byte,Short,Integer,Long,Character,Boolean；两种浮点数类型的包装类Float,Double并没有实现常量池技术) 等等，但都大同小异，只不过数值类型的常量池不可以手动添加常量，程序启动时常量池中的常量就已经确定了，比如整型常量池中的常量范围：-128~127，（Byte,Short,Integer,Long,Character,Boolean）<strong>这5种包装类默认创建了数值[-128，127]的相应类型的缓存数据，但是超出此范围仍然会去创建新的对象</strong>。</p>
+<p>例如在自动装箱时，把int变成Integer的时候，是有规则的，当你的int的值在-128-IntegerCache.high(127) 时，返回的不是一个新new出来的Integer对象，而是一个已经缓存在堆 中的Integer对象，（我们可以这样理解，系统已经把-128到127之 间的Integer缓存到一个Integer数组中去了，如果你要把一个int变成一个Integer对象，首先去缓存中找，找到的话直接返回引用给你就 行了，不必再新new一个），如果不在-128-IntegerCache.high(127) 时会返回一个新new出来的Integer对象。  </p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>说了这么多理论，接下来让我们触摸一下真正的常量池。</p>
+<p>前文提到过，class文件中存在一个静态常量池，这个常量池是由编译器生成的，用来存储java源文件中的字面量(本文仅仅关注字面量)，假设我们有如下java代码：</p>
+<pre><code>1 String s = &quot;hi&quot;;
+</code></pre><p>为了方便起见，就这么简单，没错！将代码编译成class文件后，用winhex打开二进制格式的class文件。如图：<br><img src="/2019/05/29/java-constant-pool/class.png" alt><br>简单讲解一下class文件的结构，开头的4个字节是class文件魔数，用来标识这是一个class文件，说白话点就是文件头，既：CA FE BA BE。</p>
+<p>紧接着4个字节是java的版本号，这里的版本号是34，因为笔者是用jdk8编译的，版本号的高低和jdk版本的高低相对应，高版本可以兼容低版本，但低版本无法执行高版本。所以，如果哪天读者想知道别人的class文件是用什么jdk版本编译的，就可以看这4个字节。</p>
+<p>接下来就是常量池入口，入口处用2个字节标识常量池常量数量，本例中数值为00 1A，翻译成十进制是26，也就是有25个常量，其中第0个常量是特殊值，所以只有25个常量。</p>
+<p>常量池中存放了各种类型的常量，他们都有自己的类型，并且都有自己的存储规范，本文只关注字符串常量，字符串常量以01开头(1个字节)，接着用2个字节记录字符串长度，然后就是字符串实际内容。本例中为：01 00 02 68 69。</p>
+<p>接下来再说说运行时常量池，由于运行时常量池在方法区中，我们可以通过jvm参数：-XX:PermSize、-XX:MaxPermSize来设置方法区大小，从而间接限制常量池大小。</p>
+<p>假设jvm启动参数为：-XX:PermSize＝2M -XX:MaxPermSize＝2M，然后运行如下代码：</p>
+<pre><code>1 //保持引用，防止自动垃圾回收
+2 List&lt;String&gt; list = new ArrayList&lt;String&gt;();
+3         
+4 int i = 0;
+5         
+6 while(true){
+7     //通过intern方法向常量池中手动添加常量
+8     list.add(String.valueOf(i++).intern());
+9 }
+</code></pre><p>程序立刻会抛出：Exception in thread “main” java.lang.outOfMemoryError: PermGen space异常。PermGen space正是方法区，足以说明常量池在方法区中。</p>
+<p>在jdk8中，移除了方法区，转而用Metaspace区域替代，所以我们需要使用新的jvm参数：-XX:MaxMetaspaceSize=2M，依然运行如上代码，抛出：java.lang.OutOfMemoryError: Metaspace异常。同理说明运行时常量池是划分在Metaspace区域中。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.cnblogs.com/syp172654682/p/8082625.html" target="_blank" rel="noopener">https://www.cnblogs.com/syp172654682/p/8082625.html</a><br><a href="https://www.jianshu.com/p/aaa80665542d" target="_blank" rel="noopener">https://www.jianshu.com/p/aaa80665542d</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/28/java-annotation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1452,1592 +2839,6 @@ CONSTANT_Methodref_info：类的方法信息
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/25/architecture-basics/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/25/architecture-basics/" itemprop="url">架构的概念</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-25T11:26:13+08:00">
-                2019-04-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/架构/" itemprop="url" rel="index">
-                    <span itemprop="name">架构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong>架构设计的主要目的是为了解决软件系统复杂度带来的问题。</strong>个人感悟是：架构及（重要）决策，是在一个有约束的盒子里去求解或接近最合适的解。这个有约束的盒子是团队经验、成本、资源、进度、业务所处阶段等所编织、掺杂在一起的综合体（人、财、时间等）。架构无优劣，但是存在恰当的架构用在合适的系统中，而这些就是决策的结果。不要过分设计。</p>
-<h3 id="架构概念"><a href="#架构概念" class="headerlink" title="架构概念"></a>架构概念</h3><p>软件架构指软件系统的顶层结构；框架是面向编程或配置的半成品；组件是从技术维度上的复用；模块是从业务维度上职责的划分；系统是相互协同可运行的实体。</p>
-<p>软件架构指软件系统的“基础结构”，创造这些基础结构的准则，以及对这些结构的描述。</p>
-<p>软件模块（Module）是一套一致而互相有紧密关连的软件组织。它分别包含了程序和数据结构两部分。现代软件开发往往利用模块作为合成的单位。模块的接口表达了由该模块提供的功能和调用它时所需的元素。模块是可能分开被编写的单位。这使它们可再用和允许人员同时协作、编写及研究不同的模块。</p>
-<p>软件组件定义为自包含的、可编程的、可重用的、与语言无关的软件单元，软件组件可以很容易被用于组装应用程序中。</p>
-<h3 id="高性能"><a href="#高性能" class="headerlink" title="高性能"></a>高性能</h3><p>性能是软件的一个重要质量属性。衡量软件性能包括了响应时间、TPS、服务器资源利用率等客观指标，也可以是用户的主观感受（从程序员、业务用户、终端用户/客户不同的视角，可能会得出不同的结论）。</p>
-<p>在说性能的时候，有一个概念与之紧密相关—伸缩性，这是两个有区别的概念。性能更多的是衡量软件系统处理一个请求或执行一个任务需要耗费的时间长短；而伸缩性则更加关注软件系统在不影响用户体验的前提下，能够随着请求数量或执行任务数量的增加（减少）而相应地拥有相适应的处理能力。</p>
-<p>但是，什么是“高”性能？这可能是一个动态概念，与当前的技术发展状况与业务所处的阶段紧密相关。比如，现在在行业/企业内部认为的高性能，站在5年后来看，未必是高性能。因此，站在架构师、设计师的角度，高性能需要和业务所处的阶段来衡量。高到什么程度才能与当前或可预见的未来业务增长相匹配。一味去追求绝对意义上的高，没有太大的实际意义。因为，伴随性能越来越高，相应的方法和系统复杂度也是越来越高，而这可能会与当前团队的人力、技术、资源等不相匹配。但是什么才合适的高性能了？这可能需要从国、内外的同行业规模相当、比自己强的竞争者、终端用户使用反馈中获取答案并不断迭代发展。</p>
-<p>软件系统中高性能带来的复杂度主要体现在两方面，一方面是单台计算机内部为了高性能带来的复杂度；另一方面是多台计算机集群为了高性能带来的复杂度。</p>
-<p>2 WHY 为什么需要高性能？<br>追求良好的用户体验；<br>满足业务增长的需要。</p>
-<p>3 HOW 如何做好高性能？<br>可以从垂直与水平两个维度来考虑。垂直维度主要是针对单台计算机，通过升级软、硬件能力实现性能提升；水平维度则主要针对集群系统，利用合理的任务分配与任务分解实现性能的提升。</p>
-<p>垂直维度可包括以下措施：<br>增大内存减少I/O操作<br>更换为固态硬盘（SSD）提升I/O访问速度<br>使用RAID增加I/O吞吐能力<br>置换服务器获得更多的处理器或分配更多的虚拟核<br>升级网络接口或增加网络接口</p>
-<p>水平维度可包括以下措施：<br>功能分解：基于功能将系统分解为更小的子系统<br>多实例副本：同一组件重复部署到多台不同的服务器<br>数据分割：在每台机器上都只部署一部分数据</p>
-<p>垂直维度方案比较适合业务阶段早期和成本可接受的阶段，该方案是提升性能最简单直接的方式，但是受成本与硬件能力天花板的限制。</p>
-<p>水平维度方案所带来的好处要在业务发展的后期才能体现出来。起初，该方案会花费更多的硬件成本，另外一方面对技术团队也提出了更高的要求；但是，没有垂直方案的天花板问题。一旦达到一定的业务阶段，水平维度是技术发展的必由之路。因此，作为技术部门，需要提前布局 ，未雨绸缪，不要被业务抛的太远。</p>
-<h3 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h3><p><strong>高可用基础是“状态决策”。本质上是通过“冗余”来实现高可用。</strong></p>
-<p>高可用保证的原则是“集群化”，或者叫“冗余”：只有一个单点，挂了服务会受影响；如果有冗余备份，挂了还有其他backup能够顶上。保证系统高可用，架构设计的核心准则是：冗余。有了冗余之后，还不够，每次出现故障需要人工介入恢复势必会增加系统的不可服务实践。所以，又往往是通过“自动故障转移”来实现系统的高可用。</p>
-<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><p><strong>核心是：封装变化，隔离可变性。</strong></p>
-<p>应对变化方案：<br>1）将“变化”封装在一个“变化层”，将不变的部分封装在一个独立的“稳定层”<br>2）提炼出一个“抽象层”和一个“实现层”。抽象层是稳定的，而实现层是根据业务进行定制的，当加入新功能时，只需要更改实现层，无须修改抽象层。</p>
-<h3 id="可伸缩性"><a href="#可伸缩性" class="headerlink" title="可伸缩性"></a>可伸缩性</h3><p>当前大型互联网网站需要面对大量用户高并发访问、存储更多数据、处理更高频次的用户交互。网站系统一般通过多种分布式技术将多台服务器组成集群对外提供服务。<strong>伸缩性一般是系统可以根据需求和成本调整自身处理能力的一种能力</strong>。伸缩性常意味着系统可以通过低成本并能够快速改变自身的处理能力以满足更多用户访问、处理更多数据而不会对用户体验造成任何影响。</p>
-<p>伸缩性度量指标包括（1）处理更高并发；（2）处理更多数据；（3）处理更高频次的用户交互。</p>
-<p>其复杂度体现在（1）伸——增强系统在上述三个方面的处理能力；（2）缩——缩减系统处理能力；（3）上述伸缩过程还必须相对低成本和快速。</p>
-<h3 id="成本、安全、规模"><a href="#成本、安全、规模" class="headerlink" title="成本、安全、规模"></a>成本、安全、规模</h3><p>低成本是架构设计中需要考虑一个约束条件，但不会是首要目标。低成本本质上是与高性能和高可用冲突的，当无法设计出满足成本要求的方案，就只能协调并调整成本目标。<br>往往只有“创新”才能达到低成本目标。1）引入新技术。主要复杂度在于需要去熟悉新技术，并且将新技术与已有技术结合；一般中小型公司基本采用该方式达到目标。2）开创一个全新技术领域。主要复杂度在于需要去创造全新的理念和技术，并且与旧技术相比，需要有质的飞跃，复杂度更高；一般大公司拥有更多的资源、技术实力会采用该方式来达到低成本的目标。</p>
-<p>安全在技术角度上将包括功能安全和架构安全。1）功能安全-“防小偷”，减少系统潜在的缺陷（是一个逐步完善的过程，而且往往都是在问题出现后才能有针对性的提出解决方案，与编码实现有关），阻止黑客的破坏行为。2）架构安全-“防强盗”，保护系统不受恶意访问与攻击，保护系统的重要数据不被窃取（传统企业主要通过防火墙实现不同区域的访问控制，功能强大、性能一般，但是成本更高；互联网企业更多的是依靠运营商或者云服务商强大的带宽和流量清洗的能力，较少自己来设计和实现）。</p>
-<p>规模带来复杂度的主要原因是“量变引起质变”。1）功能越来越多，调用逻辑越来越复杂，会导致系统复杂度指数级上升。2）数据容量、类型、关联关系越来越多。<br>规模问题需要与高性能、高可用、高扩展、高伸缩性统一考虑。常采用“分而治之，各个击破”的方法策略。</p>
-<h3 id="架构设计三原则"><a href="#架构设计三原则" class="headerlink" title="架构设计三原则"></a>架构设计三原则</h3><p><strong>不断演化是架构发展的主旋律，而满足适合、追求简单是架构决策的重要依据。</strong>需求驱动技术的创新演化；技术反哺业务的发展升级。<br>1）合适原则<br>合适原则宣言：合适优于业界领先<br>失败原因：没有那么多人，却想干那么多活；没有那么多积累，却想一步登天；没有卓越的业务场景，却幻想灵光一闪成为天才。设计的目的不是为了证明自己，而是更快更好的满足业务需求。</p>
-<p>2）简单原则<br>简单原则宣言：简单优于复杂<br>定位一个复杂系统中的问题总是比简单系统更为复杂</p>
-<p>3）演化原则<br>演化原则宣言：演化优于一步到位<br><strong>对于软件来说，变化才是主题</strong>。罗马不是一天建成的，架构也不是一开始就设计成完美的样子，然后可以一劳永逸的用下去。</p>
-<p>各个公司的架构都是逐渐演进成当前的样子，在达到同样目的的过程中实现手段确并不完全相同，蚂蚁和阿里都进行了多地多中心部署的架构改造，但二者在诸如配置中心、跨ldc访问管控等方面都不尽相同，即使在蚂蚁内部也出现了后续实现推翻原始规划的情况。在多地多中心部署架构改造完成后，为进一步降低成本，避免大促活动中机器的浪费，又开始了弹性部署的改造，希望能够在大促高峰来临的前几个小时再临时增加服务器，等活动结束服务器就立即回收。等这个搞定，又开始在线离线混布的改造，进一步降低整体成本。<br>这些改造之所以一个接一个的能够实现，也在于使用的主要中间件和框架都是自研的，知根知底，可以快速迭代修改，如果是使用第三方的或者购买的，一方面可能非常贵，另一方面可能根本不支持，要重新设计改造部署所需的时间要远远大于自研的成本。</p>
-<h3 id="软件活动中没有“银弹”"><a href="#软件活动中没有“银弹”" class="headerlink" title="软件活动中没有“银弹”"></a>软件活动中没有“银弹”</h3><p>在古代的狼人传说中，只有用银质子弹（银弹）才能制服这些异常凶残的怪兽。在软件开发活动中，“银弹”特指人们渴望找到用于制服软件项目这头难缠的“怪兽”的“万能钥匙”。</p>
-<p>软件开发过程包括了分析、设计、实现、测试、验证、部署、运维等多个环节。从IT技术的发展历程来看，先辈们在上述不同的环节中提出过很多在当时看来很先进的方法与理念。但是，这些方法、理念在摩尔定律、业务创新、技术发展面前都被一一验证了以下观点：我们可以通过诸多方式去接近“银弹”，但很遗憾，软件活动中没有“银弹”。</p>
-<p>布鲁克斯发表《人月神话》三十年后，又写了《设计原本》。他认为一个成功的软件项目的最重要因素就是设计，架构师、设计师需要在业务需求和IT技术中寻找到一个平衡点。个人觉得，对这个平衡点的把握，就是架构设计中的取舍问题。而这种决策大部分是靠技术，但是一定程度上也依赖于架构师的“艺术”，技术可以依靠新工具、方法论、管理模式去提升，但是“艺术”无法量化 ，是一种权衡。</p>
-<p><strong>软件设计过程中，模块、对象、组件本质上是对一定规模软件在不同粒度和层次上的“拆分”方法论，软件架构是一种对软件的“组织”方法论。一分一合，其目的是为了软件研发过程中的成本、进度、质量得到有效控制</strong>。但是，一个成功的软件设计是要适应并满足业务需求，同时不断“演化”的。设计需要根据业务的变化、技术的发展不断进行“演进”，这就决定了这是一个动态活动，出现新问题，解决新问题，没有所谓的“一招鲜”。</p>
-<p>以上只是针对设计领域的银弹讨论，放眼到软件全生命周期，银弹问题会更加突出。</p>
-<p>小到一个软件开发团队，大到一个行业，没有银弹，但是“行业最佳实践”可以作为指路明灯，这个可以有。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/11/android-retrofit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/11/android-retrofit/" itemprop="url">Android Retrofit 2详解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-11T13:28:01+08:00">
-                2019-04-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h2><p>以下就是实现一个登录Login接口的小功能 ，先了解一下Retrofit的基本用法:</p>
-<pre><code>private  void getLogin() {
-Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(&quot;//localhost:8080/&quot;)
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .addConverterFactory(GsonConverterFactory.create())
-        .build();
-ApiManager apiService = retrofit.create(ApiManager.class);
-
-Call&lt;LoginResult&gt; call = apiService.getData(&quot;lyk&quot;, &quot;1234&quot;);
-call.enqueue(new Callback&lt;LoginResult&gt;() {
-   @Override
-   public void onResponse(Call&lt;LoginResult&gt; call, Response&lt;LoginResult&gt; response) {
-       if (response.isSuccess()) {
-           // 请求成功
-       } else {
-          //直接操作UI 或弹框提示请求失败
-       }
-   }
-
-   @Override
-   public void onFailure(Call&lt;LoginResult&gt; call, Throwable t) {
-       //错误处理代码
-   }
-   });
-}
-</code></pre><p>ApiManager接口:</p>
-<pre><code>public interface ApiManager {
- @GET(&quot;login/&quot;)
- Call&lt;LoginResult&gt; getData(@Query(&quot;name&quot;) String name, @Query(&quot;password&quot;) String pw);
-}
-</code></pre><h2 id="Retrofit支持异步和同步"><a href="#Retrofit支持异步和同步" class="headerlink" title="Retrofit支持异步和同步"></a>Retrofit支持异步和同步</h2><p>call.enqueue(new Callback<loginresult>）采用异步请求；<br>call.execute() 采用同步方式。</loginresult></p>
-<p>call.cancel() 取消请求</p>
-<h2 id="CallAdapterFactory"><a href="#CallAdapterFactory" class="headerlink" title="CallAdapterFactory"></a>CallAdapterFactory</h2><p>.addCallAdapterFactory(RxJava2CallAdapterFactory.create())这个是用来决定你的返回值是Observable还是Call。</p>
-<pre><code>// 使用call的情况
-Call&lt;String&gt; login();  
-// 使用Observable的情况
-Observable&lt;String&gt; login();  
-</code></pre><p>如果返回为Call那么可以不添加这个配置。如果使用Observable那就必须添加这个配置。否则就会请求的时候就会报错！</p>
-<p>Retrofit中使用RxJava：由于Retrofit设计的扩展性非常强，你只需要添加一个 CallAdapter 就可以了</p>
-<h2 id="ConverterFactory"><a href="#ConverterFactory" class="headerlink" title="ConverterFactory"></a>ConverterFactory</h2><p>addConverterFactory <strong>制定数据解析器</strong>，上面添加依赖的gson就是用在这里做默认数据返回的， 之后通过build()创建出来。</p>
-<p>Retrofit内部自带如下格式：</p>
-<blockquote>
-<p>Gson: com.squareup.retrofit2:converter-gson<br>Jackson: com.squareup.retrofit2:converter-jackson<br>Moshi: com.squareup.retrofit2:converter-moshi<br>Protobuf: com.squareup.retrofit2:converter-protobuf<br>Wire: com.squareup.retrofit2:converter-wire<br>Simple XML: com.squareup.retrofit2:converter-simplexml<br>Scalars (primitives, boxed, and String): com.squareup.retrofit2:converter-scalars</p>
-</blockquote>
-<h2 id="网络请求参数"><a href="#网络请求参数" class="headerlink" title="网络请求参数"></a>网络请求参数</h2><p>@Path:所有在网址中的参数(URL的问号前面),如://192.168.1.1/api/Accounts/{accountId}</p>
-<p>@Query:URL问号后面的参数,如://192.168.1.1/api/Comments?access_token={access_token}</p>
-<p>@QueryMap:相当于多个@Query</p>
-<p>@Field:用于POST请求,提交单个数据</p>
-<p>@FieldMap:以map形式提交多个Field(Retrofit2.0之后添加)</p>
-<p>@Body:相当于多个@Field,以对象的形式提交</p>
-<p>注意：</p>
-<ol>
-<li><p>使用@Field时记得添加@FormUrlEncoded</p>
-</li>
-<li><p>若需要重新定义接口地址,可以使用@Url,将地址以参数的形式传入即可。</p>
-</li>
-<li><p>@Path 和@Query的区别<br>相同点:都是请求头中的带有的数据<br>不同点:前者是请求头中问号之前用于替换URL中变量的字段,后者是请求头问号之后用于查询数据的字段,作用和应用场景都不同</p>
-</li>
-</ol>
-<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="开启Log"><a href="#开启Log" class="headerlink" title="开启Log"></a>开启Log</h3><p>用拦截器实现， retrofit已经提供了 HttpLoggingInterceptor 里面有四种级别，输出的格式，可以看下面介绍：</p>
-<pre><code>public enum Level {
-/** No logs. */
-NONE,
-/**
- * Logs request and response lines.
- *
- * &lt;p&gt;Example:
- * &lt;pre&gt;{@code
- * --&gt; POST /greeting 
- * 
- * 
- * /1.1 (3-byte body)
- *
- * &lt;-- 200 OK (22ms, 6-byte body)
- * }&lt;/pre&gt;
- */
-BASIC,
-/**
- * Logs request and response lines and their respective headers.
- *
- * &lt;p&gt;Example:
- * &lt;pre&gt;{@code
- * --&gt; POST /greeting http/1.1
- * Host: example.com
- * Content-Type: plain/text
- * Content-Length: 3
- * --&gt; END POST
- *
- * &lt;-- 200 OK (22ms)
- * Content-Type: plain/text
- * Content-Length: 6
- * &lt;-- END HTTP
- * }&lt;/pre&gt;
- */
-HEADERS,
-/**
- * Logs request and response lines and their respective headers and bodies (if present).
- *
- * &lt;p&gt;Example:
- * &lt;pre&gt;{@code
- * --&gt; POST /greeting http/1.1
- * Host: example.com
- * Content-Type: plain/text
- * Content-Length: 3
- *
- * Hi?
- * --&gt; END GET
- *
- * &lt;-- 200 OK (22ms)
- * Content-Type: plain/text
- * Content-Length: 6
- *
- * Hello!
- * &lt;-- END HTTP
- * }&lt;/pre&gt;
- */
-BODY
-}
-</code></pre><p>例如，开启请求头添加拦截器:</p>
-<pre><code>Retrofit retrofit = new Retrofit.Builder().client(new OkHttpClient.Builder()
-                         .addNetworkInterceptor(new  HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))       
-                         .build())
-</code></pre><h3 id="增加头部信息"><a href="#增加头部信息" class="headerlink" title="增加头部信息"></a>增加头部信息</h3><pre><code>new Retrofit.Builder()
-       .addConverterFactory(GsonConverterFactory.create())
-       .client(new OkHttpClient.Builder()
-               .addInterceptor(new Interceptor() {
-                   @Override
-                   public Response intercept(Chain chain) throws IOException {
-                       Request request = chain.request()
-                               .newBuilder()
-                               .addHeader(&quot;mac&quot;, &quot;f8:00:ea:10:45&quot;)
-                               .addHeader(&quot;uuid&quot;, &quot;gdeflatfgfg5454545e&quot;)
-                               .addHeader(&quot;userId&quot;, &quot;Fea2405144&quot;)
-                               .addHeader(&quot;netWork&quot;, &quot;wifi&quot;)
-                               .build();
-                       return chain.proceed(request);
-                   }
-               })
-               .build()
-</code></pre><p>特殊API接口单独加入,方法上注释@Headers:</p>
-<pre><code>@Headers({ &quot;Accept: application/vnd.github.v3.full+json&quot;, &quot;User-Agent: Retrofit-your-App&quot;})
-@get(&quot;users/{username}&quot;)
-Call&lt;User&gt;   getUser(@Path(&quot;username&quot;) String username);
-</code></pre><h3 id="添加证书Pinning"><a href="#添加证书Pinning" class="headerlink" title="添加证书Pinning"></a>添加证书Pinning</h3><p>证书可以在自定义的OkHttpClient加入certificatePinner 实现：</p>
-<pre><code>OkHttpClient client = new OkHttpClient.Builder()
-.certificatePinner(new CertificatePinner.Builder()
-        .add(&quot;YOU API.com&quot;, &quot;sha1/DmxUShsZuNiqPQsX2Oi9uv2sCnw=&quot;)
-        .add(&quot;YOU API..com&quot;, &quot;sha1/SXxoaOSEzPC6BgGmxAt/EAcsajw=&quot;)
-        .add(&quot;YOU API..com&quot;, &quot;sha1/blhOM3W9V/bVQhsWAcLYwPU6n24=&quot;)
-        .add(&quot;YOU API..com&quot;, &quot;sha1/T5x9IXmcrQ7YuQxXnxoCmeeQ84c=&quot;)
-        .build())
-</code></pre><h3 id="支持https"><a href="#支持https" class="headerlink" title="支持https"></a>支持https</h3><p>加密和普通http客户端请求支持https一样，证书同样可以设置到okhttpclient中.详细可以参考我之前的文章：<a href="https://zhaoshuming.github.io/2019/03/18/android-https/" target="_blank" rel="noopener">android中使用https</a></p>
-<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="url被转义"><a href="#url被转义" class="headerlink" title="url被转义"></a>url被转义</h3><pre><code>https://api.myapi.com/http%3A%2F%2Fapi.mysite.com%2Fuser%2Flist
-</code></pre><p>请将@path改成@url</p>
-<pre><code>public interface APIService { 
-@GET Call&lt;Users&gt; getUsers(@Url String url);}
-</code></pre><p>或者：</p>
-<pre><code>public interface APIService {
-    @GET(&quot;{fullUrl}&quot;)
-    Call&lt;Users&gt; getUsers(@Path(value = &quot;fullUrl&quot;, encoded = true) String fullUrl);
-}
-</code></pre><h3 id="Method方法找不到"><a href="#Method方法找不到" class="headerlink" title="Method方法找不到"></a>Method方法找不到</h3><pre><code>java.lang.IllegalArgumentException: Method must not be null
-</code></pre><p>请指定具体请求类型@get @post等</p>
-<pre><code>public interface APIService { 
-   @GET Call&lt;Users&gt; getUsers(@Url String url);
-}
-</code></pre><h3 id="Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded"><a href="#Url编码不对，-fieldMap-parameters-must-be-use-FormUrlEncoded" class="headerlink" title="Url编码不对，@fieldMap parameters must be use FormUrlEncoded"></a>Url编码不对，@fieldMap parameters must be use FormUrlEncoded</h3><p>如果用fieldMap加上FormUrlEncoded编码</p>
-<pre><code>@POST()
-@FormUrlEncoded
-Observable&lt;ResponseBody&gt; executePost(@FieldMap Map&lt;String, Object&gt; maps);
-</code></pre><p>上层需要转换将自己的map转换为FieldMap</p>
-<pre><code>@FieldMap(encoded = true) Map&lt;String, Object&gt; parameters,
-</code></pre><h3 id="path和url一起使用"><a href="#path和url一起使用" class="headerlink" title="path和url一起使用"></a>path和url一起使用</h3><pre><code>Using @Path and @Url paramers together with retrofit2 
-java.lang.IllegalArgumentException: @Path parameters may not be used with @Url. (parameter #4
-</code></pre><p>如果你是这样的：</p>
-<pre><code>@GET
-Call&lt;DataResponse&gt; getOrder(@Url String url, @Path(&quot;id&quot;) int id);
-</code></pre><p>请在你的url指定占位符.url:</p>
-<pre><code>www.myAPi.com/{Id}
-</code></pre><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>Retrofit就像一个适配器（Adapter）的角色，将一个Java接口转换成一个Http请求并返回一个Call对象，简单的调用接口方法就可以发送API请求，Retrofit完全隐藏了Request 的请求体，并使用okhttp执行请求。</p>
-<p>Retrofit 是怎么实现的呢？答案就是：Java的动态代理。<strong>Java动态代理，是一种结构性设计模式，可以在要调用的Class方法前或后，插入想要执行的代码进行改造。</strong></p>
-<p>案例中关键两行代码：</p>
-<pre><code>ApiManager apiService = retrofit.create(ApiManager.class); //2、retrofit对象创建一个API接口对象
-
-Call&lt;LoginResult&gt; call = apiService.getData(&quot;lyk&quot;, &quot;1234&quot;); //返回响应接口回调
-</code></pre><p>这简短的两行代码，隐藏了Request请求体并拿到Response返回Call对象。看下源码，这几行代码才是 Retrofit 精妙之处：</p>
-<pre><code>/** Create an implementation of the API defined by the {@code service} interface. */
-public &lt;T&gt; T create(final Class&lt;T&gt; service) {
-  Utils.validateServiceInterface(service);
-  if (validateEagerly) {
-     eagerlyValidateMethods(service);
-  }
-  return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class&lt;?&gt;[] { service },
-    new InvocationHandler() {
-      private final Platform platform = Platform.get();
-      @Override public Object invoke(Object proxy, Method method, Object... args)
-          throws Throwable {
-        // If the method is a method from Object then defer to normal invocation.
-        if (method.getDeclaringClass() == Object.class) {
-          return method.invoke(this, args);
-        }
-        if (platform.isDefaultMethod(method)) {
-          return platform.invokeDefaultMethod(method, service, proxy, args);
-        }
-        ServiceMethod serviceMethod = loadServiceMethod(method);
-        OkHttpCall okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);
-        return serviceMethod.callAdapter.adapt(okHttpCall);
-      }
-    });
-}
-</code></pre><p>源码分析：<br>当 apiService 对象调用 getData方法时，就会被这个动态代理拦截并在内部做些小动作，它会调用 Proxy.newProxyInstance方法 中的 InvocationHandler 对象，它的 invoke方法 会传入3个参数：</p>
-<blockquote>
-<p>Object proxy     ：代理对象 ，即APIManner.class<br>Method method ：调用方法，即getData方法<br>Object… args    ： 参数对象，即 “lyk”,”1234”</p>
-</blockquote>
-<p>Retrofit 得到了 method 和 参数args 。接下去 Retrofit 就会用 Java反射 获取到 getData方法 的注解信息，配合args参数，创建一个ServiceMethod对象。</p>
-<p>ServiceMethod 是服务于请求方法的，服务于传入Retrofit的proxy对象的method方法，即getData方法。如何服务呢？它可以将method通过各种内部接口解析器进行组装拼凑，最终生成一个Request请求体。这个Request 包含 api域名、path、http请求方法、请求头、是否有body、是否是multipart等等。最后返回一个Call对象，Retrofit2中Call接口的默认实现是OkHttpCall，它默认使用OkHttp3作为底层http请求client。一句话就是：<strong>Retrofit 使用Java动态代理就是要拦截被调用的Java方法，然后解析这个Java方法的注解，最后生成Request由OkHttp发送Http请求。</strong></p>
-<p>想要弄清楚Retrofit的细节，先来简单了解一下Retrofit源码组成结构：</p>
-<p><img src="/2019/04/11/android-retrofit/retrofit2_dir.png" alt><br>一个retrofit2.http包，里面全部是定义HTTP请求的Java注解，比如GET、POST、PUT、DELETE、Headers、Path、Query等；</p>
-<p>余下的retrofit2包中，几个类和接口retrofit的代码真的很少很简单，因为retrofit把网络请求这部分功能全部交给了OkHttp。</p>
-<h3 id="Retrofit接口"><a href="#Retrofit接口" class="headerlink" title="Retrofit接口"></a>Retrofit接口</h3><p>Retrofit的设计使用插件化而且轻量级，高内聚而且低耦合，这都和它的接口设计有关。Retrofit中定义了四个接口：</p>
-<ul>
-<li>Callback<t></t></li>
-<li>Converter&lt;F, T&gt;</li>
-<li>Call<t></t></li>
-<li>CallAdapter<t></t></li>
-</ul>
-<p>1、Callback<t><br>这个接口就是retrofit请求数据返回的接口，只有两个方法：</t></p>
-<pre><code>void onResponse(Response&lt;T&gt; response);
-void onFailure(Throwable t);
-</code></pre><p>2、Converter&lt;F, T&gt;<br>这个接口主要的作用就是将HTTP返回的数据解析成Java对象，主要有Xml、Gson、protobuf等。你可以在创建Retrofit对象时添加你需要使用的Converter实现。</p>
-<p>3、Call<t><br>这个接口主要的作用就是发送一个HTTP请求，Retrofit默认的实现是OkHttpCall<t>，你可以根据实际情况实现你自己的Call类。这个设计和Volley的HttpStack接口设计的思想非常相似，子类可以实现基于HttpClient或HttpUrlConnetction的HTTP请求工具。</t></t></p>
-<p>4、CallAdapter<t><br>这个借口的属性只有responseType一个；这个接口的实现类也只有DefaultCallAdapter一个。这个方法的主要作用就是将Call对象转换成另一个对象，为了支持RxJava才设计这个类的吧。</t></p>
-<h3 id="Retrofit的运行过程"><a href="#Retrofit的运行过程" class="headerlink" title="Retrofit的运行过程"></a>Retrofit的运行过程</h3><p>上面讲的案例代码，返回了一个动态代理对象。而执行这段代码时，返回了一个OkHttpCall对象，拿到这个 Call 对象才能真正执行 HTTP 请求。</p>
-<pre><code>ApiManager apiService = retrofit.create(ApiManager.class); //2、retrofit对象创建一个API接口对象
-Call&lt;LoginResult&gt; call = apiService.getData(&quot;lyk&quot;, &quot;1234&quot;); //返回响应接口回调
-</code></pre><p>上面代码中 apiService 对象其实是一个动态代理对象。当 apiService 对象调用 getData方法 时会被动态代理拦截，然后调用 Proxy.newProxyInstance 方法中的 InvocationHandler 对象， 创建一个  ServiceMethod对象：</p>
-<pre><code>ServiceMethod serviceMethod = loadServiceMethod(method);
-OkHttpCall okHttpCall = new OkHttpCall&lt;&gt;(serviceMethod, args);
-return serviceMethod.callAdapter.adapt(okHttpCall);
-</code></pre><h3 id="创建ServiceMethod"><a href="#创建ServiceMethod" class="headerlink" title="创建ServiceMethod"></a>创建ServiceMethod</h3><p>刚才说到 ServiceMethod 是服务于方法的，具体来看一下创建这个ServiceMethod的过程是怎么样的：<br>首先，获取到上面说到的 Retrofit的接口：</p>
-<pre><code>callAdapter = createCallAdapter();
-responseType = callAdapter.responseType();
-responseConverter = createResponseConverter();
-</code></pre><p>然后，解析Method方法的注解，其实就是想获取Http请求的方法。比如请求方法是GET还是POST形式，如果没有程序就会报错。还会做一系列的检查，比如在方法上注解了@Multipart，但是Http请求方法是GET，同样也会报错。</p>
-<pre><code>for (Annotation annotation : methodAnnotations) {
-    parseMethodAnnotation(annotation);
-}
-
-if (httpMethod == null) {
-   throw methodError(&quot;HTTP method annotation is required (e.g., @GET, @POST, etc.).&quot;);
-}
-</code></pre><p>其次，比如上面 apiService 接口的方法中带有参数{name,password}，这都占位符，而参数值是在Java方法调用中传入的。那么 Retrofit 会使用一个 ParameterHandler 来进行替换：</p>
-<pre><code>int parameterCount = parameterAnnotationsArray.length;
-parameterHandlers = new ParameterHandler&lt;?&gt;[parameterCount];
-</code></pre><p>最后，ServiceMethod 还会做其他的检查。比如用了 @FormUrlEncoded 注解，那么方法参数中必须至少有一个 @Field 或 @FieldMap。</p>
-<h3 id="执行Http请求"><a href="#执行Http请求" class="headerlink" title="执行Http请求"></a>执行Http请求</h3><p>之前讲到，OkHttpCall是实现了Call接口的，并且是真正调用 OkHttp3 发送Http请求的类。OkHttp3发送一个Http请求需要一个Request对象，而这个Request对象就是从 ServiceMethod 的 toRequest 返回的。</p>
-<p>总之，OkHttpCall 就是调用 ServiceMethod 获得一个可以执行的 Request 对象，然后等到 Http 请求返回后，再将 response body 传入 ServiceMethod 中，ServiceMethod 就可以调用 Converter 接口将 response body 转成一个Java对象。</p>
-<p>综上所述，<strong>ServiceMethod 中几乎保存了一个api请求所有需要的数据，OkHttpCall需要从ServiceMethod中获得一个Request对象，然后得到response后，还需要传入 ServiceMethod 用 Converter 转换成Java对象。</strong></p>
-<p>你可能会觉得我只要发送一个HTTP请求，你要做这么多事情不会很“慢”吗？不会很浪费性能吗？<br>我觉得，首先现在手机处理器主频非常高了，解析这个接口可能就花1ms可能更少的时间（我没有测试过），面对一个HTTP本来就需要几百ms，甚至几千ms来说不值得一提；而且Retrofit会对解析过的请求进行缓存，就在Map&lt;Method, ServiceMethod&gt; serviceMethodCache = new LinkedHashMap&lt;&gt;()这个对象中</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>Retrofit非常巧妙的用注解来描述一个HTTP请求，将一个HTTP请求抽象成一个Java接口，然后用了Java动态代理的方式，动态的将这个接口的注解“翻译”成一个HTTP请求，最后再执行这个HTTP请求</strong></p>
-<p>Retrofit的功能非常多的依赖Java反射，代码中其实还有很多细节，比如异常的捕获、抛出和处理，大量的Factory设计模式（为什么要这么多使用Factory模式？）</p>
-<p>Retrofit中接口设计的恰到好处，在你创建Retrofit对象时，让你有更多更灵活的方式去处理你的需求，比如使用不同的Converter、使用不同的CallAdapter，这也就提供了你使用RxJava来调用Retrofit的可能</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/csdn_aiyang/article/details/72303367" target="_blank" rel="noopener">Android Retrofit 2.0</a><br><a href="https://blog.csdn.net/jiankeufo/article/details/73186929" target="_blank" rel="noopener">https://blog.csdn.net/jiankeufo/article/details/73186929</a><br><a href="https://www.jianshu.com/p/2e8b400909b7" target="_blank" rel="noopener">https://www.jianshu.com/p/2e8b400909b7</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/java-cas/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/29/java-cas/" itemprop="url">JAVA中的CAS</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-29T18:22:44+08:00">
-                2019-03-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/同步/" itemprop="url" rel="index">
-                    <span itemprop="name">同步</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="无锁的概念"><a href="#无锁的概念" class="headerlink" title="无锁的概念"></a>无锁的概念</h4><p>加锁是一种悲观策略，无锁是一种乐观策略，因为对于加锁的并发程序来说，它们总是认为每次访问共享资源时总会发生冲突，因此必须对每一次数据操作实施加锁策略。而无锁则总是假设对共享资源的访问没有冲突，线程可以不停执行，无需加锁，无需等待，一旦发现冲突，<strong>无锁策略则采用一种称为CAS的技术来保证线程执行的安全性</strong>，这项CAS技术就是无锁策略实现的关键。</p>
-<h4 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h4><p>CAS的全称是Compare And Swap 即比较交换，其算法核心思想如下:</p>
-<blockquote>
-<p>执行函数：CAS(V,E,N)</p>
-</blockquote>
-<p>其包含3个参数:<br>V表示要更新的变量<br>E表示预期值<br>N表示新值<br>如果V值等于E值，则将V的值设为N。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，<strong>当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作</strong>，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作，原理图如下:<br><img src="/2019/03/29/java-cas/cas.png" alt><br>示例如下：</p>
-<pre><code>//加一并返回值
-public final int incrementAndGet() {
-        for (;;) {
-            int current = get();
-            int next = current + 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
-   }
-
-//返回CAS操作成功与否
-public final boolean compareAndSet(int expect, int update) {
-        //根据变量在内存中的偏移地址valueOffset获取原值，然后和预期值except进行比，如果符合，用update值进行更新，这个过程是原子操作
-        return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
-    }
-</code></pre><p>如果此时有两个线程，线程A得到current值为1，线程B得到current值也为2，此时线程A执行CAS操作，成功将值改为2，而此时线程B执行CAS操作，发现此时内存中的值并不是读到current值1，所以返回false，此时线程B继续进行循环，最后成功加1</p>
-<h4 id="CAS的原子性"><a href="#CAS的原子性" class="headerlink" title="CAS的原子性"></a>CAS的原子性</h4><p>或许我们可能会有这样的疑问，假设存在多个线程执行CAS操作并且CAS的步骤很多，有没有可能在判断V和E相同后，正要赋值时，切换了线程，更改了值。造成了数据不一致呢？答案是否定的，因为<strong>CAS是一种系统原语</strong>，原语属于操作系统用语范畴，是由若干条指令组成的，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程中不允许被中断，也就是说<strong>CAS是一条CPU的原子指令</strong>，不会造成所谓的数据不一致问题。</p>
-<h4 id="Unsafe类"><a href="#Unsafe类" class="headerlink" title="Unsafe类"></a>Unsafe类</h4><p>Unsafe类存在于sun.misc包中，其内部方法操作可以像C的指针一样直接操作内存，单从名称看来就可以知道该类是非安全的，毕竟Unsafe拥有着类似于C的指针操作，因此总是不应该首先使用Unsafe类，Java官方也不建议直接使用的Unsafe类，但我们还是很有必要了解该类，因为Java中CAS操作的执行依赖于Unsafe类的方法，注意Unsafe类中的所有方法都是native修饰的，也就是说Unsafe类中的方法都直接调用操作系统底层资源执行相应任务<br>CAS是一些CPU直接支持的指令，也就是我们前面分析的无锁操作，在Java中无锁操作CAS基于以下3个方法实现：</p>
-<pre><code>//第一个参数o为给定对象，offset为对象内存的偏移量，通过这个偏移量迅速定位字段并设置或获取该字段的值，
-//expected表示期望值，x表示要设置的值，下面3个方法都通过CAS原子指令执行操作。
-public final native boolean compareAndSwapObject(Object o, long offset,Object expected, Object x);                                                                                                  
-
-public final native boolean compareAndSwapInt(Object o, long offset,int expected,int x);
-
-public final native boolean compareAndSwapLong(Object o, long offset,long expected,long x);
-</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://blog.csdn.net/mmoren/article/details/79185862" target="_blank" rel="noopener">JAVA中的CAS</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/java-rsa/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/29/java-rsa/" itemprop="url">Java中使用RSA/AES加解密</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-29T16:30:46+08:00">
-                2019-03-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong>RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行</strong>。(RSA密钥长度随着保密级别提高，增加很快)<br>RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常：</p>
-<pre><code>Exception in thread &quot;main&quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 bytes  
-at com.sun.crypto.provider.RSACipher.a(DashoA13*..)  
-at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)  
-at javax.crypto.Cipher.doFinal(DashoA13*..) 
-</code></pre><p>1.密钥长度<br>rsa算法初始化的时候一般要填入密钥长度,在96-2048bits间<br>(1)为啥下限是96bits(12bytes)?因为加密1byte的明文,需要至少1+11=12bytes的密钥(不懂?看下面的明文长度),低于下限96bits时,一个byte都加密不了,当然没意义啦<br>(2)为啥上限是2048(256bytes)?这是算法本身决定的。另RSA密钥长度随着保密级别提高，增加很快</p>
-<p>2.明文长度<br>明文长度(bytes) &lt;= 密钥长度(bytes)-11.这样的话,对于上限密钥长度1024bits能加密的明文上限就是117bytes了.<br>所以就出现了分片加密,网上很流行这个版本.很简单,如果明文长度大于那个最大明文长度了,我就分片吧,保证每片都别超过那个值就是了.<br>片数=(明文长度(bytes)/(密钥长度(bytes)-11))的整数部分+1,就是不满一片的按一片算</p>
-<p>3.密文长度<br>密文长度等于密钥长度.当然这是不分片情况下的.<br>分片后,密文长度=密钥长度*片数</p>
-<p>例如96bits的密钥,明文4bytes<br>每片明文长度=96/8-11=1byte,片数=4,密文长度=96/8*4=48bytes</p>
-<p>又例如128bits的密钥,明文8bytes<br>每片明文长度=128/8-11=5bytes,片数=8/5取整+1=2,密文长度=128/8*2=32</p>
-<p>注意,对于指定长度的明文,其密文长度与密钥长度非正比关系.如4bytes的明文,在最短密钥96bites是,密文长度48bytes,128bits米密钥时,密文长度为16bytes,1024bits密钥时,密文长度128bytes.<br>因为分片越多,密文长度显然会变大,所以有人说,那就一直用1024bits的密钥吧…拜托,现在的机器算1024bits的密钥还是要点时间滴,别以为你的cpu很牛逼…那么选个什么值比较合适呢?个人认为是600bits,因为我们对于一个字符串的加密,一般不是直接加密,而是将字符串hash 后,对hash值加密.现在的hash值一般都是4bytes,很少有8bytes,几十年内应该也不会超过64bytes.那就用64bytes算吧, 密钥长度就是(64+11)*8=600bits了.</p>
-<p>RSAUtils.java</p>
-<pre><code>package security;
-
-import java.io.ByteArrayOutputStream;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-
-/** *//**
- * RSA公钥/私钥/签名工具包
- * 
- * 罗纳德·李维斯特（Ron [R]ivest）、阿迪·萨莫尔（Adi [S]hamir）和伦纳德·阿德曼（Leonard [A]dleman）
- * 
- * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式&lt;br/&gt;
- * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，&lt;br/&gt;
- * 非对称加密算法可以用来对对称加密的密钥加密，这样保证密钥的安全也就保证了数据的安全
- * 
- * @author IceWee
- * @date 2012-4-26
- * @version 1.0
- */
-public class RSAUtils {
-
-    /** *//**
-     * 加密算法RSA
-     */
-    public static final String KEY_ALGORITHM = &quot;RSA&quot;;
-
-    /** *//**
-     * 签名算法
-     */
-    public static final String SIGNATURE_ALGORITHM = &quot;MD5withRSA&quot;;
-
-    /** *//**
-     * 获取公钥的key
-     */
-    private static final String PUBLIC_KEY = &quot;RSAPublicKey&quot;;
-
-    /** *//**
-     * 获取私钥的key
-     */
-    private static final String PRIVATE_KEY = &quot;RSAPrivateKey&quot;;
-
-    /** *//**
-     * RSA最大加密明文大小
-     */
-    private static final int MAX_ENCRYPT_BLOCK = 117;
-
-    /** *//**
-     * RSA最大解密密文大小
-     */
-    private static final int MAX_DECRYPT_BLOCK = 128;
-
-    /** *//**
-     * 生成密钥对(公钥和私钥)
-     * 
-     * @return
-     * @throws Exception
-     */
-    public static Map&lt;String, Object&gt; genKeyPair() throws Exception {
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
-        keyPairGen.initialize(1024);
-        KeyPair keyPair = keyPairGen.generateKeyPair();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        Map&lt;String, Object&gt; keyMap = new HashMap&lt;String, Object&gt;(2);
-        keyMap.put(PUBLIC_KEY, publicKey);
-        keyMap.put(PRIVATE_KEY, privateKey);
-        return keyMap;
-    }
-
-    /** *//**
-     * 用私钥对信息生成数字签名
-     * 
-     * @param data 已加密数据
-     * @param privateKey 私钥(BASE64编码)
-     * 
-     * @return
-     * @throws Exception
-     */
-    public static String sign(byte[] data, String privateKey) throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        PrivateKey privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
-        signature.initSign(privateK);
-        signature.update(data);
-        return Base64Utils.encode(signature.sign());
-    }
-
-    /** *//**
-     * 校验数字签名
-     * 
-     * @param data 已加密数据
-     * @param publicKey 公钥(BASE64编码)
-     * @param sign 数字签名
-     * 
-     * @return
-     * @throws Exception
-     * 
-     */
-    public static boolean verify(byte[] data, String publicKey, String sign)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        PublicKey publicK = keyFactory.generatePublic(keySpec);
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
-        signature.initVerify(publicK);
-        signature.update(data);
-        return signature.verify(Base64Utils.decode(sign));
-    }
-
-    /** *//**
-     * &lt;P&gt;
-     * 私钥解密
-     * &lt;/p&gt;
-     * 
-     * @param encryptedData 已加密数据
-     * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPrivateKey(byte[] encryptedData, String privateKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.DECRYPT_MODE, privateK);
-        int inputLen = encryptedData.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段解密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
-                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_DECRYPT_BLOCK;
-        }
-        byte[] decryptedData = out.toByteArray();
-        out.close();
-        return decryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 公钥解密
-     * &lt;/p&gt;
-     * 
-     * @param encryptedData 已加密数据
-     * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPublicKey(byte[] encryptedData, String publicKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key publicK = keyFactory.generatePublic(x509KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.DECRYPT_MODE, publicK);
-        int inputLen = encryptedData.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段解密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
-                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_DECRYPT_BLOCK;
-        }
-        byte[] decryptedData = out.toByteArray();
-        out.close();
-        return decryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 公钥加密
-     * &lt;/p&gt;
-     * 
-     * @param data 源数据
-     * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] encryptByPublicKey(byte[] data, String publicKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key publicK = keyFactory.generatePublic(x509KeySpec);
-        // 对数据加密
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.ENCRYPT_MODE, publicK);
-        int inputLen = data.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段加密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
-                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(data, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_ENCRYPT_BLOCK;
-        }
-        byte[] encryptedData = out.toByteArray();
-        out.close();
-        return encryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 私钥加密
-     * &lt;/p&gt;
-     * 
-     * @param data 源数据
-     * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] encryptByPrivateKey(byte[] data, String privateKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.ENCRYPT_MODE, privateK);
-        int inputLen = data.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段加密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
-                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(data, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_ENCRYPT_BLOCK;
-        }
-        byte[] encryptedData = out.toByteArray();
-        out.close();
-        return encryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 获取私钥
-     * &lt;/p&gt;
-     * 
-     * @param keyMap 密钥对
-     * @return
-     * @throws Exception
-     */
-    public static String getPrivateKey(Map&lt;String, Object&gt; keyMap)
-            throws Exception {
-        Key key = (Key) keyMap.get(PRIVATE_KEY);
-        return Base64Utils.encode(key.getEncoded());
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 获取公钥
-     * &lt;/p&gt;
-     * 
-     * @param keyMap 密钥对
-     * @return
-     * @throws Exception
-     */
-    public static String getPublicKey(Map&lt;String, Object&gt; keyMap)
-            throws Exception {
-        Key key = (Key) keyMap.get(PUBLIC_KEY);
-        return Base64Utils.encode(key.getEncoded());
-    }
-
-}
-</code></pre><p>Base64Utils.java</p>
-<pre><code>package security;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import it.sauronsoftware.base64.Base64;
-
-/** *//**
- * &lt;p&gt;
- * BASE64编码解码工具包
- * &lt;/p&gt;
- * &lt;p&gt;
- * 依赖javabase64-1.3.1.jar
- * &lt;/p&gt;
- * 
- * @author IceWee
- * @date 2012-5-19
- * @version 1.0
- */
-public class Base64Utils {
-
-    /** *//**
-     * 文件读取缓冲区大小
-     */
-    private static final int CACHE_SIZE = 1024;
-
-    /** *//**
-     * &lt;p&gt;
-     * BASE64字符串解码为二进制数据
-     * &lt;/p&gt;
-     * 
-     * @param base64
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decode(String base64) throws Exception {
-        return Base64.decode(base64.getBytes());
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 二进制数据编码为BASE64字符串
-     * &lt;/p&gt;
-     * 
-     * @param bytes
-     * @return
-     * @throws Exception
-     */
-    public static String encode(byte[] bytes) throws Exception {
-        return new String(Base64.encode(bytes));
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 将文件编码为BASE64字符串
-     * &lt;/p&gt;
-     * &lt;p&gt;
-     * 大文件慎用，可能会导致内存溢出
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件绝对路径
-     * @return
-     * @throws Exception
-     */
-    public static String encodeFile(String filePath) throws Exception {
-        byte[] bytes = fileToByte(filePath);
-        return encode(bytes);
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * BASE64字符串转回文件
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件绝对路径
-     * @param base64 编码字符串
-     * @throws Exception
-     */
-    public static void decodeToFile(String filePath, String base64) throws Exception {
-        byte[] bytes = decode(base64);
-        byteArrayToFile(bytes, filePath);
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 文件转换为二进制数组
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件路径
-     * @return
-     * @throws Exception
-     */
-    public static byte[] fileToByte(String filePath) throws Exception {
-        byte[] data = new byte[0];
-        File file = new File(filePath);
-        if (file.exists()) {
-            FileInputStream in = new FileInputStream(file);
-            ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
-            byte[] cache = new byte[CACHE_SIZE];
-            int nRead = 0;
-            while ((nRead = in.read(cache)) != -1) {
-                out.write(cache, 0, nRead);
-                out.flush();
-            }
-            out.close();
-            in.close();
-            data = out.toByteArray();
-         }
-        return data;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 二进制数据写文件
-     * &lt;/p&gt;
-     * 
-     * @param bytes 二进制数据
-     * @param filePath 文件生成目录
-     */
-    public static void byteArrayToFile(byte[] bytes, String filePath) throws Exception {
-        InputStream in = new ByteArrayInputStream(bytes);   
-        File destFile = new File(filePath);
-        if (!destFile.getParentFile().exists()) {
-            destFile.getParentFile().mkdirs();
-        }
-        destFile.createNewFile();
-        OutputStream out = new FileOutputStream(destFile);
-        byte[] cache = new byte[CACHE_SIZE];
-        int nRead = 0;
-        while ((nRead = in.read(cache)) != -1) {   
-            out.write(cache, 0, nRead);
-            out.flush();
-        }
-        out.close();
-        in.close();
-    }
-
-
-}
-</code></pre><p>RSATester.java</p>
-<pre><code>package security;
-
-import java.util.Map;
-
-public class RSATester {
-
-    static String publicKey;
-    static String privateKey;
-
-    static {
-        try {
-            Map&lt;String, Object&gt; keyMap = RSAUtils.genKeyPair();
-            publicKey = RSAUtils.getPublicKey(keyMap);
-            privateKey = RSAUtils.getPrivateKey(keyMap);
-            System.err.println(&quot;公钥: \n\r&quot; + publicKey);
-            System.err.println(&quot;私钥： \n\r&quot; + privateKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        test();
-        testSign();
-    }
-
-    static void test() throws Exception {
-        System.err.println(&quot;公钥加密——私钥解密&quot;);
-        String source = &quot;这是一行没有任何意义的文字，你看完了等于没看，不是吗？&quot;;
-        System.out.println(&quot;\r加密前文字：\r\n&quot; + source);
-        byte[] data = source.getBytes();
-        byte[] encodedData = RSAUtils.encryptByPublicKey(data, publicKey);
-        System.out.println(&quot;加密后文字：\r\n&quot; + new String(encodedData));
-        byte[] decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey);
-        String target = new String(decodedData);
-        System.out.println(&quot;解密后文字: \r\n&quot; + target);
-    }
-
-    static void testSign() throws Exception {
-        System.err.println(&quot;私钥加密——公钥解密&quot;);
-        String source = &quot;这是一行测试RSA数字签名的无意义文字&quot;;
-        System.out.println(&quot;原文字：\r\n&quot; + source);
-        byte[] data = source.getBytes();
-        byte[] encodedData = RSAUtils.encryptByPrivateKey(data, privateKey);
-        System.out.println(&quot;加密后：\r\n&quot; + new String(encodedData));
-        byte[] decodedData = RSAUtils.decryptByPublicKey(encodedData, publicKey);
-        String target = new String(decodedData);
-        System.out.println(&quot;解密后: \r\n&quot; + target);
-        System.err.println(&quot;私钥签名——公钥验证签名&quot;);
-        String sign = RSAUtils.sign(encodedData, privateKey);
-        System.err.println(&quot;签名:\r&quot; + sign);
-        boolean status = RSAUtils.verify(encodedData, publicKey, sign);
-        System.err.println(&quot;验证结果:\r&quot; + status);
-    }
-
-}
-</code></pre><h4 id="AES对称加密和解密"><a href="#AES对称加密和解密" class="headerlink" title="AES对称加密和解密"></a>AES对称加密和解密</h4><pre><code>package demo.security;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Scanner;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-/*
- * AES对称加密和解密
- */
-public class SymmetricEncoder {
-  /*
-   * 加密
-   * 1.构造密钥生成器
-   * 2.根据ecnodeRules规则初始化密钥生成器
-   * 3.产生密钥
-   * 4.创建和初始化密码器
-   * 5.内容加密
-   * 6.返回字符串
-   */
-    public static String AESEncode(String encodeRules,String content){
-        try {
-            //1.构造密钥生成器，指定为AES算法,不区分大小写
-            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
-            //2.根据ecnodeRules规则初始化密钥生成器
-            //生成一个128位的随机源,根据传入的字节数组
-            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
-              //3.产生原始对称密钥
-            SecretKey original_key=keygen.generateKey();
-              //4.获得原始对称密钥的字节数组
-            byte [] raw=original_key.getEncoded();
-            //5.根据字节数组生成AES密钥
-            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
-              //6.根据指定算法AES自成密码器
-            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
-              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            //8.获取加密内容的字节数组(这里要设置为utf-8)不然内容中如果有中文和英文混合中文就会解密为乱码
-            byte [] byte_encode=content.getBytes(&quot;utf-8&quot;);
-            //9.根据密码器的初始化方式--加密：将数据加密
-            byte [] byte_AES=cipher.doFinal(byte_encode);
-          //10.将加密后的数据转换为字符串
-            //这里用Base64Encoder中会找不到包
-            //解决办法：
-            //在项目的Build path中先移除JRE System Library，再添加库JRE System Library，重新编译后就一切正常了。
-            String AES_encode=new String(new BASE64Encoder().encode(byte_AES));
-          //11.将字符串返回
-            return AES_encode;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        //如果有错就返加nulll
-        return null;         
-    }
-    /*
-     * 解密
-     * 解密过程：
-     * 1.同加密1-4步
-     * 2.将加密后的字符串反纺成byte[]数组
-     * 3.将加密内容解密
-     */
-    public static String AESDncode(String encodeRules,String content){
-        try {
-            //1.构造密钥生成器，指定为AES算法,不区分大小写
-            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
-            //2.根据ecnodeRules规则初始化密钥生成器
-            //生成一个128位的随机源,根据传入的字节数组
-            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
-              //3.产生原始对称密钥
-            SecretKey original_key=keygen.generateKey();
-              //4.获得原始对称密钥的字节数组
-            byte [] raw=original_key.getEncoded();
-            //5.根据字节数组生成AES密钥
-            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
-              //6.根据指定算法AES自成密码器
-            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
-              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            //8.将加密并编码后的内容解码成字节数组
-            byte [] byte_content= new BASE64Decoder().decodeBuffer(content);
-            /*
-             * 解密
-             */
-            byte [] byte_decode=cipher.doFinal(byte_content);
-            String AES_decode=new String(byte_decode,&quot;utf-8&quot;);
-            return AES_decode;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-
-        //如果有错就返加nulll
-        return null;         
-    }
-
-    public static void main(String[] args) {
-        SymmetricEncoder se=new SymmetricEncoder();
-        Scanner scanner=new Scanner(System.in);
-        /*
-         * 加密
-         */
-        System.out.println(&quot;使用AES对称加密，请输入加密的规则&quot;);
-        String encodeRules=scanner.next();
-        System.out.println(&quot;请输入要加密的内容:&quot;);
-        String content = scanner.next();
-        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;加密后的密文是:&quot;+se.AESEncode(encodeRules, content));
-
-        /*
-         * 解密
-         */
-        System.out.println(&quot;使用AES对称解密，请输入加密的规则：(须与加密相同)&quot;);
-         encodeRules=scanner.next();
-        System.out.println(&quot;请输入要解密的内容（密文）:&quot;);
-         content = scanner.next();
-        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;解密后的明文是:&quot;+se.AESDncode(encodeRules, content));
-    }
-
-}
-</code></pre><p>测试结果：</p>
-<pre><code>使用AES对称加密，请输入加密的规则
-使用AES对称加密
-请输入要加密的内容:
-使用AES对称加密
-根据输入的规则使用AES对称加密加密后的密文是:Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
-使用AES对称解密，请输入加密的规则：(须与加密相同)
-使用AES对称加密
-请输入要解密的内容（密文）:
-Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
-根据输入的规则使用AES对称加密解密后的明文是:使用AES对称加密
-</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.cnblogs.com/jiafuwei/p/7054500.html" target="_blank" rel="noopener">java RSA加密解密实现（含分段加密）</a><br><a href="https://www.cnblogs.com/liunanjava/p/4297854.html" target="_blank" rel="noopener">AES对称加密和解密</a><br><a href="https://blog.csdn.net/huangxiaoguo1/article/details/78237359" target="_blank" rel="noopener">Android: AndroidKeyStore 非对称RSA加密解密</a><br><a href="https://www.cnblogs.com/zuge/p/5430362.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuge/p/5430362.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3090,7 +2891,7 @@ Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-count">45</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
