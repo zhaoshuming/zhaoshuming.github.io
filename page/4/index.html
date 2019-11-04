@@ -293,6 +293,711 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/05/architecture-extensible/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/05/architecture-extensible/" itemprop="url">可扩展架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-05T09:42:14+08:00">
+                2019-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>可扩展架构的基本思想是：拆</p>
+<p>不同的拆分方式，本质上决定了系统的可扩展性。常见的拆分思路有三种：</p>
+<p>1）面向流程拆分：分层架构<br>分层架构的本质：固定的内核，移动的数据。<br>扩展时大部分情况只需要修改其一层，少部分情况可能修改关联的两层，不会出现所有层都同时要修改。<br>以简单的学生信息管理系统为例：展示层–&gt;业务层–&gt;数据层–&gt;存储层</p>
+<p>2）面向服务拆分：SOA、微服务<br>服务是一组相似功能的集合。<br>对于某个服务扩展，或者要增加新的服务时，只需要扩展相关服务即可。<br>以简单的学生信息管理系统为例：将系统拆分为注册、登录、信息管理、安全设置等服务</p>
+<p>3）面向功能拆分:微内核架构<br>以简单的学生信息管理系统为例：每个服务都可以拆分为更多细粒度的功能</p>
+<p>当然，这几个系统架构并不是非彼既此的，而是可以组合使用。</p>
+<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>分层架构也叫N层架构，通常情况下，N至少是两层。</p>
+<p>分层架构的本质在于<strong>隔离关注点</strong>（separation of concerns），即每个层中的组件只会处理本层的逻辑，核心就是需要<strong>保证各层之间的差异足够清晰，边界足够明显，</strong>让人看到架构图后就能看懂整个架构。</p>
+<p>根据不同的划分维度和对象，可以得到多种不同的分层架构：<br>1）C/S、B/S架构<br>2）MVC、MVP架构<br>3）逻辑分层架构<br>逻辑分层架构中的层是自顶向下依赖的，如andoid操作系统的架构</p>
+<h3 id="SOA架构"><a href="#SOA架构" class="headerlink" title="SOA架构"></a>SOA架构</h3><p>SOA(Service Oriented Architecture)提出来三个关键概念：</p>
+<p>1）服务<br>所有业务功能都是一项服务，服务意味着要对外提供开发的能力，当其他系统需要使用这项功能时，无须定制化开发。</p>
+<p>2）ESB(Enterprise Service Bus)<br>ESB是将企业中各个不同的服务连接到一起。SOA使用ESB来屏蔽异构系统对外提供各种不同的接口方式，以此来达到服务间高效的互联互通。</p>
+<p>3）松耦合<br>目的是减少各个服务间的依赖和相互影响。</p>
+<p>SOA架构是集成的思想，是解决服务孤岛打通链条，是无奈之举。ESB集中化的管理带来了性能不佳、厚重等问题，也无法快速扩展。所以不适合互联网的业务特点。</p>
+<h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p>微服务是一种和SOA相似但本质上不同的架构理念。两者都关注于“服务”，都是通过服务的拆分来解决可扩展性问题。本质上不同在于几个核心理念的差异：是否有ESB、服务的粒度、架构设计的目标（<strong>small、lightweight、automated</strong>）等。</p>
+<p>微服务架构其实相当复杂，可以分成几个阶段理解：<br>1）第一阶段，微服务架构就是去掉了ESB的SOA架构，只不过是通信的方式和结构变了。对于初级的使用者而言，这样理解没有太大问题。<br>2）第二阶段，没有了ESB，原本很多由ESB组件做的事儿，转到服务的提供者和调用者这里了。他们需要考虑服务的拆分粒。大体仍然算是SOA架构。<br>3）第三阶段，随着服务的数量大幅增加，服务的管理越来越困难，此时DevOps出现了。这个阶段的微服务架构，已经是跟SOA架构完全不同的东西了。<br>要逐步演进和迭代，不要过于激进，更不要拆分过细，拆分的粒度，要与团队的架构相互匹配。（康威定律）</p>
+<p>SOA和微服务的区别：<br>1）服务粒度<br>2）服务通讯<br>微服务推荐使用统一的协议和格式。<br>3）服务交付<br>SOA更多的是考虑兼容已有的系统；微服务的架构理念要求“快速交付”，相应的要求自动化测试、持续集成、自动化部署等敏捷开发相关的最佳实践。<br>4）应用场景<br>SOA更适合庞大、复杂、异构的企业级系统，这也是SOA诞生的背景。<br>微服务更适合快速、轻量级、基于Web的物联网系统。</p>
+<h4 id="微服务的陷阱及问题"><a href="#微服务的陷阱及问题" class="headerlink" title="微服务的陷阱及问题"></a>微服务的陷阱及问题</h4><p>1）服务划分过细，服务间关系复杂<br>2）服务数量太多，团队效率急剧下降<br>3）调用链太长，性能下降<br>4）调用链太长，问题定位困难<br>5）没有自动化支撑，无法快速交付<br>6）没有服务治理，数量多了之后管理混乱</p>
+<h4 id="微服务架构实践"><a href="#微服务架构实践" class="headerlink" title="微服务架构实践"></a>微服务架构实践</h4><p>1.服务粒度<br>三个火枪手原则。亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。</p>
+<p>2.拆分方法<br>1）基于业务逻辑拆分</p>
+<p>2）基于可扩展拆分：区分稳定服务、可变服务</p>
+<p>3）基于可靠性拆分<br>好处：避免非核心业务故障影响核心业务；核心服务高可用方案可以更简单；能够降低高可用成本</p>
+<p>4）基于性能拆分<br>将性能要求高或者性能压力大的模块拆分出来，避免性能压力大的服务影响其他服务。</p>
+<p>以上方案可自由排列组合。</p>
+<p>3.基础设施<br>1）服务发现、服务路由、服务容错：这是最基本的微服务基础设施</p>
+<p>2）接口框架、API网关：主要是为了提升开发效率</p>
+<p>3）自动化部署、自动化测试、配置中心：主要为了提升测试和运维效率</p>
+<p>4）服务监控、服务跟踪、服务安全：主要是为了进一步提升运维效率</p>
+<p>以上3、4会随着微服务节点数量增加而越来越重要，当节点较少时，可以通过人工支撑，虽然效率不高，但也基本能够顶得住。</p>
+<h3 id="微内核架构"><a href="#微内核架构" class="headerlink" title="微内核架构"></a>微内核架构</h3><p>微内核架构也被称为插件化架构，是一种面向功能进行拆分的可扩展性架构。</p>
+<p>微内核架构包含两类组件：核心系统和插件模块。核心模块负责和具体业务功能无关的通用功能，如模块加载、模块间通信等；插件模块负责实现具体的业务逻辑。</p>
+<p>微内核的核心系统设计的关键技术有：插件管理、插件链接和插件通信。</p>
+<p>常见架构有：OSGI、规则引擎架构、Atlas容器化框架等。</p>
+<p>android架构模式参考：<br>1.<a href="https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&amp;mid=2247488375&amp;idx=1&amp;sn=3af36be489393783a95d5c5e3fc73b65&amp;source=41#wechat_redirect" target="_blank" rel="noopener">Atlas：手淘Native容器化框架和思考</a><br>2.<a href="https://www.infoq.cn/article/wechat-android-app-architecture" target="_blank" rel="noopener">微信 Android 客户端架构演进之路</a></p>
+<h3 id="康威定律"><a href="#康威定律" class="headerlink" title="康威定律"></a>康威定律</h3><p>微服务很多核心理念其实在半个世纪前的一篇文章中就被阐述过了，而且这篇文章中的很多论点在软件开发飞速发展的这半个世纪中竟然一再被验证，这就是康威定律（Conway’s Law）。</p>
+<p>在康威的这篇文章中，最有名的一句话就是：</p>
+<blockquote>
+<p>Organizations which design systems are constrained to produce designs which are copies of the communication structures of these organizations. - Melvin Conway(1967)</p>
+</blockquote>
+<p>中文直译大概的意思就是：<strong>设计系统的组织，其产生的设计等同于组织之内、组织之间的沟通结构。</strong></p>
+<p>Mike从他的角度归纳这篇论文中的其他一些核心观点，如下：</p>
+<ul>
+<li>第一定律：企业沟通方式会通过系统设计表达出来——Communication dictates design</li>
+<li>第二定律：再多的时间也没办法让任务完美至极，但总有时间能将它完成——There is never enough time to do something right, but there is always enough time to do it over</li>
+<li>第三定律：线型系统和线型组织架构间有潜在的异质同态特性——There is a homomorphism from the linear graph of a system to the linear graph of its design organization</li>
+<li>第四定律：大系统比小系统更适用于任务分解——The structures of large systems tend to disintegrate during development, qualitatively more so than with small systems</li>
+</ul>
+<h4 id="康威第一定律"><a href="#康威第一定律" class="headerlink" title="康威第一定律"></a>康威第一定律</h4><p>“人类是复杂的社会动物。”</p>
+<p>《The Mythical Man-Month》 这本书里有一句令人难忘的话：在应用项目后期加大人员的投资，会更加拖慢它的速度。——Fred Brooks（1975）</p>
+<p>沟通的问题会影响系统设计，进而影响整个系统的开发效率以及最终结果。</p>
+<h4 id="康威第二定律"><a href="#康威第二定律" class="headerlink" title="康威第二定律"></a>康威第二定律</h4><p>罗马不是一天建成的，学会先解决首要问题。</p>
+<p>敏捷开发巨头之一Erik Hollnagel 在他的书中阐述了类似的观点：</p>
+<blockquote>
+<p>问题太复杂？那么不妨忽略不必要的细节。<br>没有足够的资源？放弃无用的功能。<br>——Erik Hollnagel（2009）</p>
+</blockquote>
+<p>系统的复杂性、功能数量、市场竞争以及投资人的期望值都在增加，而人的智力是有上限的，没有企业能说一定能找到合适的人，对于一个极其复杂的系统，总会有考虑不周全的地方，Erik认为这个问题最好的解决办法就是：不去管它。</p>
+<p>最佳解决方案不是消除所有问题，而是允许它们存在，在发生故障时实现自动恢复。<br>在由微服务组成的系统中，每个微服务都可能停止响应，这是完全正常的，只需要确保足够的冗余和备份，这就是弹性或高可用性设计。</p>
+<h4 id="康威第三定律"><a href="#康威第三定律" class="headerlink" title="康威第三定律"></a>康威第三定律</h4><p>创建独立的子系统，减少沟通成本。</p>
+<p>团队中微服务的理念应是Inter-Operate，而不是Integrate ，Inter-Operate是指定义系统边界和接口，并为整个团队提供完整的堆栈，实现完全的自制。如此就能降低系统间的依赖性，减少通信成本。</p>
+<h4 id="康威第四定律"><a href="#康威第四定律" class="headerlink" title="康威第四定律"></a>康威第四定律</h4><p>前面提到，人类是复杂的社会动物，人与人之间的交流是非常复杂的，当涉及到一个系统时，人们经常选择增加人力去减少复杂性，对于企业来说，该如何处理这样的沟通问题？答案是：分而治之。</p>
+<h4 id="康威定律与微服务"><a href="#康威定律与微服务" class="headerlink" title="康威定律与微服务"></a>康威定律与微服务</h4><p>再来看一下康威定律是如何在半个世纪前就奠定了微服务理论基础的。</p>
+<ul>
+<li>人与人之间的交流很复杂，每个人的精力是有限的，因此当问题很复杂，需要协调地去解决时，需要将组织划分进而提高沟通效率。</li>
+<li>团队成员工作的系统设计依赖于成员之间的沟通，管理人员可以调整划分模式，实现团队之间的不同沟通方式，这也会影响系统的设计。</li>
+<li>如果子系统有清晰的外部通信便捷，那么就可以有效地降低通信成本，响应地设计将更加适合和有效。</li>
+<li>需要不断优化一个复杂的系统，并容错性和故障恢复率的帮助下进行优化，不要期望大而全面的设计或架构，因为它们的开发以迭代的方式发生。</li>
+</ul>
+<p>以下是一些具体的实践建议：</p>
+<ul>
+<li>利用一切手段提高通信效率，如Slack、Github和Wiki，且只与相关人员进行沟通，每个人和每个系统必须有明确的职责，在遇到问题时，知道该找谁去解决。</li>
+<li>在MVP模式下设计一套系统，以迭代的方式优化及验证，并确保系统的弹性。</li>
+<li>采用与系统设计相一致的团队，以扁平化和以业务为基准的方式去简化团队，每个小团队之间必须有对应负责的模块，避免模糊的界限，以免在发生问题时互相推卸责任。</li>
+<li>要做小而美的团队，人员数量的增加会降低效率以及加大成本，亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。一般来说，一家互联网公司的产品团队由7到8个人组成（包括前端和后端测试、交互和用户体验师，一些人可能身兼数职）。</li>
+</ul>
+<p>在查看以下微服务标准时，我们可以很容易地看到微服务与康威定律之间的密切关系：</p>
+<ul>
+<li>由分布式服务组成的系统</li>
+<li>企业部门的业务线</li>
+<li>开发优秀的产品</li>
+<li>Smart endpoints and dumb pipes</li>
+<li>DevOps</li>
+<li>容错</li>
+<li>快速发展</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://segmentfault.com/a/1190000011118897" target="_blank" rel="noopener">康威定律</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/29/architecture-high-performance/" itemprop="url">数据库高性能</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-29T18:02:13+08:00">
+                2019-04-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><p>读写分离的基本原理是将数据库读写操作分散到不同的节点上。</p>
+<p>读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。<br>不适用的情况:<br>1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。<br>2）通过缓存技术或者程序优化能够满足要求</p>
+<p>读写分离的基本实现是：<br>1）数据库服务器搭建主从集群，一主一从，一主多从都可以<br>2）数据库主机负责写操作，从机负责读操作<br>3）数据库主机通过复制将数据同步到数据库从机，每台数据库服务器都存储了所有的业务数据<br>4）业务服务器将写操作发给数据库主机，将读操作发给数据库从机</p>
+<p>但有两个细节点引入了复杂度：<strong>主从复制延时</strong>和<strong>分配机制</strong>，以下为解决方案</p>
+<p>复制延时：<br>1）写操作后的读操作指定发给数据库主机<br>2）读从机失败后再度一次主机<br>3）关键业务读写操作全部指向主机，非关键业务采用读写分离</p>
+<p>分配机制：<br>将读写操作区分开来，然后访问不同的数据库，一般有两种方式：<strong>程序代码封装</strong>和<strong>中间件封装</strong></p>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3><p>分库分表会带来很多复杂度。在引入分库分表之前，应该是这些操作依次尝试：<br>1.做硬件优化，例如从机械硬盘改成使用固态硬盘，当然固态硬盘不适合服务器使用，只是举个例子<br>2.先做数据库服务器的调优操作，例如增加索引，oracle有很多的参数调整;<br>3.引入缓存技术，例如Redis，减少数据库压力<br>4.程序与数据库表优化，重构，例如根据业务逻辑对程序逻辑做优化，减少不必要的查询;<br>5.在这些操作都不能大幅度优化性能的情况下，不能满足将来的发展，再考虑分库分表，也要有预估性</p>
+<h4 id="分库"><a href="#分库" class="headerlink" title="分库"></a>分库</h4><p>业务分库是指按照业务模块将数据分散到不同的数据库服务器。</p>
+<p>存在问题：<br>1）join问题<br>2）事务问题<br>3）成本问题</p>
+<h4 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h4><p>分两种方式：垂直分表、水平分表</p>
+<p>水平分表：<br>水平分表后，某条数据具体属于哪个子表，需要增加路由算法进行计算，这个算法会引入一定的复杂性。<br>常见的路由算法有：<br>1）范围路由<br>2）hash路由<br>3）配置路由</p>
+<p>其他常见的复杂性问题：join，count，order by等</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/28/architecture-design-flow/" itemprop="url">架构设计流程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-28T17:55:33+08:00">
+                2019-04-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="如何识别复杂度"><a href="#如何识别复杂度" class="headerlink" title="如何识别复杂度"></a>如何识别复杂度</h3><p>架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是：</p>
+<p>（1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。</p>
+<p>（2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？</p>
+<p>“高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从用户的主观感受方面去考虑。</p>
+<p>“可用性”主要从服务不中断等质量属性，符合行业政策、国家法规等方面去考虑。</p>
+<p>“扩展性”则主要从功能需求的未来变更幅度等方面去考虑。</p>
+<p>（3）按照上述的分析结论，得到复杂度按照优先级的排序清单，越是排在前面的复杂度，就越关键，就越优先解决。</p>
+<p>需要特别注意的是：随着所处的业务阶段不同、外部的技术条件和环境的不同，得到的复杂度问题的优先级排序就会有所不同。一切皆变化。</p>
+<h3 id="备选方案设计"><a href="#备选方案设计" class="headerlink" title="备选方案设计"></a>备选方案设计</h3><p>经过架构设计流程第 1 步——识别复杂度，确定了系统面临的主要复杂度问题，进而明确了设计方案的目标，就可以开展架构设计流程第 2 步——设计备选方案。架构设计备选方案的工作更多的是从需求、团队、技术、资源等综合情况出发，对主流、成熟的架构模式进行选择、组合、调整、创新。</p>
+<p>1.几种常见的架构设计误区</p>
+<p>（1）设计最优秀的方案。不要面向“简历”进行架构设计，而是要根据“合适”、“简单”、“演进”的架构设计原则，决策出与需求、团队、技术能力相匹配的合适方案。</p>
+<p>（2）只做一个方案。一个方案容易陷入思考问题片面、自我坚持的认知陷阱。</p>
+<p>2.备选方案设计的注意事项</p>
+<p>（1）备选方案不要过于详细。备选阶段解决的是技术选型问题，而不是技术细节。</p>
+<p>（2）备选方案的数量以 3~5个为最佳。</p>
+<p>（3）备选方案的技术差异要明显。</p>
+<p>（4）备选方案不要只局限于已经熟悉的技术。</p>
+<p>3.问题思考</p>
+<p>可以从开源、自研的角度提出架构设计方案</p>
+<p>如果是创业公司的业务早、中期阶段，可直接考虑采用阿里云/腾讯云，性能、HA、伸缩性都有保证。</p>
+<p>最大的感悟是：做事情永远都要有B方案。</p>
+<h3 id="评估和选择备选方案"><a href="#评估和选择备选方案" class="headerlink" title="评估和选择备选方案"></a>评估和选择备选方案</h3><p>1 评估和选择备选方案的方法<br><strong>列出我们需要关注的质量属性点，然后分别从这些质量属性的维度去评估每个方案，再综合挑选适合当时情况的最优方案。</strong>常见的质量属性点有：性能、可用性、硬件成本、项目投入、复杂度、安全性、可扩展性。<br>按优先级选择，即架构师综合当前的业务发展情况、团队人员规模和技能、业务发展预测等因素，将质量属性按照优先级排序，首先挑选满足第一优先级的，如果方案都满足，那就再看第二优先级……以此类推。</p>
+<p>2 RocketMQ 和 Kafka 有什么区别？</p>
+<p>（1） 适用场景<br>Kafka适合日志处理；RocketMQ适合业务处理。</p>
+<p>（2） 性能<br>Kafka单机写入TPS号称在百万条/秒；RocketMQ大约在10万条/秒。Kafka单机性能更高。</p>
+<p>（3） 可靠性<br>RocketMQ支持异步/同步刷盘;异步/同步Replication；Kafka使用异步刷盘方式，异步Replication。RocketMQ所支持的同步方式提升了数据的可靠性。</p>
+<p>（4） 实时性<br>均支持pull长轮询，RocketMQ消息实时性更好</p>
+<p>（5） 支持的队列数<br>Kafka单机超过64个队列/分区，消息发送性能降低严重；RocketMQ单机支持最高5万个队列，性能稳定（这也是适合业务处理的原因之一）</p>
+<p>3 为什么阿里会自研RocketMQ？</p>
+<p>（1） Kafka的业务应用场景主要定位于日志传输；对于复杂业务支持不够<br>（2） 阿里很多业务场景对数据可靠性、数据实时性、消息队列的个数等方面的要求很高<br>（3）当业务成长到一定规模，采用开源方案的技术成本会变高（开源方案无法满足业务的需要；旧版本、自开发代码与新版本的兼容等）<br>（4） 阿里在团队、成本、资源投入等方面约束性条件几乎没有</p>
+<h3 id="详细设计方案"><a href="#详细设计方案" class="headerlink" title="详细设计方案"></a>详细设计方案</h3><p>完成备选方案的设计和选择后，接下来需要将确定的备选方案细化，使得备选方案变成一个可以落地的设计方案。</p>
+<p>1）架构师不但要进行备选方案的设计和选型，还需要对备选方案的关键细节有较深入的理解。<br>2）通过分步骤、分阶段、分系统等方式，尽量减低方案复杂度，方案本身的复杂度越高，某个细节推翻整个方案的可能性就越大，适当降低复杂度，可以降低这种风险。<br>3）如果方案本身就很复杂，那就采取设计团队的方式来进行设计，博采众长，防止可能出现的盲点或经验误区。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/26/flutter-package-size/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/26/flutter-package-size/" itemprop="url">Flutter APP体积为何比较大</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-26T11:11:39+08:00">
+                2019-04-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>flutter构建的App体积比native的大一些，是什么原因造成App体积大呢？</p>
+<p>其实flutter 在release时App体积和native的大小差不多，而debug时体积通常会大。debug版本体积较大是为了Hot reload和快速编译。如果有flutter开发经验的朋友都体验过，如果您修改一下App的背景颜色，只需save一下就可以立刻看到修改后效果。我称之为“像艺术家一样在创造App”，因此为了实现这些目标，提高开发的效率，debug将占用全部资源。而当我们构建release版时，flutter又会采用AOT策略，提高App运行效率，release版只打包必需的资源，因而体积又会减少。</p>
+<p>另外，flutter团队也一直在寻找减小程序大小的方法。</p>
+<p>现在开发 App 的方式非常多，原生、ReactNative、Flutter 都是不错的选择。那你有没有关注过，使用不同的方式，编译生成的 Apk ，大小是否会有什么影响呢？本文就以一个最简单的 Hello World App，来看看不同的框架，编译出来的 Apk 大小，有什么区别。</p>
+<h3 id="Java（539-KB）"><a href="#Java（539-KB）" class="headerlink" title="Java（539 KB）"></a>Java（539 KB）</h3><p>首先使用 Java 来开始这次实验，使用 Java 开发 Android 算是最常规也是最简单的一种方式。正如前面描述的那样，由于我们仅仅使用了 Java 和 Android 框架来创建这个应用程序，所以它将是最小的，唯一的依赖是 Android 支持库，它占用了整个 Apk 内相当多的空间。</p>
+<h3 id="Flutter（7-5MB）"><a href="#Flutter（7-5MB）" class="headerlink" title="Flutter（7.5MB）"></a>Flutter（7.5MB）</h3><p>由 Flutter 的 cli 生成的 Release 版本的应用程序中，包含 C / C ++ 引擎和 Dart VM，它们构成了 Apk 的几乎所有部分。该应用程序直接使用本机指令集运行，不涉及任何解释器。<br><img src="/2019/04/26/flutter-package-size/flutter_app_size.jpg" alt><br>本文里介绍的几种编写 App 的方法，都存在优缺点，在实际工作中，应该根据需求选择适合的方式。你还可以混合搭配这些框架，仅仅用它们的优点来开发 App 的部分功能。</p>
+<h3 id="React-Native（7MB）"><a href="#React-Native（7MB）" class="headerlink" title="React Native（7MB）"></a>React Native（7MB）</h3><p>如果你有前端（Web）的开发经验，并希望使用 JavaScript 来开发 App，那么 React Native 是一个不错的选择。</p>
+<p>如果你希望在已发布的 App 上，进行更快的功能迭代，使用 React Native 也可以让你不必为每个小改动都发布应用市场。</p>
+<p>由 React Native 生成的 Release apk 在 classes.dex 文件中有几个类，这些类有 12193 个针对此应用程序的引用方法。<br>它还在 x86 和 armeabi-v7a 的 lib 目录中添加了一些 so 库。总共添加了大约 6.4 MB 的空间。</p>
+<hr>
+<p>ReactNative 和 Flutter 因为其内部还需要包含一些解析器和引擎，本身就会有一些基础库在其内，所以变大也是符合预期的。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.jianshu.com/p/0e223b472f41" target="_blank" rel="noopener">https://www.jianshu.com/p/0e223b472f41</a><br><a href="https://www.cnblogs.com/plokmju/p/release_apk.html" target="_blank" rel="noopener">https://www.cnblogs.com/plokmju/p/release_apk.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/25/architecture-basics/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2255,998 +2960,6 @@ public interface HomeActivityComponent {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
-                2019-03-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
-<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
-<blockquote>
-<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
-</blockquote>
-<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
-<ol>
-<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
-<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
-<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
-<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
-<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
-</ol>
-<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
-<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
-<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
-<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
-<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
-<ol>
-<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
-</li>
-<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
-</li>
-<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
-</li>
-</ol>
-<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
-<blockquote>
-<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
-</blockquote>
-<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
-<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
-<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
-<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
-<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
-<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
-<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
-<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
-<pre><code>public class DataEncryptInterceptor implements Interceptor {
-    @Override
-    public Response intercept(Chain chain) throws IOException {
-        //请求
-        Request request = chain.request();
-        RequestBody oldRequestBody = request.body();
-        Buffer requestBuffer = new Buffer();
-        oldRequestBody.writeTo(requestBuffer);
-        String oldBodyStr = requestBuffer.readUtf8();
-        requestBuffer.close();
-        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
-        //生成随机AES密钥并用serverPublicKey进行RSA加密
-        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
-        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
-        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
-        //计算body 哈希 并使用app私钥RSA签名
-        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
-        //随机AES密钥加密oldBodyStr
-        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
-        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
-        //构造新的request
-        request = request.newBuilder()
-                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
-                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
-                .method(request.method(), newBody)
-                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
-                .header(&quot;appSignature&quot;, appSignature)
-                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
-                .build();
-        //响应
-        Response response = chain.proceed(request);
-        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
-            //获取响应头
-            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
-            //用app的RSA私钥解密AES加密密钥
-            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
-            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
-            //用AES密钥解密oldResponseBodyStr
-            ResponseBody oldResponseBody = response.body();
-            String oldResponseBodyStr = oldResponseBody.string();
-            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
-            oldResponseBody.close();
-            //构造新的response
-            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
-            response = response.newBuilder().body(newResponseBody).build();
-        }
-        response.close();
-        //返回
-        return response;
-    }
-}
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/18/android-https/" itemprop="url">android中使用https</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
-                2019-03-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本案例将ca证书放在本地，这里使用.pfx格式的证书</p>
-<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>第二种写法，同样有效:</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
-
-        //key管理器工厂
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
-<blockquote>
-<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
-</blockquote>
-<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
-</code></pre><p>如果是.cer的话那么，就用:</p>
-<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
-<p>通过jks文件生成对应的cer文件：</p>
-<blockquote>
-<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
-</blockquote>
-<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
-<blockquote>
-<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
-</blockquote>
-<p>客户端代码如下：</p>
-<pre><code>private void setCertificates(Context context) {
-    try {
-        //将ca证书导入输入流
-        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
-
-        //keystore添加证书内容和密码
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
-
-        //证书工厂类，生成证书
-        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
-        //生成证书，添加别名
-        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
-
-        //信任管理器工厂
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        //双向验证，配置服务器验证客户端的证书
-        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
-        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
-
-        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
-        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
-        //参数，添加受信任证书和生成随机数
-        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        //获得scoket工厂
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        mOkHttpClient.sslSocketFactory(sslSocketFactory);
-
-        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
-        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
-        inputStream.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-</code></pre><h3 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h3><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
-<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
-<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
-<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/12/mpchart-point-label/" itemprop="url">MpAndroidChart实现多点的特殊标记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-12T18:36:14+08:00">
-                2019-03-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android-ui/" itemprop="url" rel="index">
-                    <span itemprop="name">android ui</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）：</p>
-<p><img src="/2019/03/12/mpchart-point-label/chart_label.png" alt><br>在网上并没有相关资料，在此做下记录分享</p>
-<p>下面上代码:</p>
-<p>首先创建一个类继承LineChart,重写init()方法：</p>
-<pre><code>@Override
-protected void init() {
-    super.init();
-    //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配
-    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-    DisplayMetrics metrics = new DisplayMetrics();
-    wm.getDefaultDisplay().getMetrics(metrics);
-    mRenderer = new HbFundLineChartRenderer(this, mAnimator, mViewPortHandler, metrics.widthPixels);
-}
-</code></pre><p>接下来是主要内容,也就是自己实现的LineChartRenderer即渲染器,用来画点、线等.<br>首先是一些变量,分别是标记控件的宽高边距等,这里写的是一些根据我们需求来的默认值：</p>
-<pre><code>private int mWidth;//屏幕宽度,在构造方法中传进来赋值
-private float hViewLength = Utils.convertDpToPixel(30f);//vie宽30dp
-private float vViewLength = Utils.convertDpToPixel(20f);//view高20dp
-private float viewRect= Utils.convertDpToPixel(4f);//矩形高低差
-</code></pre><p>然后,在LineChartRenderer中有一个drawValues,它是主要负责根据值来画点的,我们要做的就是在super()之后加上我们自己的东西：</p>
-<pre><code>@Override
-public void drawValues(Canvas c) {
-    super.drawValues(c);
-    if (isShowLabel) {
-        LineDataSet dataSetByIndex = (LineDataSet) mChart.getLineData().getDataSetByIndex(0);
-        Transformer trans = mChart.getTransformer(dataSetByIndex.getAxisDependency());
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿画笔
-        paint.setTextSize(Utils.convertDpToPixel(textSixe));//设置字体大小
-
-        //画首中尾三个label
-        float[] firstFloat = getFloat(dataSetByIndex.getValues(), 0);//根据数据集获取点
-        drawPointLabel(trans, paint, c, firstFloat);
-        float[] middleFloat = getFloat(dataSetByIndex.getValues(), (dataSetByIndex.getValues().size() - 1) / 2);
-        drawPointLabel(trans, paint, c, middleFloat);
-        float[] endFloat = getFloat(dataSetByIndex.getValues(), dataSetByIndex.getValues().size() - 1);
-        drawPointLabel(trans, paint, c, endFloat);
-    }
-}
-</code></pre><p>首先获取点的数据集,然后得到Transformer,它可以根据点数据集里的某一点来得到这个点在屏幕中的位置<br>然后分别传入transformer、画笔、画布对象、点,进行绘制：</p>
-<pre><code>private void drawPointLabel(Transformer trans, Paint paint, Canvas c, float[] floatPosition) {
-    MPPointD maxPoint = trans.getPixelForValues(floatPosition[0], floatPosition[1]);
-    float highX = (float) maxPoint.x;
-    float highY = (float) maxPoint.y;
-    TextView view = (TextView) LayoutInflater.from(mContext).inflate(R.layout.mark_view, null, false);
-    if (highX &gt; mWidth - mWidth / 4) {//标识朝左
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_r);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength), (int) (highY - vViewLength - viewRect), paint);
-    } else if (highX &lt; mWidth / 4) {//标识朝右
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_l);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX), (int) (highY - vViewLength - viewRect), paint);
-    } else {//标识居中
-        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_c);
-        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
-        c.drawBitmap(bitmap, (int) (highX - hViewLength / 2), (int) (highY - vViewLength - viewRect), paint);
-    }
-}
-</code></pre><p>此处，我们随意定义几个点，可以根据实际需求进行设置：</p>
-<pre><code>private float[] getFloat(List&lt;Entry&gt; lists, int index) {
-    float[] maxEntry = new float[2];
-    maxEntry[0] = lists.get(index).getX();
-    maxEntry[1] = lists.get(index).getY();
-    return maxEntry;
-}
-</code></pre><p>view转bitmap方法如下：</p>
-<pre><code>private Bitmap createBitmap(View v, int width, int height) {
-    //测量使得view指定大小
-    int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
-    int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
-    v.measure(measuredWidth, measuredHeight);
-    //调用layout方法布局后，可以得到view的尺寸大小
-    v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-    Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-    Canvas c = new Canvas(bmp);
-    v.draw(c);
-    return bmp;
-}
-</code></pre><p>最后附上<a href="https://github.com/zhaoshuming/TestAcharView" target="_blank" rel="noopener">代码（内部测试demo，多余功能请忽略）</a></p>
-<p>参考资料：<br><a href="https://www.jianshu.com/p/1877b8c2fc6c" target="_blank" rel="noopener">https://www.jianshu.com/p/1877b8c2fc6c</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/java-reentrantlock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/07/java-reentrantlock/" itemprop="url">Java Lock</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-07T09:59:25+08:00">
-                2019-03-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/同步/" itemprop="url" rel="index">
-                    <span itemprop="name">同步</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
-<p>如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：</p>
-<blockquote>
-<p>1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有<br>2）线程执行发生异常，此时JVM会让线程自动释放锁<br>3）这个主要是在等待唤醒机制里面的wait()方法，在等待的时候立即释放锁，方便其他的线程使用锁。</p>
-</blockquote>
-<p>那么如果这个获取锁的线程由于要等待IO或者其他原因（比如调用sleep方法）被阻塞了，但是又没有释放锁，其他线程便只能干巴巴地等待，试想一下，这多么影响程序执行效率。因此<strong>我们需要不论程序的代码块执行的如何最终都将锁对象进行释放，方便其他线程的执行</strong>。</p>
-<p>虽然我们可以理解同步代码块和同步方法的锁对象问题，但是我们并没有直接看到在哪里加上了锁，在哪里释放了锁，同时为了更好地释放锁。为了更清晰的表达如何加锁和释放锁,JDK5以后提供了一个新的锁对象Lock。另外，通过Lock可以知道线程有没有成功获取到锁。这个是synchronized无法办到的。</p>
-<p>总结一下，也就是说Lock提供了比synchronized更多的功能。但是要注意以下几点：</p>
-<blockquote>
-<p>1）<strong>Lock不是Java语言内置的</strong>，synchronized是Java语言的关键字，因此是内置特性。<br>2）synchronized是在JVM层面上实现的，不但可以通过一些监控工具监控synchronized的锁定，而且在代码执行时出现异常，JVM会自动释放锁定，但是使用Lock则不行，<strong>lock是通过代码实现的，必须要手动释放锁</strong><br>3）在资源竞争不是很激烈的情况下，Synchronized的性能要优于ReetrantLock，但是在<strong>资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态</strong><br>4）<strong>Lock可以让等待锁的线程响应中断</strong>，而synchronized却不行，使用synchronized时，等待的线程会一直等待下去，不能够响应中断；<br>5）通过<strong>Lock可以知道有没有成功获取锁</strong>，而synchronized却无法办到。<br>6）Lock可以<strong>提高多个线程进行读操作的效率</strong>。</p>
-</blockquote>
-<h2 id="locks包结构"><a href="#locks包结构" class="headerlink" title="locks包结构"></a>locks包结构</h2><p>java.util.concurrent.locks包为锁和等待条件提供一个框架的接口和类，结构如下图所示：</p>
-<p><img src="/2019/03/07/java-reentrantlock/lock.png" alt></p>
-<ol>
-<li><p>Lock和ReadWriteLock是两大锁根接口，Lock代表实现类是ReentrantLock（可重入锁），ReadWriteLock（读写锁）的代表实现类是ReentrantReadWriteLock。<br>Lock 接口支持那些语义不同（重入、公平等）的锁规则，可以在非阻塞式结构的上下文（包括 hand-over-hand 和锁重排算法）中使用这些规则。主要的实现是 ReentrantLock。<br>ReadWriteLock 接口以类似方式定义了一些读取者可以共享而写入者独占的锁。此包只提供了一个实现，即 ReentrantReadWriteLock，因为它适用于大部分的标准用法上下文。但程序员可以创建自己的、适用于非标准要求的实现。</p>
-</li>
-<li><p><strong>Condition 接口描述了可能会与锁有关联的条件变量</strong>。这些变量在用法上与使用 Object.wait 访问的隐式监视器类似，但提供了更强大的功能。需要特别指出的是，单个 Lock 可能与多个 Condition 对象关联。为了避免兼容性问题，Condition 方法的名称与对应的 Object 版本中的不同。</p>
-</li>
-</ol>
-<h2 id="Lock的使用"><a href="#Lock的使用" class="headerlink" title="Lock的使用"></a>Lock的使用</h2><p>下面我们就来探讨一下java.util.concurrent.locks包中常用的类和接口。通过查看Lock的源码可知，Lock是一个接口：</p>
-<pre><code>public interface Lock {
-    void lock();
-    void lockInterruptibly() throws InterruptedException;
-    boolean tryLock();
-    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
-    void unlock();
-    Condition newCondition();
-}
-</code></pre><p>由于在前面讲到如果采用Lock，必须主动去释放锁，并且在发生异常时，不会自动释放锁。因此一般来说，使用Lock必须在try{}catch{}块中进行，并且将释放锁的操作放在finally块中进行，以保证锁一定被被释放，防止死锁的发生。通常使用Lock来进行同步的话，是以下面这种形式去使用的：</p>
-<pre><code>Lock lock = ...;
-lock.lock();
-try{
-    //处理任务
-}catch(Exception ex){
-
-}finally{
-    lock.unlock();   //释放锁
-}
-</code></pre><p>tryLock()方法是有返回值的，它表示用<strong>来尝试获取锁，如果获取成功，则返回true，如果获取失败（即锁已被其他线程获取），则返回false</strong>，也就说这个方法无论如何都会立即返回。在拿不到锁时不会一直在那等待。<br>tryLock(long time, TimeUnit unit)方法和tryLock()方法是类似的，只不过区别在于这个方法在拿不到锁时会等待一定的时间，在时间期限之内如果还拿不到锁，就返回false。如果如果一开始拿到锁或者在等待期间内拿到了锁，则返回true。</p>
-<pre><code>Lock lock = ...;
-if(lock.tryLock()) {
-     try{
-         //处理任务
-     }catch(Exception ex){
-
-     }finally{
-         lock.unlock();   //释放锁
-     } 
-}else {
-    //如果不能获取锁，则直接做其他事情
-}
-</code></pre><p>lockInterruptibly()方法比较特殊，当通过这个方法去<strong>获取锁时，如果线程正在等待获取锁，则这个线程能够响应中断，即中断线程的等待状态</strong>。也就使说，当两个线程同时通过lock.lockInterruptibly()想获取某个锁时，假若此时线程A获取到了锁，而线程B只有在等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程。<br>由于lockInterruptibly()的声明中抛出了异常，所以lock.lockInterruptibly()必须放在try块中或者在调用lockInterruptibly()的方法外声明抛出InterruptedException。因此lockInterruptibly()一般的使用形式如下：</p>
-<pre><code>public void method() throws InterruptedException {
-    lock.lockInterruptibly();
-    try {  
-     //.....
-    }catch (InterruptedException e){  
-
-    }
-    finally {
-        lock.unlock();
-    }  
-}
-</code></pre><p>注意，当一个线程获取了锁之后，是不会被interrupt()方法中断的。调用interrupt()方法不能中断正在运行过程中的线程，<strong>只能中断阻塞过程中的线程</strong>。<br>因此当通过lockInterruptibly()方法获取某个锁时，如果不能获取到，只有在进行等待的情况下，是可以响应中断的。而用synchronized修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一直等待下去。</p>
-<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。</p>
-<p>ReentrantLock的类图如下：<br><img src="/2019/03/07/java-reentrantlock/reentrantlock.png" alt><br>ReentrantLock的内部类Sync继承了AQS(AQS根本上是通过一个双向队列来实现的;线程构造成一个节点，一个线程先尝试获得锁，如果获取锁失败，就将该线程加到队列尾部)，<strong>分为公平锁FairSync和非公平锁NonfairSync</strong>。公平锁的获取，也就是等待时间最长的线程最优先获取锁，也可以说锁获取是顺序的。ReentrantLock的公平与否，可以通过它的构造函数来决定。</p>
-<p>在获取锁的tryAcquire（）方法中，非公平锁与公平锁唯一不同是多了以下判断hasQueuedPredecessors()。该方法主要是对同步队列中当前节点是否有前驱节点进行判断，如果该方法返回true，则表示有线程比当前线程更早地请求获取锁，因此需要等待前驱线程获取并释放锁之后才能继续获取锁。方法如下：</p>
-<pre><code>public final boolean hasQueuedPredecessors() {
-    // The correctness of this depends on head being initialized
-    // before tail and on head.next being accurate if the current
-    // thread is first in queue.
-    // 同步队列尾节点
-    Node t = tail; // Read fields in reverse initialization order
-    // 同步队列头节点
-    Node h = head;
-    Node s;
-    return h != t &amp;&amp;
-        ((s = h.next) == null || s.thread != Thread.currentThread());
-}
-</code></pre><p>事实上，<strong>公平锁往往没有非公平锁的效率高</strong>，但是，并不是任何场景都是以TPS作为唯一指标，<strong>公平锁能够减少“饥饿”发生的概率，等待越久的请求越能够得到优先满足</strong>。</p>
-<p>平锁与非公平锁相比，耗时更多，线程上下文切换次数更多。公平锁保证了锁的获取按照FIFO原则，而代价则是进行大量的线程切换。非<strong>公平锁虽然可能导致线程饥饿，但却有极少的线程切换，保证了其更大的吞吐量</strong>。</p>
-<h2 id="Condition"><a href="#Condition" class="headerlink" title="Condition"></a>Condition</h2><p>同jdk中的等待/通知机制类似，只不过Condition是用在重入锁这里的。有了Condition，线程就可以在合适的时间等待，在合适的时间继续执行。</p>
-<p>Condition接口包含以下方法：</p>
-<pre><code>// 让当前线程等待，并释放锁
-void await() throws InterruptedException;
-// 和await类似，但在等待过程中不会相应中断
-void awaitUninterruptibly();
-long awaitNanos(long nanosTimeout) throws InterruptedException;
-boolean await(long time, TimeUnit unit) throws InterruptedException;
-boolean awaitUntil(Date deadline) throws InterruptedException;
-// 唤醒等待中的线程
-void signal();
-// 唤醒等待中的所有线程
-void signalAll();
-</code></pre><h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
-<pre><code>public interface ReadWriteLock {
-    Lock readLock();
-    Lock writeLock();
-}
-</code></pre><p>一个用来获取读锁，一个用来获取写锁。也就是说将文件的读写操作分开，分成2个锁来分配给线程，从而使得多个线程可以同时进行读操作。</p>
-<h2 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h2><p>ReentrantReadWriteLock实现了ReadWriteLock接口。ReentrantReadWriteLock里面提供了很多丰富的方法，不过最主要的有两个方法：readLock()和writeLock()用来获取读锁和写锁。</p>
-<p>thread1和thread2<strong>可以同时进行读操作</strong>，这样就大大提升了读操作的效率。</p>
-<p>不过要注意的是，如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</p>
-<h2 id="锁的相关概念"><a href="#锁的相关概念" class="headerlink" title="锁的相关概念"></a>锁的相关概念</h2><ol>
-<li><p>可重入锁<br>&#160;&#160;&#160;&#160;如果锁具备可重入性，则称作为可重入锁。像synchronized和Lock都是可重入锁，可重入性在我看来实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。<br>&#160;&#160;&#160;&#160;我们在之前文章已经讲解过，详见： <a href="https://zhaoshuming.github.io/2019/03/01/Java-Synchronized/" target="_blank" rel="noopener">Java Synchronized探究</a></p>
-</li>
-<li><p>可中断锁<br>&#160;&#160;&#160;&#160;顾名思义，就是可以相应中断的锁。在Java中，synchronized就不是可中断锁，而Lock是可中断锁。<br>&#160;&#160;&#160;&#160;前面的lockInterruptibly()已经体现了Lock的可中断性。</p>
-</li>
-<li><p>公平锁<br>&#160;&#160;&#160;&#160;公平锁即<strong>尽量以请求锁的顺序来获取锁</strong>。比如同是有多个线程在等待一个锁，当这个锁被释放时，等待时间最久的线程（最先请求的线程）会获得该所，这种就是公平锁。<br>&#160;&#160;&#160;&#160;非公平锁即无法保证锁的获取是按照请求锁的顺序进行的。这样就可能导致某个或者一些线程永远获取不到锁。<br>&#160;&#160;&#160;&#160;在Java中，synchronized就是非公平锁，它无法保证等待的线程获取锁的顺序。<br>&#160;&#160;&#160;&#160;而对于ReentrantLock和ReentrantReadWriteLock，它默认情况下是非公平锁，但是可以设置为公平锁。</p>
-</li>
-<li><p>读写锁<br>&#160;&#160;&#160;&#160;读写锁将对一个资源（比如文件）的访问分成了2个锁，一个读锁和一个写锁。正因为有了读写锁，才使得多个线程之间的读操作不会发生冲突。<br>&#160;&#160;&#160;&#160;ReadWriteLock就是读写锁，它是一个接口，ReentrantReadWriteLock实现了这个接口。可以通过readLock()获取读锁，通过writeLock()获取写锁。</p>
-</li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a><br><a href="https://blog.csdn.net/chengyuqiang/article/details/79181229" target="_blank" rel="noopener">https://blog.csdn.net/chengyuqiang/article/details/79181229</a><br><a href="https://www.cnblogs.com/fuck1/p/5432806.html" target="_blank" rel="noopener">https://www.cnblogs.com/fuck1/p/5432806.html</a><br><a href="https://blog.csdn.net/qq_38293564/article/details/80515718#t3" target="_blank" rel="noopener">https://blog.csdn.net/qq_38293564/article/details/80515718#t3</a><br><a href="https://blog.csdn.net/i_am_kop/article/details/80958856" target="_blank" rel="noopener">https://blog.csdn.net/i_am_kop/article/details/80958856</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3299,7 +3012,7 @@ void signalAll();
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

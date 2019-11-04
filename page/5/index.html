@@ -293,6 +293,998 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
+                2019-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
+<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
+<blockquote>
+<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
+</blockquote>
+<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
+<ol>
+<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
+<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
+<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
+<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
+<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
+</ol>
+<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
+<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
+<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
+<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
+<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
+<ol>
+<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
+</li>
+<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
+</li>
+<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
+</li>
+</ol>
+<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
+<blockquote>
+<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
+</blockquote>
+<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
+<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
+<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
+<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
+<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
+<pre><code>public class DataEncryptInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //请求
+        Request request = chain.request();
+        RequestBody oldRequestBody = request.body();
+        Buffer requestBuffer = new Buffer();
+        oldRequestBody.writeTo(requestBuffer);
+        String oldBodyStr = requestBuffer.readUtf8();
+        requestBuffer.close();
+        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
+        //生成随机AES密钥并用serverPublicKey进行RSA加密
+        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
+        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
+        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
+        //计算body 哈希 并使用app私钥RSA签名
+        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
+        //随机AES密钥加密oldBodyStr
+        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
+        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
+        //构造新的request
+        request = request.newBuilder()
+                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
+                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
+                .method(request.method(), newBody)
+                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
+                .header(&quot;appSignature&quot;, appSignature)
+                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
+                .build();
+        //响应
+        Response response = chain.proceed(request);
+        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
+            //获取响应头
+            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
+            //用app的RSA私钥解密AES加密密钥
+            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
+            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
+            //用AES密钥解密oldResponseBodyStr
+            ResponseBody oldResponseBody = response.body();
+            String oldResponseBodyStr = oldResponseBody.string();
+            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
+            oldResponseBody.close();
+            //构造新的response
+            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
+            response = response.newBuilder().body(newResponseBody).build();
+        }
+        response.close();
+        //返回
+        return response;
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/18/android-https/" itemprop="url">android中使用https</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T17:56:17+08:00">
+                2019-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本案例将ca证书放在本地，这里使用.pfx格式的证书</p>
+<h3 id="单向验证"><a href="#单向验证" class="headerlink" title="单向验证"></a>单向验证</h3><p>有两种写法，先展示一种接近okhttp官方写法的方法:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>第二种写法，同样有效:</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray())
+
+        //key管理器工厂
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, CLIENT_KET_PASSWORD.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>值得注意的是，keystore的格式，keystore拓展名对应格式：</p>
+<blockquote>
+<p>JKS:.jks/.ks<br>JCEKS:.jce<br>PKCS12:.p12/.pfx<br>BKS:.bks<br>UBER:.ubr</p>
+</blockquote>
+<p>所以，如果ca证书用的是.pfx，那么可以这样写：</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(&quot;PKCS12&quot;);
+</code></pre><p>如果是.cer的话那么，就用:</p>
+<pre><code>KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+</code></pre><h3 id="双向验证"><a href="#双向验证" class="headerlink" title="双向验证"></a>双向验证</h3><p>双向验证的前提是，你的app同样生成一个jks的密钥文件，服务器那边会同时有个“cer文件”与之对应。<br>注意： Java平台默认识别jks格式的证书文件，但是android平台只识别bks格式的证书文件，所以这里还需要将jks的文件转成bks</p>
+<p>通过jks文件生成对应的cer文件：</p>
+<blockquote>
+<p>keytool -export -alias test1.jks -file test2.cer -keystore test1.jks -storepass 123456</p>
+</blockquote>
+<p>如果服务端报错keystore文件格式不正确，则我们再将cer文件转换成jks文件：</p>
+<blockquote>
+<p>keytool -import -alias test2.cer -file test2.cer -keystore test3.jks</p>
+</blockquote>
+<p>客户端代码如下：</p>
+<pre><code>private void setCertificates(Context context) {
+    try {
+        //将ca证书导入输入流
+        InputStream inputStream = context.getResources().openRawResource(R.raw.aaa);
+
+        //keystore添加证书内容和密码
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(inputStream, CLIENT_KET_PASSWORD.toCharArray());
+
+        //证书工厂类，生成证书
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(&quot;X.509&quot;);
+        //生成证书，添加别名
+        keyStore.setCertificateEntry(&quot;test1&quot;, certificateFactory.generateCertificate(inputStream));
+
+        //信任管理器工厂
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        //双向验证，配置服务器验证客户端的证书
+        InputStream inputStream1 = context.getResources().openRawResource(R.raw.bbb);
+        KeyStore keyStore1 = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore1.load(inputStream1, CLIENT_KET_PASSWORD_1.toCharArray());
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore1, CLIENT_KET_PASSWORD_1.toCharArray());
+
+        //构建一个ssl上下文，加入ca证书格式，与后台保持一致
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;);
+        //参数，添加受信任证书和生成随机数
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        //获得scoket工厂
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        mOkHttpClient.sslSocketFactory(sslSocketFactory);
+
+        //设置ip授权认证：如果已经安装该证书，可以不设置，否则需要设置
+        mOkHttpClient.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        inputStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><h3 id="中间人劫持攻击"><a href="#中间人劫持攻击" class="headerlink" title="中间人劫持攻击"></a>中间人劫持攻击</h3><p>https也不是绝对安全的，如下图所示为中间人劫持攻击，中间人可以获取到客户端与服务器之间所有的通信内容:<br><img src="/2019/03/18/android-https/center_attack.jpg" alt><br>中间人截取客户端发送给服务器的请求，然后伪装成客户端与服务器进行通信;将服务器返回给客户端的内容发送给客户端，伪装成服务器与客户端进行通信。<br>通过这样的手段，便可以获取客户端和服务器之间通信的所有内容。<br>使用中间人攻击手段，必须要让客户端信任中间人的证书，如果客户端不信任，则这种攻击手段也无法发挥作用。</p>
+<p>造成中间人劫持的原因是：<strong>没有对服务端证书及域名做校验或者校验不完整</strong>。下面是错误的写法：<br><img src="/2019/03/18/android-https/unsafe.jpg" alt><br>正确的写法是真正实现TrustManger的checkServerTrusted()，对服务器证书域名进行强校验或者真正实现HostnameVerifier的verify()方法。<br>真正实现TrustManger的checkServerTrusted()代码如下:<br><img src="/2019/03/18/android-https/checkServer.jpg" alt><br>其中serverCert是APP中预埋的服务器端公钥证书</p>
+<p>对服务器证书域名进行强校验:<br><img src="/2019/03/18/android-https/hostname_strict.jpg" alt><br>真正实现HostnameVerifier的verify()方法：<br><img src="/2019/03/18/android-https/hostname_verifier.jpg" alt></p>
+<p>另外一种写法证书锁定，直接用预埋的证书来生成TrustManger，过程如上面介绍okhttp使用https方式</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/yehui928186846/article/details/78321769" target="_blank" rel="noopener">okhttp实现https请求</a><br><a href="https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/okhttp3/recipes/CustomTrust.java" target="_blank" rel="noopener">okhttp官方https的api方法</a><br><a href="https://www.cnblogs.com/zery/p/5164795.html" target="_blank" rel="noopener">手机如何抓取HTTPS的请求数据</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/12/mpchart-point-label/" itemprop="url">MpAndroidChart实现多点的特殊标记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-12T18:36:14+08:00">
+                2019-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android-ui/" itemprop="url" rel="index">
+                    <span itemprop="name">android ui</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）：</p>
+<p><img src="/2019/03/12/mpchart-point-label/chart_label.png" alt><br>在网上并没有相关资料，在此做下记录分享</p>
+<p>下面上代码:</p>
+<p>首先创建一个类继承LineChart,重写init()方法：</p>
+<pre><code>@Override
+protected void init() {
+    super.init();
+    //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配
+    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+    DisplayMetrics metrics = new DisplayMetrics();
+    wm.getDefaultDisplay().getMetrics(metrics);
+    mRenderer = new HbFundLineChartRenderer(this, mAnimator, mViewPortHandler, metrics.widthPixels);
+}
+</code></pre><p>接下来是主要内容,也就是自己实现的LineChartRenderer即渲染器,用来画点、线等.<br>首先是一些变量,分别是标记控件的宽高边距等,这里写的是一些根据我们需求来的默认值：</p>
+<pre><code>private int mWidth;//屏幕宽度,在构造方法中传进来赋值
+private float hViewLength = Utils.convertDpToPixel(30f);//vie宽30dp
+private float vViewLength = Utils.convertDpToPixel(20f);//view高20dp
+private float viewRect= Utils.convertDpToPixel(4f);//矩形高低差
+</code></pre><p>然后,在LineChartRenderer中有一个drawValues,它是主要负责根据值来画点的,我们要做的就是在super()之后加上我们自己的东西：</p>
+<pre><code>@Override
+public void drawValues(Canvas c) {
+    super.drawValues(c);
+    if (isShowLabel) {
+        LineDataSet dataSetByIndex = (LineDataSet) mChart.getLineData().getDataSetByIndex(0);
+        Transformer trans = mChart.getTransformer(dataSetByIndex.getAxisDependency());
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿画笔
+        paint.setTextSize(Utils.convertDpToPixel(textSixe));//设置字体大小
+
+        //画首中尾三个label
+        float[] firstFloat = getFloat(dataSetByIndex.getValues(), 0);//根据数据集获取点
+        drawPointLabel(trans, paint, c, firstFloat);
+        float[] middleFloat = getFloat(dataSetByIndex.getValues(), (dataSetByIndex.getValues().size() - 1) / 2);
+        drawPointLabel(trans, paint, c, middleFloat);
+        float[] endFloat = getFloat(dataSetByIndex.getValues(), dataSetByIndex.getValues().size() - 1);
+        drawPointLabel(trans, paint, c, endFloat);
+    }
+}
+</code></pre><p>首先获取点的数据集,然后得到Transformer,它可以根据点数据集里的某一点来得到这个点在屏幕中的位置<br>然后分别传入transformer、画笔、画布对象、点,进行绘制：</p>
+<pre><code>private void drawPointLabel(Transformer trans, Paint paint, Canvas c, float[] floatPosition) {
+    MPPointD maxPoint = trans.getPixelForValues(floatPosition[0], floatPosition[1]);
+    float highX = (float) maxPoint.x;
+    float highY = (float) maxPoint.y;
+    TextView view = (TextView) LayoutInflater.from(mContext).inflate(R.layout.mark_view, null, false);
+    if (highX &gt; mWidth - mWidth / 4) {//标识朝左
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_r);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX - hViewLength), (int) (highY - vViewLength - viewRect), paint);
+    } else if (highX &lt; mWidth / 4) {//标识朝右
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_l);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX), (int) (highY - vViewLength - viewRect), paint);
+    } else {//标识居中
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_c);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX - hViewLength / 2), (int) (highY - vViewLength - viewRect), paint);
+    }
+}
+</code></pre><p>此处，我们随意定义几个点，可以根据实际需求进行设置：</p>
+<pre><code>private float[] getFloat(List&lt;Entry&gt; lists, int index) {
+    float[] maxEntry = new float[2];
+    maxEntry[0] = lists.get(index).getX();
+    maxEntry[1] = lists.get(index).getY();
+    return maxEntry;
+}
+</code></pre><p>view转bitmap方法如下：</p>
+<pre><code>private Bitmap createBitmap(View v, int width, int height) {
+    //测量使得view指定大小
+    int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+    int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+    v.measure(measuredWidth, measuredHeight);
+    //调用layout方法布局后，可以得到view的尺寸大小
+    v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+    Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas c = new Canvas(bmp);
+    v.draw(c);
+    return bmp;
+}
+</code></pre><p>最后附上<a href="https://github.com/zhaoshuming/TestAcharView" target="_blank" rel="noopener">代码（内部测试demo，多余功能请忽略）</a></p>
+<p>参考资料：<br><a href="https://www.jianshu.com/p/1877b8c2fc6c" target="_blank" rel="noopener">https://www.jianshu.com/p/1877b8c2fc6c</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/java-reentrantlock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/07/java-reentrantlock/" itemprop="url">Java Lock</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-07T09:59:25+08:00">
+                2019-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/同步/" itemprop="url" rel="index">
+                    <span itemprop="name">同步</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>synchronized是java中的一个关键字，也就是说是Java语言内置的特性。那么为什么会出现Lock呢？</p>
+<p>如果一个代码块被synchronized修饰了，当一个线程获取了对应的锁，并执行该代码块时，其他线程便只能一直等待，等待获取锁的线程释放锁，而这里获取锁的线程释放锁会有三种情况：</p>
+<blockquote>
+<p>1）获取锁的线程执行完了该代码块，然后线程释放对锁的占有<br>2）线程执行发生异常，此时JVM会让线程自动释放锁<br>3）这个主要是在等待唤醒机制里面的wait()方法，在等待的时候立即释放锁，方便其他的线程使用锁。</p>
+</blockquote>
+<p>那么如果这个获取锁的线程由于要等待IO或者其他原因（比如调用sleep方法）被阻塞了，但是又没有释放锁，其他线程便只能干巴巴地等待，试想一下，这多么影响程序执行效率。因此<strong>我们需要不论程序的代码块执行的如何最终都将锁对象进行释放，方便其他线程的执行</strong>。</p>
+<p>虽然我们可以理解同步代码块和同步方法的锁对象问题，但是我们并没有直接看到在哪里加上了锁，在哪里释放了锁，同时为了更好地释放锁。为了更清晰的表达如何加锁和释放锁,JDK5以后提供了一个新的锁对象Lock。另外，通过Lock可以知道线程有没有成功获取到锁。这个是synchronized无法办到的。</p>
+<p>总结一下，也就是说Lock提供了比synchronized更多的功能。但是要注意以下几点：</p>
+<blockquote>
+<p>1）<strong>Lock不是Java语言内置的</strong>，synchronized是Java语言的关键字，因此是内置特性。<br>2）synchronized是在JVM层面上实现的，不但可以通过一些监控工具监控synchronized的锁定，而且在代码执行时出现异常，JVM会自动释放锁定，但是使用Lock则不行，<strong>lock是通过代码实现的，必须要手动释放锁</strong><br>3）在资源竞争不是很激烈的情况下，Synchronized的性能要优于ReetrantLock，但是在<strong>资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态</strong><br>4）<strong>Lock可以让等待锁的线程响应中断</strong>，而synchronized却不行，使用synchronized时，等待的线程会一直等待下去，不能够响应中断；<br>5）通过<strong>Lock可以知道有没有成功获取锁</strong>，而synchronized却无法办到。<br>6）Lock可以<strong>提高多个线程进行读操作的效率</strong>。</p>
+</blockquote>
+<h2 id="locks包结构"><a href="#locks包结构" class="headerlink" title="locks包结构"></a>locks包结构</h2><p>java.util.concurrent.locks包为锁和等待条件提供一个框架的接口和类，结构如下图所示：</p>
+<p><img src="/2019/03/07/java-reentrantlock/lock.png" alt></p>
+<ol>
+<li><p>Lock和ReadWriteLock是两大锁根接口，Lock代表实现类是ReentrantLock（可重入锁），ReadWriteLock（读写锁）的代表实现类是ReentrantReadWriteLock。<br>Lock 接口支持那些语义不同（重入、公平等）的锁规则，可以在非阻塞式结构的上下文（包括 hand-over-hand 和锁重排算法）中使用这些规则。主要的实现是 ReentrantLock。<br>ReadWriteLock 接口以类似方式定义了一些读取者可以共享而写入者独占的锁。此包只提供了一个实现，即 ReentrantReadWriteLock，因为它适用于大部分的标准用法上下文。但程序员可以创建自己的、适用于非标准要求的实现。</p>
+</li>
+<li><p><strong>Condition 接口描述了可能会与锁有关联的条件变量</strong>。这些变量在用法上与使用 Object.wait 访问的隐式监视器类似，但提供了更强大的功能。需要特别指出的是，单个 Lock 可能与多个 Condition 对象关联。为了避免兼容性问题，Condition 方法的名称与对应的 Object 版本中的不同。</p>
+</li>
+</ol>
+<h2 id="Lock的使用"><a href="#Lock的使用" class="headerlink" title="Lock的使用"></a>Lock的使用</h2><p>下面我们就来探讨一下java.util.concurrent.locks包中常用的类和接口。通过查看Lock的源码可知，Lock是一个接口：</p>
+<pre><code>public interface Lock {
+    void lock();
+    void lockInterruptibly() throws InterruptedException;
+    boolean tryLock();
+    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+    void unlock();
+    Condition newCondition();
+}
+</code></pre><p>由于在前面讲到如果采用Lock，必须主动去释放锁，并且在发生异常时，不会自动释放锁。因此一般来说，使用Lock必须在try{}catch{}块中进行，并且将释放锁的操作放在finally块中进行，以保证锁一定被被释放，防止死锁的发生。通常使用Lock来进行同步的话，是以下面这种形式去使用的：</p>
+<pre><code>Lock lock = ...;
+lock.lock();
+try{
+    //处理任务
+}catch(Exception ex){
+
+}finally{
+    lock.unlock();   //释放锁
+}
+</code></pre><p>tryLock()方法是有返回值的，它表示用<strong>来尝试获取锁，如果获取成功，则返回true，如果获取失败（即锁已被其他线程获取），则返回false</strong>，也就说这个方法无论如何都会立即返回。在拿不到锁时不会一直在那等待。<br>tryLock(long time, TimeUnit unit)方法和tryLock()方法是类似的，只不过区别在于这个方法在拿不到锁时会等待一定的时间，在时间期限之内如果还拿不到锁，就返回false。如果如果一开始拿到锁或者在等待期间内拿到了锁，则返回true。</p>
+<pre><code>Lock lock = ...;
+if(lock.tryLock()) {
+     try{
+         //处理任务
+     }catch(Exception ex){
+
+     }finally{
+         lock.unlock();   //释放锁
+     } 
+}else {
+    //如果不能获取锁，则直接做其他事情
+}
+</code></pre><p>lockInterruptibly()方法比较特殊，当通过这个方法去<strong>获取锁时，如果线程正在等待获取锁，则这个线程能够响应中断，即中断线程的等待状态</strong>。也就使说，当两个线程同时通过lock.lockInterruptibly()想获取某个锁时，假若此时线程A获取到了锁，而线程B只有在等待，那么对线程B调用threadB.interrupt()方法能够中断线程B的等待过程。<br>由于lockInterruptibly()的声明中抛出了异常，所以lock.lockInterruptibly()必须放在try块中或者在调用lockInterruptibly()的方法外声明抛出InterruptedException。因此lockInterruptibly()一般的使用形式如下：</p>
+<pre><code>public void method() throws InterruptedException {
+    lock.lockInterruptibly();
+    try {  
+     //.....
+    }catch (InterruptedException e){  
+
+    }
+    finally {
+        lock.unlock();
+    }  
+}
+</code></pre><p>注意，当一个线程获取了锁之后，是不会被interrupt()方法中断的。调用interrupt()方法不能中断正在运行过程中的线程，<strong>只能中断阻塞过程中的线程</strong>。<br>因此当通过lockInterruptibly()方法获取某个锁时，如果不能获取到，只有在进行等待的情况下，是可以响应中断的。而用synchronized修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一直等待下去。</p>
+<h2 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h2><p>ReentrantLock，意思是“可重入锁”。ReentrantLock是唯一实现了Lock接口的类，并且ReentrantLock提供了更多的方法。</p>
+<p>ReentrantLock的类图如下：<br><img src="/2019/03/07/java-reentrantlock/reentrantlock.png" alt><br>ReentrantLock的内部类Sync继承了AQS(AQS根本上是通过一个双向队列来实现的;线程构造成一个节点，一个线程先尝试获得锁，如果获取锁失败，就将该线程加到队列尾部)，<strong>分为公平锁FairSync和非公平锁NonfairSync</strong>。公平锁的获取，也就是等待时间最长的线程最优先获取锁，也可以说锁获取是顺序的。ReentrantLock的公平与否，可以通过它的构造函数来决定。</p>
+<p>在获取锁的tryAcquire（）方法中，非公平锁与公平锁唯一不同是多了以下判断hasQueuedPredecessors()。该方法主要是对同步队列中当前节点是否有前驱节点进行判断，如果该方法返回true，则表示有线程比当前线程更早地请求获取锁，因此需要等待前驱线程获取并释放锁之后才能继续获取锁。方法如下：</p>
+<pre><code>public final boolean hasQueuedPredecessors() {
+    // The correctness of this depends on head being initialized
+    // before tail and on head.next being accurate if the current
+    // thread is first in queue.
+    // 同步队列尾节点
+    Node t = tail; // Read fields in reverse initialization order
+    // 同步队列头节点
+    Node h = head;
+    Node s;
+    return h != t &amp;&amp;
+        ((s = h.next) == null || s.thread != Thread.currentThread());
+}
+</code></pre><p>事实上，<strong>公平锁往往没有非公平锁的效率高</strong>，但是，并不是任何场景都是以TPS作为唯一指标，<strong>公平锁能够减少“饥饿”发生的概率，等待越久的请求越能够得到优先满足</strong>。</p>
+<p>平锁与非公平锁相比，耗时更多，线程上下文切换次数更多。公平锁保证了锁的获取按照FIFO原则，而代价则是进行大量的线程切换。非<strong>公平锁虽然可能导致线程饥饿，但却有极少的线程切换，保证了其更大的吞吐量</strong>。</p>
+<h2 id="Condition"><a href="#Condition" class="headerlink" title="Condition"></a>Condition</h2><p>同jdk中的等待/通知机制类似，只不过Condition是用在重入锁这里的。有了Condition，线程就可以在合适的时间等待，在合适的时间继续执行。</p>
+<p>Condition接口包含以下方法：</p>
+<pre><code>// 让当前线程等待，并释放锁
+void await() throws InterruptedException;
+// 和await类似，但在等待过程中不会相应中断
+void awaitUninterruptibly();
+long awaitNanos(long nanosTimeout) throws InterruptedException;
+boolean await(long time, TimeUnit unit) throws InterruptedException;
+boolean awaitUntil(Date deadline) throws InterruptedException;
+// 唤醒等待中的线程
+void signal();
+// 唤醒等待中的所有线程
+void signalAll();
+</code></pre><h2 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h2><p>ReadWriteLock也是一个接口，在它里面只定义了两个方法：</p>
+<pre><code>public interface ReadWriteLock {
+    Lock readLock();
+    Lock writeLock();
+}
+</code></pre><p>一个用来获取读锁，一个用来获取写锁。也就是说将文件的读写操作分开，分成2个锁来分配给线程，从而使得多个线程可以同时进行读操作。</p>
+<h2 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h2><p>ReentrantReadWriteLock实现了ReadWriteLock接口。ReentrantReadWriteLock里面提供了很多丰富的方法，不过最主要的有两个方法：readLock()和writeLock()用来获取读锁和写锁。</p>
+<p>thread1和thread2<strong>可以同时进行读操作</strong>，这样就大大提升了读操作的效率。</p>
+<p>不过要注意的是，如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</p>
+<h2 id="锁的相关概念"><a href="#锁的相关概念" class="headerlink" title="锁的相关概念"></a>锁的相关概念</h2><ol>
+<li><p>可重入锁<br>&#160;&#160;&#160;&#160;如果锁具备可重入性，则称作为可重入锁。像synchronized和Lock都是可重入锁，可重入性在我看来实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。<br>&#160;&#160;&#160;&#160;我们在之前文章已经讲解过，详见： <a href="https://zhaoshuming.github.io/2019/03/01/Java-Synchronized/" target="_blank" rel="noopener">Java Synchronized探究</a></p>
+</li>
+<li><p>可中断锁<br>&#160;&#160;&#160;&#160;顾名思义，就是可以相应中断的锁。在Java中，synchronized就不是可中断锁，而Lock是可中断锁。<br>&#160;&#160;&#160;&#160;前面的lockInterruptibly()已经体现了Lock的可中断性。</p>
+</li>
+<li><p>公平锁<br>&#160;&#160;&#160;&#160;公平锁即<strong>尽量以请求锁的顺序来获取锁</strong>。比如同是有多个线程在等待一个锁，当这个锁被释放时，等待时间最久的线程（最先请求的线程）会获得该所，这种就是公平锁。<br>&#160;&#160;&#160;&#160;非公平锁即无法保证锁的获取是按照请求锁的顺序进行的。这样就可能导致某个或者一些线程永远获取不到锁。<br>&#160;&#160;&#160;&#160;在Java中，synchronized就是非公平锁，它无法保证等待的线程获取锁的顺序。<br>&#160;&#160;&#160;&#160;而对于ReentrantLock和ReentrantReadWriteLock，它默认情况下是非公平锁，但是可以设置为公平锁。</p>
+</li>
+<li><p>读写锁<br>&#160;&#160;&#160;&#160;读写锁将对一个资源（比如文件）的访问分成了2个锁，一个读锁和一个写锁。正因为有了读写锁，才使得多个线程之间的读操作不会发生冲突。<br>&#160;&#160;&#160;&#160;ReadWriteLock就是读写锁，它是一个接口，ReentrantReadWriteLock实现了这个接口。可以通过readLock()获取读锁，通过writeLock()获取写锁。</p>
+</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/dolphin0520/p/3923167.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3923167.html</a><br><a href="https://blog.csdn.net/chengyuqiang/article/details/79181229" target="_blank" rel="noopener">https://blog.csdn.net/chengyuqiang/article/details/79181229</a><br><a href="https://www.cnblogs.com/fuck1/p/5432806.html" target="_blank" rel="noopener">https://www.cnblogs.com/fuck1/p/5432806.html</a><br><a href="https://blog.csdn.net/qq_38293564/article/details/80515718#t3" target="_blank" rel="noopener">https://blog.csdn.net/qq_38293564/article/details/80515718#t3</a><br><a href="https://blog.csdn.net/i_am_kop/article/details/80958856" target="_blank" rel="noopener">https://blog.csdn.net/i_am_kop/article/details/80958856</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/04/java-volatile/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1727,7 +2719,7 @@ tags: #文章標籤 可以省略
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

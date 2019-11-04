@@ -92,7 +92,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/event-loop-and-main.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/both-queues.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/25/dart-knowledge/scheduling-tasks.png">
-<meta property="og:updated_time" content="2019-07-04T02:43:03.318Z">
+<meta property="og:updated_time" content="2019-10-30T01:50:25.262Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dart语言基础">
 <meta name="twitter:description" content="在Dart中，一切都是对象，一切对象都是class的实例，哪怕是数字类型、方法甚至null都是对象，所有的对象都是继承自Object 虽然Dart是强类型语言，但变量类型是可选的，因为Dart可以自动推断变量类型 Dart支持范型，List&amp;lt;int&amp;gt;表示一个整型的数据列表，List&amp;lt;dynamic&amp;gt;则是一个对象的列表，其中可以装任意对象 Dart支持顶层方法（如main方">
@@ -686,6 +686,9 @@ main() {
   assert(sort is Compare); // True!
 }
 </code></pre><h3 id="控制流程"><a href="#控制流程" class="headerlink" title="控制流程"></a>控制流程</h3><p>if / else switch for /while try / catch语句跟Java中都类似，<strong>try / catch语句可能稍有不同</strong>，下面用一段代码说明：</p>
+<blockquote>
+<p>Dart中规定，if中当且仅当参数为bool类型true时，为真，其他全部都为假。</p>
+</blockquote>
 <pre><code>main() {
   // if else语句
   int score = 80;
@@ -1243,7 +1246,7 @@ void microtask(){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
