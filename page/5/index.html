@@ -293,6 +293,1400 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/java-cas/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/29/java-cas/" itemprop="url">JAVA中的CAS</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-29T18:22:44+08:00">
+                2019-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/同步/" itemprop="url" rel="index">
+                    <span itemprop="name">同步</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="无锁的概念"><a href="#无锁的概念" class="headerlink" title="无锁的概念"></a>无锁的概念</h4><p>加锁是一种悲观策略，无锁是一种乐观策略，因为对于加锁的并发程序来说，它们总是认为每次访问共享资源时总会发生冲突，因此必须对每一次数据操作实施加锁策略。而无锁则总是假设对共享资源的访问没有冲突，线程可以不停执行，无需加锁，无需等待，一旦发现冲突，<strong>无锁策略则采用一种称为CAS的技术来保证线程执行的安全性</strong>，这项CAS技术就是无锁策略实现的关键。</p>
+<h4 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h4><p>CAS的全称是Compare And Swap 即比较交换，其算法核心思想如下:</p>
+<blockquote>
+<p>执行函数：CAS(V,E,N)</p>
+</blockquote>
+<p>其包含3个参数:<br>V表示要更新的变量<br>E表示预期值<br>N表示新值<br>如果V值等于E值，则将V的值设为N。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，<strong>当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作</strong>，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作，原理图如下:<br><img src="/2019/03/29/java-cas/cas.png" alt><br>示例如下：</p>
+<pre><code>//加一并返回值
+public final int incrementAndGet() {
+        for (;;) {
+            int current = get();
+            int next = current + 1;
+            if (compareAndSet(current, next))
+                return next;
+        }
+   }
+
+//返回CAS操作成功与否
+public final boolean compareAndSet(int expect, int update) {
+        //根据变量在内存中的偏移地址valueOffset获取原值，然后和预期值except进行比，如果符合，用update值进行更新，这个过程是原子操作
+        return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
+    }
+</code></pre><p>如果此时有两个线程，线程A得到current值为1，线程B得到current值也为2，此时线程A执行CAS操作，成功将值改为2，而此时线程B执行CAS操作，发现此时内存中的值并不是读到current值1，所以返回false，此时线程B继续进行循环，最后成功加1</p>
+<h4 id="CAS的原子性"><a href="#CAS的原子性" class="headerlink" title="CAS的原子性"></a>CAS的原子性</h4><p>或许我们可能会有这样的疑问，假设存在多个线程执行CAS操作并且CAS的步骤很多，有没有可能在判断V和E相同后，正要赋值时，切换了线程，更改了值。造成了数据不一致呢？答案是否定的，因为<strong>CAS是一种系统原语</strong>，原语属于操作系统用语范畴，是由若干条指令组成的，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程中不允许被中断，也就是说<strong>CAS是一条CPU的原子指令</strong>，不会造成所谓的数据不一致问题。</p>
+<h4 id="Unsafe类"><a href="#Unsafe类" class="headerlink" title="Unsafe类"></a>Unsafe类</h4><p>Unsafe类存在于sun.misc包中，其内部方法操作可以像C的指针一样直接操作内存，单从名称看来就可以知道该类是非安全的，毕竟Unsafe拥有着类似于C的指针操作，因此总是不应该首先使用Unsafe类，Java官方也不建议直接使用的Unsafe类，但我们还是很有必要了解该类，因为Java中CAS操作的执行依赖于Unsafe类的方法，注意Unsafe类中的所有方法都是native修饰的，也就是说Unsafe类中的方法都直接调用操作系统底层资源执行相应任务<br>CAS是一些CPU直接支持的指令，也就是我们前面分析的无锁操作，在Java中无锁操作CAS基于以下3个方法实现：</p>
+<pre><code>//第一个参数o为给定对象，offset为对象内存的偏移量，通过这个偏移量迅速定位字段并设置或获取该字段的值，
+//expected表示期望值，x表示要设置的值，下面3个方法都通过CAS原子指令执行操作。
+public final native boolean compareAndSwapObject(Object o, long offset,Object expected, Object x);                                                                                                  
+
+public final native boolean compareAndSwapInt(Object o, long offset,int expected,int x);
+
+public final native boolean compareAndSwapLong(Object o, long offset,long expected,long x);
+</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://blog.csdn.net/mmoren/article/details/79185862" target="_blank" rel="noopener">JAVA中的CAS</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/java-rsa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/29/java-rsa/" itemprop="url">Java中使用RSA/AES加解密</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-29T16:30:46+08:00">
+                2019-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行</strong>。(RSA密钥长度随着保密级别提高，增加很快)<br>RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常：</p>
+<pre><code>Exception in thread &quot;main&quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 bytes  
+at com.sun.crypto.provider.RSACipher.a(DashoA13*..)  
+at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)  
+at javax.crypto.Cipher.doFinal(DashoA13*..) 
+</code></pre><p>1.密钥长度<br>rsa算法初始化的时候一般要填入密钥长度,在96-2048bits间<br>(1)为啥下限是96bits(12bytes)?因为加密1byte的明文,需要至少1+11=12bytes的密钥(不懂?看下面的明文长度),低于下限96bits时,一个byte都加密不了,当然没意义啦<br>(2)为啥上限是2048(256bytes)?这是算法本身决定的。另RSA密钥长度随着保密级别提高，增加很快</p>
+<p>2.明文长度<br>明文长度(bytes) &lt;= 密钥长度(bytes)-11.这样的话,对于上限密钥长度1024bits能加密的明文上限就是117bytes了.<br>所以就出现了分片加密,网上很流行这个版本.很简单,如果明文长度大于那个最大明文长度了,我就分片吧,保证每片都别超过那个值就是了.<br>片数=(明文长度(bytes)/(密钥长度(bytes)-11))的整数部分+1,就是不满一片的按一片算</p>
+<p>3.密文长度<br>密文长度等于密钥长度.当然这是不分片情况下的.<br>分片后,密文长度=密钥长度*片数</p>
+<p>例如96bits的密钥,明文4bytes<br>每片明文长度=96/8-11=1byte,片数=4,密文长度=96/8*4=48bytes</p>
+<p>又例如128bits的密钥,明文8bytes<br>每片明文长度=128/8-11=5bytes,片数=8/5取整+1=2,密文长度=128/8*2=32</p>
+<p>注意,对于指定长度的明文,其密文长度与密钥长度非正比关系.如4bytes的明文,在最短密钥96bites是,密文长度48bytes,128bits米密钥时,密文长度为16bytes,1024bits密钥时,密文长度128bytes.<br>因为分片越多,密文长度显然会变大,所以有人说,那就一直用1024bits的密钥吧…拜托,现在的机器算1024bits的密钥还是要点时间滴,别以为你的cpu很牛逼…那么选个什么值比较合适呢?个人认为是600bits,因为我们对于一个字符串的加密,一般不是直接加密,而是将字符串hash 后,对hash值加密.现在的hash值一般都是4bytes,很少有8bytes,几十年内应该也不会超过64bytes.那就用64bytes算吧, 密钥长度就是(64+11)*8=600bits了.</p>
+<p>RSAUtils.java</p>
+<pre><code>package security;
+
+import java.io.ByteArrayOutputStream;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+
+/** *//**
+ * RSA公钥/私钥/签名工具包
+ * 
+ * 罗纳德·李维斯特（Ron [R]ivest）、阿迪·萨莫尔（Adi [S]hamir）和伦纳德·阿德曼（Leonard [A]dleman）
+ * 
+ * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式&lt;br/&gt;
+ * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，&lt;br/&gt;
+ * 非对称加密算法可以用来对对称加密的密钥加密，这样保证密钥的安全也就保证了数据的安全
+ * 
+ * @author IceWee
+ * @date 2012-4-26
+ * @version 1.0
+ */
+public class RSAUtils {
+
+    /** *//**
+     * 加密算法RSA
+     */
+    public static final String KEY_ALGORITHM = &quot;RSA&quot;;
+
+    /** *//**
+     * 签名算法
+     */
+    public static final String SIGNATURE_ALGORITHM = &quot;MD5withRSA&quot;;
+
+    /** *//**
+     * 获取公钥的key
+     */
+    private static final String PUBLIC_KEY = &quot;RSAPublicKey&quot;;
+
+    /** *//**
+     * 获取私钥的key
+     */
+    private static final String PRIVATE_KEY = &quot;RSAPrivateKey&quot;;
+
+    /** *//**
+     * RSA最大加密明文大小
+     */
+    private static final int MAX_ENCRYPT_BLOCK = 117;
+
+    /** *//**
+     * RSA最大解密密文大小
+     */
+    private static final int MAX_DECRYPT_BLOCK = 128;
+
+    /** *//**
+     * 生成密钥对(公钥和私钥)
+     * 
+     * @return
+     * @throws Exception
+     */
+    public static Map&lt;String, Object&gt; genKeyPair() throws Exception {
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
+        keyPairGen.initialize(1024);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        Map&lt;String, Object&gt; keyMap = new HashMap&lt;String, Object&gt;(2);
+        keyMap.put(PUBLIC_KEY, publicKey);
+        keyMap.put(PRIVATE_KEY, privateKey);
+        return keyMap;
+    }
+
+    /** *//**
+     * 用私钥对信息生成数字签名
+     * 
+     * @param data 已加密数据
+     * @param privateKey 私钥(BASE64编码)
+     * 
+     * @return
+     * @throws Exception
+     */
+    public static String sign(byte[] data, String privateKey) throws Exception {
+        byte[] keyBytes = Base64Utils.decode(privateKey);
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        PrivateKey privateK = keyFactory.generatePrivate(pkcs8KeySpec);
+        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+        signature.initSign(privateK);
+        signature.update(data);
+        return Base64Utils.encode(signature.sign());
+    }
+
+    /** *//**
+     * 校验数字签名
+     * 
+     * @param data 已加密数据
+     * @param publicKey 公钥(BASE64编码)
+     * @param sign 数字签名
+     * 
+     * @return
+     * @throws Exception
+     * 
+     */
+    public static boolean verify(byte[] data, String publicKey, String sign)
+            throws Exception {
+        byte[] keyBytes = Base64Utils.decode(publicKey);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        PublicKey publicK = keyFactory.generatePublic(keySpec);
+        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
+        signature.initVerify(publicK);
+        signature.update(data);
+        return signature.verify(Base64Utils.decode(sign));
+    }
+
+    /** *//**
+     * &lt;P&gt;
+     * 私钥解密
+     * &lt;/p&gt;
+     * 
+     * @param encryptedData 已加密数据
+     * @param privateKey 私钥(BASE64编码)
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decryptByPrivateKey(byte[] encryptedData, String privateKey)
+            throws Exception {
+        byte[] keyBytes = Base64Utils.decode(privateKey);
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.DECRYPT_MODE, privateK);
+        int inputLen = encryptedData.length;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offSet = 0;
+        byte[] cache;
+        int i = 0;
+        // 对数据分段解密
+        while (inputLen - offSet &gt; 0) {
+            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
+                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
+            } else {
+                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offSet = i * MAX_DECRYPT_BLOCK;
+        }
+        byte[] decryptedData = out.toByteArray();
+        out.close();
+        return decryptedData;
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 公钥解密
+     * &lt;/p&gt;
+     * 
+     * @param encryptedData 已加密数据
+     * @param publicKey 公钥(BASE64编码)
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decryptByPublicKey(byte[] encryptedData, String publicKey)
+            throws Exception {
+        byte[] keyBytes = Base64Utils.decode(publicKey);
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Key publicK = keyFactory.generatePublic(x509KeySpec);
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.DECRYPT_MODE, publicK);
+        int inputLen = encryptedData.length;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offSet = 0;
+        byte[] cache;
+        int i = 0;
+        // 对数据分段解密
+        while (inputLen - offSet &gt; 0) {
+            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
+                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
+            } else {
+                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offSet = i * MAX_DECRYPT_BLOCK;
+        }
+        byte[] decryptedData = out.toByteArray();
+        out.close();
+        return decryptedData;
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 公钥加密
+     * &lt;/p&gt;
+     * 
+     * @param data 源数据
+     * @param publicKey 公钥(BASE64编码)
+     * @return
+     * @throws Exception
+     */
+    public static byte[] encryptByPublicKey(byte[] data, String publicKey)
+            throws Exception {
+        byte[] keyBytes = Base64Utils.decode(publicKey);
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Key publicK = keyFactory.generatePublic(x509KeySpec);
+        // 对数据加密
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.ENCRYPT_MODE, publicK);
+        int inputLen = data.length;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offSet = 0;
+        byte[] cache;
+        int i = 0;
+        // 对数据分段加密
+        while (inputLen - offSet &gt; 0) {
+            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
+                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
+            } else {
+                cache = cipher.doFinal(data, offSet, inputLen - offSet);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offSet = i * MAX_ENCRYPT_BLOCK;
+        }
+        byte[] encryptedData = out.toByteArray();
+        out.close();
+        return encryptedData;
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 私钥加密
+     * &lt;/p&gt;
+     * 
+     * @param data 源数据
+     * @param privateKey 私钥(BASE64编码)
+     * @return
+     * @throws Exception
+     */
+    public static byte[] encryptByPrivateKey(byte[] data, String privateKey)
+            throws Exception {
+        byte[] keyBytes = Base64Utils.decode(privateKey);
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.ENCRYPT_MODE, privateK);
+        int inputLen = data.length;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offSet = 0;
+        byte[] cache;
+        int i = 0;
+        // 对数据分段加密
+        while (inputLen - offSet &gt; 0) {
+            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
+                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
+            } else {
+                cache = cipher.doFinal(data, offSet, inputLen - offSet);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offSet = i * MAX_ENCRYPT_BLOCK;
+        }
+        byte[] encryptedData = out.toByteArray();
+        out.close();
+        return encryptedData;
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 获取私钥
+     * &lt;/p&gt;
+     * 
+     * @param keyMap 密钥对
+     * @return
+     * @throws Exception
+     */
+    public static String getPrivateKey(Map&lt;String, Object&gt; keyMap)
+            throws Exception {
+        Key key = (Key) keyMap.get(PRIVATE_KEY);
+        return Base64Utils.encode(key.getEncoded());
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 获取公钥
+     * &lt;/p&gt;
+     * 
+     * @param keyMap 密钥对
+     * @return
+     * @throws Exception
+     */
+    public static String getPublicKey(Map&lt;String, Object&gt; keyMap)
+            throws Exception {
+        Key key = (Key) keyMap.get(PUBLIC_KEY);
+        return Base64Utils.encode(key.getEncoded());
+    }
+
+}
+</code></pre><p>Base64Utils.java</p>
+<pre><code>package security;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import it.sauronsoftware.base64.Base64;
+
+/** *//**
+ * &lt;p&gt;
+ * BASE64编码解码工具包
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * 依赖javabase64-1.3.1.jar
+ * &lt;/p&gt;
+ * 
+ * @author IceWee
+ * @date 2012-5-19
+ * @version 1.0
+ */
+public class Base64Utils {
+
+    /** *//**
+     * 文件读取缓冲区大小
+     */
+    private static final int CACHE_SIZE = 1024;
+
+    /** *//**
+     * &lt;p&gt;
+     * BASE64字符串解码为二进制数据
+     * &lt;/p&gt;
+     * 
+     * @param base64
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decode(String base64) throws Exception {
+        return Base64.decode(base64.getBytes());
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 二进制数据编码为BASE64字符串
+     * &lt;/p&gt;
+     * 
+     * @param bytes
+     * @return
+     * @throws Exception
+     */
+    public static String encode(byte[] bytes) throws Exception {
+        return new String(Base64.encode(bytes));
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 将文件编码为BASE64字符串
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * 大文件慎用，可能会导致内存溢出
+     * &lt;/p&gt;
+     * 
+     * @param filePath 文件绝对路径
+     * @return
+     * @throws Exception
+     */
+    public static String encodeFile(String filePath) throws Exception {
+        byte[] bytes = fileToByte(filePath);
+        return encode(bytes);
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * BASE64字符串转回文件
+     * &lt;/p&gt;
+     * 
+     * @param filePath 文件绝对路径
+     * @param base64 编码字符串
+     * @throws Exception
+     */
+    public static void decodeToFile(String filePath, String base64) throws Exception {
+        byte[] bytes = decode(base64);
+        byteArrayToFile(bytes, filePath);
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 文件转换为二进制数组
+     * &lt;/p&gt;
+     * 
+     * @param filePath 文件路径
+     * @return
+     * @throws Exception
+     */
+    public static byte[] fileToByte(String filePath) throws Exception {
+        byte[] data = new byte[0];
+        File file = new File(filePath);
+        if (file.exists()) {
+            FileInputStream in = new FileInputStream(file);
+            ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
+            byte[] cache = new byte[CACHE_SIZE];
+            int nRead = 0;
+            while ((nRead = in.read(cache)) != -1) {
+                out.write(cache, 0, nRead);
+                out.flush();
+            }
+            out.close();
+            in.close();
+            data = out.toByteArray();
+         }
+        return data;
+    }
+
+    /** *//**
+     * &lt;p&gt;
+     * 二进制数据写文件
+     * &lt;/p&gt;
+     * 
+     * @param bytes 二进制数据
+     * @param filePath 文件生成目录
+     */
+    public static void byteArrayToFile(byte[] bytes, String filePath) throws Exception {
+        InputStream in = new ByteArrayInputStream(bytes);   
+        File destFile = new File(filePath);
+        if (!destFile.getParentFile().exists()) {
+            destFile.getParentFile().mkdirs();
+        }
+        destFile.createNewFile();
+        OutputStream out = new FileOutputStream(destFile);
+        byte[] cache = new byte[CACHE_SIZE];
+        int nRead = 0;
+        while ((nRead = in.read(cache)) != -1) {   
+            out.write(cache, 0, nRead);
+            out.flush();
+        }
+        out.close();
+        in.close();
+    }
+
+
+}
+</code></pre><p>RSATester.java</p>
+<pre><code>package security;
+
+import java.util.Map;
+
+public class RSATester {
+
+    static String publicKey;
+    static String privateKey;
+
+    static {
+        try {
+            Map&lt;String, Object&gt; keyMap = RSAUtils.genKeyPair();
+            publicKey = RSAUtils.getPublicKey(keyMap);
+            privateKey = RSAUtils.getPrivateKey(keyMap);
+            System.err.println(&quot;公钥: \n\r&quot; + publicKey);
+            System.err.println(&quot;私钥： \n\r&quot; + privateKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        test();
+        testSign();
+    }
+
+    static void test() throws Exception {
+        System.err.println(&quot;公钥加密——私钥解密&quot;);
+        String source = &quot;这是一行没有任何意义的文字，你看完了等于没看，不是吗？&quot;;
+        System.out.println(&quot;\r加密前文字：\r\n&quot; + source);
+        byte[] data = source.getBytes();
+        byte[] encodedData = RSAUtils.encryptByPublicKey(data, publicKey);
+        System.out.println(&quot;加密后文字：\r\n&quot; + new String(encodedData));
+        byte[] decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey);
+        String target = new String(decodedData);
+        System.out.println(&quot;解密后文字: \r\n&quot; + target);
+    }
+
+    static void testSign() throws Exception {
+        System.err.println(&quot;私钥加密——公钥解密&quot;);
+        String source = &quot;这是一行测试RSA数字签名的无意义文字&quot;;
+        System.out.println(&quot;原文字：\r\n&quot; + source);
+        byte[] data = source.getBytes();
+        byte[] encodedData = RSAUtils.encryptByPrivateKey(data, privateKey);
+        System.out.println(&quot;加密后：\r\n&quot; + new String(encodedData));
+        byte[] decodedData = RSAUtils.decryptByPublicKey(encodedData, publicKey);
+        String target = new String(decodedData);
+        System.out.println(&quot;解密后: \r\n&quot; + target);
+        System.err.println(&quot;私钥签名——公钥验证签名&quot;);
+        String sign = RSAUtils.sign(encodedData, privateKey);
+        System.err.println(&quot;签名:\r&quot; + sign);
+        boolean status = RSAUtils.verify(encodedData, publicKey, sign);
+        System.err.println(&quot;验证结果:\r&quot; + status);
+    }
+
+}
+</code></pre><h4 id="AES对称加密和解密"><a href="#AES对称加密和解密" class="headerlink" title="AES对称加密和解密"></a>AES对称加密和解密</h4><pre><code>package demo.security;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Scanner;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+/*
+ * AES对称加密和解密
+ */
+public class SymmetricEncoder {
+  /*
+   * 加密
+   * 1.构造密钥生成器
+   * 2.根据ecnodeRules规则初始化密钥生成器
+   * 3.产生密钥
+   * 4.创建和初始化密码器
+   * 5.内容加密
+   * 6.返回字符串
+   */
+    public static String AESEncode(String encodeRules,String content){
+        try {
+            //1.构造密钥生成器，指定为AES算法,不区分大小写
+            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
+            //2.根据ecnodeRules规则初始化密钥生成器
+            //生成一个128位的随机源,根据传入的字节数组
+            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
+              //3.产生原始对称密钥
+            SecretKey original_key=keygen.generateKey();
+              //4.获得原始对称密钥的字节数组
+            byte [] raw=original_key.getEncoded();
+            //5.根据字节数组生成AES密钥
+            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
+              //6.根据指定算法AES自成密码器
+            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
+              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密解密(Decrypt_mode)操作，第二个参数为使用的KEY
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            //8.获取加密内容的字节数组(这里要设置为utf-8)不然内容中如果有中文和英文混合中文就会解密为乱码
+            byte [] byte_encode=content.getBytes(&quot;utf-8&quot;);
+            //9.根据密码器的初始化方式--加密：将数据加密
+            byte [] byte_AES=cipher.doFinal(byte_encode);
+          //10.将加密后的数据转换为字符串
+            //这里用Base64Encoder中会找不到包
+            //解决办法：
+            //在项目的Build path中先移除JRE System Library，再添加库JRE System Library，重新编译后就一切正常了。
+            String AES_encode=new String(new BASE64Encoder().encode(byte_AES));
+          //11.将字符串返回
+            return AES_encode;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        //如果有错就返加nulll
+        return null;         
+    }
+    /*
+     * 解密
+     * 解密过程：
+     * 1.同加密1-4步
+     * 2.将加密后的字符串反纺成byte[]数组
+     * 3.将加密内容解密
+     */
+    public static String AESDncode(String encodeRules,String content){
+        try {
+            //1.构造密钥生成器，指定为AES算法,不区分大小写
+            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
+            //2.根据ecnodeRules规则初始化密钥生成器
+            //生成一个128位的随机源,根据传入的字节数组
+            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
+              //3.产生原始对称密钥
+            SecretKey original_key=keygen.generateKey();
+              //4.获得原始对称密钥的字节数组
+            byte [] raw=original_key.getEncoded();
+            //5.根据字节数组生成AES密钥
+            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
+              //6.根据指定算法AES自成密码器
+            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
+              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            //8.将加密并编码后的内容解码成字节数组
+            byte [] byte_content= new BASE64Decoder().decodeBuffer(content);
+            /*
+             * 解密
+             */
+            byte [] byte_decode=cipher.doFinal(byte_content);
+            String AES_decode=new String(byte_decode,&quot;utf-8&quot;);
+            return AES_decode;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        }
+
+        //如果有错就返加nulll
+        return null;         
+    }
+
+    public static void main(String[] args) {
+        SymmetricEncoder se=new SymmetricEncoder();
+        Scanner scanner=new Scanner(System.in);
+        /*
+         * 加密
+         */
+        System.out.println(&quot;使用AES对称加密，请输入加密的规则&quot;);
+        String encodeRules=scanner.next();
+        System.out.println(&quot;请输入要加密的内容:&quot;);
+        String content = scanner.next();
+        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;加密后的密文是:&quot;+se.AESEncode(encodeRules, content));
+
+        /*
+         * 解密
+         */
+        System.out.println(&quot;使用AES对称解密，请输入加密的规则：(须与加密相同)&quot;);
+         encodeRules=scanner.next();
+        System.out.println(&quot;请输入要解密的内容（密文）:&quot;);
+         content = scanner.next();
+        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;解密后的明文是:&quot;+se.AESDncode(encodeRules, content));
+    }
+
+}
+</code></pre><p>测试结果：</p>
+<pre><code>使用AES对称加密，请输入加密的规则
+使用AES对称加密
+请输入要加密的内容:
+使用AES对称加密
+根据输入的规则使用AES对称加密加密后的密文是:Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
+使用AES对称解密，请输入加密的规则：(须与加密相同)
+使用AES对称加密
+请输入要解密的内容（密文）:
+Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
+根据输入的规则使用AES对称加密解密后的明文是:使用AES对称加密
+</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.cnblogs.com/jiafuwei/p/7054500.html" target="_blank" rel="noopener">java RSA加密解密实现（含分段加密）</a><br><a href="https://www.cnblogs.com/liunanjava/p/4297854.html" target="_blank" rel="noopener">AES对称加密和解密</a><br><a href="https://blog.csdn.net/huangxiaoguo1/article/details/78237359" target="_blank" rel="noopener">Android: AndroidKeyStore 非对称RSA加密解密</a><br><a href="https://www.cnblogs.com/zuge/p/5430362.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuge/p/5430362.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/android-dagger2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/22/android-dagger2/" itemprop="url">android dagger2使用心得</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T16:04:50+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><p>Scope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。</p>
+<p>在Dagger 2中<br>1、@Singleton可以保持类的单例。<br>2、@ApplicationScope注解的Component类与Applicaiton对象的生命周期一致。<br>3、@ActivityScope注解的Component类与Activity的生命周期一致<br>scope可以给我们带来“<strong>局部单例</strong>”，生命周期取决于scope自己。</p>
+<p>在 Dagger 2 官方文档中我找到一句话，非常清楚地描述了@Scope的原理：<br>When a binding uses a scope annotation, that means that the component object holds a reference to the bound object until the component object itself is garbage-collected.<br>Scope 作用域的本质：Component 间接持有依赖实例的引用，把实例的作用域与 Component 绑定，它们不是同年同月同日生，但是同年同月死。</p>
+<h4 id="自定义-Scope"><a href="#自定义-Scope" class="headerlink" title="自定义@Scope"></a>自定义@Scope</h4><p>对于Android，我们通常会定义一个针对整个Activity的注解,通过仿照@Singleton</p>
+<pre><code>@Scope
+@Documented
+@Retention(RUNTIME)
+public @interface ActivityScope {}
+</code></pre><p>你可能会发现，这个自定义的@Scope和@Singleton代码完全一样，具有实现单例模式的功能。那干嘛还自定义@Scope，好处如下：</p>
+<blockquote>
+<p>更好的管理ApplicationComponent和Module之间的关系，Component和Component之间的依赖和继承关系。如果关系不匹配，在编译期间会报错，详细下面会介绍。<br>代码可读性，让程序猿更好的了解Module中创建的类实例的使用范围。</p>
+</blockquote>
+<h4 id="使用-Scope的一些经验："><a href="#使用-Scope的一些经验：" class="headerlink" title="使用@Scope的一些经验："></a>使用@Scope的一些经验：</h4><p>1、<strong>@Component关联的@Module中的任何一个@Provides有@scope，则该整个@Component要加上这个scope</strong>。否则在暴露或者注入时（不暴露且不注入时，既不使用它构造对象时，不报错），会有如下错误:</p>
+<pre><code>Error:(13, 1) 错误: cn.xuexuan.newui.di.component.ActivityComponent (unscoped) may not reference scoped bindings:
+@Singleton @Provides android.app.Activity cn.xuexuan.newui.di.module.ActivityModule.getActivity()
+</code></pre><p>2、@Component的dependencies与@Component自身的scope不能相同，即<strong>dependencies组件之间的scope不能相同</strong>,否则出现下面错误<br>3、<strong>@Singleton的组件不能依赖其他scope的组件</strong>，但是其他scope的组件可以依赖@Singleton组件。否则出现下面错误<br>4、<strong>没有scope的不能依赖有scope的组件</strong>。否则出现下面错误:</p>
+<pre><code>Error:(21, 1) 错误: com.android.example.devsummit.archdemo.di.component.MyTestComponent (unscoped) cannot depend on scoped components:
+@com.android.example.devsummit.archdemo.di.scope.ActivityScope com.android.example.devsummit.archdemo.di.component.MyTestComponentX
+</code></pre><p>5、<strong>一个component不能同时有多个scope(Subcomponent除外)</strong>，否则出现下面的错误</p>
+<pre><code>Error:Execution failed for task ‘:app:compileDebugJavaWithJavac’.
+java.lang.IllegalArgumentException: com.android.example.devsummit.archdemo.di.component.MyTestComponent was annotated with more than one @Scope annotation
+</code></pre><h2 id="Binds"><a href="#Binds" class="headerlink" title="@Binds"></a>@Binds</h2><p>@Binds：可以理解为关联，首先它是跟@Provides使用地方是一样的，不同的在于<strong>@Provides 注解的方法都是有具体实现的，而@Binds修饰的只有方法定义，并没有具体的实现的，在方法定义中方法参数必须是 返回值的实现类</strong>。这样创建实体类的地方就不用在Modules 中实现了，例如：</p>
+<pre><code>@Binds
+@Singleton
+abstract AccountManagerDelegate accountManagerDelegate(AccountManagerDelegateImpl delegate);
+</code></pre><p>Module 中不一定要具体实现，可以用@Binds关联实体，这样在编译过程中会自动创建Fractory 以及实现的，AccountManagerDelegate中还可以使用该Module中 @Provides 提供的实体类</p>
+<h2 id="BindsInstance"><a href="#BindsInstance" class="headerlink" title="@BindsInstance"></a>@BindsInstance</h2><p>Component 可以在<strong>创建 Component 的时候绑定依赖实例</strong>，用以注入。这就是@BindsInstance注解的作用，只能在 Component.Builder 中使用。</p>
+<pre><code>@Module
+public final class HomeActivityModule {
+    private final HomeActivity activity;
+
+    public HomeActivityModule(HomeActivity activity) {
+        this.activity = activity;
+    }
+
+    @Provides
+    @ActivityScope  // 自定义作用域
+    Activity provideActivity() {
+        return activity;
+    }
+}
+</code></pre><p>而使用@BindsInstance的话会更加简单:</p>
+<pre><code>@ActivityScope
+@Component
+public interface HomeActivityComponent {
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        Builder activity(Activity activity);
+        HomeActivityComponent build();
+    }
+}
+</code></pre><p>注意在调用build()创建 Component 之前，所有@BindsInstance方法必须先调用。上面例子中 HomeActivityComponent 还可以注入 Activity 类型的依赖，但是不能注入 HomeActivity，因为 <strong>Dagger 2 是使用具体类型作为依据的</strong>（也就是只能使用@Inject Activity activity而不是@Inject HomeActivity activity）。</p>
+<p>如果@BindsInstance方法的参数可能为 null，需要再用@Nullable标记，同时标注 Inject 的地方也需要用@Nullable标记。这时 Builder 也可以不调用@BindsInstance方法，这样 Component 会默认设置 instance 为 null</p>
+<p>注意：<strong>dagger.android</strong> 扩展库可以极大地简化在 Android 项目中使用 Dagger 2 的过程，但是还是有些限制，<strong>SubComponent.Builder 不能自定义 @BindsInstance 方法，SubCompoennt 的 Module 不能有含参数的构造函数</strong>，否则AndroidInjection.inject(this)在创建 SubComponent 时无法成功。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/9703a931c7e7" target="_blank" rel="noopener">Dagger 2 完全解析</a><br><a href="https://blog.csdn.net/mq2553299/article/details/77485800" target="_blank" rel="noopener">打破Dagger2使用窘境：Dagger-Android详解</a>（<a href="https://github.com/qingmei2/Sample_dagger2）" target="_blank" rel="noopener">https://github.com/qingmei2/Sample_dagger2）</a><br><a href="https://github.com/AnyLifeZLB/MVP-Dagger2-Rxjava2" target="_blank" rel="noopener">dagger组件化</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/20/java-http/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/20/java-http/" itemprop="url">HTTP基础</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T10:52:03+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>HTTP（HyperText Transfer Protocol)超文本传输协议是互联网上应用最为广泛的一种网络协议。由于信息是明文传输，所以被认为是不安全的。</p>
+<p>为了理解HTTP，我们有必要事先了解一下TCP/IP协议族。其是互联网相关联的协议集合的总称，通常使用的网络就是在TCP/IP协议族的基础上运作的，而HTTP属于它内部的一个子集，除此之外，还包括大家所熟知的FTP，DNS，TCP，UDP，IP等等协议。</p>
+<h4 id="OSI的七层协议"><a href="#OSI的七层协议" class="headerlink" title="OSI的七层协议"></a>OSI的七层协议</h4><p><img src="/2019/03/20/java-http/osi_seven.png" alt><br>其<strong>核心思想就是把数据信息包装起来，即封装：发送端在层与层之间传输数据时，每经过一层时必定会被打上一个该层所属的首部信息。反之，接收端在层与层传输数据时，每经过一层时会把对应的首部消去</strong>。值得一提的是，层次化之后，设计也变得相对简单了。处于应用层上的应用可以只考虑分派给自己的任务，而不需要弄清对方在地球上哪个地方、对方的传输线路是怎样的、是否能确保传输送达等问题。</p>
+<p>TPC/IP协议是传输层协议，主要解决数据如何在网络中传输，而HTTP是应用层协议，主要解决如何包装数据。WEB使用HTTP协议作应用层协议，以封装HTTP 文本信息，然后使用TCP/IP做传输层协议将它发到网络上。<br>下面的图表试图显示不同的TCP/IP和其他的协议在最初OSI（Open System Interconnect）模型中的位置：<br><img src="/2019/03/20/java-http/osi.webp" alt></p>
+<h4 id="HTTP-方法"><a href="#HTTP-方法" class="headerlink" title="HTTP 方法"></a>HTTP 方法</h4><p>下面的表格比较了两种 HTTP 方法：GET 和 POST<br><img src="http_get_post.png" alt><br>HTTP 请求方法<br><img src="http_method.png" alt></p>
+<h4 id="持久连接"><a href="#持久连接" class="headerlink" title="持久连接"></a>持久连接</h4><p>HTTP 协议的初始版本中，每进行一个 HTTP 通信都要断开一次 TCP 连接。比如使用浏览器浏览一个包含多张图片的 HTML 页面时，在发送请求访问 HTML 页面资源的同时，也会请求该 HTML 页面里包含的其他资源。因此，每次的请求都会造成无畏的 TCP 连接建立和断开，增加通信量的开销。<br>为了解决上述 TCP 连接的问题，HTTP/1.1 和部分 HTTP/1.0 想出了持久连接的方法。其<strong>特点是，只要任意一端没有明确提出断开连接，则保持 TCP 连接状态</strong>。旨在建立一次 TCP 连接后进行多次请求和响应的交互。在 HTTP/1.1 中，所有的连接默认都是持久连接。</p>
+<h4 id="管线化"><a href="#管线化" class="headerlink" title="管线化"></a>管线化</h4><p>持久连接使得多数请求以管线化方式发送成为可能。以前发送请求后需等待并接收到响应，才能发送下一个请求。管线化技术出现后，不用等待亦可发送下一个请求。这样就能做到<strong>同时并行发送多个请求</strong>，而不需要一个接一个地等待响应了。<br>比如，当请求一个包含多张图片的 HTML 页面时，与挨个连接相比，用持久连接可以让请求更快结束。而管线化技术要比持久连接速度更快。请求数越多，时间差就越明显。</p>
+<h4 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h4><p>HTTP 是一种无状态协议。协议自身不对请求和响应之间的通信状态进行保存。也就是说在 HTTP 这个级别，协议对于发送过的请求或响应都不做持久化处理。这是为了更快地处理大量事务，确保协议的可伸缩性，而特意把 HTTP 协议设计成如此简单的。<br>可是随着 Web 的不断发展，我们的很多业务都需要对通信状态进行保存。于是我们引入了 Cookie 技术。有了 Cookie 再用 HTTP 协议通信，就可以<strong>管理状态</strong>了。<br>Cookie 技术通过在请求和响应报文中写入 Cookie 信息来控制客户端的状态。Cookie 会根据从服务器端发送的响应报文内的一个叫做 Set-Cookie 的首部字段信息，通知客户端保存Cookie。当下次客户端再往该服务器发送请求时，客户端会自动在请求报文中加入 Cookie 值后发送出去。服务器端发现客户端发送过来的 Cookie 后，会去检查究竟是从哪一个客户端发来的连接请求，然后对比服务器上的记录，最后得到之前的状态信息。<br>Cookie是服务器保存在浏览器的一小段文本信息，每个 Cookie 的大小一般不能超过4KB。浏览器每次向服务器发出请求，就会自动附上这段信息。</p>
+<h5 id="cookie的用途"><a href="#cookie的用途" class="headerlink" title="cookie的用途"></a>cookie的用途</h5><ol>
+<li><p>会话管理<br>1.1 记录用户的登录状态是cookie最常用的用途。通常web服务器会在用户登录成功后下发一个签名来标记session的有效性，这样免去了用户多次认证和登录网站。<br>1.2 记录用户的访问状态，例如导航啊，用户的注册流程啊。</p>
+</li>
+<li><p>个性化信息<br>2.1 Cookie也经常用来记忆用户相关的信息，以方便用户在使用和自己相关的站点服务。例如：ptlogin会记忆上一次登录的用户的QQ号码，这样在下次登录的时候会默认填写好这个QQ号码。<br>2.2 Cookie也被用来记忆用户自定义的一些功能。用户在设置自定义特征的时候，仅仅是保存在用户的浏览器中，在下一次访问的时候服务器会根据用户本地的cookie来表现用户的设置。例如google将搜索设置（使用语言、每页的条数，以及打开搜索结果的方式等等）保存在一个COOKIE里。</p>
+</li>
+<li><p>记录用户的行为<br>最典型的是公司的TCSS系统。它使用Cookie来记录用户的点击流和某个产品或商业行为的操作率和流失率。当然功能可以通过IP或http header中的referrer实现，但是Cookie更精准一些。</p>
+</li>
+</ol>
+<h5 id="WebView中的Cookie机制"><a href="#WebView中的Cookie机制" class="headerlink" title="WebView中的Cookie机制"></a>WebView中的Cookie机制</h5><p>WebView是基于webkit内核的UI控件，相当于一个浏览器客户端。它会在本地维护每次会话的cookie(保存在data/data/package_name/app_WebView/Cookies)<br>数据就保存在Cookies那个文件里，其实是个数据库，把后缀改成.db用数据库打开可以看到里面的表结构，主要有host_key, name, value, path等，host_key其实就是domain.<br>当WebView加载URL的时候,WebView会从本地读取该URL对应的cookie，并携带该cookie与服务器进行通信。WebView通过android.webkit.CookieManager类来维护cookie。CookieManager是 WebView的cookie管理类。</p>
+<h5 id="okhttp中的cookie"><a href="#okhttp中的cookie" class="headerlink" title="okhttp中的cookie"></a>okhttp中的cookie</h5><p>详见之前的文章：<a href="https://zhaoshuming.github.io/2019/02/27/OKHttp%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_blank" rel="noopener">OKHttp深入理解</a></p>
+<h5 id="Cookie的缺陷"><a href="#Cookie的缺陷" class="headerlink" title="Cookie的缺陷"></a>Cookie的缺陷</h5><p>cookie会被附加在每个HTTP请求中，所以无形中增加了流量。<br>由于在HTTP请求中的cookie是明文传递的，所以安全性成问题。（除非用HTTPS)<br>Cookie的大小限制在4KB左右。对于复杂的存储需求来说是不够用的。</p>
+<h4 id="HTTP报文简介"><a href="#HTTP报文简介" class="headerlink" title="HTTP报文简介"></a>HTTP报文简介</h4><p>HTTP 报文本身是由多行（用 CR+LF 作换行符）数据构成的字符串文本。HTTP 报文大致可分为报文首部和报文主体两部分。两者由最初出现的空行（CR+LF）来划分。通常，并不一定有报文主体。</p>
+<h5 id="请求报文结构"><a href="#请求报文结构" class="headerlink" title="请求报文结构"></a>请求报文结构</h5><p><img src="/2019/03/20/java-http/message_request.webp" alt><br>请求报文的首部内容由以下数据组成：</p>
+<blockquote>
+<p>请求行 —— 包含用于请求的方法、请求 URI 和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、请求首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
+</blockquote>
+<p>请求报文的示例，如下：<br><img src="/2019/03/20/java-http/message_request_demo.webp" alt></p>
+<h5 id="响应报文结构"><a href="#响应报文结构" class="headerlink" title="响应报文结构"></a>响应报文结构</h5><p><img src="/2019/03/20/java-http/message_response.webp" alt><br>响应报文的首部内容由以下数据组成：</p>
+<blockquote>
+<p>状态行 —— 包含表明响应结果的状态码、原因短语和 HTTP 版本。<br>首部字段 —— 包含表示请求的各种条件和属性的各类首部。（通用首部、响应首部、实体首部以及RFC里未定义的首部如 Cookie 等）</p>
+</blockquote>
+<p>响应报文的示例，如下：<br><img src="/2019/03/20/java-http/message_response_demo.webp" alt></p>
+<h4 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h4><p>HTTP 状态码的职责是当客户端向服务端发送请求时，描述返回的请求结果。<br>状态码类型:</p>
+<blockquote>
+<p>1XX：Informational(信息性状态码)，接收的请求正在处理<br>2XX：Success(成功状态码)，请求正常处理完毕<br>3XX：Redirection(重定向状态码)，需要进行附加操作以完成请求<br>4XX：Client Error(客户端错误状态码)，服务器无法处理请求<br>5XX：Server Error(服务器错误状态码)，服务器处理请求出错</p>
+</blockquote>
+<h4 id="TCP三次握手四次挥手"><a href="#TCP三次握手四次挥手" class="headerlink" title="TCP三次握手四次挥手"></a>TCP三次握手四次挥手</h4><p>在TCP/IP协议中，TCP协议<strong>提供可靠的连接服务</strong>，采用三次握手建立一个连接。 </p>
+<p>如下图所示，SYN（synchronous）是TCP/IP建立连接时使用的握手信号、Sequence number（序列号）、Acknowledge number（确认号码），三个箭头指向就代表三次握手，完成三次握手，客户端与服务器开始传送数据。</p>
+<p><img src="/2019/03/20/java-http/tcp_handshake.jpg" alt><br>第一次握手：客户端发送syn包(syn=j)到服务器，并进入SYN_SEND状态，等待服务器确认；</p>
+<p>第二次握手：服务器收到syn包，必须确认客户的SYN（ack=j+1），同时自己也发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV状态；</p>
+<p>第三次握手：客户端收到服务器的SYN＋ACK包，向服务器发送确认包ACK(ack=k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。</p>
+<p>四次挥手:<br><img src="/2019/03/20/java-http/tcp_handwave.png" alt></p>
+<p>第一次挥手:客户端A发送一个FIN.用来关闭客户A到服务器B的数据传送</p>
+<p>第二次挥手:服务器B收到这个FIN. 它发回一个ACK，确认序号为收到的序号+1。和SYN一样，一个FIN将占用一个序号</p>
+<p>第三次挥手:服务器B关闭与客户端A的连接，发送一个FIN给客户端A</p>
+<p>第四次挥手:客户端A发回ACK报文确认，并将确认序号设置为序号加1</p>
+<h4 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h4><p>我这里简单列举几个:<br>  1、基于连接与无连接;UDP是无连接的，即发送数据之前不需要建立连接</p>
+<p>  2、TCP保证数据正确性，UDP可能丢包，TCP保证数据顺序，UDP不保证。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付 ，即不保证可靠交付Tcp通过校验和，重传控制，序号标识，滑动窗口、确认应答实现可靠传输。如丢包时的重发控制，还可以对次序乱掉的分包进行顺序控制。</p>
+<p>  3、UDP具有较好的实时性，工作效率比TCP高，适用于对高速传输和实时性有较高的通信或广播通信。</p>
+<p>  4、每一条TCP连接只能是点到点的;UDP支持一对一，一对多，多对一和多对多的交互通信。</p>
+<p>  5、TCP对系统资源要求较多，UDP对系统资源要求较少。</p>
+<h4 id="HTTP-2-0"><a href="#HTTP-2-0" class="headerlink" title="HTTP 2.0"></a>HTTP 2.0</h4><p>目标是改善用户在Web时的速度体验。可以说HTTP 2.0是SPDY的升级版(其实也是基于SPDY设计的)。<br><img src="http_2_1_diff.png" alt></p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.jianshu.com/p/8962f1f175e8" target="_blank" rel="noopener">HTTP基础</a><br><a href="https://blog.csdn.net/kelaker/article/details/82751287" target="_blank" rel="noopener">Cookie介绍及在Android中的使用</a><br><a href="https://www.cnblogs.com/qdhxhz/p/8470997.html" target="_blank" rel="noopener">TCP三次握手和四次挥手</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1893,785 +3287,11 @@ public static boolean Thread.interrupted();
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/OKHttp深入理解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/27/OKHttp深入理解/" itemprop="url">OKHttp深入理解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-27T16:03:31+08:00">
-                2019-02-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="OKHttp请求流程"><a href="#OKHttp请求流程" class="headerlink" title="OKHttp请求流程"></a>OKHttp请求流程</h3><p>OKHttp的请求流程图如下所示：</p>
-<p><img src="okhttp.png" alt></p>
-<p>如下为使用OKHttp进行Get请求的步骤：</p>
-<pre><code>//1.新建OKHttpClient客户端
-OkHttpClient client = new OkHttpClient();
-//新建一个Request对象
-Request request = new Request.Builder()
-        .url(url)
-        .build();
-//2.Response为OKHttp中的响应
-Response response = client.newCall(request).execute();
-</code></pre><p>首先，我们会在请求的时候初始化一个Call的实例，然后<strong>根据同步和异步的不同，分别调用它的 execute() 和 enqueue()</strong> 方法，但是它们进行网络访问的逻辑都是一样的，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到一个响应并交给用户。</p>
-<p><img src="/2019/02/27/OKHttp深入理解/realcall.png" alt title="请求时序图"></p>
-<h3 id="分发器Dispatcher"><a href="#分发器Dispatcher" class="headerlink" title="分发器Dispatcher"></a>分发器Dispatcher</h3><p>使用 OkHttp 的时候，我们会创建一个 RealCall 并将其加入到双端队列中。但是请注意这里的双端队列的名称是 runningSyncCalls，也就是说这种请求是同步请求，会在当前的线程中立即被执行。所以，下面的 getResponseWithInterceptorChain() 就是这个同步的执行过程。而当我们执行完毕的时候，又会调用 Dispatcher 的 finished(RealCall) 方法把该请求从队列中移除。所以，这种<strong>同步的请求无法体现分发器的“分发”功能。</strong></p>
-<p>除了同步的请求，还有异步类型的请求：当我们拿到了 RealCall 的时候，调用它的 enqueue(Callback responseCallback) 方法并设置一个回调即可。该方法会执行下面这行代码：</p>
-<pre><code>client.dispatcher().enqueue(new AsyncCall(responseCallback));
-</code></pre><p>当我们调用了 Dispatcher 的 enqueue(AsyncCall) 方法的时候也会将 AsyncCall 加入到一个队列中，并会在请求执行完毕的时候从该队列中移除，只是这里的队列是 <strong>runningAsyncCalls 或者 readyAsyncCalls</strong>。它们都是一个双端队列，并用来存储异步类型的请求。它们的<br>区别是，runningAsyncCalls 是正在执行的队列，当正在执行的队列达到了限制的时候，就会将其放置到就绪队列 readyAsyncCalls 中：</p>
-<pre><code>synchronized void enqueue(AsyncCall call) {
-    if (runningAsyncCalls.size() &lt; maxRequests &amp;&amp; runningCallsForHost(call) &lt; maxRequestsPerHost) {
-        runningAsyncCalls.add(call);
-        executorService().execute(call);
-    } else {
-        readyAsyncCalls.add(call);
-    }
-}
-</code></pre><p>当把该请求加入到了正在执行的队列之后，我们会立即使用一个线程池来执行该 AsyncCall。这样这个请求的责任链就会在一个线程池当中被异步地执行了。这里的线程池由 executorService() 方法返回：</p>
-<pre><code>public synchronized ExecutorService executorService() {
-    if (executorService == null) {
-        executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
-        new SynchronousQueue&lt;Runnable&gt;(), Util.threadFactory(&quot;OkHttp Dispatcher&quot;, false));
-    }
-    return executorService;
-}
-</code></pre><p>显然，当线程池不存在的时候会去创建一个线程池。除了上面的这种方式，我们还可以在构建 OkHttpClient 的时候，自定义一个 Dispacher，并在其构造方法中为其指定一个线程池。</p>
-<h3 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h3><ol>
-<li><p>在配置 OkHttpClient时设置的interceptors；[eg. 最常用的:日志拦截器]</p>
-</li>
-<li><p>负责失败重试以及重定向的 RetryAndFollowUpInterceptor；会根据服务器返回的信息判断这个请求是否可以重定向，或者是否有必要进行重试</p>
-</li>
-<li><p>桥拦截器 BridgeInterceptor 用于从用户的请求中构建网络请求，然后使用该请求访问网络，最后从网络响应当中构建用户响应。[简单的说: 只是用来对请求进行包装，并将服务器响应转换成用户友好的响应]</p>
-</li>
-<li><p>负责读取缓存直接返回、更新缓存的 CacheInterceptor</p>
-</li>
-<li><p>负责和服务器建立连接的ConnectInterceptor；这里并没有真正地从网络中获取数据，而仅仅是打开一个连接。在获取连接对象的时候，使用了连接池 ConnectionPool 来复用连接。</p>
-<pre><code>public final class ConnectInterceptor implements Interceptor {
-
-    @Override public Response intercept(Chain chain) throws IOException {
-        RealInterceptorChain realChain = (RealInterceptorChain) chain;
-        Request request = realChain.request();
-        StreamAllocation streamAllocation = realChain.streamAllocation();
-
-        boolean doExtensiveHealthChecks = !request.method().equals(&quot;GET&quot;);
-        HttpCodec httpCodec = streamAllocation.newStream(client, chain, doExtensiveHealthChecks);
-        RealConnection connection = streamAllocation.connection();
-
-        return realChain.proceed(request, streamAllocation, httpCodec, connection);
-    }
-}
-</code></pre><p> 这里的<strong>HttpCodec 用来编码请求并解码响应，RealConnection 用来向服务器发起连接</strong>。它们会在下一个拦截器中被用来从服务器中获取响应信息。</p>
-<p> <strong>StreamAllocation相当于一个管理类，维护了服务器连接、并发流和请求之间的关系，该类还会初始化一个 Socket 连接对象，获取输入/输出流对象</strong>。当我们调用 streamAllocation 的 newStream() 方法的时候，最终会经过一系列的判断到达 StreamAllocation 中的 findConnection() 方法。该方法会被放置在一个循环当中被不停地调用以得到一个可用的连接。它优先使用当前已经存在的连接，不然就使用连接池中存在的连接，再不行的话，就创建一个新的连接。我们使用<strong>连接复用</strong>的一个好处就是省去了进行 TCP 和 TLS 握手的一个过程。因为建立连接本身也是需要消耗一些时间的，连接被复用之后可以提升我们网络访问的效率。</p>
-</li>
-<li><p>配置 OkHttpClient 时设置的 networkInterceptors；[for web socket,自行了解]</p>
-</li>
-<li><p>服务器请求拦截器 CallServerInterceptor 用来向服务器发起请求并获取数据。<br> <strong>位置决定了功能，最后一个 Interceptor 一定是负责和服务器实际通讯的，重定向、缓存等一定是在实际通讯之前的</strong></p>
-</li>
-</ol>
-<p>源码如下：</p>
-<pre><code>Response getResponseWithInterceptorChain() throws IOException {
-    // Build a full stack of interceptors.
-    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();
-    interceptors.addAll(client.interceptors());
-    interceptors.add(retryAndFollowUpInterceptor);
-    interceptors.add(new BridgeInterceptor(client.cookieJar()));
-    interceptors.add(new CacheInterceptor(client.internalCache()));
-    interceptors.add(new ConnectInterceptor(client));
-    if (!forWebSocket) {
-        interceptors.addAll(client.networkInterceptors());
-    }
-    interceptors.add(new CallServerInterceptor(forWebSocket));
-
-    Interceptor.Chain chain = new RealInterceptorChain(interceptors, null, null, null, 0,
-            originalRequest, this, eventListener, client.connectTimeoutMillis(),
-            client.readTimeoutMillis(), client.writeTimeoutMillis());
-
-    return chain.proceed(originalRequest);
-}
-</code></pre><p>这里，我们创建了一个列表对象之后把 client 中的拦截器、重连拦截器、桥拦截器、缓存拦截器、网络连接拦截器和服务器请求拦截器等依次加入到列表中。然后，我们用这个列表创建了一个拦截器链。这里使用了责任链设计模式，每当一个拦截器执行完毕之后会调用下一个拦截器或者不调用并返回结果。显然，我们最终拿到的响应就是这个链条执行之后返回的结果。当我们自定义一个拦截器的时候，也会被加入到这个拦截器链条里。</p>
-<h3 id="连接管理：ConnectionPool"><a href="#连接管理：ConnectionPool" class="headerlink" title="连接管理：ConnectionPool"></a>连接管理：ConnectionPool</h3><p>与请求的缓存类似，OkHttp 的连接池也使用一个双端队列来缓存已经创建的连接：</p>
-<pre><code>private final Deque&lt;RealConnection&gt; connections = new ArrayDeque&lt;&gt;();
-</code></pre><p>OkHttp 的缓存管理分成两个步骤，<strong>一边当我们创建了一个新的连接的时候，我们要把它放进缓存里面；另一边，我们还要来对缓存进行清理</strong>。在 ConnectionPool 中，当我们向连接池中缓存一个连接的时候，只要调用双端队列的 add() 方法，将其加入到双端队列即可，而清理连接缓存的操作则交给线程池来定时执行。</p>
-<p>在 ConnectionPool 中存在一个静态的线程池：</p>
-<pre><code>private static final Executor executor = new ThreadPoolExecutor(0 /* corePoolSize */,
-    Integer.MAX_VALUE /* maximumPoolSize */, 
-    60L /* keepAliveTime */,
-    TimeUnit.SECONDS,
-    new SynchronousQueue&lt;Runnable&gt;(), 
-    Util.threadFactory(&quot;OkHttp ConnectionPool&quot;, true));
-</code></pre><p>每当我们向连接池中插入一个连接的时候就会调用下面的方法，将连接插入到双端队列的同时，会调用上面的线程池来执行清理缓存的任务：</p>
-<pre><code>void put(RealConnection connection) {
-    assert (Thread.holdsLock(this));
-    if (!cleanupRunning) {
-        cleanupRunning = true;
-        // 使用线程池执行清理任务
-        executor.execute(cleanupRunnable);
-    }
-    // 将新建的连接插入到双端队列中
-    connections.add(connection);
-}
-</code></pre><p>这里的清理任务是 cleanupRunnable，是一个 Runnable 类型的实例。它会在方法内部调用 cleanup() 方法来清理无效的连接。</p>
-<p>在从缓存的连接中取出连接来判断是否应该将其释放的时候使用到了两个变量 maxIdleConnections 和 keepAliveDurationNs，分别表示最大允许的闲置的连接的数量和连接允许存活的最长的时间。默认空闲连接最大数目为5个，keepalive 时间最长为5分钟。该方法会对缓存中的连接进行遍历，以寻找一个闲置时间最长的连接，然后根据该连接的闲置时长和最大允许的连接数量等参数来决定是否应该清理该连接。</p>
-<h3 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h3><p>bytes()大小有限制，建议用byteStream()。源码如下：</p>
-<pre><code>public final byte[] bytes() throws IOException {
-    long contentLength = contentLength();
-    if (contentLength &gt; Integer.MAX_VALUE) {
-      throw new IOException(&quot;Cannot buffer entire body for content length: &quot; + contentLength);
-    }
-    ...
-}
-public final InputStream byteStream() {
-    return source().inputStream();
-}
-</code></pre><h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><p>使用okhttp的cache，首先需指定缓存路径和大小</p>
-<pre><code>private OkHttpClient initClient() {
-        File cacheFile = new File(config.getCacheFilePath());
-        if (!cacheFile.exists()) {
-            cacheFile.mkdir();
-        }
-        //缓存大小为30M
-        int cacheSize = 30 * 1024 * 1024;
-        //创建缓存对象
-        Cache cache = new Cache(getContext(), cacheFile, cacheSize);
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.addInterceptor(new SercurityKeyInteraptor())
-                .addInterceptor(new HttpLoggingInterceptor())
-                .connectTimeout(config.getConnectTimeout(), TimeUnit.SECONDS)
-                .writeTimeout(config.getWriteTimeout(), TimeUnit.SECONDS)
-                .readTimeout(config.getReadTimeout(), TimeUnit.SECONDS)
-                .cache(cache)
-                .cookieJar(new FundCookie());
-        return mOkHttpClient = builder.build();
-    }
-</code></pre><p>其次在构造Request时配置缓存策略</p>
-<pre><code>CacheControl cc = new CacheControl.Builder()  
-            //不使用缓存，但是会保存缓存数据  
-            //.noCache()  
-            //不使用缓存，同时也不保存缓存数据  
-           // .noStore()  
-            //只使用缓存，（如果我们要加载的数据本身就是本地数据时，可以使用这个，不过目前尚未发现使用场景）  
-            //.onlyIfCached()  
-            //手机可以接收响应时间小于当前时间加上10s的响应  
-            //  .minFresh(10,TimeUnit.SECONDS)  
-            //手机可以接收有效期不大于10s的响应  
-            //  .maxAge(10,TimeUnit.SECONDS)  
-            //手机可以接收超出5s的响应  
-            .maxStale(5,TimeUnit.SECONDS)  
-            .build();  
-    Request request = new Request.Builder()  
-            .cacheControl(cc)  
-            .url(&quot;http://192.168.152.2:8080/cache&quot;).build();  
-</code></pre><p>如果直接使用CacheControl中的常量，则不用调用上面那么多的方法，使用方式如下：</p>
-<pre><code>Request request = new Request.Builder()  
-            //强制使用网络  
-            // .cacheControl(CacheControl.FORCE_NETWORK)  
-            //强制使用缓存  
-            .cacheControl(CacheControl.FORCE_CACHE)  
-            .url(&quot;http://192.168.152.2:8080/cache&quot;).build();  
-</code></pre><p>OkHttp的Cache是根据URL以及请求参数来生成的，并且不支持POST请求。</p>
-<p>CacheInterceptor拦截器实现读写操作,读写操作都是通过okio实现,快速,高效流</p>
-<p>读: 根据缓存策略实现读取缓存,返回Response,Okhttp中实现的是轻量级 LruCache缓存模式[最近最少使用原则]。然后关于DiskLruCache是如何管理缓存文件的，这个其实也很好理解，首先的原则就是按照LRU这种最近最少使用删除的原则，当总的大小超过限定大小后，删除最近最少使用的缓存文件，它的LRU算法是使用LinkedHashMap进行维护的，这样来保证，保留的缓存文件都是更常使用的。</p>
-<p>写: 根据缓存策略,将服务端返回的数据写入磁盘</p>
-<p>Okhttp缓存相关的类有如下：</p>
-<pre><code>CacheControl（HTTP中的Cache-Control和Pragma缓存控制）
-CacheControl是用于描述HTTP的Cache-Control和Pragma字段的类，用于指定缓存的规则。
-
-CacheStrategy（缓存策略类）
-CacheStrategy是用于判定使用缓存数据还是网络请求的决策类。
-
-Cache（缓存类）
-对外开放的缓存类，提供了缓存的增删改查接口。
-
-InternalCache（内部缓存类）
-对内使用的缓存类接口，没有具体实现，只是封装了Cache的使用。
-
-DiskLruCache（文件化的LRU缓存类）
-这是真正实现缓存功能的类，将数据存储在文件中，并使用LRU规则（由LinkedHashMap实现），控制对缓存文件的增删改查。
-</code></pre><h3 id="Cookies"><a href="#Cookies" class="headerlink" title="Cookies"></a>Cookies</h3><p>3.0之后OKHttp是加了CookieJar和Cookie两个类的，通过实现CookieJar即可管理cookie。<br>加载Cookie时,IP地址与域名是有区别的。如果访问的是IP地址,Cookie是不会从publicsuffixes.gz文件中读取Cookie数据。<br>publicsuffixes.gz 就是一个类似apk一样的压缩文件,可以解压通过Txt查看里面的内容。<br>官文提供的原始文件内容:   <a href="https://publicsuffix.org" target="_blank" rel="noopener">https://publicsuffix.org</a></p>
-<pre><code>private class FundCookie implements CookieJar {
-
-    private final ConcurrentHashMap&lt;String, List&lt;Cookie&gt;&gt; cookieStore = new ConcurrentHashMap&lt;&gt;();
-
-    @Override
-    public void saveFromResponse(HttpUrl url, List&lt;Cookie&gt; cookies) {
-        /*
-         * Cookie name 不能重复:需要人为管控
-         */
-        cookieStore.put(url.host(), cookies);
-    }
-
-    @Override
-    public List&lt;Cookie&gt; loadForRequest(HttpUrl url) {
-        /*
-         * 不能用url.host来获取Cookie值,因为在请求过程中可能存在 301 重定向问题,导致重定向的url无法获取Cookie值,
-         * 但它与其它接口属于同一个 domain
-         * 解决办法:将本地所有的Cookie都上传给接口,后台解析会去匹配 KEY-VALUE[SESSION name- Cookie value]
-         * 所以必要保证 不同的domain对应的SESSION name 不能重复
-         */
-        List&lt;Cookie&gt; curCookies = new ArrayList&lt;&gt;();
-        for (List&lt;Cookie&gt; entry : cookieStore.values()) {
-            curCookies.addAll(entry);
-        }
-        return curCookies;
-    }
-}
-</code></pre><h3 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h3><p>Okhttp默认是支持https网络请求的，但是支持的Https网站必须是CA机构认证了的，对于自签名的网址，还是不能访问的，访问直接抛出如下异常信息：</p>
-<pre><code>onFailure: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
-</code></pre><p>针对https的处理，目前主要有两种方式：</p>
-<blockquote>
-<p>客户端默认信任全部证书<br>对自签名网址进行证书的单独处理</p>
-</blockquote>
-<p>具体可以参看我的这篇文章：<a href="https://zhaoshuming.github.io/2019/03/18/android-https/" target="_blank" rel="noopener">android中使用https</a></p>
-<h3 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h3><blockquote>
-<h4 id="http"><a href="#http" class="headerlink" title="http"></a>http</h4></blockquote>
-<p>request header中声明<strong>Accept-Encoding: gzip</strong>，告知服务器客户端接受gzip的数据。</p>
-<p>服务器支持的情况下，返回gzip后的response body，同时加入以下header：</p>
-<pre><code>Content-Encoding: gzip：表明body是gzip过的数据
-
-Content-Length:117：表示body gzip压缩后的数据大小，便于客户端使用。
-或 Transfer-Encoding: chunked：分块传输编码
-</code></pre><p><img src="/2019/02/27/OKHttp深入理解/gzip.png" alt></p>
-<blockquote>
-<h4 id="Okhttp"><a href="#Okhttp" class="headerlink" title="Okhttp"></a>Okhttp</h4></blockquote>
-<p>如果header中没有Accept-Encoding，默认自动添加 ，且标记变量transparentGzip为true。</p>
-<p>针对返回结果，如果同时满足以下三个条件：</p>
-<pre><code>transparentGzip为true，即之前自动添加了Accept-Encoding
-
-header中标明了Content-Encoding为gzip
-
-有body
-</code></pre><p>移除 Content-Encoding、Content-Length，并对结果进行解压缩。</p>
-<pre><code>开发者没有添加Accept-Encoding时，自动添加Accept-Encoding: gzip
-
-自动添加的request，response支持自动解压
-
-手动添加不负责解压缩
-
-自动解压时移除Content-Length，所以上层Java代码想要contentLength时为-1
-
-自动解压时移除 Content-Encoding
-
-自动解压时，如果是分块传输编码，Transfer-Encoding: chunked不受影响。
-</code></pre><blockquote>
-<h4 id="HttpUrlConnection"><a href="#HttpUrlConnection" class="headerlink" title="HttpUrlConnection:"></a>HttpUrlConnection:</h4></blockquote>
-<p>4.4版本之后与okhttp相仿</p>
-<h3 id="其它：网络框架实现步骤"><a href="#其它：网络框架实现步骤" class="headerlink" title="其它：网络框架实现步骤"></a>其它：网络框架实现步骤</h3><p>1.封装请求参数<br>2.封装响应数据<br>3.根据前两步，封装请求任务<br>4.创建线程池管理类(队列,线程池)<br>5.封装”使用工具”、添加重试机制等</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5bc89fbc5188255c713cb8a5" target="_blank" rel="noopener">https://juejin.im/post/5bc89fbc5188255c713cb8a5</a><br><a href="https://www.jianshu.com/p/d5824d2150b9" target="_blank" rel="noopener">让 okhttp 支持 post缓存</a><br><a href="https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/" target="_blank" rel="noopener">https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/</a><br><a href="https://www.jianshu.com/p/e41bc4f335f2" target="_blank" rel="noopener">手撸一个简单的网络框架</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/android多线程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/27/android多线程/" itemprop="url">android多线程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-27T14:12:20+08:00">
-                2019-02-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/android知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">android知识点</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
-<p>实现Thread的run()方法或者实现Runable接口</p>
-<p>HandlerThread</p>
-<p>AsyncTask</p>
-<p>LoaderManager</p>
-<h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
-<ol>
-<li><p>关键字join、sleep、yield</p>
-<p> join() method suspends the execution of the calling thread until the object called finishes its execution.<br> 也就是说，t.join()方法阻塞调用此方法的线程(calling thread)，直到线程t完成，此线程再继续；通常用于在main()主线程内，等待其它线程完成再结束main()主线程。</p>
-<p> join()方法是让出执行资源（如：CPU时间片），使得其它线程可以获得执行的资源。所以调用join()方法会使进入阻塞状态，该线程被唤醒后会进入runable状态，等待下一个时间片的到来才能再次执行。 </p>
-<p> sleep()不会让出资源，只是处于睡眠状态（类似只执行空操作）。调用sleep()方法会使进入等待状态，当等待时间到后，如果还在时间片内，则直接进入运行状态，否则进入runable状态，等待下个时间片。</p>
-<p> Yield()方法是停止当前线程，让同等优先权的线程运行。如果没有同等优先权的线程，那么Yield()方法将不会起作用。 </p>
-<p> suspend()可能导致死锁，因此弃用</p>
-</li>
-</ol>
-<h3 id="HandlerThread"><a href="#HandlerThread" class="headerlink" title="HandlerThread"></a>HandlerThread</h3><p>HandlerThread，这种方式<strong>适合子线程有序的执行异步操作，异步任务的执行一个接着一个</strong>。</p>
-<p>HandlerThread的内部实现机制很简单，在创建新的线程后，使该线程成为一个Looper线程，让该线程不断的从MessageQueue取出消息并处理。</p>
-<p>就应用程序而言，Android系统中JAVA的应用程序和其他系统上相同，都是靠消息驱动来工作的，他们大致的工作原理如下：</p>
-<p>1、有一个消息队列，可以往这个消息队列中投递消息。</p>
-<p>2、有一个消息循环，不断从消息队列中取出消息，然后处理。</p>
-<p>在Android中，一个线程对应一个Looper对象，而一个Looper对象又对应一个MessageQueue（用于存放message）。</p>
-<p>循环者Looper类，消息处理类Handler，消息类Message。</p>
-<p>Looper对象用来为一个线程开启一个消息循环，用来操作MessgeQueue。默认情况下，Android中新创建的线程是没有开启消息循环的。（主线程除外）</p>
-<p>消息处理类（Handler）允许发送和处理Message和Rannable对象到其所在线程的MessageQueue中。（它主要有两个作用：1、将Message或Runnable应用post()方法或sendMessage()方法发送到MessageQueue中，在发送时可以指定延时时间、发送时间或者要携带的bundle数据。当MessageQueue循环到该Message时，调用相应的Handler对象的handlerMessage()方法对其进行处理。2、在子线程中与主线程进行通信，也就是在工作线程中与UI线程进行通信。）</p>
-<p>另外，在一个线程中只能有一个Looper和MessageQueue，但是可以有多个Handler,而且这些Handler可以共享一个Looper和MessageQueue。</p>
-<p>消息类(Message)被存放在MessageQueue中，一个MessageQueue中可以包含多个Message对象。每个Message对象可以通过Messhe.obtain()方法或者Handler.obtainMessage()方法获得。Message是一个final类，所以不可被继承。</p>
-<h3 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
-<p>当然我们是可以跳过不需要进行排队，直接就通过线程池分配一个线程并执行异步任务，但需要注意同时执行太多的异步任务，会影响用户体验，我想Google就是为了限制同时创建太多的线程才会采用一个排队机制的</p>
-<pre><code>/** @hide */
-public static void setDefaultExecutor(Executor exec) {
-    sDefaultExecutor = exec;
-}
-</code></pre><p>该方法是隐藏，但可使用反射，设置一个线程池。</p>
-<p>AsyncTask， <strong>通常用于耗时的异步处理，且时效性要求不是非常高的那种异步操作</strong>。如果时效性要求非常高的操作，不建议使用这个方式，因为AsyncTask的默认实现是有内部排队机制，且是整个应用的AsyncTask的任务进行排队，所以不能保证异步任务能很快的被执行。</p>
-<h3 id="LoaderManager"><a href="#LoaderManager" class="headerlink" title="LoaderManager"></a>LoaderManager</h3><p>LoaderManager，当<strong>请求处理时机需要根据Activity的生命周期进行调整</strong>，或需要<strong>时刻监测数据的变化</strong>，那LoaderManager是很不错的解决方案。</p>
-<p>LoaderManager可以解决的问题包括：</p>
-<p>1.加载的数据有变化时，会自动通知我们，而不自己监控数据的变化情况，如：用CursorLoader来加载数据库数据，当数据库数据有变化时，可是个展示变化的数据</p>
-<p>2.数据的请求处理时机会结合Activity和Fragment的生命周期进行调整，如：若Acivity销毁了，那就不会再去请求新的数据</p>
-<h4 id="1-LoaderManager"><a href="#1-LoaderManager" class="headerlink" title="1.LoaderManager"></a>1.LoaderManager</h4><p> LoaderManager用来负责管理与Activity或者Fragment联系起来的一个或多个Loaders对象.</p>
-<p> 每个Activity或者Fragment都有唯一的一个LoaderManager实例(通过getLoaderManager()方法获得),用来启动,停止,保持,重启,关闭它的Loaders,这些功能可通过调用initLoader()/restartLoader()/destroyLoader()方法来实现.</p>
-<p> LoaderManager并不知道数据如何装载以及何时需要装载.相反,它只需要控制它的Loaders们开始,停止,重置他们的Load行为,在配置变换或数据变化时保持loaders们的状态,并使用接口来返回load的结果.</p>
-<h4 id="2-Loader"><a href="#2-Loader" class="headerlink" title="2.Loader"></a>2.Loader</h4><p> Loades负责在一个单独线程中执行查询,监控数据源改变,当探测到改变时将查询到的结果集发送到注册的监听器上.Loader是一个强大的工具,具有如下特点</p>
-<p> (1)它封装了实际的数据载入.</p>
-<p> Activity或Fragment不再需要知道如何载入数据.它们将该任务委托给了Loader,Loader在后台执行查询要求并且将结果返回给Activity或Fragment.</p>
-<p> (2)客户端不需要知道查询如何执行.Activity或Fragment不需要担心查询如何在独立的线程中执行,Loder会自动执行这些查询操作.</p>
-<p> (3)它是一种安全的事件驱动方式.</p>
-<p> Loader检测底层数据,当检测到改变时,自动执行并载入最新数据.</p>
-<p> 这使得使用Loader变得容易,客户端可以相信Loader将会自己自动更新它的数据.</p>
-<p> Activity或Fragment所需要做的就是初始化Loader,并且对任何反馈回来的数据进行响应.除此之外,所有其他的事情都由Loader来解决.</p>
-<p>Loader：该类用于数据的加载 ，类型参数D用于指定Loader加载的数据类型</p>
-<pre><code>public class Loader&lt;D&gt; {
-}
-</code></pre><p>一般我们不直接继承Loader，而是继承AsyncTaskLoader，因为Loader的加载工作并不是在异步线程中。而AsyncTaskLoader实现了异步线程，加载流程在子线程中执行。注意：对该类的调用应该在主线程中完成。</p>
-<p><strong>Loader负责数据加载逻辑，LoaderManager负责Loader的调度</strong>，开发者只需要自定义自己的Loader，实现数据的加载逻辑，而不再关注数据加载时由于Activity销毁引发的问题。</p>
-<p>注意：其实AsyncTaskLoader内部实现异步的方式是使用AsyncTask完成的，上面我们说过AsyncTask的内部是有一个排队机制，但<strong>AsyncTaskLoader内部使用AsyncTask进行数据异步加载时，异步任务并不进行排队</strong>。而直接由线程池分配新线程来执行。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/20/github博客搭建/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/20/github博客搭建/" itemprop="url">github博客搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-20T18:03:34+08:00">
-                2019-02-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/搭建博客/" itemprop="url" rel="index">
-                    <span itemprop="name">搭建博客</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><pre><code>hexo clean #/清除静态页面缓存（清除 public 文件夹)
-
-hexo g #生成或 hexo generate
-
-hexo s #启动本地服务器 或者hexo server,这一步之后就可以通过localhost:4000查看了
-
-hexo d #部署到github
-
-hexo clean &amp; hexo g &amp; hexo s #一键启动
-</code></pre><h3 id="hexo-new-page-xxx-创建页面"><a href="#hexo-new-page-xxx-创建页面" class="headerlink" title="hexo new page xxx #创建页面"></a>hexo new page xxx #创建页面</h3><pre><code>命令       文件目录            
-
-post    source/_post       新建一个文章
-
-draft   source/_drafts     新建一个草稿文件
-
-page    source             新建一个页面文件
-</code></pre><h3 id="hexo添加分类和标签"><a href="#hexo添加分类和标签" class="headerlink" title="hexo添加分类和标签:"></a>hexo添加分类和标签:</h3><pre><code>---
-title: title #文章標題
-date: 2016-06-01 23:47:44 #文章生成時間
-categories: &quot;Hexo教程&quot; #文章分類目錄 可以省略
-tags: #文章標籤 可以省略
-     - 标签1
-     - 标签2
- description: #你對本頁的描述 可以省略
----
-</code></pre><h3 id="hexo目录结构"><a href="#hexo目录结构" class="headerlink" title="hexo目录结构"></a>hexo目录结构</h3><p><img src="/2019/02/20/github博客搭建/5346170-61efae0da32ec550.png" alt></p>
-<h3 id="markdown编辑器"><a href="#markdown编辑器" class="headerlink" title="markdown编辑器"></a>markdown编辑器</h3><p>说明：在Hexo中插入图片时，请按照以下步骤进行设置 </p>
-<p>（1）将站点配置文件中的 post_asset_folde 选项设置成 true </p>
-<p>（2）在站点文件夹中打开 git bash，输入命令 npm install hexo-asset-image –save 安装插件</p>
-<p>（3）此时使用 hexo new title 创建文章时，将同时在 source/_post 文件夹中生成一个与 title 同名的文件夹，我们只需将待添加的图片放进此文件夹中，然后在文章中通过 Markdown 语法进行引用即可例如，在资源文件夹（就是那个与 title 同名的文件夹）中添加了图片 example.PNG，则可以在对应的文章中使用语句 ![示例图片]（title/example.PNG “示例图片”） 添加图片</p>
-<h3 id="使用-Hexo-Admin-插件（难用）"><a href="#使用-Hexo-Admin-插件（难用）" class="headerlink" title="使用 Hexo Admin 插件（难用）"></a>使用 Hexo Admin 插件（难用）</h3><p>Hexo Admin 是一个本地在线式文章管理器，可以用直观可视化的方式新建、编辑博客文章、page页面，添加标签、分类等，并且支持剪贴板粘贴图片（自动在source_images_目录中创建文件）</p>
-<p>在Hexo网站目录下，安装 Hexo Admin 插件</p>
-<p>npm install –save hexo-admin</p>
-<p>启动本地服务器并打开管理界面，即可使用</p>
-<p>hexo server -d</p>
-<p>open localhost:4000/admin/</p>
-<h3 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h3><p><a href="https://www.cnblogs.com/jackyroc/p/7681938.html" target="_blank" rel="noopener">https://www.cnblogs.com/jackyroc/p/7681938.html</a></p>
-<p><a href="https://www.cnblogs.com/fengxiongZz/p/7707219.html" target="_blank" rel="noopener">https://www.cnblogs.com/fengxiongZz/p/7707219.html</a></p>
-<p><a href="https://blog.csdn.net/wsmrzx/article/details/81478945" target="_blank" rel="noopener">https://blog.csdn.net/wsmrzx/article/details/81478945</a></p>
-<p><a href="https://www.jianshu.com/p/df46bca5889d" target="_blank" rel="noopener">https://www.jianshu.com/p/df46bca5889d</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2719,7 +3339,7 @@ tags: #文章標籤 可以省略
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2730,7 +3350,7 @@ tags: #文章標籤 可以省略
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

@@ -88,7 +88,7 @@
 <meta property="og:description" content="原型模式属于对象的创建模式：通过给出一个原型对象来指明所有创建的对象的类型，然后用复制这个原型对象的办法创建出更多同类型的对象。 原型模式的结构原型模式要求对象实现一个可以“克隆”自身的接口，这样就可以通过复制一个实例对象本身来创建一个新的实例。这样一来，通过原型实例创建新的对象，就不再需要关心这个实例本身的类型，只要实现了克隆自身的方法，就可以通过这个方法来获取新的对象，而无须再去通过new来创">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/10/21/design-mode-prototype/prototype.png">
-<meta property="og:updated_time" content="2019-10-23T06:23:15.622Z">
+<meta property="og:updated_time" content="2019-11-11T06:12:27.774Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="原型模式">
 <meta name="twitter:description" content="原型模式属于对象的创建模式：通过给出一个原型对象来指明所有创建的对象的类型，然后用复制这个原型对象的办法创建出更多同类型的对象。 原型模式的结构原型模式要求对象实现一个可以“克隆”自身的接口，这样就可以通过复制一个实例对象本身来创建一个新的实例。这样一来，通过原型实例创建新的对象，就不再需要关心这个实例本身的类型，只要实现了克隆自身的方法，就可以通过这个方法来获取新的对象，而无须再去通过new来创">
@@ -399,6 +399,7 @@
 <p>（4）可用于<strong>保护性拷贝</strong>，避免原始的对象被外部修改。</p>
 <h2 id="原型模式的注意事项"><a href="#原型模式的注意事项" class="headerlink" title="原型模式的注意事项"></a>原型模式的注意事项</h2><p>（1）使用原型模式复制对象不会调用类的构造方法。因为对象的复制是通过调用Object类的clone方法来完成的，它直接在内存中复制数据，因此不 会调用到类的构造方法。不但构造方法中的代码不会执行，甚至连访问权限都对原型模式无效。还记得单例模式吗？单例模式中，只要将构造方法的访问权限设置为 private型，就可以实现单例。但是clone方法直接无视构造方法的权限，所以，单例模式与原型模式是冲突的。</p>
 <p>（2）在使用时要注意深拷贝与浅拷贝的问题。clone方法只会拷贝对象中的基本的数据类型，对于数组、容器对象、引用对象等都不会拷贝，这就是浅拷贝。如果要实现深拷贝，必须将原型模式中的数组、容器对象、引用对象等另行拷贝。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">//具体原型类</span><br><span class="line">class Realizetype implements Cloneable</span><br><span class="line">&#123;</span><br><span class="line">    Realizetype()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体原型创建成功！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public Object clone() throws CloneNotSupportedException</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体原型复制成功！&quot;);</span><br><span class="line">        return (Realizetype)super.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//原型模式的测试类</span><br><span class="line">public class PrototypeTest</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)throws CloneNotSupportedException</span><br><span class="line">    &#123;</span><br><span class="line">        Realizetype obj1=new Realizetype();</span><br><span class="line">        Realizetype obj2=(Realizetype)obj1.clone();</span><br><span class="line">        System.out.println(&quot;obj1==obj2?&quot;+(obj1==obj2));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体原型创建成功！</span><br><span class="line">具体原型复制成功！</span><br><span class="line">obj1==obj2?false</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -514,7 +515,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -525,7 +526,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -569,7 +570,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的结构"><span class="nav-number">1.</span> <span class="nav-text">原型模式的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浅克隆与深克隆"><span class="nav-number">2.</span> <span class="nav-text">浅克隆与深克隆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的优点"><span class="nav-number">3.</span> <span class="nav-text">原型模式的优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的注意事项"><span class="nav-number">4.</span> <span class="nav-text">原型模式的注意事项</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的结构"><span class="nav-number">1.</span> <span class="nav-text">原型模式的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浅克隆与深克隆"><span class="nav-number">2.</span> <span class="nav-text">浅克隆与深克隆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的优点"><span class="nav-number">3.</span> <span class="nav-text">原型模式的优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的注意事项"><span class="nav-number">4.</span> <span class="nav-text">原型模式的注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码实现"><span class="nav-number">5.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
             
 
           </div>

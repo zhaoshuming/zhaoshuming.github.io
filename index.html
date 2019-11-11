@@ -293,6 +293,634 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/design-mode-visitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/design-mode-visitor/" itemprop="url">访问者模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T14:55:40+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>访问者（Visitor）模式的定义：将作用于某种数据结构中的各元素的操作分离出来封装成独立的类，使其在不改变数据结构的前提下可以添加作用于这些元素的新的操作，为数据结构中的每个元素提供多种访问方式。它将<strong>对数据的操作与数据结构进行分离</strong>，是行为类模式中最复杂的一种模式。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>访问者模式实现的关键是如何将作用于元素的操作分离出来封装成独立的类：</p>
+<p><img src="/2019/11/11/design-mode-visitor/visitor.jpg" alt></p>
+<p>访问者模式包含以下主要角色：<br>1、抽象访问者（Visitor）角色：定义一个访问具体元素的接口，为每个具体元素类对应一个访问操作 visit() ，该操作中的参数类型标识了被访问的具体元素。<br>2、具体访问者（ConcreteVisitor）角色：实现抽象访问者角色中声明的各个访问操作，确定访问者访问一个元素时该做什么。<br>3、抽象元素（Element）角色：声明一个包含接受操作 accept() 的接口，被接受的访问者对象作为 accept() 方法的参数。<br>4、具体元素（ConcreteElement）角色：实现抽象元素角色提供的 accept() 操作，其方法体通常都是 visitor.visit(this) ，另外具体元素中可能还包含本身业务逻辑的相关操作。<br>5、对象结构（Object Structure）角色：是一个包含元素角色的容器，提供让访问者对象遍历容器中的所有元素的方法，通常由 List、Set、Map 等聚合类实现。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、对象结构相对稳定，但其操作算法经常变化的程序。<br>2、对象结构中的对象需要提供多种不同且不相关的操作，而且要避免让这些操作的变化影响对象的结构。<br>3、对象结构包含很多类型的对象，希望对这些对象实施一些依赖于其具体类型的操作。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>访问者（Visitor）模式是一种对象行为型模式，其主要优点如下：<br>1、扩展性好。能够在不修改对象结构中的元素的情况下，为对象结构中的元素添加新的功能。<br>2、复用性好。可以通过访问者来定义整个对象结构通用的功能，从而提高系统的复用程度。<br>3、灵活性好。访问者模式将数据结构与作用于结构上的操作解耦，使得操作集合可相对自由地演化而不影响系统的数据结构。<br>4、符合单一职责原则。访问者模式把相关的行为封装在一起，构成一个访问者，使每一个访问者的功能都比较单一。</p>
+<p>访问者（Visitor）模式的主要缺点如下：<br>1、增加新的元素类很困难。在访问者模式中，每增加一个新的元素类，都要在每一个具体访问者类中增加相应的具体操作，这违背了“开闭原则”。<br>2、破坏封装。访问者模式中具体元素对访问者公布细节，这破坏了对象的封装性。<br>3、违反了依赖倒置原则。访问者模式依赖了具体类，而没有依赖抽象类。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line">//抽象访问者</span><br><span class="line">interface Visitor</span><br><span class="line">&#123;</span><br><span class="line">    void visit(ConcreteElementA element);</span><br><span class="line">    void visit(ConcreteElementB element);</span><br><span class="line">&#125;</span><br><span class="line">//具体访问者A类</span><br><span class="line">class ConcreteVisitorA implements Visitor</span><br><span class="line">&#123;</span><br><span class="line">    public void visit(ConcreteElementA element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者A访问--&gt;&quot;+element.operationA());</span><br><span class="line">    &#125;</span><br><span class="line">    public void visit(ConcreteElementB element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者A访问--&gt;&quot;+element.operationB());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体访问者B类</span><br><span class="line">class ConcreteVisitorB implements Visitor</span><br><span class="line">&#123;</span><br><span class="line">    public void visit(ConcreteElementA element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者B访问--&gt;&quot;+element.operationA());</span><br><span class="line">    &#125;</span><br><span class="line">    public void visit(ConcreteElementB element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者B访问--&gt;&quot;+element.operationB());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象元素类</span><br><span class="line">interface Element</span><br><span class="line">&#123;</span><br><span class="line">    void accept(Visitor visitor);</span><br><span class="line">&#125;</span><br><span class="line">//具体元素A类</span><br><span class="line">class ConcreteElementA implements Element</span><br><span class="line">&#123;</span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        visitor.visit(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public String operationA()</span><br><span class="line">    &#123;</span><br><span class="line">        return &quot;具体元素A的操作。&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体元素B类</span><br><span class="line">class ConcreteElementB implements Element</span><br><span class="line">&#123;</span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        visitor.visit(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public String operationB()</span><br><span class="line">    &#123;</span><br><span class="line">        return &quot;具体元素B的操作。&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//对象结构角色</span><br><span class="line">class ObjectStructure</span><br><span class="line">&#123;   </span><br><span class="line">    private List&lt;Element&gt; list=new ArrayList&lt;Element&gt;();   </span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        Iterator&lt;Element&gt; i=list.iterator();</span><br><span class="line">        while(i.hasNext())</span><br><span class="line">        &#123;</span><br><span class="line">            ((Element) i.next()).accept(visitor);</span><br><span class="line">        &#125;      </span><br><span class="line">    &#125;</span><br><span class="line">    public void add(Element element)</span><br><span class="line">    &#123;</span><br><span class="line">        list.add(element);</span><br><span class="line">    &#125;</span><br><span class="line">    public void remove(Element element)</span><br><span class="line">    &#123;</span><br><span class="line">        list.remove(element);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class VisitorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        ObjectStructure os=new ObjectStructure();</span><br><span class="line">        os.add(new ConcreteElementA());</span><br><span class="line">        os.add(new ConcreteElementB());</span><br><span class="line">        Visitor visitor=new ConcreteVisitorA();</span><br><span class="line">        os.accept(visitor);</span><br><span class="line">        System.out.println(&quot;------------------------&quot;);</span><br><span class="line">        visitor=new ConcreteVisitorB();</span><br><span class="line">        os.accept(visitor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体访问者A访问--&gt;具体元素A的操作。</span><br><span class="line">具体访问者A访问--&gt;具体元素B的操作。</span><br><span class="line">------------------------</span><br><span class="line">具体访问者B访问--&gt;具体元素A的操作。</span><br><span class="line">具体访问者B访问--&gt;具体元素B的操作。</span><br></pre></td></tr></table></figure>
+<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>访问者（Visitor）模式是使用频率较高的一种设计模式，它常常同以下两种设计模式联用。</p>
+<p>(1)与“迭代器模式”联用。因为访问者模式中的“对象结构”是一个包含元素角色的容器，当访问者遍历容器中的所有元素时，常常要用迭代器。如上例中的对象结构是用 List 实现的，它通过 List 对象的 Itemtor() 方法获取迭代器。如果对象结构中的聚合类没有提供迭代器，也可以用迭代器模式自定义一个。</p>
+<p>(2)访问者（Visitor）模式同“组合模式”联用。因为访问者（Visitor）模式中的“元素对象”可能是叶子对象或者是容器对象，如果元素对象包含容器对象，就必须用到组合模式，其结构图如图所示:</p>
+<p><img src="/2019/11/11/design-mode-visitor/visitor-group.jpg" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/design-mode-template/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/design-mode-template/" itemprop="url">模板方法模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T11:19:31+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>　　模板方法（Template Method）模式的定义如下：定义一个操作中的算法骨架，而将算法的一些步骤延迟到子类中，使得子类可以不改变该算法结构的情况下重定义该算法的某些特定步骤。它是一种类行为型模式。</p>
+<p>　　通俗点的理解就是 ：完成一件事情，有固定的数个步骤，但是每个步骤根据对象的不同，而实现细节不同；就可以在父类中定义一个完成该事情的总方法，按照完成事件需要的步骤去调用其每个步骤的实现方法。每个步骤的具体实现，由子类完成。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>模板方法模式需要注意抽象类与具体子类之间的协作。它用到了虚函数的多态性技术以及“不用调用我，让我来调用你”的反向控制技术。</p>
+<p><img src="/2019/11/11/design-mode-template/template.png" alt></p>
+<p>1、抽象类（Abstract Class）：负责给出一个算法的轮廓和骨架。它由一个模板方法和若干个基本方法构成。这些方法的定义如下。<br>① 模板方法：定义了算法的骨架，按某种顺序调用其包含的基本方法。<br>② 基本方法：是整个算法中的一个步骤，包含以下几种类型。<br>　 抽象方法：在抽象类中申明，由具体子类实现。<br>　 具体方法：在抽象类中已经实现，在具体子类中可以继承或重写它。<br>　 钩子方法：在抽象类中已经实现，包括用于判断的逻辑方法和需要子类重写的空方法两种。</p>
+<p>2、具体子类（Concrete Class）：实现抽象类中所定义的抽象方法和钩子方法，它们是一个顶级逻辑的一个组成步骤。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、算法的整体步骤很固定，但其中个别部分易变时，这时候可以使用模板方法模式，将容易变的部分抽象出来，供子类实现。<br>2、当多个子类存在公共的行为时，可以将其提取出来并集中到一个公共父类中以避免代码重复。首先，要识别现有代码中的不同之处，并且将不同之处分离为新的操作。最后，用一个调用这些新的操作的模板方法来替换这些不同的代码。<br>3、当需要控制子类的扩展时，模板方法只在特定点调用钩子操作，这样就只允许在这些点进行扩展。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>该模式的主要优点如下：<br>1、它封装了不变部分，扩展可变部分。它把认为是不变部分的算法封装到父类中实现，而把可变部分算法由子类继承实现，便于子类继续扩展。<br>2、它在父类中提取了公共的部分代码，便于代码复用。<br>3、部分方法是由子类实现的，因此子类可以通过扩展方式增加相应的功能，符合开闭原则。</p>
+<p>该模式的主要缺点如下：<br>1、对每个不同的实现都需要定义一个子类，这会导致类的个数增加，系统更加庞大，设计也更加抽象。<br>2、父类中的抽象方法由子类实现，子类执行的结果会影响父类的结果，这导致一种反向的控制结构，它提高了代码阅读的难度。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public class TemplateMethodPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        AbstractClass tm=new ConcreteClass();</span><br><span class="line">        tm.TemplateMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象类</span><br><span class="line">abstract class AbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void TemplateMethod() //模板方法</span><br><span class="line">    &#123;</span><br><span class="line">        SpecificMethod();</span><br><span class="line">        abstractMethod1();          </span><br><span class="line">         abstractMethod2();</span><br><span class="line">    &#125;  </span><br><span class="line">    public void SpecificMethod() //具体方法</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象类中的具体方法被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void abstractMethod1(); //抽象方法1</span><br><span class="line">    public abstract void abstractMethod2(); //抽象方法2</span><br><span class="line">&#125;</span><br><span class="line">//具体子类</span><br><span class="line">class ConcreteClass extends AbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void abstractMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法1的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void abstractMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法2的实现被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>在模板方法模式中，基本方法包含：抽象方法、具体方法和钩子方法，正确使用“钩子方法”可以使得子类控制父类的行为。如下面例子中，可以通过在具体子类中重写钩子方法 HookMethod1() 和 HookMethod2() 来改变抽象父类中的运行结果，其结构图如图 3 所示：</p>
+<p><img src="/2019/11/11/design-mode-template/template-hook.jpg" alt></p>
+<p>程序代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">public class HookTemplateMethod</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        HookAbstractClass tm=new HookConcreteClass();</span><br><span class="line">        tm.TemplateMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//含钩子方法的抽象类</span><br><span class="line">abstract class HookAbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void TemplateMethod() //模板方法</span><br><span class="line">    &#123;</span><br><span class="line">        abstractMethod1();</span><br><span class="line">        HookMethod1();</span><br><span class="line">        if(HookMethod2())</span><br><span class="line">        &#123;</span><br><span class="line">            SpecificMethod();   </span><br><span class="line">        &#125;</span><br><span class="line">         abstractMethod2();</span><br><span class="line">    &#125;  </span><br><span class="line">    public void SpecificMethod() //具体方法</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象类中的具体方法被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public void HookMethod1()&#123;&#125;  //钩子方法1</span><br><span class="line">    public boolean HookMethod2() //钩子方法2</span><br><span class="line">    &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    public abstract void abstractMethod1(); //抽象方法1</span><br><span class="line">    public abstract void abstractMethod2(); //抽象方法2</span><br><span class="line">&#125;</span><br><span class="line">//含钩子方法的具体子类</span><br><span class="line">class HookConcreteClass extends HookAbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void abstractMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法1的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void abstractMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法2的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void HookMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;钩子方法1被重写...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean HookMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">抽象方法1的实现被调用...</span><br><span class="line">钩子方法1被重写...</span><br><span class="line">抽象方法2的实现被调用...</span><br></pre></td></tr></table></figure></p>
+<p>如果钩子方法 HookMethod1() 和钩子方法 HookMethod2() 的代码改变，则程序的运行结果也会改变。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://c.biancheng.net/view/1376.html" target="_blank" rel="noopener">http://c.biancheng.net/view/1376.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/desigin-mode-iterator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/desigin-mode-iterator/" itemprop="url">迭代器模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T11:02:56+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>迭代器（Iterator）模式的定义：提供一个对象来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。是一种对象行为型模式。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>迭代器模式是通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。</p>
+<p><img src="/2019/11/11/desigin-mode-iterator/iterator.jpg" alt></p>
+<p>迭代器模式主要包含以下角色。<br>1、抽象聚合（Aggregate）角色：定义存储、添加、删除聚合对象以及创建迭代器对象的接口。<br>2、具体聚合（ConcreteAggregate）角色：实现抽象聚合类，返回一个具体迭代器的实例。<br>3、抽象迭代器（Iterator）角色：定义访问和遍历聚合元素的接口，通常包含 hasNext()、first()、next() 等方法。<br>4、具体迭代器（Concretelterator）角色：实现抽象迭代器接口中所定义的方法，完成对聚合对象的遍历，记录遍历的当前位置。</p>
+<h2 id="模式的应用场景"><a href="#模式的应用场景" class="headerlink" title="模式的应用场景"></a>模式的应用场景</h2><p>1、当需要为聚合对象提供多种遍历方式时。<br>2、当需要为遍历不同的聚合结构提供一个统一的接口时。<br>3、当访问一个聚合对象的内容而无须暴露其内部细节的表示时。</p>
+<p>由于聚合与迭代器的关系非常密切，所以大多数语言在实现聚合类时都提供了迭代器类，因此大数情况下使用语言中已有的聚合类的迭代器就已经够了。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>主要优点如下：<br>1、访问一个聚合对象的内容而无须暴露它的内部表示。<br>2、遍历任务交由迭代器完成，这简化了聚合类。<br>3、它支持以不同方式遍历一个聚合，甚至可以自定义迭代器的子类以支持新的遍历。<br>4、增加新的聚合类和迭代器类都很方便，无须修改原有代码。<br>5、封装性良好，为遍历不同的聚合结构提供一个统一的接口。</p>
+<p>其主要缺点是：增加了类的个数，这在一定程度上增加了系统的复杂性。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">//抽象聚合</span><br><span class="line">interface Aggregate</span><br><span class="line">&#123; </span><br><span class="line">    public void add(Object obj); </span><br><span class="line">    public void remove(Object obj); </span><br><span class="line">    public Iterator getIterator(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体聚合</span><br><span class="line">class ConcreteAggregate implements Aggregate</span><br><span class="line">&#123; </span><br><span class="line">    private List&lt;Object&gt; list=new ArrayList&lt;Object&gt;(); </span><br><span class="line"></span><br><span class="line">    public void add(Object obj)</span><br><span class="line">    &#123; </span><br><span class="line">        list.add(obj); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void remove(Object obj)</span><br><span class="line">    &#123; </span><br><span class="line">        list.remove(obj); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Iterator getIterator()</span><br><span class="line">    &#123; </span><br><span class="line">        return(new ConcreteIterator(list)); </span><br><span class="line">    &#125;     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//抽象迭代器</span><br><span class="line">interface Iterator</span><br><span class="line">&#123;</span><br><span class="line">    Object first();</span><br><span class="line">    Object next();</span><br><span class="line">    boolean hasNext();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体迭代器</span><br><span class="line">class ConcreteIterator implements Iterator</span><br><span class="line">&#123; </span><br><span class="line">    private List&lt;Object&gt; list=null; </span><br><span class="line">    private int index=-1; </span><br><span class="line"></span><br><span class="line">    public ConcreteIterator(List&lt;Object&gt; list)</span><br><span class="line">    &#123; </span><br><span class="line">        this.list=list; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    public boolean hasNext()</span><br><span class="line">    &#123; </span><br><span class="line">        if(index&lt;list.size()-1)</span><br><span class="line">        &#123; </span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object first()</span><br><span class="line">    &#123;</span><br><span class="line">        index=0;</span><br><span class="line">        Object obj=list.get(index);;</span><br><span class="line">        return obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object next()</span><br><span class="line">    &#123; </span><br><span class="line">        Object obj=null; </span><br><span class="line">        if(this.hasNext())</span><br><span class="line">        &#123; </span><br><span class="line">            obj=list.get(++index); </span><br><span class="line">        &#125; </span><br><span class="line">        return obj; </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Client</span><br><span class="line">public class IteratorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Aggregate ag=new ConcreteAggregate(); </span><br><span class="line">        ag.add(&quot;中山大学&quot;); </span><br><span class="line">        ag.add(&quot;华南理工&quot;); </span><br><span class="line">        ag.add(&quot;韶关学院&quot;);</span><br><span class="line">        System.out.print(&quot;聚合的内容有：&quot;);</span><br><span class="line">        Iterator it=ag.getIterator(); </span><br><span class="line">        while(it.hasNext())</span><br><span class="line">        &#123; </span><br><span class="line">            Object ob=it.next(); </span><br><span class="line">            System.out.print(ob.toString()+&quot;\t&quot;); </span><br><span class="line">        &#125;</span><br><span class="line">        Object ob=it.first();</span><br><span class="line">        System.out.println(&quot;\nFirst：&quot;+ob.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/06/android-plugin-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/06/android-plugin-principle/" itemprop="url">android插件化原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-06T09:43:33+08:00">
+                2019-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android插件化/" itemprop="url" rel="index">
+                    <span itemprop="name">android插件化</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>apk被安装之后，apk的文件代码以及资源会被系统存放在固定的目录比如/data/app/package_name/xxx.apk)中，系统在进行类加载的时候，会自动去这一个或者几个特定的路径来寻找这个类。</p>
+<p>但是要知道插件apk是不会被安装的，那么系统也就不会讲我们的代理及资源存在在这个目录下，换句话说系统并不知道我们插件apk中的任何信息，也就根本不可能加载我们插件中的类。我们之前分析过应用的启动过程，其实就是启动了我们的主Activity，然后在ActivityThread的performLaunchActivity方法中创建的Activity对象并回调了attch和onCreate方法。系统通过待启动的Activity的类名className，然后使用ClassLoader对象cl把这个类加载，最后使用反射创建了这个Activity类的实例对象。</p>
+<p>有两种实现方法：</p>
+<ol>
+<li><p>首先如果我们想要加载我们的插件apk我们需要一个Classloader，那么我们知道系统的Classloader是通过LoadedApk对象获得的，而如果我们想要加载我们自己的插件apk，就需要我们自己构建一个LoadedApk对象，然后修改其中的Classloader对象，因为系统的并不知道我们的插件apk的信息，所有我们就要<strong>创建自己的ClassLoader对象</strong>，然后全盘接管加载的过程，然后通过hook的思想将我们构建的这个LoadedApk对象存入那个叫mPackages的map中，这样的话每次在获取LoadedApk对象时就可以在map中得到了。然后在到创建Activity的时候得到的Classloader对象就是我们自己改造过的cl了，这样就可以加载我们的外部插件了。这种方案需要我们hook掉系统系统的n多个类或者方法，因为创建LoadedApk对象时还需要一个ApplicationInfo的对象，这个对象就是解析AndroidManifest清单得来的，所以还需要我们自己手动解析插件中的AndroidManifest清单，这个过程及其复杂，不过360的DroidPlugin就使用了这种方法。</p>
+</li>
+<li><p>既然我们知道如果想启动插件apk就需一个Classloader，那么我们换一种想法，能不能我们将我们的插件apk的信息告诉系统的这个Classloader，然后<strong>让系统的Classloader来帮我们加载及创建</strong>呢？答案是肯定，之前我们说过讲过android中的Classloader主要分析PathClassLoader和DexClassLoader，系统通过PathClassLoader来加载系统类和主dex中的类。而DexClassLoader则用于加载其他dex文件中的类。他们都是继承自BaseDexClassLoader。（如果没有看过的建议先看看：<a href="https://zhaoshuming.github.io/2019/05/10/android-dex/" target="_blank" rel="noopener">类加载器ClassLoader及Dex/Class</a>）</p>
+</li>
+</ol>
+<p>回顾一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">//这个类中维护这一个dexElements的数组，在findClass的时候会遍历数组来查找</span><br><span class="line">public Class findClass(String name, List&lt;Throwable&gt; suppressed) &#123;</span><br><span class="line">   for (Element element : dexElements) &#123;</span><br><span class="line">       DexFile dex = element.dexFile;</span><br><span class="line"></span><br><span class="line">       if (dex != null) &#123;</span><br><span class="line">           Class clazz = dex.loadClassBinaryName(name, definingContext, suppressed);</span><br><span class="line">           if (clazz != null) &#123;</span><br><span class="line">               return clazz;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   if (dexElementsSuppressedExceptions != null) &#123;</span><br><span class="line">       suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));</span><br><span class="line">   &#125;</span><br><span class="line">   return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>类在被加载的时候是通过BaseDexClassLoader的findClass的方法，其实最终调用了DexPathList类的findClass，DexPathList类中维护着dexElements的数组，这个数组就是存放我们dex文件的数组，我们只要想办法<strong>将我们插件apk的dex文件插入到这个dexElements中系统就可以知道我们的插件apk信息了</strong>，也自然就可以帮我们加载并创建对应的类。但是到这里还有一个问题，那就是<strong>Activity必须要在AndroidManifest注册才行</strong>，这个检查过程是在系统底层的，我们无法干涉，可是我们的插件apk是动态灵活的，宿主中并不固定的写死注册哪几个Activity，如果写死也就失去了插件的动态灵活性。</p>
+<p>但是我们可以换一种方式，我们使用hook思想代理startActivity这个方法，使用<strong>占坑</strong>的方式，也就是说我们可以提前在AndroidManifest中固定写死一个Activity，这个Activity只不过是一个傀儡，我们在启动我们插件apk的时候使用它去系统层校检合法性，然后等真正创建Activity的时候再通过hook思想拦截Activity的创建方法，提前将信息更换回来创建真正的插件apk。</p>
+<p>总结下分析结果：</p>
+<pre><code>1.startActivity的时候最终会走到AMS的startActivity方法
+
+2.系统会检查一堆的信息验证这个Activity是否合法
+
+3.然后会回调ActivityThread的Handler里的 handleLaunchActivity
+
+4.在这里走到了performLaunchActivity方法去创建Activity并回调一系列生命周期的方法
+
+5.创建Activity的时候会创建一个LoaderApk对象，然后使用这个对象的getClassLoader来创建Activity
+
+6.我们查看getClassLoader()方法发现返回的是PathClassLoader，然后他继承自BaseDexClassLoader
+
+7.然后我们查看BaseDexClassLoader发现他创建时创建了一个DexPathList类型的pathList对象，然后在findClass时调用了pathList.findClass的方法
+
+8.然后我们查看DexPathList类中的findClass发现他内部维护了一个Element[] dexElements的dex数组，findClass时是从数组中遍历查找的
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/yulong0809/article/details/59113935" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/59113935</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/04/design-mode-memento/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1205,694 +1833,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/28/design-mode-strategy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/28/design-mode-strategy/" itemprop="url">策略模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T09:14:08+08:00">
-                2019-10-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>策略模式（Strategy Pattern），将各种算法封装到具体的类中，作为一个抽象策略类的子类，使得它们可以互换。客户端可以自行决定使用哪种算法。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>策略模式是<strong>对算法的包装</strong>，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“准备一组算法，并将每一个算法封装起来，使得它们可以互换”。下面就以一个示意性的实现讲解策略模式实例的结构。</p>
-<p><img src="/2019/10/28/design-mode-strategy/strategy.png" alt></p>
-<p>这个模式涉及到三个角色：<br>　　●　环境(Context)角色：持有一个Strategy的引用。<br>　　●　抽象策略(Strategy)角色：这是一个抽象角色，通常由一个接口或抽象类实现。此角色给出所有的具体策略类所需的接口。<br>　　●　具体策略(ConcreteStrategy)角色：包装了相关的算法或行为。</p>
-<h2 id="认识策略模式"><a href="#认识策略模式" class="headerlink" title="认识策略模式"></a>认识策略模式</h2><p>1、策略模式的重心<br>　　策略模式的重心不是如何实现算法，而是<strong>如何组织、调用这些算法</strong>，从而让程序结构更灵活，具有更好的维护性和扩展性。</p>
-<p>2、算法的平等性<br>　　策略模式一个很大的特点就是各个策略算法的平等性。对于一系列具体的策略算法，大家的地位是完全一样的，正因为这个平等性，才能实现算法之间可以相互替换。所有的策略算法在实现上也是相互独立的，相互之间是没有依赖的。<br>　　所以可以这样描述这一系列策略算法：<strong>策略算法是相同行为的不同实现</strong>。</p>
-<p>3、运行时策略的唯一性<br>　　运行期间，策略模式在每一个时刻只能使用一个具体的策略实现对象，虽然可以动态地在不同的策略实现中切换，但是同时只能使用一个。</p>
-<p>4、公有的行为<br>　　经常见到的是，所有的具体策略类都有一些公有的行为。这时候，就应当把这些公有的行为放到共同的抽象策略角色Strategy类里面。当然这时候抽象策略角色必须要用Java抽象类实现，而不能使用接口。<br>　　这其实也是典型的将代码向继承等级结构的上方集中的标准做法。</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p>　　（1）策略模式<strong>提供了管理相关的算法族的办法</strong>。策略类的等级结构定义了一个算法或行为族。恰当使用继承可以把公共的代码移到父类里面，从而避免代码重复。<br>　　（2）使用策略模式可以避免使用多重条件(if-else)语句。多重条件语句不易维护，它把采取哪一种算法或采取哪一种行为的逻辑与算法或行为的逻辑混合在一起，统统列在一个多重条件语句里面，比使用继承的办法还要原始和落后。<br>　　（3）策略模式提供了对“开闭原则”的完美支持，用户可以在不修改原有系统的基础上选择算法（策略），并且可以灵活地增加新的算法（策略）。</p>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>　　（1）客户端必须知道所有的策略类，并自行决定使用哪一个策略类。这就意味着客户端必须理解这些算法的区别，以便适时选择恰当的算法类。换言之，策略模式只适用于客户端知道算法或行为的情况。<br>　　（2）由于策略模式把每个具体的策略实现都单独封装成为类，如果备选的策略很多的话，那么对象的数目就会很可观。</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>环境角色类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Context &#123;</span><br><span class="line">    //持有一个具体策略的对象</span><br><span class="line">    private Strategy strategy;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 构造函数，传入一个具体策略对象</span><br><span class="line">     * @param strategy    具体策略对象</span><br><span class="line">     */</span><br><span class="line">    public Context(Strategy strategy)&#123;</span><br><span class="line">        this.strategy = strategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 策略方法</span><br><span class="line">     */</span><br><span class="line">    public void contextInterface()&#123;</span><br><span class="line">        </span><br><span class="line">        strategy.strategyInterface();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>抽象策略类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface Strategy &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 策略方法</span><br><span class="line">     */</span><br><span class="line">    public void strategyInterface();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>具体策略类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class ConcreteStrategyA implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class ConcreteStrategyB implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class ConcreteStrategyC implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>客户端调用代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleClient &#123;</span><br><span class="line"></span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">	//选择并创建需要使用的策略对象</span><br><span class="line">    Strategy strategy = new ConcreteStrategyA();</span><br><span class="line">	//创建环境</span><br><span class="line">    Context context = new Context(strategy);</span><br><span class="line">	//执行</span><br><span class="line">    context.contextInterface();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>从上面的示例可以看出，策略模式仅仅封装算法，提供新的算法插入到已有系统中，以及老算法从系统中“退休”的方法，策略模式并不决定在何时使用何种算法。在什么情况下使用什么算法是由客户端决定的。</p>
-<h2 id="和工厂模式的区别"><a href="#和工厂模式的区别" class="headerlink" title="和工厂模式的区别"></a>和工厂模式的区别</h2><p>在模式结构上，两者很相似。</p>
-<p>差异：<br>1.用途不一样<br>工厂是<strong>创建型模式</strong>,它的作用就是创建对象；<br>策略是<strong>行为型模式</strong>,它的作用是让一个对象在许多行为中选择一种行为;</p>
-<p>2.关注点不一样<br>一个关注对象创建<br>一个关注行为的封装</p>
-<p>3.解决不同的问题<br>工厂模式是创建型的设计模式，它接受指令，创建出符合要求的实例；它主要解决的是资源的统一分发，将对象的创建完全独立出来，让对象的创建和具体的使用客户无关。主要应用在多数据库选择，类库文件加载等。<br>策略模式是为了解决的是策略的切换与扩展，更简洁的说是定义策略族，分别封装起来，让他们之间可以相互替换，策略模式让策略的变化独立于使用策略的客户。</p>
-<p>4.工厂相当于黑盒子，策略相当于白盒子；</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/23/design-mode-factory/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/23/design-mode-factory/" itemprop="url">三种工厂模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-23T14:46:42+08:00">
-                2019-10-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h2><p>提供一个用于创建对象的接口(工厂接口)，让其实现类(工厂实现类)决定实例化哪一个类(产品类)，并且由该实现类创建对应类的实例。</p>
-<p><img src="/2019/10/23/design-mode-factory/factory.jpg" alt></p>
-<p>工厂方法使一个类的<strong>实例化延迟到其子类</strong>。如图所示，Product抽象类负责定义产品的共性，实现对事物最抽象的定义，Creator为抽象工厂类，具体如何创建产品类由具体的实现工厂ConcreteCreator来完成。</p>
-<h3 id="通用模板代码"><a href="#通用模板代码" class="headerlink" title="通用模板代码"></a>通用模板代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public abstract class Product &#123;</span><br><span class="line">	</span><br><span class="line">	public void method() &#123; //产品类的公共方法，已经实现</span><br><span class="line">		//实现了公共的逻辑</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public abstract void method2(); //非公共方法，需要子类具体实现</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>具体产品类可以有多个，都继承与抽象类Product，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class ConcreateProduct1 extends Product &#123;</span><br><span class="line">	</span><br><span class="line">	@Override</span><br><span class="line">	public void method2() &#123;</span><br><span class="line">		//product1的业务逻辑</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class ConcreateProduct2 extends Product &#123;</span><br><span class="line"> </span><br><span class="line">	@Override</span><br><span class="line">	public void method2() &#123;</span><br><span class="line">		//product2的业务逻辑</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>抽象工厂类负责定义产品对象的产生，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public abstract class Creator &#123;</span><br><span class="line">	//创建一个产品对象，其输入参数类型可以自行设置</span><br><span class="line">	public abstract &lt;T extends Product&gt; T createProduct(Class&lt;T&gt; clazz);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里用的是泛型，传入的对象必须是Product抽象类的实现类。具体如何产生一个产品的对象，是由具体工厂类实现的，具体工厂类继承这个抽象工厂类：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class ConcreteCreator extends Creator &#123;</span><br><span class="line"> </span><br><span class="line">	@Override</span><br><span class="line">	public &lt;T extends Product&gt; T createProduct(Class&lt;T&gt; clazz) &#123;</span><br><span class="line">		Product product = null;</span><br><span class="line">		try &#123;</span><br><span class="line">			product = (Product) Class.forName(clazz.getName()).newInstance();</span><br><span class="line">		&#125; catch (Exception e) &#123; //异常处理</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		return (T) product;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>通过这样的设计，我们就可以在测试类中随意生产产品了，看下面的测试类：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class FactoryTest &#123;</span><br><span class="line"> </span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Creator factory = new ConcreteCreator();</span><br><span class="line">		Product product1 = factory.createProduct(ConcreteProduct1.class); //通过不同的类创建不同的产品</span><br><span class="line"> 		Product product2 = factory.createProduct(ConcreteProduct2.class);</span><br><span class="line">		 /*</span><br><span class="line">		  * 下面继续其他业务处理</span><br><span class="line">		  */</span><br><span class="line">	 &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="多个工厂模式"><a href="#多个工厂模式" class="headerlink" title="多个工厂模式"></a>多个工厂模式</h3><p>每个具体的工厂都已经非常明确自己的职责：<strong>创建自己负责的产品类对象</strong>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public abstract class Creator &#123;</span><br><span class="line">	public abstract Product createProduct();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意抽象方法中已经不需要再传递相关类的参数了，因为每个具体的工厂都已经非常明确自己的职责：创建自己负责的产品类对象。所以不同的工厂实现自己的createProduct方法即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class Concrete1Creator extends Creator &#123;</span><br><span class="line">	public Product createProduct() &#123;</span><br><span class="line">		return new ConcreteProduct1();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Concrete2Creator extends Creator &#123;</span><br><span class="line">	public Product createProduct() &#123;</span><br><span class="line">		return new ConcreteProduct2();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样多个不同的工厂就产生了，每个工厂对应只生产自己对应的产品，分工协作，各不影响了！<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class FactoryTest &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Human blackMan = new ConcreteCreator1().createProduct(); </span><br><span class="line"> 		Human yellowMan = new ConcreteCreator2().createProduct();</span><br><span class="line">	  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这种工厂模式的好处是职责清晰，结构简单，但是给扩扩展性和可维护性带来了一定的影响，因为如果要扩展一个产品类，就需要建立一个相应的工厂类，这样就增加了扩展的难度。因为工厂类和产品类的数量是相同的，维护时也需要考虑两个对象之间的关系。但是这种模式还是很常用的。</p>
-<h3 id="替代单例模式"><a href="#替代单例模式" class="headerlink" title="替代单例模式"></a>替代单例模式</h3><p>可以使用静态工厂加反射实现单例模式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonFactory &#123;</span><br><span class="line">	private static Singleton instance;</span><br><span class="line">	static &#123;</span><br><span class="line">		try &#123;		</span><br><span class="line">			Class clazz = Class.forName(Singleton.class.getName());</span><br><span class="line">			//获取无参构造方法</span><br><span class="line">			Constructor constructor = clazz.getDeclaredConstructor();</span><br><span class="line">			//设置无参构造方法可访问</span><br><span class="line">			constructor.setAccessible(true);</span><br><span class="line">			//产生一个实例对象</span><br><span class="line">			instance = (Singleton) constructor.newInstance();</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			//异常处理</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	public static Singleton getInstance() &#123;</span><br><span class="line">		return instance;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>1.工厂模式具有良好的封装性，代码结构清晰，也有利于扩展。在增加产品类的情况下，只需要适当地修改具体的工厂类或扩展一个工厂类，就可以完成“拥抱变化”。<br>2.工厂模式可以屏蔽产品类。这一点非常重要，产品类的实现如何变化，调用者都不用关系，只需要关心产品的接口，只要接口保持不变，系统的上层模块就不需要发生变化。<br>3.工厂模式是典型的解耦框架。高层模块只需要知道产品的抽象类，其他的实现类都不用关心。</p>
-<h2 id="简单-静态工厂模式"><a href="#简单-静态工厂模式" class="headerlink" title="简单/静态工厂模式"></a>简单/静态工厂模式</h2><p>如果<strong>只需要一个工厂</strong>就可以把Product生产出来，我干嘛要具体的工厂对象呢？只要使用静态方法就好了。这样一想，把Creator抽象类去掉了，只保留了ConcreteCreator类，同时把method2方法设置成了static类型：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class ConcreteCreator &#123;</span><br><span class="line"> </span><br><span class="line">	@Override</span><br><span class="line">	public static &lt;T extends Product&gt; T createProduct(Class&lt;T&gt; clazz) &#123;</span><br><span class="line">		Product product = null;</span><br><span class="line">		try &#123;</span><br><span class="line">			product = (Product) Class.forName(clazz.getName()).newInstance();</span><br><span class="line">		&#125; catch (Exception e) &#123; //异常处理</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		return (T) product;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在实际项目中，根据需求可以设置成静态工厂类，但是缺点是扩展比较困难。如果就一个工厂，不需要扩展，可以这么设计，仍然是很常用的。</p>
-<h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2><p>为创建一组相关或相互依赖的对象提供一个接口，而且无需指定他们的具体类。</p>
-<p><img src="/2019/10/23/design-mode-factory/factory-abstract.png" alt></p>
-<h3 id="抽象工厂模式与工厂方法模式的区别"><a href="#抽象工厂模式与工厂方法模式的区别" class="headerlink" title="抽象工厂模式与工厂方法模式的区别"></a>抽象工厂模式与工厂方法模式的区别</h3><p>抽象工厂模式是工厂方法模式的升级版本，他用来创建一组相关或者相互依赖的对象。他与工厂方法模式的区别就在于，工厂方法模式针对的是一个产品等级结构；而抽象工厂模式则是<strong>针对的是多个产品等级结构</strong>。在编程中，通常一个产品结构，表现为一个接口或者抽象类，也就是说，工厂方法模式提供的所有产品都是衍生自同一个接口或抽象类，而<strong>抽象工厂模式所提供的产品则是衍生自不同的接口或抽象类</strong>。</p>
-<p>在抽象工厂模式中，有一个<strong>产品族</strong>的概念：所谓的产品族，是指位于不同产品等级结构中功能相关联的产品组成的家族。抽象工厂模式所提供的一系列产品就组成一个产品族；而工厂方法提供的一系列产品称为一个等级结构。我们依然拿生产汽车的例子来说明他们之间的区别。</p>
-<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点：当一个产品族中的多个对象被设计成一起工作时，它能保证客户端始终只使用同一个产品族中的对象。此外还具有工厂方法模式的优点。</p>
-<p>缺点：产品族扩展非常困难，要增加一个系列的某一产品，既要在抽象的 Creator 里加代码，又要在具体的里面加代码。</p>
-<p>适用场景：<br>当需要创建的对象是一系列相互关联或相互依赖的产品族时，便可以使用抽象工厂模式。说的更明白一点，就是一个继承体系中，如果存在着多个等级结构（即存在着多个抽象类），并且分属各个等级结构中的实现类之间存在着一定的关联或者约束，就可以使用抽象工厂模式。假如各个等级结构中的实现类之间不存在关联或约束，则使用多个独立的工厂来对产品进行创建，则更合适一点。</p>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>cpu接口和实现类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public interface Cpu &#123;</span><br><span class="line">    void run();</span><br><span class="line"></span><br><span class="line">    class Cpu650 implements Cpu &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            //625 也厉害</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    class Cpu825 implements Cpu &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            //825 处理更强劲</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>屏幕接口和实现类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public interface Screen &#123;</span><br><span class="line"></span><br><span class="line">    void size();</span><br><span class="line"></span><br><span class="line">    class Screen5 implements Screen &#123;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void size() &#123;</span><br><span class="line">            //5寸</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    class Screen6 implements Screen &#123;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void size() &#123;</span><br><span class="line">            //6寸</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>工厂接口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface PhoneFactory &#123;</span><br><span class="line"></span><br><span class="line">    Cpu getCpu();//使用的cpu</span><br><span class="line"></span><br><span class="line">    Screen getScreen();//使用的屏幕</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>具体工厂实现类：小米手机工厂<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class XiaoMiFactory implements PhoneFactory &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public Cpu getCpu() &#123;</span><br><span class="line">        return new Cpu.Cpu825();//高性能处理器</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Screen getScreen() &#123;</span><br><span class="line">        return new Screen.Screen6();//6寸大屏</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>具体工厂实现类：红米手机工厂<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class HongMiFactory implements PhoneFactory &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Cpu getCpu() &#123;</span><br><span class="line">        return new Cpu.Cpu650();//高效处理器</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Screen getScreen() &#123;</span><br><span class="line">        return new Screen.Screen5();//小屏手机</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>以上例子可以看出，<strong>抽象工厂可以解决一系列的产品生产的需求</strong>，对于大批量，多系列的产品，用抽象工厂可以更好的管理和扩展。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>无论是简单工厂模式，工厂方法模式，还是抽象工厂模式，他们都属于工厂模式，在形式和特点上也是极为相似的，他们的最终目的都是为了解耦。在使用时，我们不必去在意这个模式到底工厂方法模式还是抽象工厂模式，因为他们之间的演变常常是令人琢磨不透的。经常你会发现，明明使用的工厂方法模式，当新需求来临，稍加修改，加入了一个新方法后，由于类中的产品构成了不同等级结构中的产品族，它就变成抽象工厂模式了；而对于抽象工厂模式，当减少一个方法使的提供的产品不再构成产品族之后，它就演变成了工厂方法模式。</p>
-<p>所以，在使用工厂模式时，只需要关心<strong>降低耦合度的目的</strong>是否达到了。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/eson_15/article/details/51223124" target="_blank" rel="noopener">https://blog.csdn.net/eson_15/article/details/51223124</a><br><a href="https://www.jianshu.com/p/38493eb4ffbd" target="_blank" rel="noopener">https://www.jianshu.com/p/38493eb4ffbd</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/21/ds-sort/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/21/ds-sort/" itemprop="url">十大经典排序算法(Java实现)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-21T13:59:52+08:00">
-                2019-10-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本文给出常见的十种常见排序算法的原理以及 Java 实现，按照是否比较可以分为两大类：</p>
-<p>1、 比较类排序：通过比较来决定元素间的相对次序，由于其时间复杂度不能突破O(nlogn)，因此也称为非线性时间比较类排序。<br>&emsp;&emsp;比较排序的优势是，适用于各种规模的数据，也不在乎数据的分布，都能进行排序。可以说，比较排序适用于一切需要排序的情况。</p>
-<p>2、 非比较类排序：不通过比较来决定元素间的相对次序，它可以突破基于比较排序的时间下界，以线性时间运行，因此也称为线性时间非比较类排序。<br>&emsp;&emsp;计数排序、基数排序、桶排序则属于非比较排序。非比较排序是通过确定每个元素之前，应该有多少个元素来排序。针对数组arr，计算arr[i]之前有多少个元素，则唯一确定了arr[i]在排序后数组中的位置。<br>&emsp;&emsp;非比较排序只要确定每个元素之前的已有的元素个数即可，所有一次遍历即可解决，算法时间复杂度 O(n) 。<br>&emsp;&emsp;非比较排序时间复杂度低，但由于非比较排序需要占用空间来确定唯一位置，所以对数据规模和数据分布有一定的要求。</p>
-<p><img src="/2019/10/21/ds-sort/sort.png" alt title="排序算法"></p>
-<p>相关概念：<br>1、稳定：如果a原本在b前面，而a=b，排序之后a仍然在b的前面。<br>2、不稳定：如果a原本在b的前面，而a=b，排序之后 a 可能会出现在 b 的后面。<br>3、时间复杂度：对排序数据的总的操作次数。反映当n变化时，操作次数呈现什么规律。<br>4、空间复杂度：是指算法在计算机内执行时所需存储空间的度量，它也是数据规模n的函数。 </p>
-<h2 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h2><p>原理：<br>在要排序的一组数中，对当前还未排好序的范围内的全部数，自上而下对相邻的两个数依次进行比较和调整，让较大的数往下沉，较小的往上冒。</p>
-<p>步骤如下：<br>1、从第一个数据开始，与第二个数据相比较，如果第二个数据小于第一个数据，则交换两个数据的位置。<br>2、指针由第一个数据移向第二个数据，第二个数据与第三个数据相比较，如果第三个数据小于第二个数据，则交换两个数据的位置。<br>3、依此类推，完成第一轮排序。第一轮排序结束后，最大的元素被移到了最右面。<br>4、依照上面的过程进行第二轮排序，将第二大的排在倒数第二的位置。<br>5、重复上述过程，没排完一轮，比较次数就减少一次。</p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void bubbleSort(int[] arr) &#123;</span><br><span class="line">    for(int i = 0; i &lt; arr.length - 1; i++) &#123;</span><br><span class="line">        for(int j = 0; j &lt; arr.length - 1 - i; j++) &#123;</span><br><span class="line">            if(arr[j] &gt; arr[j+1]) &#123;</span><br><span class="line">                int temp = arr[j];</span><br><span class="line">                arr[j] = arr[j+1];</span><br><span class="line">                arr[j+1] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="简单选择排序"><a href="#简单选择排序" class="headerlink" title="简单选择排序"></a>简单选择排序</h2><p>原理：<br>每一趟从待排序的记录中选出最小的元素，顺序放在已排好序的序列最后，直到全部记录排序完毕。</p>
-<p>步骤如下：<br>1、给定数组：int[] arr={里面n个数据}；<br>2、第1趟排序，在待排序数据arr[1]~arr[n]中选出最小的数据，将它与arr[1]交换；<br>3、第2趟，在待排序数据arr[2]~arr[n]中选出最小的数据，将它与arr[2]交换；<br>4、以此类推，第i趟在待排序数据arr[i]~arr[n]中选出最小的数据，将它与arr[i]交换，直到全部排序完成。</p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">for(int i = 0; i &lt; arr.length - 1; i++) &#123;// 做第i趟排序</span><br><span class="line">    int k = i;</span><br><span class="line">    for(int j = k + 1; j &lt; arr.length; j++)&#123;// 选最小的记录</span><br><span class="line">        if(arr[j] &lt; arr[k])&#123; </span><br><span class="line">            k = j; //记下目前找到的最小值所在的位置</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    //在内层循环结束，也就是找到本轮循环的最小的数以后，再进行交换</span><br><span class="line">    if(i != k)&#123;  //交换a[i]和a[k]</span><br><span class="line">        int temp = arr[i];</span><br><span class="line">        arr[i] = arr[k];</span><br><span class="line">        arr[k] = temp;</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>选择排序总结：<br>1、N个元素需要排序N-1轮；<br>2、第i轮需要比较N-i次；<br>3、N个元素排序，需要比较n（n-1）/2次；<br>4、选择排序的算法复杂度仍为O（n*n）；<br>5、相比于冒泡排序，选择排序的交换次数大大减少，因此速度要快于冒泡排序</p>
-<h2 id="简单插入排序"><a href="#简单插入排序" class="headerlink" title="简单插入排序"></a>简单插入排序</h2><p>原理：<br>每次执行，把后面的数插入到前面已经排序好的数组中，直到最后一个完成。</p>
-<p>详细步骤：<br>利用插入法对无序数组排序时，我们其实是将数组R划分成两个子区间R[1．．i-1]（已排好序的有序区）和R[i．．n]（当前未排序的部分，可称无序区）。<strong>插入排序的基本操作是将当前无序区的第1个记录R[i]插人到有序区R[1．．i-1]中适当的位置上，使R[1．．i]变为新的有序区</strong>。因为这种方法每次使有序区增加1个记录，通常称增量法。<br>插入排序与打扑克时整理手上的牌非常类似。摸来的第1张牌无须整理，此后每次从桌上的牌(无序区)中摸最上面的1张并插入左手的牌(有序区)中正确的位置上。为了找到这个正确的位置，须自左向右(或自右向左)将摸来的牌与左手中已有的牌逐一比较。</p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public static void InsertSort(int[] arr)</span><br><span class="line">&#123;</span><br><span class="line">    int i, j;</span><br><span class="line">    int n = arr.Length;</span><br><span class="line">    int target;</span><br><span class="line"> </span><br><span class="line">    //假定第一个元素被放到了正确的位置上，这样，仅需遍历1 ~ n-1</span><br><span class="line">    for (i = 1; i &lt; n; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        j = i;</span><br><span class="line">        target = arr[i];</span><br><span class="line"> </span><br><span class="line">        while (j &gt; 0 &amp;&amp; target &lt; arr[j - 1])</span><br><span class="line">        &#123;</span><br><span class="line">            arr[j] = arr[j - 1];</span><br><span class="line">            j--;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        arr[j] = target;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>插入排序分析：<br>1、时间复杂度，由于仍然需要两层循环，插入排序的时间复杂度仍然为O(n*n)。<br>2、比较次数：在第一轮排序中，插入排序最多比较一次；在第二轮排序中插入排序最多比较二次；以此类推，最后一轮排序时，最多比较N-1次，因此插入排序的最多比较次数为1+2+…+N-1=N*(N-1)/2。尽管如此，实际上插入排序很少会真的比较这么多次，因为一旦发现左侧有比目标元素小的元素，比较就停止了，因此，插入排序平均比较次数为N*(N-1)/4。<br>3、移动次数：插入排序的移动次数与比较次数几乎一致，但移动的速度要比交换的速度快得多。<br>综上，插入排序的速度约比冒泡排序快一倍（比较次数少一倍），比选择排序还要快一些，对于基本有序的数据，插入排序的速度会很快，是简单排序中效率最高的排序算法。</p>
-<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><p>原理：<br>选择一个关键值作为基准值。比基准值小的都在左边序列（一般是无序的），比基准值大的都在右边（一般是无序的）。然后对这两部分分别重复这个过程，直到整个有序。</p>
-<p>算法思想：<br>基于分治的思想，是冒泡排序的改进型。首先在数组中选择一个基准点（该基准点的选取可能影响快速排序的效率，后面讲解选取的方法），然后分别从数组的两端扫描数组，设两个指示标志（lo指向起始位置，hi指向末尾)，首先从后半部分开始，如果发现有元素比该基准点的值小，就交换lo和hi位置的值，然后从前半部分开始扫秒，发现有元素大于基准点的值，就交换lo和hi位置的值，如此往复循环，直到lo&gt;=hi,然后把基准点的值放到hi这个位置。一次排序就完成了。以后采用递归的方式分别对前半部分和后半部分排序，当前半部分和后半部分均有序时该数组就自然有序了。</p>
-<p>例子：<br>待划分数据：7, 6, 9, 8, 5,1，假设阈值为5<br>第一轮：左指针指向7，右指针指向1，左指针向后移，右指针向左移，发现左面第一个大于5的元素7，右面第一个小于5的元素1，交换7和1的位置，结果：1,6,9,8,5,7；<br>第二轮：从6开始找大于5的数字，找到6，右边从5起找小于5的数字，找到1，但此时由于6在1的右面，，即右指针&lt;左指针，左右指针交叉，此时划分结束。原数列被划分为两部分，左侧子数列只有一个元素，即为1，其为小于阈值的子数列；右侧子数列包括5个元素，均为大于阈值5的元素。</p>
-<p>对于基准位置的选取一般有三种方法：固定切分，随机切分和三取样切分。固定切分的效率并不是太好，随机切分是常用的一种切分，效率比较高，最坏情况下时间复杂度有可能为O(N2).对于三数取中选择基准点是最理想的一种。<br>三数取中切分：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public static int partition(int []array,int lo,int hi)&#123;</span><br><span class="line">    //三数取中</span><br><span class="line">    int mid=lo+(hi-lo)/2;</span><br><span class="line">    if(array[mid]&gt;array[hi])&#123;</span><br><span class="line">        swap(array[mid],array[hi]);</span><br><span class="line">    &#125;</span><br><span class="line">    if(array[lo]&gt;array[hi])&#123;</span><br><span class="line">        swap(array[lo],array[hi]);</span><br><span class="line">    &#125;</span><br><span class="line">    if(array[mid]&gt;array[lo])&#123;</span><br><span class="line">        swap(array[mid],array[lo]);</span><br><span class="line">    &#125;</span><br><span class="line">    int key=array[lo];</span><br><span class="line">    </span><br><span class="line">    while(lo&lt;hi)&#123;</span><br><span class="line">        while(array[hi]&gt;=key&amp;&amp;hi&gt;lo)&#123;//从后半部分向前扫描</span><br><span class="line">            hi--;</span><br><span class="line">        &#125;</span><br><span class="line">        array[lo]=array[hi];</span><br><span class="line">        while(array[lo]&lt;=key&amp;&amp;hi&gt;lo)&#123;//从前半部分向后扫描</span><br><span class="line">            lo++;</span><br><span class="line">        &#125;</span><br><span class="line">        array[hi]=array[lo];</span><br><span class="line">    &#125;</span><br><span class="line">    array[hi]=key;</span><br><span class="line">    return hi;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void swap(int a,int b)&#123;</span><br><span class="line">    int temp=a;</span><br><span class="line">    a=b;</span><br><span class="line">    b=temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void sort(int[] array,int lo ,int hi)&#123;</span><br><span class="line">    if(lo&gt;=hi)&#123;</span><br><span class="line">        return ;</span><br><span class="line">    &#125;</span><br><span class="line">    int index=partition(array,lo,hi);</span><br><span class="line">    sort(array,lo,index-1);</span><br><span class="line">    sort(array,index+1,hi);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>1、快速排序的时间复杂度为O(NlogN).<br>2、快速排序在序列中元素很少时，效率将比较低，因此一般在序列中元素很少时使用插入排序，这样可以提高整体效率。</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><p>原理：<br>归并排序（Merge）是将两个（或两个以上）有序表合并成一个新的有序表。即把待排序序列分为若干个子序列，每个子序列是有序的，然后再把有序子序列合并为整体有序序列。</p>
-<p>归并排序是建立在归并操作上的一种有效的排序算法。该算法是采用分治法（Divide and Conquer）的一个非常典型的应用。 将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。若将两个有序表合并成一个有序表，称为2-路归并。</p>
-<p>每个递归过程涉及三个步骤:<br>第一, 分解: 把待排序的 n 个元素的序列分解成两个子序列, 每个子序列包括 n/2 个元素.<br>第二, 治理: 对每个子序列分别调用归并排序MergeSort, 进行递归操作<br>第三, 合并: 合并两个排好序的子序列,生成排序结果.</p>
-<p>示例如下图：<br><img src="/2019/10/21/ds-sort/sort-merge.jpg" alt></p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public static int[] sort(int[] a,int low,int high)&#123;</span><br><span class="line">    int mid = (low+high)/2;</span><br><span class="line">    if(low&lt;high)&#123;</span><br><span class="line">        sort(a,low,mid);</span><br><span class="line">        sort(a,mid+1,high);</span><br><span class="line">        //左右归并</span><br><span class="line">        merge(a,low,mid,high);</span><br><span class="line">    &#125;</span><br><span class="line">    return a;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">public static void merge(int[] a, int low, int mid, int high) &#123;</span><br><span class="line">    int[] temp = new int[high-low+1];</span><br><span class="line">    int i= low;</span><br><span class="line">    int j = mid+1;</span><br><span class="line">    int k=0;</span><br><span class="line">    // 把较小的数先移到新数组中</span><br><span class="line">    while(i&lt;=mid &amp;&amp; j&lt;=high)&#123;</span><br><span class="line">        if(a[i]&lt;a[j])&#123;</span><br><span class="line">            temp[k++] = a[i++];</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            temp[k++] = a[j++];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // 把左边剩余的数移入数组 </span><br><span class="line">    while(i&lt;=mid)&#123;</span><br><span class="line">        temp[k++] = a[i++];</span><br><span class="line">    &#125;</span><br><span class="line">    // 把右边边剩余的数移入数组</span><br><span class="line">    while(j&lt;=high)&#123;</span><br><span class="line">        temp[k++] = a[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    // 把新数组中的数覆盖nums数组</span><br><span class="line">    for(int x=0;x&lt;temp.length;x++)&#123;</span><br><span class="line">        a[x+low] = temp[x];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>（1）稳定性：归并排序是一种稳定的排序。<br>（2）存储结构要求：可用顺序存储结构。也易于在链表上实现。<br>（3）时间复杂度：对长度为n的文件，需进行趟二路归并，每趟归并的时间为O(n)，故其时间复杂度无论是在最好情况下还是在最坏情况下均是O(nlogn)。<br>（4）空间复杂度：需要一个辅助向量来暂存两有序子文件归并的结果，故其辅助空间复杂度为O(n)，显然它不是就地排序。<br> 注意：若用单链表做存储结构，很容易给出就地的归并排序</p>
-<h2 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h2><p>希尔排序(Shell Sort)是插入排序的一种，是针对直接插入排序算法的改进，是将整个无序列分割成若干小的子序列分别进行插入排序，希尔排序并不稳定。该方法又称<strong>缩小增量排序</strong>，因DL．Shell于1959年提出而得名。</p>
-<p>原理：<br>先取一个小于n的整数d1作为第一个增量，把文件的全部记录分成d1个组。所有距离为d1的倍数的记录放在同一个组中。先在各组内进行直接插入排序；然后，取第二个增量d2&lt;d1重复上述的分组和排序，直至所取的增量dt=1(dt&lt;dt-l&lt;…&lt;d2&lt;d1)，即所有记录放在同一组中进行直接插入排序为止。</p>
-<p>Shell排序的执行时间依赖于增量序，好的增量序列的共同特征：<br>① 最后一个增量必须为1；<br>② 应该尽量避免序列中的值(尤其是相邻的值)互为倍数的情况。       </p>
-<p>希尔排序的时间性能优于直接插入排序的原因：<br>①当文件初态基本有序时直接插入排序所需的比较和移动次数均较少。<br>②当n值较小时，n和n2的差别也较小，即直接插入排序的最好时间复杂度O(n)和最坏时间复杂度O(n2)差别不大。<br>③在希尔排序开始时增量较大，分组较多，每组的记录数目少，故各组内直接插入较快，后来增量di逐渐缩小，分组数逐渐减少，而各组的记录数目逐渐增多，但由于已经按di-1作为距离排过序，使文件较接近于有序状态，所以新的一趟排序过程也较快。<br>因此，希尔排序在效率上较直接插人排序有较大的改进。       </p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public static void shellSort(int[] a)&#123;</span><br><span class="line">    double gap = a.length;//增量长度</span><br><span class="line">    int dk,sentinel,k;</span><br><span class="line">    while(true)&#123;</span><br><span class="line">        gap = (int)Math.ceil(gap/2);//逐渐减小增量长度</span><br><span class="line">        dk = (int)gap;//确定增量长度 </span><br><span class="line">        for(int i=0;i&lt;dk;i++)&#123;</span><br><span class="line">            //用增量将序列分割，分别进行直接插入排序。随着增量变小为1，最后整体进行直接插入排序</span><br><span class="line">            for(int j=i+dk;j&lt;a.length;j = j+dk)&#123;</span><br><span class="line">                k = j-dk;</span><br><span class="line">                sentinel = a[j];</span><br><span class="line">                while(k&gt;=0 &amp;&amp; sentinel&lt;a[k])&#123;</span><br><span class="line">                    a[k+dk] = a[k];</span><br><span class="line">                    k = k-dk;</span><br><span class="line">                &#125;</span><br><span class="line">                a[k+dk] = sentinel;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        //当dk为1的时候，整体进行直接插入排序  </span><br><span class="line">        if(dk==1)&#123;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>1、希尔排序的关键并不是随便分组后各自排序，而是将相隔某个“增量”的记录组成一个子序列，实现跳跃式移动，使得排序的效率提高。<br>2、需要注意的是，增量序列的最后一个增量值必须等于1才行。<br>3、由于记录是跳跃式的移动，希尔排序中相等数据可能会交换位置，所以希尔排序是不稳定的算法。<br>4、希尔排序最重要的地方在于当用较小步长排序后，以前用的较大步长仍然是有序的。<br>5、希尔排序最好时间复杂度和平均时间复杂度都是O(nlogn)，最坏时间复杂度为O(n2)。</p>
-<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><p>对简单选择排序的优化。堆排序是一种树形选择排序方法，它的特点是：在排序的过程中，将array[0，…，n-1]看成是一颗完全二叉树的顺序存储结构，利用完全二叉树中双亲节点和孩子结点之间的内在关系，在当前无序区中选择关键字最大（最小）的元素。</p>
-<p>堆的定义：<br>n个关键字序列array[0，…，n-1]，当且仅当满足下列要求：(0 &lt;= i &lt;= (n-1)/2)时<br>① array[i] &lt;= array[2<em>i + 1] 且 array[i] &lt;= array[2</em>i + 2]； 称为小根堆；<br>② array[i] &gt;= array[2<em>i + 1] 且 array[i] &gt;= array[2</em>i + 2]； 称为大根堆；</p>
-<p>步骤如下：<br>1、将序列构建成大顶堆。<br>2、将根节点与最后一个节点交换，然后断开最后一个节点。<br>3、重复第一、二步，直到所有节点断开。<br><img src="/2019/10/21/ds-sort/sort-heap.png" alt></p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 构建大顶堆</span><br><span class="line"> */</span><br><span class="line">public static void adjustHeap(int[] a, int i, int len) &#123;</span><br><span class="line">    int temp, j;</span><br><span class="line">    temp = a[i];</span><br><span class="line">    for (j = 2 * i; j &lt; len; j *= 2) &#123;// 沿关键字较大的孩子结点向下筛选</span><br><span class="line">        if (j &lt; len &amp;&amp; a[j] &lt; a[j + 1])</span><br><span class="line">            ++j; // j为关键字中较大记录的下标</span><br><span class="line">        if (temp &gt;= a[j])</span><br><span class="line">            break;</span><br><span class="line">        a[i] = a[j];</span><br><span class="line">        i = j;</span><br><span class="line">    &#125;</span><br><span class="line">    a[i] = temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void heapSort(int[] a) &#123;</span><br><span class="line">    int i;</span><br><span class="line">    for (i = a.length / 2 - 1; i &gt;= 0; i--) &#123;// 构建一个大顶堆</span><br><span class="line">        adjustHeap(a, i, a.length - 1);</span><br><span class="line">    &#125;</span><br><span class="line">    for (i = a.length - 1; i &gt;= 0; i--) &#123;// 将堆顶记录和当前未经排序子序列的最后一个记录交换</span><br><span class="line">        int temp = a[0];</span><br><span class="line">        a[0] = a[i];</span><br><span class="line">        a[i] = temp;</span><br><span class="line">        adjustHeap(a, 0, i - 1);// 将a中前i-1个记录重新调整为大顶堆</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>1、空间复杂度:o(1)；<br>2、时间复杂度:建堆：o(n)，每次调整o(log n)，故最好、最坏、平均情况下：o(n*logn);<br>3、稳定性：不稳定</p>
-<h2 id="计数排序"><a href="#计数排序" class="headerlink" title="计数排序"></a>计数排序</h2><p>原理:<br>对每一个输入的元素arr[i]，确定小于 arr[i] 的元素个数。<br>所以可以直接把 arr[i] 放到它输出数组中的位置上。假设有5个数小于 arr[i]，所以 arr[i] 应该放在数组的第6个位置上。</p>
-<p>示例如下：<br>需要三个数组:<br>待排序数组 int[] arr = new int[]{4,3,6,3,5,1};<br>辅助计数数组 int[] help = new int[max - min + 1]; //该数组大小为待排序数组中的最大值减最小值+1<br>输出数组 int[] res = new int[arr.length];<br>1.求出待排序数组的最大值max=6， 最小值min=1<br>2.实例化辅助计数数组help， help用来记录每个元素之前出现的元素个数， 此时help = [1,0,2,1,1,1]<br>3.计算 arr 每个数字应该在排序后数组中应该处于的位置，此时 help = [1,1,4,5,6,7];<br>4.根据 help 数组求得排序后的数组，此时 res = [1,3,3,4,5,6]</p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">public static int[] countSort(int[] arr)&#123;</span><br><span class="line">  int max = Integer.MIN_VALUE;</span><br><span class="line">  int min = Integer.MAX_VALUE;</span><br><span class="line">   </span><br><span class="line">  //找出数组中的最大最小值</span><br><span class="line">  for(int i = 0; i &lt; arr.length; i++)&#123;</span><br><span class="line">    max = Math.max(max, arr[i]);</span><br><span class="line">    min = Math.min(min, arr[i]);</span><br><span class="line">  &#125;</span><br><span class="line">   </span><br><span class="line">  int[] help = new int[max - min + 1];</span><br><span class="line">   </span><br><span class="line">  //找出每个数字出现的次数</span><br><span class="line">  for(int i = 0; i &lt; arr.length; i++)&#123;</span><br><span class="line">    int mapPos = arr[i] - min;</span><br><span class="line">    help[mapPos]++;</span><br><span class="line">  &#125;</span><br><span class="line">   </span><br><span class="line">  //计算每个数字应该在排序后数组中应该处于的位置</span><br><span class="line">  for(int i = 1; i &lt; help.length; i++)&#123;</span><br><span class="line">    help[i] = help[i-1] + help[i];</span><br><span class="line">  &#125;</span><br><span class="line">   </span><br><span class="line">  //根据help数组进行排序</span><br><span class="line">  int res[] = new int[arr.length];</span><br><span class="line">  for(int i = 0; i &lt; arr.length; i++)&#123;</span><br><span class="line">    int post = --help[arr[i] - min];</span><br><span class="line">    res[post] = arr[i];</span><br><span class="line">  &#125;</span><br><span class="line">   </span><br><span class="line">  return res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>1、计数排序是一种拿空间换时间的排序算法，它仅适用于数据比较集中的情况。比如 [0~100]，[10000~19999] 这样的数据。<br>2、只能是整形数组。<br>3、数组元素必须都大于0。</p>
-<h2 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h2><p>原理：<br>把数组 arr 划分为n个大小相同子区间（桶），每个子区间各自排序，最后合并 。<br>计数排序是桶排序的一种特殊情况，可以把计数排序当成每个桶里只有一个元素的情况。</p>
-<p>步骤如下：<br>1.找出待排序数组中的最大值max、最小值min<br>2.我们使用 动态数组ArrayList 作为桶，桶里放的元素也用 ArrayList 存储。桶的数量为(max-min)/arr.length+1<br>3.遍历数组 arr，计算每个元素 arr[i] 放的桶<br>4.每个桶各自排序<br>5.遍历桶数组，把排序好的元素放进输出数组</p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public static void bucketSort(int[] arr)&#123;</span><br><span class="line">	int max = Integer.MIN_VALUE;</span><br><span class="line">	int min = Integer.MAX_VALUE;</span><br><span class="line">	for(int i = 0; i &lt; arr.length; i++)&#123;</span><br><span class="line">		max = Math.max(max, arr[i]);</span><br><span class="line">		min = Math.min(min, arr[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	//桶数</span><br><span class="line">	int bucketNum = (max - min) / arr.length + 1;</span><br><span class="line">	ArrayList&lt;ArrayList&lt;Integer&gt;&gt; bucketArr = new ArrayList&lt;&gt;(bucketNum);</span><br><span class="line">	for(int i = 0; i &lt; bucketNum; i++)&#123;</span><br><span class="line">		bucketArr.add(new ArrayList&lt;Integer&gt;());</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	//将每个元素放入桶</span><br><span class="line">	for(int i = 0; i &lt; arr.length; i++)&#123;</span><br><span class="line">		int num = (arr[i] - min) / (arr.length);</span><br><span class="line">		bucketArr.get(num).add(arr[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	//对每个桶进行排序</span><br><span class="line">	for(int i = 0; i &lt; bucketArr.size(); i++)&#123;</span><br><span class="line">		Collections.sort(bucketArr.get(i));// 对每个桶进行排序，这里使用了Collections.sort</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    //将桶中元素全部取出来并放入 arr 中输出</span><br><span class="line">	int index = 0;</span><br><span class="line">	for (ArrayList&lt;Integer&gt; bucket : bucketArr) &#123;</span><br><span class="line">	    for (Float data : bucket) &#123;</span><br><span class="line">	        arr[index++] = data;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>分析：<br>1、桶排序可用于最大最小值相差较大的数据情况，比如[9012,19702,39867,68957,83556,102456]。<br>2、但桶排序要求数据的分布必须均匀，否则可能导致数据都集中到一个桶中。比如[104,150,123,132,20000], 这种数据会导致前4个数都集中到同一个桶中。导致桶排序失效。<br>3、桶排序最好情况下使用线性时间O(n)，桶排序的时间复杂度，取决与对各个桶之间数据进行排序的时间复杂度，因为其它部分的时间复杂度都为O(n)。很显然，桶划分的越小，各个桶之间的数据越少，排序所用的时间也会越少。但相应的空间消耗就会增大。 </p>
-<h2 id="基数排序"><a href="#基数排序" class="headerlink" title="基数排序"></a>基数排序</h2><p>基数排序（Radix Sort）分为两种：第一种是LSD ，从最低位开始排序， 第二种是 MSD 从最高位开始排。这里介绍第一种LSD排序算法。<br>首先，我们先了解什么是基数。基数是根据具体的排序情况而定的，比如我们常见的基数是十进制-10，还有二进制-2。</p>
-<p>原理：<br>基数排序的总体思路就是将待排序数据拆分成多个关键字进行排序，也就是说，基数排序的实质是<strong>多关键字排序</strong>。通过对每一个位上的值相排序，就可以完成对整个数组的排序。</p>
-<p>步骤如下：<br>1、遍历所有数组元素，找出元素最大的位值<br>2、从低位到高位把数组元素上的位值存入链表中<br>3、遍历所有链表，将链表里面的值重新赋值给数组，再清空链表。</p>
-<p>示例如下：<br>例如：对数组int[ ]  data = {421, 240, 35, 532, 305, 430, 124}；<br>1、进行排序，首先我们要做的是对个位上的数值进行排序。<br>第一遍排序的结果为：　　240 430 421 532 124 35 305<br>2、再进行十位上的数值排序：<br>第二遍排序的结果为：　　305 421 124 430 532 35 240<br>3、再进行百位上的数值排序：<br>第三遍排序的结果为：　　35 124 240 305 421 430 532<br>最后我们的到的排序结果就是： 35 124 240 305 421 430 532 </p>
-<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//实现基数排序</span><br><span class="line">public void radixSort(int[] data) &#123;</span><br><span class="line">    int maxBin = maxBin(data);</span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; list = new ArrayList&lt;List&lt;Integer&gt;&gt;();</span><br><span class="line">    for(int i  = 0; i &lt; 10; i ++) &#123;</span><br><span class="line">        list.add(new ArrayList&lt;Integer&gt;());</span><br><span class="line">    &#125;</span><br><span class="line">    for(int i = 0, factor = 1; i &lt; maxBin; factor *= 10, i ++) &#123;</span><br><span class="line">        for(int j = 0; j &lt; data.length; j ++) &#123;</span><br><span class="line">            list.get((data[j]/factor)%10).add(data[j]);</span><br><span class="line">        &#125;</span><br><span class="line">        for(int j = 0, k = 0; j &lt; list.size(); j ++) &#123;</span><br><span class="line">            while(!list.get(j).isEmpty()) &#123;</span><br><span class="line">                data[k] = list.get(j).get(0);</span><br><span class="line">                list.get(j).remove(0);</span><br><span class="line">                k ++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//计算数组里元素的最大位数</span><br><span class="line">public int maxBin(int[] data) &#123;</span><br><span class="line">    int maxLen = 0;</span><br><span class="line">    for(int i = 0; i &lt; data.length; i ++) &#123;</span><br><span class="line">        int size = Integer.toString(data[i]).length();</span><br><span class="line">        maxLen =  size &gt; maxLen ? size : maxLen;</span><br><span class="line">    &#125;</span><br><span class="line">    return maxLen;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>算法分析：<br>1、基数排序基于分别排序，分别收集，所以是稳定的。但基数排序的性能比桶排序要略差，每一次关键字的桶分配都需要O(n)的时间复杂度，而且分配之后得到新的关键字序列又需要O(n)的时间复杂度。假如待排数据可以分为d个关键字，则基数排序的时间复杂度将是O(d*2n) ，当然d要远远小于n，因此基本上还是线性级别的。<br>2、基数排序的空间复杂度为O(n+k)，其中k为桶的数量。一般来说n&gt;&gt;k，因此额外空间需要大概n个左右。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="/2019/10/21/ds-sort/sort-time.png" alt title="算法复杂度"></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/onepixel/articles/7674659.html" target="_blank" rel="noopener">十大经典排序算法（动图演示）</a><br><a href="https://www.runoob.com/w3cnote/java-sorting-algorithm-analysis-and-implementation.html" target="_blank" rel="noopener">Java 排序算法分析与实现</a><br><a href="https://www.cnblogs.com/coderising/p/5708801.html" target="_blank" rel="noopener">快速排序</a><br><a href="https://www.cnblogs.com/of-fanruice/p/7678801.html" target="_blank" rel="noopener">Java实现归并排序</a><br><a href="https://www.cnblogs.com/of-fanruice/p/7674593.html" target="_blank" rel="noopener">Java实现希尔排序</a><br><a href="https://www.cnblogs.com/zer0Black/p/6169858.html" target="_blank" rel="noopener">计数排序和桶排序（Java实现）</a><br><a href="https://www.cnblogs.com/ranter/p/9197983.html" target="_blank" rel="noopener">数据结构Java版之基数排序（四）</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/21/design-mode-prototype/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/21/design-mode-prototype/" itemprop="url">原型模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-21T11:03:21+08:00">
-                2019-10-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>原型模式属于对象的创建模式：<strong>通过给出一个原型对象来指明所有创建的对象的类型，然后用复制这个原型对象的办法创建出更多同类型的对象</strong>。</p>
-<h2 id="原型模式的结构"><a href="#原型模式的结构" class="headerlink" title="原型模式的结构"></a>原型模式的结构</h2><p>原型模式要求对象实现一个可以“克隆”自身的接口，这样就可以通过复制一个实例对象本身来创建一个新的实例。这样一来，通过原型实例创建新的对象，就不再需要关心这个实例本身的类型，只要实现了克隆自身的方法，就可以通过这个方法来获取新的对象，而无须再去通过new来创建。</p>
-<p><img src="/2019/10/21/design-mode-prototype/prototype.png" alt></p>
-<p>这种形式涉及到三个角色：<br>（1）客户(Client)角色：客户类提出创建对象的请求。<br>（2）抽象原型(Prototype)角色：这是一个抽象角色，通常由一个Java接口或Java抽象类实现。此角色给出所有的具体原型类所需的接口。<br>（3）具体原型（Concrete Prototype）角色：被复制的对象。此角色需要实现抽象的原型角色所要求的接口。</p>
-<h2 id="浅克隆与深克隆"><a href="#浅克隆与深克隆" class="headerlink" title="浅克隆与深克隆"></a>浅克隆与深克隆</h2><p>浅克隆只是复制了基础属性，列如八大基本类型，然而引用类型实际上没有复制，只是将对应的引用给复制了。</p>
-<p>简单的说：如果一个对象中只有基本类型属性，那深克隆和浅克隆效果都是一样的，基本类型数据不管是用深克隆还是浅克隆都会被克隆出一份，但如果对象中包含引用对象属性，那浅克隆其实这是拷贝了一份引用，而深克隆确实把整个引用对象都拷贝了一份。</p>
-<h2 id="原型模式的优点"><a href="#原型模式的优点" class="headerlink" title="原型模式的优点"></a>原型模式的优点</h2><p>（1）根据客户端要求实现动态创建对象，客户端不需要知道对象的创建细节，便于代码的维护和扩展。</p>
-<p>（2）使用原型模式创建对象比直接new一个对象在性能上要好的多，因为Object类的clone方法是一个本地方法，它直接操作内存中的二进制流，特别是<strong>复制大对象时</strong>，性能的差别非常明显。所以在<strong>需要重复地创建相似对象时</strong>可以考虑使用原型模式。比如需要在一个循环体内创建对象，假如对象创建过程比较复杂或者循环次数很多的话，使用原型模式不但可以简化创建过程，而且可以使系统的整体性能提高很多。</p>
-<p>（3）原型模式类似于工厂模式，但它没有了工厂模式中的抽象工厂和具体工厂的实现，代码结构更清晰和简单。</p>
-<p>（4）可用于<strong>保护性拷贝</strong>，避免原始的对象被外部修改。</p>
-<h2 id="原型模式的注意事项"><a href="#原型模式的注意事项" class="headerlink" title="原型模式的注意事项"></a>原型模式的注意事项</h2><p>（1）使用原型模式复制对象不会调用类的构造方法。因为对象的复制是通过调用Object类的clone方法来完成的，它直接在内存中复制数据，因此不 会调用到类的构造方法。不但构造方法中的代码不会执行，甚至连访问权限都对原型模式无效。还记得单例模式吗？单例模式中，只要将构造方法的访问权限设置为 private型，就可以实现单例。但是clone方法直接无视构造方法的权限，所以，单例模式与原型模式是冲突的。</p>
-<p>（2）在使用时要注意深拷贝与浅拷贝的问题。clone方法只会拷贝对象中的基本的数据类型，对于数组、容器对象、引用对象等都不会拷贝，这就是浅拷贝。如果要实现深拷贝，必须将原型模式中的数组、容器对象、引用对象等另行拷贝。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1940,7 +1885,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1951,7 +1896,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
