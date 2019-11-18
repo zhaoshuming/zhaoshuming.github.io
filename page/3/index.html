@@ -293,6 +293,323 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/17/design-mode-singleton/" itemprop="url">单例模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T16:17:38+08:00">
+                2019-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。）</p>
+<p>主要优点：<br>1、提供了对唯一实例的受控访问。<br>2、由于在系统内存中只存在一个对象，因此可以节约系统资源，对于一些需要频繁创建和销毁的对象单例模式无疑可以提高系统的性能。<br>3、允许可变数目的实例。</p>
+<p>主要缺点：<br>1、由于单例模式中没有抽象层，因此单例类的扩展有很大的困难。<br>2、单例类的职责过重，在一定程度上违背了“单一职责原则”。<br>3、滥用单例将带来一些负面问题，如为了节省资源将数据库连接池对象设计为的单例类，可能会导致共享连接池对象的程序过多而出现连接池溢出；如果实例化的对象长时间不被利用，系统会认为是垃圾而被回收，这将导致对象状态的丢失。</p>
+<p>以下列出单例模式的几种写法及单例模式的漏洞解决方案：</p>
+<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><p>类初始化时创建对象，不管需不需要实例对象，都会创建。不存在线程安全问题，因为实例是在类创建和初始化时创建，是由类加载器完成的，类加载器是线程安全的。</p>
+<p>缺点，无法延时加载,没有使用就已经加载了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static final Singleton mInstance = new Singleton();</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>优化了恶汉式无法延迟加载的问题。<br>缺点：存在同步问题，多线程并发的时候会失效，getInstance不同步。比如：一个线程在创建mInstance时，还未创建完成，另一个线程访问mInstance此时还是为空，又创建了一次。</p>
+<p>对懒汉式的优化，主要是在线程安全方面，使用synchronized关键字或同步代码块修饰，使得同时只能有一个线程访问。但存在性能缺陷的，因为使用了synchronized关键字。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static Singleton mInstance;</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123;</span><br><span class="line">            mInstance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="DCL双重检查锁"><a href="#DCL双重检查锁" class="headerlink" title="DCL双重检查锁"></a>DCL双重检查锁</h2><p>DCL双重检查锁，是对第三种方法性能缺陷的优化。</p>
+<p>DCL双重检查锁仅在真正创建mInstance实例的时候加上了synchronized关键字。而且使用volatile关键字修饰，是为了禁止编译器对volatile变量重排序，并且保证volatile变量的读操作发生在写操作之后。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static volatile Singleton mInstance =null; //volatile关键字是为了禁止编译器对 volatile关键字修饰的变量进行重排序，并保证volatile变量的读操作发生在写操作之后</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123; //第一次检查</span><br><span class="line">            synchronized (Singleton.class)&#123; //同步代码块</span><br><span class="line">                if(mInstance == null)&#123; //第二次检查</span><br><span class="line">                    mInstance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h2><p>利用static final关键字的同步机制，初始化后就无法修改保证了线程安全。使用静态内部类的方式保证了延迟加载，不使用不会被加载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123; //完成了懒汉式的延迟加载，同时static保证了线程安全。</span><br><span class="line"> </span><br><span class="line">    private  Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getIntance()&#123;</span><br><span class="line">        return SingletonHolder.mIntance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    private static class SingletonHolder&#123; //私有的，初始化的时候，没有调用getIntance方法则不会加载</span><br><span class="line">        private static final Singleton mIntance = new Singleton();  //static,final是jvm提供的同步机制，初始化后就无法修改了</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="枚举（推荐用法）"><a href="#枚举（推荐用法）" class="headerlink" title="枚举（推荐用法）"></a>枚举（推荐用法）</h2><p>1.简洁<br>2.线程安全<br>3.可以防止反射注入,反序列化它也不会重新生成新的实例</p>
+<p>所有的枚举类型隐性地继承自java.lang.Enum 。枚举实质上还是类！而每个枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final 修饰的。可以直接通过枚举类型名使用它们。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line"></span><br><span class="line">  INSTANCE;</span><br><span class="line"></span><br><span class="line">  public void doSomething()&#123;</span><br><span class="line">     System.out.println(&quot;do sth.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="单例模式存在的漏洞"><a href="#单例模式存在的漏洞" class="headerlink" title="单例模式存在的漏洞"></a>单例模式存在的漏洞</h2><p>1、 通过反射获取单例对象</p>
+<p>我们观察反射获取单例的代码，发现它还是调用了私有的构造方法获取对象【声明为私有的构造方法就是为了不让类外直接new对象】。如果只让私有的构造器只能调用一次就可以避免反射。</p>
+<p>2、 反序列化获得单例模式对象</p>
+<p>传统的单例模式的另外一个问题是一旦你实现了serializable接口，他们就不再是单例的了，因为readObject()方法总是返回一个 新的实例对象，就像java中的构造器一样。如果定义了readResolve()则直接返回此方法指定的对象，而不需要再创建新的对象！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 序列化必须实现Serializable接口，否则序列化时会报错</span><br><span class="line"> */</span><br><span class="line">public class Singleton implements Serializable&#123;</span><br><span class="line">     </span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"> </span><br><span class="line">    private static Singleton sl;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    private Singleton() &#123;</span><br><span class="line">        //如果sl不为空即这不是第一次调用该构造器</span><br><span class="line">        if(sl != null)</span><br><span class="line">            throw new RuntimeException();</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    public static Singleton getInstance() &#123;</span><br><span class="line">        if(sl == null) &#123;</span><br><span class="line">            sl = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return sl;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    /**</span><br><span class="line">     * 反序列化时，如果定义了readResolve()则直接返回此方法指定的对象，而不需要在创建新的对象！</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    private Object readResolve() &#123; </span><br><span class="line">        return getInstance(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d9d9dcf23359" target="_blank" rel="noopener">为什么说枚举是最好的Java单例实现方法？</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/17/design-mode-principle/" itemprop="url">面向对象7大原则</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T15:51:03+08:00">
+                2019-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>这 7 种设计原则是软件设计模式必须尽量遵循的原则，各种原则要求的侧重点不同。其中，开闭原则是总纲，它告诉我们要对扩展开放，对修改关闭；里氏替换原则告诉我们不要破坏继承体系；依赖倒置原则告诉我们要面向接口编程；单一职责原则告诉我们实现类要职责单一；接口隔离原则告诉我们在设计接口的时候要精简单一；迪米特法则告诉我们要降低耦合度；合成复用原则告诉我们要优先使用组合或者聚合关系复用，少用继承关系复用。</p>
+<h2 id="单一职责原则-Single-Responsibility-Principle"><a href="#单一职责原则-Single-Responsibility-Principle" class="headerlink" title="单一职责原则(Single Responsibility Principle)"></a>单一职责原则(Single Responsibility Principle)</h2><p>它的定义是：就一个类而言，应该仅有一个引起它变化的原因。简单来说，一个类中应该是一组相关性很高的函数、数据的封装。</p>
+<h2 id="开闭原则-Open-Close-Principle"><a href="#开闭原则-Open-Close-Principle" class="headerlink" title="开闭原则(Open Close Principle)"></a>开闭原则(Open Close Principle)</h2><p>它是Java世界里最基础的设计原则，它指导我们如何建立一个稳定的、灵活的系统。开闭原则的定义是：软件中的对象（类、模块、函数等）应该对于扩展是开放的，但是，对于修改是封闭的。</p>
+<p>一个对象对扩展开放，对修改关闭。意思就是说对类的改动是通过增加代码进行的，而不是改动现有代码。通俗的说，开发人员一旦写出了可以运行的代码，就不应该去改变它，而是要保证他能一直运行下去。</p>
+<h2 id="里式转换原则-Liskov-Substitution-Principle"><a href="#里式转换原则-Liskov-Substitution-Principle" class="headerlink" title="里式转换原则(Liskov Substitution Principle)"></a>里式转换原则(Liskov Substitution Principle)</h2><p>我们知道，面向对象的语言的三大特点是继承、封装、多态，里氏替换原则就是依赖于继承、多态这两大特性。里氏替换原则简单来说就是，所有引用基类的地方必须能透明地使用其子类的对象。通俗点讲，<strong>只要父类能出现的地方子类就可以出现</strong>。但是，反过来就不行了，有子类出现的地方，父类未必就能适应。</p>
+<p>关于里氏转换原则，总结出两点：<br>1、子类对象可以隐式转换为父类对象。<br>2、如果父类对象由子类的构造函数实例化出来，那么这个父类对象可以强制转换为该子类对象。</p>
+<h2 id="依赖倒置原则-Dependence-Inversion-Principle"><a href="#依赖倒置原则-Dependence-Inversion-Principle" class="headerlink" title="依赖倒置原则(Dependence Inversion Principle)"></a>依赖倒置原则(Dependence Inversion Principle)</h2><p>要依赖于抽象，不要依赖于具体的实现。在开发过程中，所有的类如果需求调用其它的类，就应该调用该类的接口或者抽象类，而不是直接调用该类的实现类。</p>
+<p>依赖反转原则指代了一种特定的解耦形式，高层模块不依赖低层次模块的细节，说白了高层次就是不依赖细节(实现)而是依赖抽象。</p>
+<h2 id="接口隔离原则-Interface-Segregation-Principles"><a href="#接口隔离原则-Interface-Segregation-Principles" class="headerlink" title="接口隔离原则(Interface Segregation Principles)"></a>接口隔离原则(Interface Segregation Principles)</h2><p>它的定义是：客户端不应该依赖它不需要的接口。另一种定义是：类间的依赖关系应该建立在最小的接口上。接口隔离原则将非常庞大、臃肿的接口拆分成为更小的和更具体的接口，这样客户将会只需要知道他们感兴趣的方法。接口隔离原则的目的是系统解开耦合，从而容易重构、更改和重新部署，让客户端依赖的接口尽可能地小。</p>
+<p>不应该强迫客户端程序依赖它们不需要使用的方法。不要让某个类继承了接口后，这个类拥有了一部分它不应该拥有的功能接口函数。也就是说我们在定义接口时，应该尽量使接口小巧明确，只具备一种对外功能，毕竟一个类可以继承多个接口，这并不影响我们写代码。</p>
+<h2 id="迪米特原则-Law-of-Demeter"><a href="#迪米特原则-Law-of-Demeter" class="headerlink" title="迪米特原则(Law of Demeter)"></a>迪米特原则(Law of Demeter)</h2><p>又称为最少知识原则：一个对象应该对其他对象有最少的了解。通俗地讲，一个类应该对自己需要耦合或调用的类知道得最少，类的内部如何实现、如何复杂都与调用者或者依赖者没关系，调用者或者依赖者只需要知道他需要的方法即可，其他的我一概不关心。类与类之间的关系越密切，耦合度越大，当一个类发生改变时，对另一个类的影响也越大。</p>
+<h2 id="合成复用原则-Composite-Reuse-Principle"><a href="#合成复用原则-Composite-Reuse-Principle" class="headerlink" title="合成复用原则(Composite Reuse Principle)"></a>合成复用原则(Composite Reuse Principle)</h2><p>合成复用原则（Composite Reuse Principle，CRP）又叫组合/聚合复用原则（Composition/Aggregate Reuse Principle，CARP）。它要求在软件复用时，要尽量先使用组合或者聚合等关联关系来实现，其次才考虑使用继承关系来实现。</p>
+<p>如果要使用继承关系，则必须严格遵循里氏替换原则。合成复用原则同里氏替换原则相辅相成的，两者都是开闭原则的具体实现规范。</p>
+<p>通常类的复用分为继承复用和合成复用两种，继承复用虽然有简单和易实现的优点，但它也存在以下缺点:<br>1.继承复用破坏了类的封装性。因为继承会将父类的实现细节暴露给子类，父类对子类是透明的，所以这种复用又称为“白箱”复用。<br>2.子类与父类的耦合度高。父类的实现的任何改变都会导致子类的实现发生变化，这不利于类的扩展与维护。<br>3.它限制了复用的灵活性。从父类继承而来的实现是静态的，在编译时已经定义，所以在运行时不可能发生变化。</p>
+<p>采用组合或聚合复用时，可以将已有对象纳入新对象中，使之成为新对象的一部分，新对象可以调用已有对象的功能，它有以下优点:<br>1.它维持了类的封装性。因为成分对象的内部细节是新对象看不见的，所以这种复用又称为“黑箱”复用。<br>2.新旧类之间的耦合度低。这种复用所需的依赖较少，新对象存取成分对象的唯一方法是通过成分对象的接口。<br>3.复用的灵活性高。这种复用可以在运行时动态进行，新对象可以动态地引用与成分对象类型相同的对象。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/ds-hashmap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -4686,1208 +5003,6 @@ public final Single&lt;T&gt; elementAtOrError(long index)
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/28/flutter-integration/" itemprop="url">Flutter集成Android项目</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T16:31:43+08:00">
-                2019-06-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="在现有项目上集成Flutter"><a href="#在现有项目上集成Flutter" class="headerlink" title="在现有项目上集成Flutter"></a>在现有项目上集成Flutter</h2><p>1.在andorid工程目录上级目录下执行命令:</p>
-<pre><code>flutter create -t module xxxx(想要创建的flutter项目名)
-</code></pre><p>执行完后，一个和Android项目平级的flutter项目就已经创建好了。</p>
-<p>2.添加flutter到当前Android项目：<br>在Android项目根目录下的settings.gradle文件中，添加如下代码：</p>
-<pre><code>setBinding(new Binding([gradle: this]))
-evaluate(new File(
-        settingsDir.parentFile,
-        &quot;flutter_hybrid/.android/include_flutter.groovy&quot;
-))
-</code></pre><p>然后，在项目的app目录下，build.gradle文件中，添加如下dependency:</p>
-<pre><code>implementation project(&apos;:flutter&apos;)
-</code></pre><p>如上，添加完之后，准备工作就完成了。</p>
-<h2 id="集成Flutter页面跳转"><a href="#集成Flutter页面跳转" class="headerlink" title="集成Flutter页面跳转"></a>集成Flutter页面跳转</h2><h3 id="通过继承FlutterActivity跳到默认页面"><a href="#通过继承FlutterActivity跳到默认页面" class="headerlink" title="通过继承FlutterActivity跳到默认页面"></a>通过继承FlutterActivity跳到默认页面</h3><p>1.Application：初始化Flutter</p>
-<pre><code>public class App extends Application {
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        FlutterMain.startInitialization(this);
-    }
-}
-</code></pre><p>2.Activity：继承FlutterActivity</p>
-<pre><code>/**
- * debug模式原生跳转到flutter界面会出现白屏，release包就不会出现白屏了
- */
-public class MainFlutterActivity extends FlutterActivity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    GeneratedPluginRegistrant.registerWith(this);
-  }
-</code></pre><p>这样以后，我们就可以跳转这个MainFlutterActivity，实现在Android工程里面进入Flutter工程的默认页面了。</p>
-<h3 id="通过FlutterView跳到指定页面"><a href="#通过FlutterView跳到指定页面" class="headerlink" title="通过FlutterView跳到指定页面"></a>通过FlutterView跳到指定页面</h3><p>首先通过Flutter.createFlutterView方法来创建一个FlutterView类型的View。它有三个构造参数：</p>
-<pre><code>public static FlutterView createView(Activity activity, Lifecycle lifecycle, String initialRoute)
-</code></pre><p>三个参数分别是：<br>1.Activity，即当前附着的Activity</p>
-<p>2.LifeCycle，且是不能为空(NonNull)的，这也就要求我们必须用AppCompatActivity来承载FlutterView了，如果我们的Activity继承自android.app.Activity是没有getLifeCycle()这个方法的。</p>
-<pre><code>public class FlutterViewActivity extends AppCompatActivity 复制代码
-</code></pre><p>3.initialRoute这是一个String类型的变量，根据不同的标识跳转不同的Flutter页面：</p>
-<pre><code>Widget _widgetForRoute(String route) {
-  switch (route) {
-    case &apos;route1&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page1&apos;);
-    case &apos;route2&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-    default:
-        return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-  }
-}
-</code></pre><p>然后在当前Activity的OnCreate方法中，执行：</p>
-<pre><code>FlutterView flutterView = Flutter.createView(this, getLifecycle(), &quot;route1&quot;);    
-setContentView(flutterView);
-
-//或者：
-
-setContentView(R.layout.activity_flutter);
-rlContainer = findViewById(R.id.rl_container);
-rlContainer.addView(flutterView)
-</code></pre><h2 id="集成到现有项目遇到的坑"><a href="#集成到现有项目遇到的坑" class="headerlink" title="集成到现有项目遇到的坑"></a>集成到现有项目遇到的坑</h2><p>Check failed: vm. Must be able to initialize the VM：</p>
-<pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_data.cc(19)] VM snapshot invalid and could not be inferred from settings.
-    [ERROR:flutter/runtime/dart_vm.cc(241)] Could not setup VM data to bootstrap the VM from.
-    [ERROR:flutter/runtime/dart_vm_lifecycle.cc(89)] Could not create Dart VM instance.
- A/flutter: [FATAL:flutter/shell/common/shell.cc(218)] Check failed: vm. Must be able to initialize the VM.
-
-SIGABRT
-    0x146b
-    #00    pc 0002210c    /system/lib/libc.so (tgkill+12) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #01    pc 00013165    /system/lib/libc.so (pthread_kill+48) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #02    pc 00013379    /system/lib/libc.so (raise+10) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #03    pc 000120a3    /system/lib/libc.so [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #04    pc 000219c0    /system/lib/libc.so (abort+4) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #05    pc 00af85ab    /data/app-lib/xxx.debug-1/libflutter.so [armeabi-v7a::a12434e0b53806a35730000001000000]
-</code></pre><p>经github上<a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">#24679</a>及其他issue参考，得出以下解决方案：</p>
-<blockquote>
-<p>Import flutter module to your HOST app(set binding, implementation, and instantiate view/fragment)<br>When you clean/rebuild from HOST app, flutter module does not generate properly<br>You need to open your flutter module in a separate AS<br>flutter clean<br>cd .android<br>./gradlew clean<br>./gradlew assembleDebug<br>Return to host app and run app(do not sync or rebuild) :)</p>
-</blockquote>
-<p>翻译过来就是：</p>
-<blockquote>
-<p>本项目执行清理命令。./gradlew clean<br>进入 flutter module 项目执行清理命令。flutter packages get;flutter clean<br>进入 flutter module 的 .android 项目执行清理命令和打包操作。./gradlew clean;./gradlew assemble<br>回到本项目执行打包命令。./gradlew assemble</p>
-</blockquote>
-<p>直接执行下面命令即可：</p>
-<pre><code>$ ./gradlew clean;cd ../flutter_module;flutter packages get;flutter clean;cd .android/;./gradlew clean;./gradlew assemble;cd /d/workspace/app_proj/;./gradlew installDebug
-</code></pre><p>后续假设你 flutter module 没有更新过，那么以后修改本地项目之后，就直接执行./gradlew installDebug。 注意不要用studio工具运行、rebuild或clean。</p>
-<h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
-<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
-<pre><code>-keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.** { *; }
--keep class io.flutter.util.** { *; }
--keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
--keep class myapp.flutter.** { *; }
-</code></pre><h2 id="交互"><a href="#交互" class="headerlink" title="交互"></a>交互</h2><h3 id="Flutter-调用Android"><a href="#Flutter-调用Android" class="headerlink" title="Flutter 调用Android"></a>Flutter 调用Android</h3><p>java</p>
-<pre><code>new MethodChannel(flutterView, FlutterToAndroidCHANNEL).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-    @Override
-    public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-
-        //接收来自flutter的指令withoutParams
-        if (methodCall.method.equals(&quot;withoutParams&quot;)) {
-
-            //跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        }
-        //接收来自flutter的指令withParams
-        else if (methodCall.method.equals(&quot;withParams&quot;)) {
-
-            //解析参数
-            String text = methodCall.argument(&quot;flutter&quot;);
-
-            //带参数跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            intent.putExtra(&quot;test&quot;, text);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        } else {
-            result.notImplemented();
-        }
-    }
-});
-</code></pre><p>dart</p>
-<pre><code>Future&lt;Null&gt; _jumpToNative() async {
-  String result = await toAndroidPlugin.invokeMethod(&apos;withoutParams&apos;);
-
-  print(result);
-}
-
-
-Future&lt;Null&gt; _jumpToNativeWithParams() async {
-
-  Map&lt;String, String&gt; map = { &quot;flutter&quot;: &quot;这是一条来自flutter的参数&quot; };
-
-  String result = await toAndroidPlugin.invokeMethod(&apos;withParams&apos;, map);
-
-  print(result);
-}
-</code></pre><h3 id="Android-向-Flutter-传参"><a href="#Android-向-Flutter-传参" class="headerlink" title="Android 向 Flutter 传参"></a>Android 向 Flutter 传参</h3><p>java</p>
-<pre><code>new EventChannel(flutterView, AndroidToFlutterCHANNEL)
-            .setStreamHandler(new EventChannel.StreamHandler() {
-                @Override
-                public void onListen(Object o, EventChannel.EventSink eventSink) {
-                    String androidParmas = &quot;来自android原生的参数&quot;;
-                    eventSink.success(androidParmas);
-                }
-
-                @Override
-                public void onCancel(Object o) {
-
-                }
-            });
-</code></pre><p>dart</p>
-<pre><code> void _startfromAndroiPlugin(){
-   if(_fromAndroiSub == null){
-     _fromAndroiSub =  fromAndroiPlugin.receiveBroadcastStream()
-     .listen(_onfromAndroiEvent,onError: _onfromAndroiError);
-   }
- }
-
-void _onfromAndroiEvent(Object event) {
-   setState(() {
-     _nativeParams = event;
-   });
- }
-
- void _onfromAndroiError(Object error) {
-   setState(() {
-     _nativeParams = &quot;error&quot;;
-     print(error);
-   });
- }
-</code></pre><p>有几处 要注意一一对应：</p>
-<pre><code>public static final String FlutterToAndroidCHANNEL = &quot;com.litngzhe.toandroid/plugin&quot;; 
-public static final String AndroidToFlutterCHANNEL= &quot;com.litngzhe.toflutter/plugin&quot;;
-
-new MethodChannel(flutterView, FlutterToAndroidCHANNEL)
-new EventChannel(flutterView, AndroidToFlutterCHANNEL) 
-
-
-//dart中 获取到插件与原生的交互通道 MethodChannel 中 涉及到的方法名要要统一
-static const toAndroidPlugin = const MethodChannel(&apos;com.litngzhe.toandroid/plugin&apos;);
-static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/plugin&apos;); 
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/dart-knowledge/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/25/dart-knowledge/" itemprop="url">Dart语言基础</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T18:31:42+08:00">
-                2019-06-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ul>
-<li>在Dart中，一切都是对象，一切对象都是class的实例，哪怕是数字类型、方法甚至null都是对象，所有的对象都是继承自Object</li>
-<li>虽然Dart是强类型语言，但变量类型是可选的，因为Dart可以自动推断变量类型</li>
-<li>Dart支持范型，List&lt;int&gt;表示一个整型的数据列表，List&lt;dynamic&gt;则是一个对象的列表，其中可以装任意对象</li>
-<li>Dart支持顶层方法（如main方法），也支持类方法或对象方法，同时你也可以在方法内部创建方法</li>
-<li>Dart支持顶层变量，也支持类变量或对象变量</li>
-<li>跟Java不同的是，Dart没有public protected private等关键字，如果某个变量以下划线（_）开头，代表这个变量在库中是私有的</li>
-<li>Dart中变量可以以字母或下划线开头，后面跟着任意组合的字符或数字</li>
-</ul>
-<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>以下代码是Dart中定义变量的方法：</p>
-<pre><code>main() {
-  var a = 1;
-  int b = 10;
-  String s = &quot;hello&quot;;
-  dynamic c = 0.5;
-
-  var count = 10; 
-  final Num = count;  // final 只能赋值一次
-  const Num1 = 10; // const赋值必须是编译时常量
-}
-</code></pre><p>你<strong>可以明确指定某个变量的类型，如int bool String，也可以用var或 dynamic来声明一个变量，Dart会自动推断其数据类型</strong>。</p>
-<p>使用final或const，不要使用var或其他类型，一个被final修饰的变量只能被赋值一次，一个被const修饰的变量是一个编译时常量（const常量毫无疑问也是final常量）。final 要求变量只能初始化一次，并不要求赋的值一定是编译时常量；而 const 要求在声明时初始化，并且赋值必需为编译时常量。</p>
-<p>注意：<strong>没有赋初值的变量都会有默认值null</strong><br>注意：实例变量可以是final的但不能是const的</p>
-<h3 id="内建数据类型"><a href="#内建数据类型" class="headerlink" title="内建数据类型"></a>内建数据类型</h3><p>Dart有如下几种内建的数据类型：</p>
-<ul>
-<li>numbers</li>
-<li>strings</li>
-<li>booleans</li>
-<li>lists(或者是arrays)</li>
-<li>maps</li>
-<li>runes（UTF-32字符集的字符）</li>
-<li><p>symbols<br>下面用一段代码来演示以上各类数据类型：</p>
-<pre><code>main() {
-  // numbers
-  var a = 0;
-  int b = 1;
-  double c = 0.1;
-
-  // strings
-  var s1 = &apos;hello&apos;;
-  String s2 = &quot;world&quot;;
-
-  // booleans
-  var real = true;
-  bool isReal = false;
-
-  // lists
-  var arr = [1, 2, 3, 4, 5];
-  List&lt;String&gt; arr2 = [&apos;hello&apos;, &apos;world&apos;, &quot;123&quot;, &quot;456&quot;];
-  List&lt;dynamic&gt; arr3 = [1, true, &apos;haha&apos;, 1.0];
-
-  // maps
-  var map = new Map();
-  map[&apos;name&apos;] = &apos;zhangsan&apos;;
-  map[&apos;age&apos;] = 10;
-  Map m = new Map();
-  m[&apos;a&apos;] = &apos;a&apos;;
-
-  //runes，Dart 中 使用runes 来获取UTF-32字符集的字符。String的 codeUnitAt and codeUnit属性可以获取UTF-16字符集的字符
-  var clapping = &apos;\u{1f44f}&apos;;
-  print(clapping); // 打印的是拍手emoji的表情
-
-  // symbols
-  print(#s == new Symbol(&quot;s&quot;)); // true
-}
-</code></pre></li>
-</ul>
-<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><p>Dart是一个面向对象的编程语言，所以即使是<strong>函数也是一个对象</strong>，也有一种类型Function，这就意味着函数可以赋值给某个变量或者作为参数传给另外的函数。虽然Dart推荐你给函数加上返回值，但是不加返回值的函数同样可以正常工作，另外你还可以用=&gt;代替return语句，比如下面的代码：</p>
-<pre><code>// 声明返回值
-int add(int a, int b) {
-  return a + b;
-}
-
-// 不声明返回值
-add2(int a, int b) {
-  return a + b;
-}
-
-// =&gt;是return语句的简写
-add3(a, b) =&gt; a + b; 
-
-main() {
-  print(add(1, 2)); // 3
-  print(add2(2, 3)); // 5
-  print(add3(1, 2)); // 3
-}
-</code></pre><h4 id="命名参数"><a href="#命名参数" class="headerlink" title="命名参数"></a>命名参数</h4><pre><code>sayHello({String name}) {
-  print(&quot;hello, my name is $name&quot;);
-}
-
-sayHello2({name: String}) {
-  print(&quot;hello, my name is $name&quot;);
-}
-
-main() {
-  // 打印 hello, my name is zhangsan
-  sayHello(name: &apos;zhangsan&apos;);
-
-  // 打印 hello, my name is wangwu
-  sayHello2(name: &apos;wangwu&apos;);
-}
-</code></pre><p>可以看到，定义命名参数时，你<strong>可以以 {type paramName} 或者 {paramName: type} 两种方式声明参数</strong>，而调用命名参数时，需要以 funcName(paramName: paramValue) 的形式调用。</p>
-<p>命名参数的<strong>参数并不是必须的</strong>，所以上面的代码中，如果调用sayHello()不带任何参数，也是可以的，只不过最后打印出来的结果是：hello, my name is null，在Flutter开发中，你<strong>可以使用@required注解来标识一个命名参数，这代表该参数是必须的</strong>，你不传则会报错，比如下面的代码：</p>
-<pre><code>const Scrollbar({Key key, @required Widget child})
-</code></pre><h4 id="位置参数"><a href="#位置参数" class="headerlink" title="位置参数"></a>位置参数</h4><p>使用<strong>中括号[]括起来的参数是函数的位置参数，代表该参数可传可不传，位置参数只能放在函数的参数列表的最后面</strong>，如下代码所示：</p>
-<pre><code>sayHello(String name, int age, [String hobby]) { // 位置参数可以有多个，比如[String a, int b]
-  StringBuffer sb = new StringBuffer();
-  sb.write(&quot;hello, this is $name and I am $age years old&quot;);
-  if (hobby != null) {
-    sb.write(&quot;, my hobby is $hobby&quot;);
-  }
-  print(sb.toString());
-}
-
-main() {
-  // hello, this is zhangsan and I am 20 years old
-  sayHello(&quot;zhangsan&quot;, 20);
-  // hello, this is zhangsan and I am 20 years old, my hobby is play football
-  sayHello(&quot;zhangsan&quot;, 20, &quot;play football&quot;);
-}
-</code></pre><h4 id="参数默认值"><a href="#参数默认值" class="headerlink" title="参数默认值"></a>参数默认值</h4><p>你可以为命名参数或者位置参数设置默认值，如下代码所示：</p>
-<pre><code>// 命名参数的默认值
-int add({int a, int b = 3}) { // 不能写成：int add({a: int, b: int = 3})
-  return a + b;
-}
-
-// 位置参数的默认值
-int sum(int a, int b, [int c = 3]) {
-  return a + b + c;
-}
-</code></pre><h4 id="main-函数"><a href="#main-函数" class="headerlink" title="main()函数"></a>main()函数</h4><p>不论在Dart还是Flutter中，必须都需要一个顶层的main()函数，它<strong>是整个应用的入口函数，main()函数的返回值是void，还有一个可选的参数，参数类型是List&lt;String&gt;</strong>。</p>
-<h4 id="函数作为一类对象"><a href="#函数作为一类对象" class="headerlink" title="函数作为一类对象"></a>函数作为一类对象</h4><p>你可以将一个函数作为参数传给另一个函数，比如下面的代码：</p>
-<pre><code>printNum(int a) {
-  print(&quot;$a&quot;);
-}
-
-main() {
-  //  依次打印：
-  //  1
-  //  2
-  //  3
-  var arr = [1, 2, 3];
-  arr.forEach(printNum);
-}
-</code></pre><p>你也可以将一个函数赋值给某个变量，比如下面的代码：</p>
-<pre><code>printNum(int a) {
-  print(&quot;$a&quot;);
-}
-
-main() {
-  var f1 = printNum;
-  Function f2 = printNum;
-  var f3 = (int a) =&gt; print(&quot;a = $a&quot;);
-  f1(1);
-  f2(2);
-  f3(6);
-}
-</code></pre><h4 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a>匿名函数</h4><p>大多数函数都是有名称的，比如main() printName()等，但是你也可以写匿名函数，如果你对Java比较熟悉，那下面的Dart代码你肯定也不会陌生：</p>
-<pre><code>test(Function callback) {
-  callback(&quot;hello&quot;);
-}
-
-main() {
-  test((param) {
-    // 打印hello
-    print(param);
-  });
-}
-</code></pre><p>匿名函数类似于Java中的接口，往往在某个函数的参数为函数时使用到。</p>
-<h4 id="函数返回值"><a href="#函数返回值" class="headerlink" title="函数返回值"></a>函数返回值</h4><p><strong>所有的函数都有返回值，如果没有指定return语句，那么该函数的返回值为null</strong></p>
-<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><p>Dart中的运算符与Java中的类似，比如++a a == b b ? a : b，但是也有一些与Java不太一样的运算符，下面用代码说明：</p>
-<pre><code>main() {
-  // 与Java相同的运算符操作
-
-  int a = 1;
-  ++a;
-  a++;
-  var b = 1;
-  print(a == b);  // false
-  print(a * b); // 3
-  bool real = false;
-  real ? print(&apos;real&apos;) : print(&apos;not real&apos;); // not real
-  print(real &amp;&amp; a == b); // false
-  print(real || a == 3); // true
-  print(a != 2); // true
-  print(a &lt;= b); // false
-  var c = 9;
-  c += 10;
-  print(&quot;c = $c&quot;); // c = 19
-  print(1&lt;&lt;2); // 4
-
-  // 与Java不太一样的运算符操作
-
-  // is运算符用于判断一个变量是不是某个类型的数据
-  // is!则是判断变量不是某个类型的数据
-  var s = &quot;hello&quot;;
-  print(s is String); // true
-  var num = 6;
-  print(num is! String); // true
-
-  // ~/才是取整运算符，如果使用/则是除法运算，不取整
-  int k = 1;
-  int j = 2;
-  print(k / j); // 0.5
-  print(k ~/ j); // 0
-
-  // as运算符类似于Java中的cast操作，将一个对象强制类型转换
-  (emp as Person).teach();
-
-  // ??=运算符 如果 ??= 运算符前面的变量为null，则赋值，否则不赋值
-  var param1 = &quot;hello&quot;, param2 = null;
-  param1 ??= &quot;world&quot;;
-  param2 ??= &quot;world&quot;;
-  print(&quot;param1 = $param1&quot;); // param1 = hello
-  print(&quot;param2 = $param2&quot;); // param2 = world
-
-  // ?.运算符
-  var str1 = &quot;hello world&quot;;
-  var str2 = null;
-  print(str1?.length); // 11
-  print(str2?.length); // null 
-  print(str2.length); // 报错
-}
-</code></pre><h4 id="运算符（级联操作）"><a href="#运算符（级联操作）" class="headerlink" title="..运算符（级联操作）"></a>..运算符（级联操作）</h4><p>如果你对Java中的建造者模式比较熟悉的话，Dart中的..运算符也很好理解，先看下面的代码：</p>
-<pre><code>class Person {
-  eat() {
-    print(&quot;I am eating...&quot;);
-  }
-
-  sleep() {
-    print(&quot;I am sleeping...&quot;);
-  }
-
-  study() {
-    print(&quot;I am studying...&quot;);
-  }
-}
-
-main() {
-  // 依次打印
-  //  I am eating...
-  //  I am sleeping...
-  //  I am studying...
-  new Person()..eat()
-      ..sleep()
-      ..study();
-}
-</code></pre><p>可以看到，使用<strong>..调用某个对象的方法（或者成员变量）时，返回值是这个对象本身</strong>，所以你可以接着使用..调用这个对象的其他方法，这不就类似于Java中的建造者模式，每次build某个属性时，都返回一个this对象吗。</p>
-<h3 id="typedefs"><a href="#typedefs" class="headerlink" title="typedefs"></a>typedefs</h3><p>typedef 本质上为 一个方法签名提供了一个别名。官网上介绍TypeDef的时候有一句话说道：<br>“If we change the code to use explicit names and retain type information”<br>使用typedef会保留方法的类型信息。</p>
-<p>考虑下面的代码，哪一个没有使用 typedef。</p>
-<pre><code>class SortedCollection {
-  Function compare;
-
-  SortedCollection(int f(Object a, Object b)) {
-    compare = f;
-  }
-}
-
- // Initial, broken implementation.
- int sort(Object a, Object b) =&gt; 0;
-
-main() {
-  SortedCollection coll = new SortedCollection(sort);
-
-  // All we know is that compare is a function,
-  // but what type of function?
-  assert(coll.compare is Function);
-}
-</code></pre><p>当 f 分配到 compare 的时候类型信息丢失了。f的类型是 (Object, Object) → int(→ 意味着返回的)，然而compare 的类型是方法。如果我们使用显式的名字更改代码并保留类型信息，则开发者和工具都可以使用这些信息。</p>
-<pre><code>typedef int Compare(Object a, Object b);
-
-class SortedCollection {
-  Compare compare;
-
-  SortedCollection(this.compare);
-}
-
- // Initial, broken implementation.
- int sort(Object a, Object b) =&gt; 0;
-
-main() {
-  SortedCollection coll = new SortedCollection(sort);
-  assert(coll.compare is Function);
-  assert(coll.compare is Compare);
-}
-</code></pre><p>请注意目前 typedefs 仅限于函数类型。</p>
-<p>因为 typedefs 是简单的别名，所以它提供了一种方法来检查任何函数的类型。比如：</p>
-<pre><code>typedef int Compare(int a, int b);
-
-int sort(int a, int b) =&gt; a - b;
-
-main() {
-  assert(sort is Compare); // True!
-}
-</code></pre><h3 id="控制流程"><a href="#控制流程" class="headerlink" title="控制流程"></a>控制流程</h3><p>if / else switch for /while try / catch语句跟Java中都类似，<strong>try / catch语句可能稍有不同</strong>，下面用一段代码说明：</p>
-<blockquote>
-<p>Dart中规定，if中当且仅当参数为bool类型true时，为真，其他全部都为假。</p>
-</blockquote>
-<pre><code>main() {
-  // if else语句
-  int score = 80;
-  if (score &lt; 60) {
-    print(&quot;so bad!&quot;);
-  } else if (score &gt;= 60 &amp;&amp; score &lt; 80) {
-    print(&quot;just so so!&quot;);
-  } else if (score &gt;= 80) {
-    print(&quot;good job!&quot;);
-  }
-
-  // switch语句
-  String a = &quot;hello&quot;;
-  // case语句中的数据类型必须是跟switch中的类型一致
-  switch (a) {
-    case &quot;hello&quot;:
-      print(&quot;haha&quot;);
-      break;
-    case &quot;world&quot;:
-      print(&quot;heihei&quot;);
-      break;
-    default:
-      print(&quot;WTF&quot;);
-  }
-
-  // for语句
-  List&lt;String&gt; list = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];
-  for (int i = 0; i &lt; list.length; i++) {
-    print(list[i]);
-  }
-  for (var i in list) {
-    print(i);
-  }
-  // 这里的箭头函数参数必须用圆括号扩起来
-  list.forEach((item) =&gt; print(item));
-
-  // while语句
-  int start = 1;
-  int sum = 0;
-  while (start &lt;= 100) {
-    sum += start;
-    start++;
-  }
-  print(sum);
-
-  // try catch语句
-  try {
-    print(1 ~/ 0);
-  } catch (e) {
-    // IntegerDivisionByZeroException
-    print(e);
-  }
-  try {
-    1 ~/ 0;
-  } on IntegerDivisionByZeroException { // 捕获指定类型的异常
-    print(&quot;error&quot;); // 打印出error
-  } finally {
-    print(&quot;over&quot;); // 打印出over
-  }
-}
-</code></pre><h4 id="rethrow"><a href="#rethrow" class="headerlink" title="rethrow"></a>rethrow</h4><p>rethrow语句用来处理一个异常，同时<strong>希望这个异常能够被其它调用的部分使用</strong>:</p>
-<pre><code>final foo = &apos;&apos;;
-
-void misbehave() {
-   try {
-     foo = &quot;1&quot;;
-   } catch (e) {
-     print(&apos;2&apos;);
-     rethrow;// 如果不重新抛出异常，main函数中的catch语句执行不到
-   }
-}
-
-void main() {
-   try {
-     misbehave();
-   } catch (e) {
-     print(&apos;3&apos;);
-   }
-}
-</code></pre><h3 id="类（Class）"><a href="#类（Class）" class="headerlink" title="类（Class）"></a>类（Class）</h3><h4 id="类的定义与构造方法"><a href="#类的定义与构造方法" class="headerlink" title="类的定义与构造方法"></a>类的定义与构造方法</h4><p>Dart中的类没有访问控制，所以你不需要用private, protected, public等修饰成员变量或成员函数，一个简单的类如下代码所示：</p>
-<pre><code>class Person {
-  String name;
-  int age;
-  String gender;
-  Person(this.name, this.age, this.gender);
-  sayHello() {
-    print(&quot;hello, this is $name, I am $age years old, I am a $gender&quot;);
-  }
-}
-</code></pre><p>上面的Person类中有3个成员变量，一个构造方法和一个成员方法，看起来<strong>比较奇怪的是Person的构造方法，里面传入的3个参数都是this.xxx，而且没有大括号{}包裹的方法体</strong>，这种语法是Dart比较独特而简洁的构造方法声明方式，它等同于下面的代码：</p>
-<pre><code>Person(String name, int age, String gender) {
-    this.name = name;
-    this.age = age;
-    this.gender = gender;
-}
-</code></pre><p>要调用Person类的成员变量或成员方法，可以用下面的代码：</p>
-<pre><code>var p = new Person(&quot;zhangsan&quot;, 20, &quot;male&quot;);
-p.sayHello(); // hello, this is zhangsan, I am 20 years old, I am a male
-p.age = 50;
-p.gender = &quot;female&quot;;
-p.sayHello(); // hello, this is zhangsan, I am 50 years old, I am a female
-</code></pre><p>类除了有跟类名相同的构造方法外，<strong>还可以添加命名的构造方法</strong>，如下代码所示：</p>
-<pre><code>class Point {
-  num x, y;
-  Point(this.x, this.y);
-  // 类的命名构造方法
-  Point.origin() {
-    x = 0;
-    y = 0;
-  }
-}
-
-main() {
-  // 调用Point类的命名构造方法origin()
-  var p = new Point.origin();
-  var p2 = new Point(1, 2);
-}
-</code></pre><p>Dart中使用extends关键字做类的继承，如果一个类只有命名的构造方法，在继承时需要注意，如下代码：</p>
-<pre><code>class Human {
-  String name;
-  Human.fromJson(Map data) {
-    print(&quot;Human&apos;s fromJson constructor&quot;);
-  }
-}
-
-class Man extends Human {
-  Man.fromJson(Map data) : super.fromJson(data) {
-    print(&quot;Man&apos;s fromJson constructor&quot;);
-  }
-}
-</code></pre><p>由于<strong>Human类没有默认构造方法，只有一个命名构造方法fromJson，所以在Man类继承Human类时，需要调用父类的fromJson方法做初始化，而且必须使用Man.fromJson(Map data) : super.fromJson(data)这种写法</strong>，而不是像Java那样将super写到花括号中。Dart语言中，<strong>子类不会继承父类的命名构造函数</strong>。如果不显式提供子类的构造函数，系统就提供默认的构造函数。</p>
-<p>有时候你仅仅只是在某个类的构造方法中，调用这个类的另一个构造方法，你可以这么写：</p>
-<pre><code>class Point {
-  num x, y;
-  Point(this.x, this.y);
-  // 命名构造方法调用了默认的构造方法
-  Point.alongXAxis(num x) : this(x, 0);
-}
-</code></pre><h4 id="初始化列表"><a href="#初始化列表" class="headerlink" title="初始化列表"></a>初始化列表</h4><p>除了调用父类的构造函数，也可以通过初始化列表<strong>在子类的构造函数体前（大括号前）来初始化实例的变量值，使用逗号,分隔</strong>。如下所示：</p>
-<pre><code>class Point {
-   num x;
-   num y;
-
-   Point(this.x, this.y);
-
-   // 初始化列表在构造函数运行前设置实例变量。
-   Point.fromJson(Map jsonMap)
-   : x = jsonMap[&apos;x&apos;],
-     y = jsonMap[&apos;y&apos;] {
-      print(&apos;In Point.fromJson(): ($x, $y)&apos;);
-   }
- }
-</code></pre><p>注意：上述代码，初始化程序无法访问 this 关键字。</p>
-<h4 id="类的成员方法"><a href="#类的成员方法" class="headerlink" title="类的成员方法"></a>类的成员方法</h4><p>一个类的成员方法是一个函数，为这个类提供某些行为。上面的代码中已经有了一些类的成员方法的定义，这些定义方式跟Java很类似，你可以为某个类的成员变量提供getter/setter方法，如下代码：</p>
-<pre><code>class Rectangle {
-  num left, top, width, height;
-
-  // 构造方法传入left, top, width, height几个参数
-  Rectangle(this.left, this.top, this.width, this.height);
-
-  // right, bottom两个成员变量提供getter/setter方法
-  num get right =&gt; left + width;
-  set right(num value) =&gt; left = value - width;
-  num get bottom =&gt; top + height;
-  set bottom(num value) =&gt; top = value - height;
-}
-</code></pre><h4 id="抽象类和抽象方法"><a href="#抽象类和抽象方法" class="headerlink" title="抽象类和抽象方法"></a>抽象类和抽象方法</h4><p>使用abstract修饰一个类，则这个类是抽象类，抽象类中可以有抽象方法和非抽象方法，抽象方法没有方法体，需要子类去实现，如下代码：</p>
-<pre><code>abstract class Doer {
-  // 抽象方法，没有方法体，需要子类去实现
-  void doSomething();
-  // 普通的方法
-  void greet() {
-    print(&quot;hello world!&quot;);
-  }
-}
-
-class EffectiveDoer extends Doer {
-  // 实现了父类的抽象方法
-  void doSomething() {
-    print(&quot;I&apos;m doing something...&quot;);
-  }
-}
-</code></pre><h4 id="运算符重载"><a href="#运算符重载" class="headerlink" title="运算符重载"></a>运算符重载</h4><p>Dart中有类似于C++中的运算符重载语法，比如下面的代码定义了一个向量类，重载了向量的+ -运算：</p>
-<pre><code>class Vector {
-  num x, y;
-  Vector(this.x, this.y);
-  Vector operator +(Vector v) =&gt; new Vector(x + v.x, y + v.y);
-  Vector operator -(Vector v) =&gt; new Vector(x - v.x, y - v.y);
-  printVec() {
-    print(&quot;x: $x, y: $y&quot;);
-  }
-}
-
-main() {
-  Vector v1 = new Vector(1, 2);
-  Vector v2 = new Vector(3, 4);
-  (v1 - v2).printVec(); // -2, -2
-  (v1 + v2).printVec(); // 4, 6
-}
-</code></pre><h4 id="枚举类"><a href="#枚举类" class="headerlink" title="枚举类"></a>枚举类</h4><p>使用enum关键字定义一个枚举类，这个语法跟Java类似，如下代码：</p>
-<pre><code>enum Color { red, green, blue }
-</code></pre><h4 id="Mixins"><a href="#Mixins" class="headerlink" title="Mixins"></a>Mixins</h4><p>mixins是一个重复使用类中代码的方式，比如下面的代码：</p>
-<pre><code>class A {
-  a() {
-    print(&quot;A&apos;s a()&quot;);
-  }
-}
-
-class B {
-  b() {
-    print(&quot;B&apos;s b()&quot;);
-  }
-}
-
-// 使用with关键字，表示类C是由类A和类B混合而构成
-class C = A with B;
-
-main() {
-  C c = new C();
-  c.a(); // A&apos;s a()
-  c.b(); // B&apos;s b()
-}
-</code></pre><p>Dart和Java一样只支持单继承。而且Dart中没有和Java一样提供Interface字段去声明一个接口。如果想使用和Java接口一样的功能可以使用Mixins和implements两种方式，分别解释下两种方式：</p>
-<ul>
-<li><strong>Mixins : 指能够将另一个或多个类的功能添加到您自己的类中，而无需继承这些类</strong></li>
-<li><p><strong>implements : 将一个类作为接口使用</strong></p>
-<pre><code>class A {
-  void a() {
-    print(&apos;a&apos;);
-  }
-}
-
-class B implements A {
-  @override
-  void a() {
-    print(&apos;override a&apos;);
-  }
-}
-
-class C {
-  void c() {
-    print(&apos;c&apos;);
-  }
-}
-
-class E {
-  String e = &apos;eeee&apos;;
-}
-
-class D extends A with C, E {
-  void c() {
-    print(&apos;c is D&apos;);
-  }
-
-  void d() {
-    c();
-  }
-}
-</code></pre></li>
-</ul>
-<p>首先看B implements A，所以此时A相对于B来说就是一个接口，所以他要实现B中的方法。换句话说，<strong>Dart每个类都是接口</strong></p>
-<h4 id="静态成员变量和静态成员方法"><a href="#静态成员变量和静态成员方法" class="headerlink" title="静态成员变量和静态成员方法"></a>静态成员变量和静态成员方法</h4><pre><code>// 类的静态成员变量和静态成员方法
-class Cons {
-  static const name = &quot;zhangsan&quot;;
-  static sayHello() {
-    print(&quot;hello, this is ${Cons.name}&quot;);
-  }
-}
-
-main() {
-  Cons.sayHello(); // hello, this is zhangsan
-  print(Cons.name); // zhangsan
-}
-</code></pre><h3 id="泛型（Generics）"><a href="#泛型（Generics）" class="headerlink" title="泛型（Generics）"></a>泛型（Generics）</h3><p>Java和C++语言都有泛型，Dart语言也不例外，使用泛型有很多好处，比如：<br>正确指定泛型类型会产生更好的生成代码。<br>泛型可以减小代码的复杂度<br>Dart内置的数据类型List就是一个泛型数据类型，你可以往List中塞任何你想的数据类型比如整型、字符串、布尔值等</p>
-<h3 id="Dart库（Libraries）"><a href="#Dart库（Libraries）" class="headerlink" title="Dart库（Libraries）"></a>Dart库（Libraries）</h3><p>Dart目前已经有很多的库提供给开发者，许多功能不需要开发者自己去实现，只需要导入对应的包即可，使用import语句来导入某个包，比如下面的代码：</p>
-<pre><code>import &apos;dart:html&apos;;
-</code></pre><p>如果你想导入自己写的某个代码文件，使用相对路径即可，例如当前有一个demo.dart文件，跟该文件同级目录下有个util.dart文件，文件代码如下：</p>
-<pre><code>// util.dart文件内容
-
-int add(int a, int b) {
-  return a + b;
-}
-</code></pre><p>在demo.dart文件中如果要引用util.dart文件，使用下面的方式导入：</p>
-<pre><code>import &apos;./util.dart&apos;;
-
-main() {
-  print(add(1, 2));
-}
-</code></pre><p>你可以<strong>使用as关键字为导入的某个包设置一个前缀，或者说别名</strong>，比如下面的代码：</p>
-<pre><code>import &apos;package:lib1/lib1.dart&apos;;
-import &apos;package:lib2/lib2.dart&apos; as lib2;
-
-// Uses Element from lib1.
-Element element1 = Element();
-
-// Uses Element from lib2.
-lib2.Element element2 = lib2.Element();
-</code></pre><p>你也可以在导入包时<strong>使用show hide关键字来导入某个包中的部分功能</strong>，比如下面的代码：</p>
-<pre><code>// 只导入foo
-import &apos;package:lib1/lib1.dart&apos; show foo;
-
-// 导入除了foo的所有其他部分
-import &apos;package:lib2/lib2.dart&apos; hide foo;
-</code></pre><p>导入包时使用<strong>deferred as可以让这个包懒加载</strong>，懒加载的包只会在该包被使用时得到加载，而不是一开始就加载，比如下面的代码：</p>
-<pre><code>import &apos;package:greetings/hello.dart&apos; deferred as hello;
-</code></pre><p>利用<strong>library identifier（库标识符）声明库</strong>：</p>
-<pre><code>// 声明库，名ballgame
-library ballgame;
-
-// 导入html库
-import &apos;dart:html&apos;;
-
-// ...代码从这里开始... 
-</code></pre><h4 id="关联文件与库"><a href="#关联文件与库" class="headerlink" title="关联文件与库"></a>关联文件与库</h4><p>添加实现文件，把<strong>part fileUri</strong>放在有库的文件，其中fileURI是实现文件的路径。然后在实现文件中，添加部分标识符（<strong>part of identifier</strong>），其中标识符是库的名称。下面的示例使用的一部分，在三个文件来实现部分库。</p>
-<p>第一个文件，ballgame.dart，声明球赛库，导入其他需要的库，并指定ball.dart和util.dart是此库的部分：</p>
-<pre><code>library ballgame;
-
-import &apos;dart:html&apos;;
-// ...其他导入在这里...
-
-part &apos;ball.dart&apos;;
-part &apos;util.dart&apos;;
-
-// ...代码从这里开始...
-</code></pre><p>第二、三个文件ball.dart、util.dart，实现了球赛库的一部分：</p>
-<pre><code>part of ballgame;
-
-// ...代码从这里开始...
-</code></pre><h4 id="重新导出库-Re-exporting-libraries"><a href="#重新导出库-Re-exporting-libraries" class="headerlink" title="重新导出库(Re-exporting libraries)"></a>重新导出库(Re-exporting libraries)</h4><p>可以通过重新导出部分库或者全部库来组合或重新打包库。例如，你可能有实现为一组较小的库集成为一个较大库。或者你可以创建一个库，提供了从另一个库方法的子集:</p>
-<pre><code>// In french.dart:
-library french;
-
-hello() =&gt; print(&apos;Bonjour!&apos;);
-goodbye() =&gt; print(&apos;Au Revoir!&apos;);
-
-
-// In togo.dart:
-library togo;
-
-import &apos;french.dart&apos;;
-export &apos;french.dart&apos; show hello;
-
-
-// In another .dart file:
-import &apos;togo.dart&apos;;
-
-void main() {
-    hello();   //print bonjour
-    goodbye(); //FAIL
-}
-</code></pre><h3 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h3><p>Dart是单线程模型，也就没有了所谓的主线程/子线程之分。</p>
-<p>Dart提供了类似ES7中的async await等异步操作，Dart库大多方法返回 Future 和 Stream 对象。这些方法是异步的：它们在设置一个可能的耗时操作（比如 I/O 操作）之后返回，而无需等待操作完成。</p>
-<p>async和await往往是成对出现的，如果一个方法中有耗时的操作，你需要将这个方法设置成async，并给其中的耗时操作加上await关键字，如果这个方法有返回值，你需要将返回值塞到Future中并返回，如下代码所示：</p>
-<pre><code>Future checkVersion() async {
-  var version = await lookUpVersion();
-  // Do something with version
-}
-</code></pre><p>下面的代码使用Dart从网络获取数据并打印出来：</p>
-<pre><code>import &apos;dart:async&apos;;
-import &apos;package:http/http.dart&apos; as http;
-
-Future&lt;String&gt; getNetData() async{
-  http.Response res = await http.get(&quot;https://www.baidu.com&quot;);
-  return res.body;
-}
-
-main() {
-  getNetData().then((str) {
-    print(str);
-  });
-}
-</code></pre><h4 id="Even-Looper"><a href="#Even-Looper" class="headerlink" title="Even-Looper"></a>Even-Looper</h4><p>Dart是单线程模型，也就没有了所谓的主线程/子线程之分。<br>Dart也是Event-Looper以及Event-Queue的模型，所有的事件都是通过EventLooper的依次执行。而Dart的Event Loop就是：</p>
-<ul>
-<li>从EventQueue中获取Event</li>
-<li>处理Event</li>
-<li>直到EventQueue为空</li>
-</ul>
-<p><img src="/2019/06/25/dart-knowledge/event-loop.png" alt><br>而这些Event包括了用户输入，点击，Timer，文件IO等</p>
-<h4 id="单线程模型"><a href="#单线程模型" class="headerlink" title="单线程模型"></a>单线程模型</h4><p>一旦某个Dart的函数开始执行，它将执行到这个函数结束，也就是<strong>Dart的函数不会被其他Dart代码打断</strong>。</p>
-<p>Dart中没有线程的概念，只有isolate，每个isolate都是隔离的，并不会共享内存。而一个Dart程序是在Main isolate的main函数开始，而<strong>在Main函数结束后，Main isolate线程开始一个一个（one by one）的开始处理Event Queue中的每一个Event</strong>。</p>
-<p><img src="/2019/06/25/dart-knowledge/event-loop-and-main.png" alt title="Main isolate"></p>
-<h4 id="Event-Queue以及Microtask-Queue"><a href="#Event-Queue以及Microtask-Queue" class="headerlink" title="Event Queue以及Microtask Queue"></a>Event Queue以及Microtask Queue</h4><p>Dart中的Main Isolate只有一个Event Looper，但是存在两个Event Queue:Event Queue以及Microtask Queue。</p>
-<p><strong><em>Microtask Queue存在的意义是：希望通过这个Queue来处理稍晚一些的事情，但是在下一个消息到来之前需要处理完的事情。</em></strong></p>
-<p>当<strong>Event Looper正在处理Microtask Queue中的Event时候，Event Queue中的Event就停止了处理了</strong>，此时App不能绘制任何图形，不能处理任何鼠标点击，不能处理文件IO等等</p>
-<p>Event-Looper挑选Task的执行顺序为：1.优先全部执行完Microtask Queue中的Event；2.直到Microtask Queue为空时，才会执行Event Queue中的Event：</p>
-<p><img src="/2019/06/25/dart-knowledge/both-queues.png" alt title="both-queues"><br><strong>Dart中只能知道Event处理的先后顺序，但是并不知道某个Event执行的具体时间点，因为它的处理模型是一个单线程循环</strong>，而不是基于时钟调度（即它的执行只是按照Event处理完，就开始循环下一个Event，而与Java中的Thread调度不一样，没有时间调度的概念），也就是我们既是指定另一个Delay Time的Task，希望它在预期的时间后开始执行，它有可能不会在那个时间执行，需要看是否前面的Event是否已经Dequeue。</p>
-<h4 id="异步任务调度"><a href="#异步任务调度" class="headerlink" title="异步任务调度"></a>异步任务调度</h4><p>当有代码可以在后续任务执行的时候，有两种方式，通过dart:async这个Lib中的API即可：</p>
-<ul>
-<li>使用Future类，可以将任务加入到Event Queue的队尾</li>
-<li>使用scheduleMicrotask函数，将任务加入到Microtask Queue队尾</li>
-</ul>
-<p>当使用EventQueue时，需要考虑清楚，<strong>尽量避免microtask queue过于庞大，否则会阻塞其他事件的处理</strong>：</p>
-<p><img src="/2019/06/25/dart-knowledge/scheduling-tasks.png" alt title="scheduling-tasks"></p>
-<h4 id="使用Future"><a href="#使用Future" class="headerlink" title="使用Future"></a>使用Future</h4><p>一般常用的Future构造函数：</p>
-<pre><code>new Future((){
-    //  doing something
-});
-</code></pre><p>而一般常用的还有当有分治任务时，需要将一个大任务拆成很多小任务一步步执行时，就需要使用到Future.then函数来拆解任务</p>
-<pre><code>void main(){
-new Future(() =&gt; futureTask)  //  异步任务的函数
-        .then((m) =&gt; &quot;futueTask execute result:$m&quot;)  //   任务执行完后的子任务
-        .then((m) =&gt; m.length)  //  其中m为上个任务执行完后的返回的结果
-        .then((m) =&gt; printLength(m))
-        .whenComplete(() =&gt; whenTaskCompelete);  //  当所有任务完成后的回调函数
-}
-
-int futureTask() {
-    return 21; 
-}
-
-void printLength(int length) {
-    print(&quot;Text Length:$length&quot;);
-}
-
-void whenTaskCompelete() {
-    print(&quot;Task Complete&quot;);
-}
-</code></pre><p>当任务需要延迟执行时，可以使用new Future.delay来将任务延迟执行，而如上所述，只有当Main isolate的Event Queue处于Idle的状态时，才会延迟1s执行，否则等待的时间会比1s长很多</p>
-<pre><code>new Future.delayed(const Duration(seconds: 1), () =&gt; futureTask);
-</code></pre><p>当需要做动画的时候，不要使用Future，而需要使用<a href="https://api.dartlang.org/stable/1.24.3/dart-html/Window/animationFrame.html" target="_blank" rel="noopener">animateFrame</a></p>
-<p>PS:</p>
-<ul>
-<li>Future中的then并没有创建新的Event丢到Event Queue中，而只是一个普通的Function Call，在FutureTask执行完后，立即开始执行</li>
-<li>当Future在then函数之前已经执行完成了，则会创建一个task，将该task的添加到microtask queue中，并且该任务将会执行通过then传入的函数</li>
-<li>Future只是创建了一个Event，将Event插入到了Event Queue的队尾</li>
-<li>使用Future.value构造函数的时候，就会和第二条一样，创建Task丢到microtask Queue中执行then传入的函数</li>
-<li>Future.sync构造函数执行了它传入的函数之后，也会立即创建Task丢到microtask Queue中执行</li>
-</ul>
-<h4 id="使用scheduleMicrotask"><a href="#使用scheduleMicrotask" class="headerlink" title="使用scheduleMicrotask"></a>使用scheduleMicrotask</h4><p>在最顶层的调用关系中，使用该函数即可：</p>
-<pre><code>async.scheduleMicrotask(() =&gt; microtask());
-
-void microtask(){
-  //  doing something
-}
-</code></pre><h4 id="使用isolate以及Worker"><a href="#使用isolate以及Worker" class="headerlink" title="使用isolate以及Worker"></a>使用isolate以及Worker</h4><p>当有计算很繁重的任务时，则需要使用isolate或者Worker来执行，以保持App对用户操作的及时响应。Isolate的实现可能是一个单独的线程，或者一个单独的进程，需要看Dart VM是如何实现的。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.jianshu.com/p/06aebcad0543" target="_blank" rel="noopener">https://www.jianshu.com/p/06aebcad0543</a><br><a href="https://www.jianshu.com/p/9e5f4c81cc7d" target="_blank" rel="noopener">https://www.jianshu.com/p/9e5f4c81cc7d</a><br><a href="https://www.jianshu.com/p/a4affde4c8ca" target="_blank" rel="noopener">Flutter–Dart中的异步</a><br><a href="https://dart.dev/articles/archive/event-loop" target="_blank" rel="noopener">https://dart.dev/articles/archive/event-loop</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -5940,7 +5055,7 @@ void microtask(){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-count">57</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
