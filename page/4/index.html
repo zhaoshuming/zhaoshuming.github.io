@@ -293,6 +293,1959 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/06/android-rxjava/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/06/android-rxjava/" itemprop="url">RxJava2操作符汇总</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-06T17:04:12+08:00">
+                2019-08-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>RxJava是一个在Java VM上使用可观测的序列来组成异步的、基于事件的程序的库</strong>(a library for composing asynchronous and event-based programs using observable sequences for the Java VM)。</p>
+<p>RxJava能帮助我们在实现异步执行的前提下保持代码的清晰。它的原理就是创建一个Observable来完成异步任务，组合使用各种不同的链式操作，来实现各种复杂的操作，最终将任务的执行结果发射给Observer进行处理。</p>
+<h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>RxJava 有以下三个基本的元素：<br>1.被观察者（Observable）<br>2.观察者（Observer）<br>3.订阅（subscribe）</p>
+<p>1.创建被观察者：</p>
+<pre><code>Observable observable = Observable.create(new ObservableOnSubscribe&lt;Integer&gt;() {
+    @Override
+    public void subscribe(ObservableEmitter&lt;Integer&gt; e) throws Exception {
+        Log.d(TAG, &quot;=========================currentThread name: &quot; + Thread.currentThread().getName());
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        e.onComplete();
+    }
+});
+</code></pre><p>2.创建观察者：</p>
+<pre><code>Observer observer = new Observer&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;======================onSubscribe&quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;======================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;======================onError&quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;======================onComplete&quot;);
+    }
+};
+</code></pre><p>3.订阅</p>
+<pre><code>observable.subscribe(observer);
+</code></pre><p>也可以链式调用</p>
+<h3 id="RxJava-中的调度器"><a href="#RxJava-中的调度器" class="headerlink" title="RxJava 中的调度器"></a>RxJava 中的调度器</h3><table>
+<thead>
+<tr>
+<th>调度器</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Schedulers.computation( )</td>
+<td>用于使用计算任务，如事件循环和回调处理</td>
+</tr>
+<tr>
+<td>Schedulers.immediate( )</td>
+<td>当前线程</td>
+</tr>
+<tr>
+<td>Schedulers.io( )</td>
+<td>用于 IO 密集型任务，如果异步阻塞 IO 操作</td>
+</tr>
+<tr>
+<td>Schedulers.newThread( )</td>
+<td>创建一个新的线程</td>
+</tr>
+<tr>
+<td>AndroidSchedulers.mainThread()</td>
+<td>Android 的 UI 线程，用于操作 UI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h3><ul>
+<li>每次掉用过onError或onComplete其中一个方法后，就会掉用dispose()方法</li>
+<li>CompositeDisposable可以容纳多个disposable，每当我们得到一个Disposable时就调用CompositeDisposable.add()将它添加到容器中, 在退出的时候, 调用CompositeDisposable.clear() 即可快速解除所有添加的Disposable类.</li>
+</ul>
+<h2 id="2、创建操作符"><a href="#2、创建操作符" class="headerlink" title="2、创建操作符"></a>2、创建操作符</h2><h3 id="create"><a href="#create" class="headerlink" title="create()"></a>create()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; create(ObservableOnSubscribe&lt;T&gt; source)
+</code></pre><p>作用：创建一个被观察者</p>
+<h3 id="just"><a href="#just" class="headerlink" title="just()"></a>just()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; just(T item) 
+......
+public static &lt;T&gt; Observable&lt;T&gt; just(T item1, T item2, T item3, T item4, T item5, T item6, T item7, T item8, T item9, T item10)
+</code></pre><p>作用：创建一个被观察者，并发送事件，发送的事件不可以超过10个以上。</p>
+<p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3)
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;=================onSubscribe&quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;=================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;=================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;=================onComplete &quot;);
+    }
+});
+
+看看打印结果：
+=================onSubscribe
+=================onNext 1
+=================onNext 2
+=================onNext 3
+=================onComplete 
+</code></pre><h3 id="fromArray"><a href="#fromArray" class="headerlink" title="fromArray()"></a>fromArray()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; fromArray(T... items)
+</code></pre><p>作用：这个方法和 just() 类似，只不过 fromArray 可以传入多于10个的变量，并且可以传入一个数组。</p>
+<h3 id="fromIterable"><a href="#fromIterable" class="headerlink" title="fromIterable()"></a>fromIterable()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; fromIterable(Iterable&lt;? extends T&gt; source)
+</code></pre><p>作用：这个方法和 fromArray() 类似，直接发送一个 List 集合数据给观察者</p>
+<h3 id="fromCallable-amp-fromRunnalbe"><a href="#fromCallable-amp-fromRunnalbe" class="headerlink" title="fromCallable() &amp; fromRunnalbe()"></a>fromCallable() &amp; fromRunnalbe()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; fromCallable(Callable&lt;? extends T&gt; supplier)
+</code></pre><p>作用：这里的 Callable 是 java.util.concurrent 中的 Callable，Callable 和 Runnable 的用法基本一致，只是它会返回一个结果值，这个结果值就是发给观察者的。</p>
+<p>Observable.fromCallable()类似于:</p>
+<pre><code>Observable.defer {
+    try {
+        Observable.just(...)
+    } catch(e: Throwable) {
+        Observable.error(e)
+    }
+}
+</code></pre><p>因此，just为运行同步，而fromCallable可以被推迟到另一个Scheduler与subscribeOn（“后”和执行）。</p>
+<p>示例如下：</p>
+<pre><code>Observable.fromCallable(new Callable &lt; Integer &gt; () {
+
+    @Override
+    public Integer call() throws Exception {
+        return 1;
+    }
+})
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;================accept &quot; + integer);
+    }
+});
+</code></pre><h3 id="fromFuture"><a href="#fromFuture" class="headerlink" title="fromFuture()"></a>fromFuture()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; fromFuture(Future&lt;? extends T&gt; future)
+</code></pre><p>作用：参数中的 Future 是 java.util.concurrent 中的 Future，Future 的作用是增加了 cancel() 等方法操作 Callable，它可以通过 get() 方法来获取 Callable 返回的值。</p>
+<p>示例如下：</p>
+<pre><code>FutureTask &lt; String &gt; futureTask = new FutureTask &lt; &gt; (new Callable &lt; String &gt; () {
+    @Override
+    public String call() throws Exception {
+        Log.d(TAG, &quot;CallableDemo is Running&quot;);
+        return &quot;返回结果&quot;;
+    }
+});
+
+Observable.fromFuture(futureTask)
+    .doOnSubscribe(new Consumer &lt; Disposable &gt; () {
+    @Override
+    public void accept(Disposable disposable) throws Exception {
+        futureTask.run();
+    }
+})
+.subscribe(new Consumer &lt; String &gt; () {
+    @Override
+    public void accept(String s) throws Exception {
+        Log.d(TAG, &quot;================accept &quot; + s);
+    }
+});
+</code></pre><p>doOnSubscribe() 的作用就是只有订阅时才会发送事件。</p>
+<h3 id="defer"><a href="#defer" class="headerlink" title="defer()"></a>defer()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; defer(Callable&lt;? extends ObservableSource&lt;? extends T&gt;&gt; supplier)
+</code></pre><p>作用：这个方法的作用就是直到被观察者被订阅后才会创建被观察者。</p>
+<p>示例如下：</p>
+<pre><code>// i 要定义为成员变量
+Integer i = 100;
+
+Observable&lt;Integer&gt; observable = Observable.defer(new Callable&lt;ObservableSource&lt;? extends Integer&gt;&gt;() {
+    @Override
+    public ObservableSource&lt;? extends Integer&gt; call() throws Exception {
+        return Observable.just(i);
+    }
+});
+
+i = 200;
+
+Observer observer = new Observer&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+};
+
+observable.subscribe(observer);
+
+i = 300;
+
+observable.subscribe(observer);
+
+打印结果如下：
+
+================onNext 200
+================onNext 300
+</code></pre><p>因为 defer() 只有观察者订阅的时候才会创建新的被观察者，所以每订阅一次就会打印一次，并且都是打印 i 最新的值。</p>
+<h3 id="timer"><a href="#timer" class="headerlink" title="timer()"></a>timer()</h3><pre><code>public static Observable&lt;Long&gt; timer(long delay, TimeUnit unit) 
+</code></pre><p>作用：当到指定时间后就会发送一个 0L 的值给观察者。</p>
+<p>示例如下：</p>
+<pre><code>Observable.timer(2, TimeUnit.SECONDS)
+.subscribe(new Observer &lt; Long &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(Long aLong) {
+        Log.d(TAG, &quot;===============onNext &quot; + aLong);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+</code></pre><h3 id="interval"><a href="#interval" class="headerlink" title="interval()"></a>interval()</h3><pre><code>public static Observable&lt;Long&gt; interval(long period, TimeUnit unit)
+public static Observable&lt;Long&gt; interval(long initialDelay, long period, TimeUnit unit)
+</code></pre><p>作用：每隔一段时间就会发送一个事件，这个事件是从0开始，不断增1的数字。</p>
+<p>示例如下：</p>
+<pre><code>Observable.interval(4, TimeUnit.SECONDS)
+.subscribe(new Observer &lt; Long &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==============onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Long aLong) {
+        Log.d(TAG, &quot;==============onNext &quot; + aLong);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+
+打印结果：
+05-20 20:48:10.321 28723-28723/com.example.louder.rxjavademo D/chan: ==============onSubscribe 
+05-20 20:48:14.324 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 0
+05-20 20:48:18.324 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 1
+05-20 20:48:22.323 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 2
+05-20 20:48:26.323 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 3
+05-20 20:48:30.323 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 4
+05-20 20:48:34.323 28723-28746/com.example.louder.rxjavademo D/chan: ==============onNext 5
+</code></pre><p>从时间就可以看出每隔4秒就会发出一次数字递增1的事件。这里说下 interval() 第三个方法的 initialDelay 参数，这个参数的意思就是 onSubscribe 回调之后，再次回调 onNext 的间隔时间。</p>
+<h3 id="intervalRange"><a href="#intervalRange" class="headerlink" title="intervalRange()"></a>intervalRange()</h3><pre><code>public static Observable&lt;Long&gt; intervalRange(long start, long count, long initialDelay, long period, TimeUnit unit)
+public static Observable&lt;Long&gt; intervalRange(long start, long count, long initialDelay, long period, TimeUnit unit, Scheduler scheduler)
+</code></pre><p>作用：可以指定发送事件的开始值和数量，其他与 interval() 的功能一样。</p>
+<p>示例如下：</p>
+<pre><code>Observable.intervalRange(2, 5, 2, 1, TimeUnit.SECONDS)
+.subscribe(new Observer &lt; Long &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==============onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Long aLong) {
+        Log.d(TAG, &quot;==============onNext &quot; + aLong);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+打印结果：
+05-21 00:03:01.672 2504-2504/com.example.louder.rxjavademo D/chan: ==============onSubscribe 
+05-21 00:03:03.674 2504-2537/com.example.louder.rxjavademo D/chan: ==============onNext 2
+05-21 00:03:04.674 2504-2537/com.example.louder.rxjavademo D/chan: ==============onNext 3
+05-21 00:03:05.674 2504-2537/com.example.louder.rxjavademo D/chan: ==============onNext 4
+05-21 00:03:06.673 2504-2537/com.example.louder.rxjavademo D/chan: ==============onNext 5
+05-21 00:03:07.674 2504-2537/com.example.louder.rxjavademo D/chan: ==============onNext 6
+</code></pre><p>可以看出收到5次 onNext 事件，并且是从 2 开始的。</p>
+<h3 id="range"><a href="#range" class="headerlink" title="range()"></a>range()</h3><pre><code>public static Observable&lt;Integer&gt; range(final int start, final int count)
+</code></pre><p>作用：同时发送一定范围的事件序列。</p>
+<p>示例如下：</p>
+<pre><code>Observable.range(2, 5)
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==============onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer aLong) {
+        Log.d(TAG, &quot;==============onNext &quot; + aLong);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+
+打印结果：
+==============onSubscribe 
+==============onNext 2
+==============onNext 3
+==============onNext 4
+==============onNext 5
+==============onNext 6
+</code></pre><h3 id="rangeLong"><a href="#rangeLong" class="headerlink" title="rangeLong()"></a>rangeLong()</h3><pre><code>public static Observable&lt;Long&gt; rangeLong(long start, long count)
+</code></pre><p>作用：与 range() 一样，只是数据类型为 Long</p>
+<h3 id="empty-amp-never-amp-error"><a href="#empty-amp-never-amp-error" class="headerlink" title="empty() &amp; never() &amp; error()"></a>empty() &amp; never() &amp; error()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; empty()
+public static &lt;T&gt; Observable&lt;T&gt; never()
+public static &lt;T&gt; Observable&lt;T&gt; error(final Throwable exception)
+</code></pre><p>作用：<br>1.empty() ： 直接发送 onComplete() 事件<br>2.never()：不发送任何事件<br>3.error()：发送 onError() 事件</p>
+<p>示例如下：</p>
+<pre><code>Observable.empty()
+.subscribe(new Observer &lt; Object &gt; () {
+
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe&quot;);
+    }
+
+    @Override
+    public void onNext(Object o) {
+        Log.d(TAG, &quot;==================onNext&quot;);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot; + e);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete&quot;);
+    }
+});
+</code></pre><p>打印结果：</p>
+<pre><code>==================onSubscribe
+==================onComplete
+</code></pre><p>换成 never() 的打印结果：</p>
+<pre><code>==================onSubscribe
+</code></pre><p>换成 error() 的打印结果：</p>
+<pre><code>==================onSubscribe
+==================onError java.lang.NullPointerException
+</code></pre><h3 id="amb"><a href="#amb" class="headerlink" title="amb()"></a>amb()</h3><p>public static <t> Observable<t> amb(Iterable&lt;? extends ObservableSource&lt;? extends T&gt;&gt; sources)</t></t></p>
+<p>作用：amb() 要传入一个 Observable 集合，但是<strong>只会发送最先发送事件的 Observable 中的事件，其余 Observable 将会被丢弃</strong>。</p>
+<p>示例如下：</p>
+<pre><code>ArrayList &lt; Observable &lt; Long &gt;&gt; list = new ArrayList &lt; &gt; ();
+list.add(Observable.intervalRange(1, 5, 2, 1, TimeUnit.SECONDS));
+list.add(Observable.intervalRange(6, 5, 0, 1, TimeUnit.SECONDS));
+Observable.amb(list)
+.subscribe(new Consumer &lt; Long &gt; () {
+    @Override
+    public void accept(Long aLong) throws Exception {
+        Log.d(TAG, &quot;========================aLong &quot; + aLong);
+    }
+});
+打印结果：
+05-26 10:21:29.580 17185-17219/com.example.rxjavademo D/chan: ========================aLong 6
+05-26 10:21:30.580 17185-17219/com.example.rxjavademo D/chan: ========================aLong 7
+05-26 10:21:31.579 17185-17219/com.example.rxjavademo D/chan: ========================aLong 8
+05-26 10:21:32.579 17185-17219/com.example.rxjavademo D/chan: ========================aLong 9
+05-26 10:21:33.579 17185-17219/com.example.rxjavademo D/chan: ========================aLong 10
+</code></pre><h2 id="3、转换操作符"><a href="#3、转换操作符" class="headerlink" title="3、转换操作符"></a>3、转换操作符</h2><h3 id="map"><a href="#map" class="headerlink" title="map()"></a>map()</h3><p>map可以将被观察者发送的数据类型转变成其他的类型</p>
+<pre><code>public final &lt;R&gt; Observable&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper)
+</code></pre><p>以下代码将 Integer 类型的数据转换成 String：</p>
+<pre><code>Observable.just(1, 2, 3)
+.map(new Function &lt; Integer, String &gt; () {
+    @Override
+    public String apply(Integer integer) throws Exception {
+        return &quot;I&apos;m &quot; + integer;
+    }
+})
+.subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.e(TAG, &quot;===================onSubscribe&quot;);
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.e(TAG, &quot;===================onNext &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+
+打印结果：
+===================onSubscribe
+===================onNext I&apos;m 1
+===================onNext I&apos;m 2
+===================onNext I&apos;m 3
+</code></pre><h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap()"></a>flatMap()</h3><p>这个方法可以将事件序列中的元素进行整合加工，返回一个新的被观察者。flatMap() 其实与 map() 类似，但是 flatMap() 返回的是一个 Observerable。</p>
+<pre><code>public final &lt;R&gt; Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper)
+</code></pre><p>现在有一个需求就是要将 Person 集合中的每个元素中的 Plan 的 action 打印出来。首先用 map() 来实现这个需求看看：</p>
+<pre><code>Observable.fromIterable(personList)
+.map(new Function &lt; Person, List &lt; Plan &gt;&gt; () {
+    @Override
+    public List &lt; Plan &gt; apply(Person person) throws Exception {
+        return person.getPlanList();
+    }
+})
+.subscribe(new Observer &lt; List &lt; Plan &gt;&gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(List &lt; Plan &gt; plans) {
+        for (Plan plan: plans) {
+            List &lt; String &gt; planActionList = plan.getActionList();
+            for (String action: planActionList) {
+                Log.d(TAG, &quot;==================action &quot; + action);
+            }
+        }
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+</code></pre><p>可以看到 onNext() 用了嵌套 for 循环来实现，如果代码逻辑复杂起来的话，可能需要多重循环才可以实现。现在看下使用 flatMap() 实现：</p>
+<pre><code>Observable.fromIterable(personList)
+.flatMap(new Function &lt; Person, ObservableSource &lt; Plan &gt;&gt; () {
+    @Override
+    public ObservableSource &lt; Plan &gt; apply(Person person) {
+        return Observable.fromIterable(person.getPlanList());
+    }
+})
+.flatMap(new Function &lt; Plan, ObservableSource &lt; String &gt;&gt; () {
+    @Override
+    public ObservableSource &lt; String &gt; apply(Plan plan) throws Exception {
+        return Observable.fromIterable(plan.getActionList());
+    }
+})
+.subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;==================action: &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+</code></pre><p>从代码可以看出，只需要两个 flatMap() 就可以完成需求，并且代码逻辑非常清晰。</p>
+<h3 id="concatMap"><a href="#concatMap" class="headerlink" title="concatMap()"></a>concatMap()</h3><p>concatMap() 和 flatMap() 基本上是一样的，只不过 <strong>concatMap() 转发出来的事件是有序的</strong>，不管是否延时，而 flatMap() 是无序的。</p>
+<pre><code>public final &lt;R&gt; Observable&lt;R&gt; concatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper)
+public final &lt;R&gt; Observable&lt;R&gt; concatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper, int prefetch)
+</code></pre><h3 id="buffer"><a href="#buffer" class="headerlink" title="buffer()"></a>buffer()</h3><p>从需要发送的事件当中获取一定数量的事件，并将这些事件放到缓冲区当中一并发出。</p>
+<pre><code>public final Observable&lt;List&lt;T&gt;&gt; buffer(int count, int skip)
+</code></pre><p>buffer 有两个参数，一个是 count，另一个 skip。<strong>count 缓冲区元素的数量，skip 就代表缓冲区满了之后，发送下一次事件序列的时候要跳过多少元素</strong>。这样说可能还是有点抽象，直接看代码：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5)
+.buffer(2, 1)
+.subscribe(new Observer &lt; List &lt; Integer &gt;&gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(List &lt; Integer &gt; integers) {
+        Log.d(TAG, &quot;================缓冲区大小： &quot; + integers.size());
+        for (Integer i: integers) {
+            Log.d(TAG, &quot;================元素： &quot; + i);
+        }
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+打印结果：
+================缓冲区大小： 2
+================元素： 1
+================元素： 2
+================缓冲区大小： 2
+================元素： 2
+================元素： 3
+================缓冲区大小： 2
+================元素： 3
+================元素： 4
+================缓冲区大小： 2
+================元素： 4
+================元素： 5
+================缓冲区大小： 1
+================元素： 5
+</code></pre><p>从结果可以看出，每次发送事件，指针都会往后移动一个元素再取值，直到指针移动到没有元素的时候就会停止取值。</p>
+<h3 id="scan"><a href="#scan" class="headerlink" title="scan()"></a>scan()</h3><p>将数据以一定的逻辑聚合起来。</p>
+<pre><code>public final Observable&lt;T&gt; scan(BiFunction&lt;T, T, T&gt; accumulator)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5)
+.scan(new BiFunction &lt; Integer, Integer, Integer &gt; () {
+    @Override
+    public Integer apply(Integer integer, Integer integer2) throws Exception {
+        Log.d(TAG, &quot;====================apply &quot;);
+        Log.d(TAG, &quot;====================integer &quot; + integer);
+        Log.d(TAG, &quot;====================integer2 &quot; + integer2);
+        return integer + integer2;
+    }
+})
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;====================accept &quot; + integer);
+    }
+});
+打印结果：
+====================accept 1
+====================apply 
+====================integer 1
+====================integer2 2
+====================accept 3
+====================apply 
+====================integer 3
+====================integer2 3
+====================accept 6
+====================apply 
+====================integer 6
+====================integer2 4
+====================accept 10
+====================apply 
+====================integer 10
+====================integer2 5
+====================accept 15
+</code></pre><h3 id="groupBy"><a href="#groupBy" class="headerlink" title="groupBy()"></a>groupBy()</h3><p>将发送的数据进行分组，每个分组都会返回一个被观察者。</p>
+<pre><code>public final &lt;K&gt; Observable&lt;GroupedObservable&lt;K, T&gt;&gt; groupBy(Function&lt;? super T, ? extends K&gt; keySelector)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(5, 2, 3, 4, 1, 6, 8, 9, 7, 10)
+.groupBy(new Function &lt; Integer, Integer &gt; () {
+    @Override
+    public Integer apply(Integer integer) throws Exception {
+        return integer % 3;
+    }
+})
+.subscribe(new Observer &lt; GroupedObservable &lt; Integer, Integer &gt;&gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;====================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(GroupedObservable &lt; Integer, Integer &gt; integerIntegerGroupedObservable) {
+        Log.d(TAG, &quot;====================onNext &quot;);
+        integerIntegerGroupedObservable.subscribe(new Observer &lt; Integer &gt; () {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, &quot;====================GroupedObservable onSubscribe &quot;);
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                Log.d(TAG, &quot;====================GroupedObservable onNext  groupName: &quot; + integerIntegerGroupedObservable.getKey() + &quot; value: &quot; + integer);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, &quot;====================GroupedObservable onError &quot;);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, &quot;====================GroupedObservable onComplete &quot;);
+            }
+        });
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;====================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;====================onComplete &quot;);
+    }
+});
+</code></pre><h3 id="window"><a href="#window" class="headerlink" title="window()"></a>window()</h3><p>发送指定数量的事件时，就将这些事件分为一组。window 中的 count 的参数就是代表指定的数量，例如将 count 指定为2，那么每发2个数据就会将这2个数据分成一组。</p>
+<pre><code>public final Observable&lt;Observable&lt;T&gt;&gt; window(long count)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5)
+.window(2)
+.subscribe(new Observer &lt; Observable &lt; Integer &gt;&gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;=====================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Observable &lt; Integer &gt; integerObservable) {
+        integerObservable.subscribe(new Observer &lt; Integer &gt; () {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, &quot;=====================integerObservable onSubscribe &quot;);
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                Log.d(TAG, &quot;=====================integerObservable onNext &quot; + integer);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, &quot;=====================integerObservable onError &quot;);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, &quot;=====================integerObservable onComplete &quot;);
+            }
+        });
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;=====================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;=====================onComplete &quot;);
+    }
+});
+打印结果：
+=====================onSubscribe 
+=====================integerObservable onSubscribe 
+=====================integerObservable onNext 1
+=====================integerObservable onNext 2
+=====================integerObservable onComplete 
+=====================integerObservable onSubscribe 
+=====================integerObservable onNext 3
+=====================integerObservable onNext 4
+=====================integerObservable onComplete 
+=====================integerObservable onSubscribe 
+=====================integerObservable onNext 5
+=====================integerObservable onComplete 
+=====================onComplete 
+</code></pre><p>从结果可以发现，window() 将 1~5 的事件分成了3组。</p>
+<h3 id="compose"><a href="#compose" class="headerlink" title="compose()"></a>compose()</h3><p>对Observable进行变换，加工处理。</p>
+<pre><code>public final &lt;R&gt; Observable&lt;R&gt; compose(ObservableTransformer&lt;? super T, ? extends R&gt; composer)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5)
+          .compose(new ObservableTransformer&lt;T, T&gt;() {
+            @Override
+            public ObservableSource&lt;T&gt; apply(Observable&lt;T&gt; observable) { //比如给observable添加subscribeOn、observeOn
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            })
+　　　　　　.subscribe();
+</code></pre><h2 id="4、功能操作符"><a href="#4、功能操作符" class="headerlink" title="4、功能操作符"></a>4、功能操作符</h2><h3 id="subscribeOn"><a href="#subscribeOn" class="headerlink" title="subscribeOn()"></a>subscribeOn()</h3><p>指定被观察者的线程，要注意的时，如果多次调用此方法，只有第一次有效。如果不指定，则默认为主线程。</p>
+<pre><code>public final Observable&lt;T&gt; subscribeOn(Scheduler scheduler)
+</code></pre><h3 id="observeOn"><a href="#observeOn" class="headerlink" title="observeOn()"></a>observeOn()</h3><p>指定观察者的线程，可以切换线程，每指定一次就会生效一次。</p>
+<pre><code>public final Observable&lt;T&gt; observeOn(Scheduler scheduler)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3)
+.observeOn(Schedulers.newThread())
+.flatMap(new Function &lt; Integer, ObservableSource &lt; String &gt;&gt; () {
+    @Override
+    public ObservableSource &lt; String &gt; apply(Integer integer) throws Exception {
+        Log.d(TAG, &quot;======================flatMap Thread name &quot; + Thread.currentThread().getName());
+        return Observable.just(&quot;chan&quot; + integer);
+    }
+})
+.observeOn(AndroidSchedulers.mainThread())
+.subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;======================onSubscribe&quot;);
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;======================onNext Thread name &quot; + Thread.currentThread().getName());
+        Log.d(TAG, &quot;======================onNext &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;======================onError&quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;======================onComplete&quot;);
+    }
+});
+打印结果：
+======================onSubscribe
+======================flatMap Thread name RxNewThreadScheduler-1
+======================flatMap Thread name RxNewThreadScheduler-1
+======================flatMap Thread name RxNewThreadScheduler-1
+======================onNext Thread name main
+======================onNext chan1
+======================onNext Thread name main
+======================onNext chan2
+======================onNext Thread name main
+======================onNext chan3
+======================onComplete
+</code></pre><p>从打印结果可以知道，observeOn 成功切换了线程。</p>
+<h3 id="delay"><a href="#delay" class="headerlink" title="delay()"></a>delay()</h3><p>延迟一段事件发送事件， onSubscribe 回调之后 onNext 延时后才会回调。</p>
+<pre><code>public final Observable&lt;T&gt; delay(long delay, TimeUnit unit)
+</code></pre><h3 id="doOnEach"><a href="#doOnEach" class="headerlink" title="doOnEach()"></a>doOnEach()</h3><p>Observable 每发送一件事件之前都会先回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnEach(final Consumer&lt;? super Notification&lt;T&gt;&gt; onNotification)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe &lt; Integer &gt; () {
+    @Override
+    public void subscribe(ObservableEmitter &lt; Integer &gt; e) throws Exception {
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        //      e.onError(new NumberFormatException());
+        e.onComplete();
+    }
+})
+.doOnEach(new Consumer &lt; Notification &lt; Integer &gt;&gt; () {
+    @Override
+    public void accept(Notification &lt; Integer &gt; integerNotification) throws Exception {
+        Log.d(TAG, &quot;==================doOnEach &quot; + integerNotification.getValue());
+    }
+})
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================doOnEach 1
+==================onNext 1
+==================doOnEach 2
+==================onNext 2
+==================doOnEach 3
+==================onNext 3
+==================doOnEach null
+==================onComplete 
+</code></pre><p>从结果就可以看出每发送一个事件之前都会回调 doOnEach 方法，并且可以取出 onNext() 发送的值。</p>
+<h3 id="doOnNext"><a href="#doOnNext" class="headerlink" title="doOnNext()"></a>doOnNext()</h3><p>Observable 每发送 onNext() 之前都会先回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnNext(Consumer&lt;? super T&gt; onNext)
+</code></pre><h3 id="doAfterNext"><a href="#doAfterNext" class="headerlink" title="doAfterNext()"></a>doAfterNext()</h3><p>Observable 每发送 onNext() 之后都会回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doAfterNext(Consumer&lt;? super T&gt; onAfterNext)
+</code></pre><h3 id="doOnComplete"><a href="#doOnComplete" class="headerlink" title="doOnComplete()"></a>doOnComplete()</h3><p>Observable 每发送 onComplete() 之前都会回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnComplete(Action onComplete)
+</code></pre><h3 id="doOnError"><a href="#doOnError" class="headerlink" title="doOnError()"></a>doOnError()</h3><p>Observable 每发送 onError() 之前都会回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnError(Consumer&lt;? super Throwable&gt; onError)
+</code></pre><h3 id="doOnSubscribe"><a href="#doOnSubscribe" class="headerlink" title="doOnSubscribe()"></a>doOnSubscribe()</h3><p>Observable 每发送 onSubscribe() 之前都会回调这个方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnSubscribe(Consumer&lt;? super Disposable&gt; onSubscribe)
+</code></pre><h3 id="doOnDispose"><a href="#doOnDispose" class="headerlink" title="doOnDispose()"></a>doOnDispose()</h3><p>当调用 Disposable 的 dispose() 之后回调该方法。</p>
+<pre><code>public final Observable&lt;T&gt; doOnDispose(Action onDispose)
+</code></pre><h3 id="doOnLifecycle"><a href="#doOnLifecycle" class="headerlink" title="doOnLifecycle()"></a>doOnLifecycle()</h3><p>在回调 onSubscribe 之前回调该方法的第一个参数的回调方法，可以使用该回调方法决定是否取消订阅。第二个参数的回调方法的作用与 doOnDispose() 是一样的。</p>
+<pre><code>public final Observable&lt;T&gt; doOnLifecycle(final Consumer&lt;? super Disposable&gt; onSubscribe, final Action onDispose)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe&lt;Integer&gt;() {
+    @Override
+    public void subscribe(ObservableEmitter&lt;Integer&gt; e) throws Exception {
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        e.onComplete();
+    }
+})
+.doOnLifecycle(new Consumer&lt;Disposable&gt;() {
+    @Override
+    public void accept(Disposable disposable) throws Exception {
+        Log.d(TAG, &quot;==================doOnLifecycle accept&quot;);
+    }
+}, new Action() {
+    @Override
+    public void run() throws Exception {
+        Log.d(TAG, &quot;==================doOnLifecycle Action&quot;);
+    }
+})
+.doOnDispose(
+    new Action() {
+        @Override
+        public void run() throws Exception {
+            Log.d(TAG, &quot;==================doOnDispose Action&quot;);
+        }
+})
+.subscribe(new Observer&lt;Integer&gt;() {
+    private Disposable d;
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+        this.d = d;
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+        d.dispose();
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+
+});
+打印结果：
+ ==================doOnLifecycle accept
+==================onSubscribe 
+==================onNext 1
+==================doOnDispose Action
+==================doOnLifecycle Action
+</code></pre><p>可以看到当在 onNext() 方法进行取消订阅操作后，doOnDispose() 和 doOnLifecycle() 都会被回调。<br>如果使用 doOnLifecycle 进行取消订阅，来看看打印结果：</p>
+<pre><code>==================doOnLifecycle accept
+==================onSubscribe 
+</code></pre><p>可以发现 doOnDispose Action 和 doOnLifecycle Action 都没有被回调。</p>
+<h3 id="doOnTerminate-amp-doAfterTerminate"><a href="#doOnTerminate-amp-doAfterTerminate" class="headerlink" title="doOnTerminate() &amp; doAfterTerminate()"></a>doOnTerminate() &amp; doAfterTerminate()</h3><p>doOnTerminate 是在 onError 或者 onComplete 发送之前回调，而 doAfterTerminate 则是 onError 或者 onComplete 发送之后回调。</p>
+<pre><code>public final Observable&lt;T&gt; doOnTerminate(final Action onTerminate)
+public final Observable&lt;T&gt; doAfterTerminate(Action onFinally)
+</code></pre><h3 id="doFinally"><a href="#doFinally" class="headerlink" title="doFinally()"></a>doFinally()</h3><p>在所有事件发送完毕之后回调该方法。</p>
+<pre><code>public final Observable&lt;T&gt; doFinally(Action onFinally)
+</code></pre><p>这里可能你会有个问题，那就是 doFinally() 和 doAfterTerminate() 到底有什么区别？区别就是在于取消订阅，如果取消订阅之后 doAfterTerminate() 就不会被回调，而 <strong>doFinally() 无论怎么样都会被回调，且都会在事件序列的最后</strong>。</p>
+<h3 id="onErrorReturn"><a href="#onErrorReturn" class="headerlink" title="onErrorReturn()"></a>onErrorReturn()</h3><p>当接受到一个 onError() 事件之后回调，返回的值会回调 onNext() 方法，并正常结束该事件序列。</p>
+<pre><code>public final Observable&lt;T&gt; onErrorReturn(Function&lt;? super Throwable, ? extends T&gt; valueSupplier)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe&lt;Integer&gt;() {
+    @Override
+    public void subscribe(ObservableEmitter&lt;Integer&gt; e) throws Exception {
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        e.onError(new NullPointerException());
+    }
+})
+.onErrorReturn(new Function&lt;Throwable, Integer&gt;() {
+    @Override
+    public Integer apply(Throwable throwable) throws Exception {
+        Log.d(TAG, &quot;==================onErrorReturn &quot; + throwable);
+        return 404;
+    }
+})
+.subscribe(new Observer&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onErrorReturn java.lang.NullPointerException
+==================onNext 404
+==================onComplete 
+</code></pre><h3 id="onErrorResumeNext"><a href="#onErrorResumeNext" class="headerlink" title="onErrorResumeNext()"></a>onErrorResumeNext()</h3><p>当接收到 onError() 事件时，返回一个新的 Observable，并正常结束事件序列。</p>
+<pre><code>public final Observable&lt;T&gt; onErrorResumeNext(Function&lt;? super Throwable, ? extends ObservableSource&lt;? extends T&gt;&gt; resumeFunction)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe&lt;Integer&gt;() {
+    @Override
+    public void subscribe(ObservableEmitter&lt;Integer&gt; e) throws Exception {
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        e.onError(new NullPointerException());
+    }
+})
+.onErrorResumeNext(new Function&lt;Throwable, ObservableSource&lt;? extends Integer&gt;&gt;() {
+    @Override
+    public ObservableSource&lt;? extends Integer&gt; apply(Throwable throwable) throws Exception {
+        Log.d(TAG, &quot;==================onErrorResumeNext &quot; + throwable);
+        return Observable.just(4, 5, 6);
+    }
+})
+.subscribe(new Observer&lt;Integer&gt;() {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onErrorResumeNext java.lang.NullPointerException
+==================onNext 4
+==================onNext 5
+==================onNext 6
+==================onComplete 
+</code></pre><h3 id="onExceptionResumeNext"><a href="#onExceptionResumeNext" class="headerlink" title="onExceptionResumeNext()"></a>onExceptionResumeNext()</h3><p>与 onErrorResumeNext() 作用基本一致，但是这个方法只能捕捉 Exception。</p>
+<pre><code>public final Observable&lt;T&gt; onExceptionResumeNext(final ObservableSource&lt;? extends T&gt; next)
+</code></pre><h3 id="retry"><a href="#retry" class="headerlink" title="retry()"></a>retry()</h3><p>如果出现错误事件，则会重新发送所有事件序列。times 是代表重新发的次数。</p>
+<pre><code>public final Observable&lt;T&gt; retry(long times)
+</code></pre><h3 id="retryUntil"><a href="#retryUntil" class="headerlink" title="retryUntil()"></a>retryUntil()</h3><p>出现错误事件之后，可以通过此方法判断是否继续发送事件。指示Observable遇到错误时，是否让Observable重新订阅。</p>
+<pre><code>public final Observable&lt;T&gt; retryUntil(final BooleanSupplier stop)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe &lt; Integer &gt; () {
+    @Override
+    public void subscribe(ObservableEmitter &lt; Integer &gt; e) throws Exception {
+        e.onNext(1);
+        e.onNext(2);
+        e.onNext(3);
+        e.onError(new Exception(&quot;404&quot;));
+    }
+})
+.retryUntil(new BooleanSupplier() {
+    @Override
+    public boolean getAsBoolean() throws Exception {
+        if (i == 6) {
+            return true;
+        }
+        return false;
+    }
+})
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        i += integer;
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onError 
+</code></pre><h3 id="retryWhen"><a href="#retryWhen" class="headerlink" title="retryWhen()"></a>retryWhen()</h3><p>当被观察者接收到异常或者错误事件时会回调该方法，这个方法会返回一个新的被观察者。<strong>如果返回的被观察者发送 Error 事件则之前的被观察者不会继续发送事件，如果发送正常事件则之前的被观察者会继续不断重试发送事件。</strong></p>
+<pre><code>public final void safeSubscribe(Observer&lt;? super T&gt; s)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe &lt; String &gt; () {
+    @Override
+    public void subscribe(ObservableEmitter &lt; String &gt; e) throws Exception {
+        e.onNext(&quot;chan&quot;);
+        e.onNext(&quot;ze&quot;);
+        e.onNext(&quot;de&quot;);
+        e.onError(new Exception(&quot;404&quot;));
+        e.onNext(&quot;haha&quot;);
+    }
+})
+.retryWhen(new Function &lt; Observable &lt; Throwable &gt; , ObservableSource &lt;? &gt;&gt; () {
+    @Override
+    public ObservableSource &lt;? &gt; apply(Observable &lt; Throwable &gt; throwableObservable) throws Exception {
+        return throwableObservable.flatMap(new Function &lt; Throwable, ObservableSource &lt;? &gt;&gt; () {
+            @Override
+            public ObservableSource &lt;? &gt; apply(Throwable throwable) throws Exception {
+                if(!throwable.toString().equals(&quot;java.lang.Exception: 404&quot;)) {
+                    return Observable.just(&quot;可以忽略的异常&quot;);
+                } else {
+                    return Observable.error(new Throwable(&quot;终止啦&quot;));
+                }
+            }
+        });
+    }
+})
+.subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;==================onNext &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot; + e.toString());
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onError java.lang.Throwable: 终止啦
+
+将 onError(new Exception(&quot;404&quot;)) 改为 onError(new Exception(&quot;303&quot;)) 看看打印结果：
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onNext chan
+==================onNext ze
+==================onNext de
+==================onNext chan
+......
+从结果可以看出，会不断重复发送消息。
+</code></pre><h3 id="repeat"><a href="#repeat" class="headerlink" title="repeat()"></a>repeat()</h3><p>重复发送被观察者的事件，times 为发送次数。</p>
+<pre><code>public final Observable&lt;T&gt; repeat(long times)
+</code></pre><h3 id="repeatWhen"><a href="#repeatWhen" class="headerlink" title="repeatWhen()"></a>repeatWhen()</h3><p>这个方法可以会返回一个新的被观察者设定一定逻辑来决定是否重复发送事件。</p>
+<pre><code>public final Observable&lt;T&gt; repeatWhen(final Function&lt;? super Observable&lt;Object&gt;, ? extends ObservableSource&lt;?&gt;&gt; handler)
+</code></pre><p>repeatWhen可以实现重订阅功能，而触发重订阅两个关键因素:<br>1.Obervable完成一次订阅，就是Observable调用onComplete<br>2.当Observable调用onComplete就会进入到repeatWhen方法里面，是否要触发重订阅，就需要通过repeatWhen的Function方法所返回的ObservableSource确定，如果返回的是onNext则触发重订阅，而返回的是onComplete/onError则不会触发重订阅</p>
+<pre><code>Observable.create(new ObservableOnSubscribe&lt;String&gt;() {
+            @Override
+            public void subscribe(ObservableEmitter&lt;String&gt; emitter) throws Exception {
+                emitter.onComplete();
+            }
+        }).doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+                Log.d(TAG, &quot;触发重订阅&quot;);
+            }
+        }).repeatWhen(new Function&lt;Observable&lt;Object&gt;, ObservableSource&lt;?&gt;&gt;() {
+
+            private int n = 0;
+
+            @Override
+            public ObservableSource&lt;?&gt; apply(Observable&lt;Object&gt; objectObservable) throws Exception {
+                return objectObservable.flatMap(new Function&lt;Object, ObservableSource&lt;?&gt;&gt;() {
+                    @Override
+                    public ObservableSource&lt;?&gt; apply(Object o) throws Exception {
+                        if (n != 3) {
+                            n++;
+                            return Observable.timer(3, TimeUnit.SECONDS);
+                        } else {
+                            return Observable.empty();
+                        }
+                    }
+                });
+            }
+        }).subscribe(new Observer&lt;String&gt;() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(String s) {
+                Log.d(TAG, &quot;onNext: &quot; + s);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, &quot;onError: &quot; + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, &quot;onComplete: &quot;);
+            }
+        });
+
+运行结果:
+08-02 10:26:13.187 D/MainActivity-vv: 触发重订阅
+08-02 10:26:16.196 D/MainActivity-vv: 触发重订阅
+08-02 10:26:19.204 D/MainActivity-vv: 触发重订阅
+08-02 10:26:22.206 D/MainActivity-vv: 触发重订阅
+</code></pre><p>repeatWhen可以用于延时轮询，在doOnComplete进行操作</p>
+<h2 id="5、组合操作符"><a href="#5、组合操作符" class="headerlink" title="5、组合操作符"></a>5、组合操作符</h2><h3 id="concat"><a href="#concat" class="headerlink" title="concat()"></a>concat()</h3><p>可以将多个观察者组合在一起，然后按照之前发送顺序发送事件。需要注意的是，concat() 最多只可以发送4个事件。</p>
+<pre><code>public static &lt;T&gt; Observable&lt;T&gt; concat(ObservableSource&lt;? extends T&gt; source1, ObservableSource&lt;? extends T&gt; source2, ObservableSource&lt;? extends T&gt; source3, ObservableSource&lt;? extends T&gt; source4)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.concat(Observable.just(1, 2),
+Observable.just(3, 4),
+Observable.just(5, 6),
+Observable.just(7, 8))
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+打印如下：
+================onNext 1
+================onNext 2
+================onNext 3
+================onNext 4
+================onNext 5
+================onNext 6
+================onNext 7
+================onNext 8
+</code></pre><h3 id="concatArray"><a href="#concatArray" class="headerlink" title="concatArray()"></a>concatArray()</h3><p>与 concat()  作用一样，不过 concatArray() 可以发送多于 4 个被观察者。</p>
+<pre><code>public static &lt;T&gt; Observable&lt;T&gt; concatArray(ObservableSource&lt;? extends T&gt;... sources)
+</code></pre><h3 id="merge-amp-mergeArray"><a href="#merge-amp-mergeArray" class="headerlink" title="merge() &amp; mergeArray()"></a>merge() &amp; mergeArray()</h3><p>这个方法与 concat() 作用基本一样，只是 concat() 是串行发送事件，而<strong> merge() 并行发送事件</strong>。</p>
+<pre><code>public static &lt;T&gt; Observable&lt;T&gt; merge(ObservableSource&lt;? extends T&gt; source1, ObservableSource&lt;? extends T&gt; source2, ObservableSource&lt;? extends T&gt; source3, ObservableSource&lt;? extends T&gt; source4)
+</code></pre><p>现在来演示 concat() 和 merge() 的区别:</p>
+<pre><code>Observable.merge(
+Observable.interval(1, TimeUnit.SECONDS).map(new Function &lt; Long, String &gt; () {
+    @Override
+    public String apply(Long aLong) throws Exception {
+        return &quot;A&quot; + aLong;
+    }
+}),
+Observable.interval(1, TimeUnit.SECONDS).map(new Function &lt; Long, String &gt; () {
+    @Override
+    public String apply(Long aLong) throws Exception {
+        return &quot;B&quot; + aLong;
+    }
+}))
+    .subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;=====================onNext &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+打印结果如下：
+05-21 16:10:31.125 12801-12850/com.example.rxjavademo D/chan: =====================onNext B0
+05-21 16:10:31.125 12801-12849/com.example.rxjavademo D/chan: =====================onNext A0
+05-21 16:10:32.125 12801-12849/com.example.rxjavademo D/chan: =====================onNext A1
+05-21 16:10:32.126 12801-12850/com.example.rxjavademo D/chan: =====================onNext B1
+05-21 16:10:33.125 12801-12849/com.example.rxjavademo D/chan: =====================onNext A2
+05-21 16:10:33.125 12801-12850/com.example.rxjavademo D/chan: =====================onNext B2
+05-21 16:10:34.125 12801-12849/com.example.rxjavademo D/chan: =====================onNext A3
+05-21 16:10:34.125 12801-12850/com.example.rxjavademo D/chan: =====================onNext B3
+05-21 16:10:35.124 12801-12849/com.example.rxjavademo D/chan: =====================onNext A4
+05-21 16:10:35.125 12801-12850/com.example.rxjavademo D/chan: =====================onNext B4
+05-21 16:10:36.125 12801-12849/com.example.rxjavademo D/chan: =====================onNext A5
+05-21 16:10:36.125 12801-12850/com.example.rxjavademo D/chan: =====================onNext B5
+......
+从结果可以看出，A 和 B 的事件序列都可以发出，将以上的代码换成 concat() 看看打印结果：
+05-21 16:17:52.352 14597-14621/com.example.rxjavademo D/chan: =====================onNext A0
+05-21 16:17:53.351 14597-14621/com.example.rxjavademo D/chan: =====================onNext A1
+05-21 16:17:54.351 14597-14621/com.example.rxjavademo D/chan: =====================onNext A2
+05-21 16:17:55.351 14597-14621/com.example.rxjavademo D/chan: =====================onNext A3
+05-21 16:17:56.351 14597-14621/com.example.rxjavademo D/chan: =====================onNext A4
+05-21 16:17:57.351 14597-14621/com.example.rxjavademo D/chan: =====================onNext A5
+......
+从结果可以知道，只有等到第一个被观察者发送完事件之后，第二个被观察者才会发送事件。
+</code></pre><p>mergeArray() 与 merge() 的作用是一样的，只是它可以发送4个以上的被观察者。</p>
+<h3 id="concatArrayDelayError-amp-mergeArrayDelayError"><a href="#concatArrayDelayError-amp-mergeArrayDelayError" class="headerlink" title="concatArrayDelayError() &amp; mergeArrayDelayError()"></a>concatArrayDelayError() &amp; mergeArrayDelayError()</h3><p>在 concatArray() 和 mergeArray() 两个方法当中，如果其中有一个被观察者发送了一个 Error 事件，那么就会停止发送事件，如果你想 <strong>onError() 事件延迟到所有被观察者都发送完事件后再执行</strong>的话，就可以使用  concatArrayDelayError() 和 mergeArrayDelayError()</p>
+<pre><code>public static &lt;T&gt; Observable&lt;T&gt; concatArrayDelayError(ObservableSource&lt;? extends T&gt;... sources)
+public static &lt;T&gt; Observable&lt;T&gt; mergeArrayDelayError(ObservableSource&lt;? extends T&gt;... sources)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.concatArrayDelayError(
+Observable.create(new ObservableOnSubscribe &lt; Integer &gt; () {
+    @Override
+    public void subscribe(ObservableEmitter &lt; Integer &gt; e) throws Exception {
+        e.onNext(1);
+        e.onError(new NumberFormatException());
+    }
+}), Observable.just(2, 3, 4))
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        Log.d(TAG, &quot;===================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;===================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+});
+打印结果如下：
+===================onNext 1
+===================onNext 2
+===================onNext 3
+===================onNext 4
+===================onError 
+</code></pre><p>从结果可以看到，onError 事件是在所有被观察者发送完事件才发送的。mergeArrayDelayError() 也是有同样的作用。</p>
+<h3 id="zip"><a href="#zip" class="headerlink" title="zip()"></a>zip()</h3><p>会将多个被观察者合并，根据各个被观察者发送事件的顺序一个个结合起来，最终发送的事件数量会与源 Observable 中最少事件的数量一样。</p>
+<pre><code>public static &lt;T1, T2, R&gt; Observable&lt;R&gt; zip(ObservableSource&lt;? extends T1&gt; source1, ObservableSource&lt;? extends T2&gt; source2, BiFunction&lt;? super T1, ? super T2, ? extends R&gt; zipper)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.zip(Observable.intervalRange(1, 5, 1, 1, TimeUnit.SECONDS)
+    .map(new Function&lt;Long, String&gt;() {
+        @Override
+        public String apply(Long aLong) throws Exception {
+            String s1 = &quot;A&quot; + aLong;
+            Log.d(TAG, &quot;===================A 发送的事件 &quot; + s1);
+            return s1;
+        }}),
+        Observable.intervalRange(1, 6, 1, 1, TimeUnit.SECONDS)
+            .map(new Function&lt;Long, String&gt;() {
+            @Override
+            public String apply(Long aLong) throws Exception {
+                String s2 = &quot;B&quot; + aLong;
+                Log.d(TAG, &quot;===================B 发送的事件 &quot; + s2);
+                return s2;
+            }
+        }),
+        new BiFunction&lt;String, String, String&gt;() {
+            @Override
+            public String apply(String s, String s2) throws Exception {
+                String res = s + s2;
+                return res;
+            }
+        })
+.subscribe(new Observer&lt;String&gt;() {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;===================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;===================onNext &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;===================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;===================onComplete &quot;);
+    }
+});
+上面代码中有两个 Observable，第一个发送事件的数量为5个，第二个发送事件的数量为6个。现在来看下打印结果：
+05-22 09:10:39.952 5338-5338/com.example.rxjavademo D/chan: ===================onSubscribe 
+05-22 09:10:40.953 5338-5362/com.example.rxjavademo D/chan: ===================A 发送的事件 A1
+05-22 09:10:40.953 5338-5363/com.example.rxjavademo D/chan: ===================B 发送的事件 B1
+===================onNext A1B1
+05-22 09:10:41.953 5338-5362/com.example.rxjavademo D/chan: ===================A 发送的事件 A2
+05-22 09:10:41.954 5338-5363/com.example.rxjavademo D/chan: ===================B 发送的事件 B2
+===================onNext A2B2
+05-22 09:10:42.953 5338-5362/com.example.rxjavademo D/chan: ===================A 发送的事件 A3
+05-22 09:10:42.953 5338-5363/com.example.rxjavademo D/chan: ===================B 发送的事件 B3
+05-22 09:10:42.953 5338-5362/com.example.rxjavademo D/chan: ===================onNext A3B3
+05-22 09:10:43.953 5338-5362/com.example.rxjavademo D/chan: ===================A 发送的事件 A4
+05-22 09:10:43.953 5338-5363/com.example.rxjavademo D/chan: ===================B 发送的事件 B4
+05-22 09:10:43.954 5338-5363/com.example.rxjavademo D/chan: ===================onNext A4B4
+05-22 09:10:44.953 5338-5362/com.example.rxjavademo D/chan: ===================A 发送的事件 A5
+05-22 09:10:44.953 5338-5363/com.example.rxjavademo D/chan: ===================B 发送的事件 B5
+05-22 09:10:44.954 5338-5363/com.example.rxjavademo D/chan: ===================onNext A5B5
+===================onComplete 
+</code></pre><p>可以发现最终接收到的事件数量是5，那么为什么第二个 Observable 没有发送第6个事件呢？因为在这之前第一个 Observable 已经发送了 onComplete 事件，所以第二个 Observable 不会再发送事件。</p>
+<h3 id="combineLatest-amp-combineLatestDelayError"><a href="#combineLatest-amp-combineLatestDelayError" class="headerlink" title="combineLatest() &amp;  combineLatestDelayError()"></a>combineLatest() &amp;  combineLatestDelayError()</h3><pre><code>public static &lt;T1, T2, R&gt; Observable&lt;R&gt; combineLatest(ObservableSource&lt;? extends T1&gt; source1, ObservableSource&lt;? extends T2&gt; source2, BiFunction&lt;? super T1, ? super T2, ? extends R&gt; combiner)
+</code></pre><p>combineLatest() 的作用与 zip() 类似，但是 combineLatest() 发送事件的序列是与发送的时间线有关的，当 combineLatest() 中所有的 Observable 都发送了事件，<strong>只要其中有一个 Observable 发送事件，这个事件就会和其他 Observable 最近发送的事件结合起来发送</strong>，这样可能还是比较抽象，看看以下例子代码：</p>
+<pre><code>Observable.combineLatest(
+Observable.intervalRange(1, 4, 1, 1, TimeUnit.SECONDS)
+    .map(new Function &lt; Long, String &gt; () {@Override
+    public String apply(Long aLong) throws Exception {
+        String s1 = &quot;A&quot; + aLong;
+        Log.d(TAG, &quot;===================A 发送的事件 &quot; + s1);
+        return s1;
+    }
+}),
+Observable.intervalRange(1, 5, 2, 2, TimeUnit.SECONDS)
+    .map(new Function &lt; Long, String &gt; () {@Override
+    public String apply(Long aLong) throws Exception {
+        String s2 = &quot;B&quot; + aLong;
+        Log.d(TAG, &quot;===================B 发送的事件 &quot; + s2);
+        return s2;
+    }
+}),
+new BiFunction &lt; String, String, String &gt; () {@Override
+    public String apply(String s, String s2) throws Exception {
+        String res = s + s2;
+        return res;
+    }
+})
+.subscribe(new Observer &lt; String &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;===================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(String s) {
+        Log.d(TAG, &quot;===================最终接收到的事件 &quot; + s);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;===================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;===================onComplete &quot;);
+    }
+});
+分析上面的代码，Observable A 会每隔1秒就发送一次事件，Observable B 会隔2秒发送一次事件。来看看打印结果：
+05-22 11:41:20.859 15104-15104/? D/chan: ===================onSubscribe 
+05-22 11:41:21.859 15104-15128/com.example.rxjavademo D/chan: ===================A 发送的事件 A1
+05-22 11:41:22.860 15104-15128/com.example.rxjavademo D/chan: ===================A 发送的事件 A2
+05-22 11:41:22.861 15104-15129/com.example.rxjavademo D/chan: ===================B 发送的事件 B1
+05-22 11:41:22.862 15104-15129/com.example.rxjavademo D/chan: ===================最终接收到的事件 A2B1
+05-22 11:41:23.860 15104-15128/com.example.rxjavademo D/chan: ===================A 发送的事件 A3
+===================最终接收到的事件 A3B1
+05-22 11:41:24.860 15104-15128/com.example.rxjavademo D/chan: ===================A 发送的事件 A4
+05-22 11:41:24.861 15104-15129/com.example.rxjavademo D/chan: ===================B 发送的事件 B2
+05-22 11:41:24.861 15104-15128/com.example.rxjavademo D/chan: ===================最终接收到的事件 A4B1
+05-22 11:41:24.861 15104-15129/com.example.rxjavademo D/chan: ===================最终接收到的事件 A4B2
+05-22 11:41:26.860 15104-15129/com.example.rxjavademo D/chan: ===================B 发送的事件 B3
+05-22 11:41:26.861 15104-15129/com.example.rxjavademo D/chan: ===================最终接收到的事件 A4B3
+05-22 11:41:28.860 15104-15129/com.example.rxjavademo D/chan: ===================B 发送的事件 B4
+05-22 11:41:28.861 15104-15129/com.example.rxjavademo D/chan: ===================最终接收到的事件 A4B4
+05-22 11:41:30.860 15104-15129/com.example.rxjavademo D/chan: ===================B 发送的事件 B5
+05-22 11:41:30.861 15104-15129/com.example.rxjavademo D/chan: ===================最终接收到的事件 A4B5
+===================onComplete 
+</code></pre><p>分析上述结果可以知道，当发送 A1 事件之后，因为 B 并没有发送任何事件，所以根本不会发生结合。当 B 发送了 B1 事件之后，就会与 A 最近发送的事件 A2 结合成 A2B1，这样只有后面一有被观察者发送事件，这个事件就会与其他被观察者最近发送的事件结合起来了。</p>
+<p>因为 combineLatestDelayError() 就是多了延迟发送 onError() 功能，这里就不再赘述了。</p>
+<h3 id="reduce"><a href="#reduce" class="headerlink" title="reduce()"></a>reduce()</h3><p>与 scan() 操作符的作用也是将发送数据以一定逻辑聚合起来，这两个的区别在于 <strong>scan() 每处理一次数据就会将事件发送给观察者，而 reduce() 会将所有数据聚合在一起才会发送事件给观察者。</strong></p>
+<pre><code>public final Maybe&lt;T&gt; reduce(BiFunction&lt;T, T, T&gt; reducer)
+</code></pre><p>示例如下：<br>    Observable.just(0, 1, 2, 3)<br>    .reduce(new BiFunction &lt; Integer, Integer, Integer &gt; () {<br>        @Override<br>        public Integer apply(Integer integer, Integer integer2) throws Exception {<br>            int res = integer + integer2;<br>            Log.d(TAG, “====================integer “ + integer);<br>            Log.d(TAG, “====================integer2 “ + integer2);<br>            Log.d(TAG, “====================res “ + res);<br>            return res;<br>        }<br>    })<br>    .subscribe(new Consumer &lt; Integer &gt; () {<br>        @Override<br>        public void accept(Integer integer) throws Exception {<br>            Log.d(TAG, “==================accept “ + integer);<br>        }<br>    });<br>    打印结果：<br>    ====================integer 0<br>    ====================integer2 1<br>    ====================res 1<br>    ====================integer 1<br>    ====================integer2 2<br>    ====================res 3<br>    ====================integer 3<br>    ====================integer2 3<br>    ====================res 6<br>    ==================accept 6<br>从结果可以看到，其实就是前2个数据聚合之后，然后再与后1个数据进行聚合，一直到没有数据为止。</p>
+<h3 id="collect"><a href="#collect" class="headerlink" title="collect()"></a>collect()</h3><p>将数据收集到数据结构当中。</p>
+<pre><code>public final &lt;U&gt; Single&lt;U&gt; collect(Callable&lt;? extends U&gt; initialValueSupplier, BiConsumer&lt;? super U, ? super T&gt; collector)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4)
+.collect(new Callable &lt; ArrayList &lt; Integer &gt;&gt; () {
+    @Override
+    public ArrayList &lt; Integer &gt; call() throws Exception {
+        return new ArrayList &lt; &gt; ();
+    }
+},
+new BiConsumer &lt; ArrayList &lt; Integer &gt; , Integer &gt; () {
+    @Override
+    public void accept(ArrayList &lt; Integer &gt; integers, Integer integer) throws Exception {
+        integers.add(integer);
+    }
+})
+.subscribe(new Consumer &lt; ArrayList &lt; Integer &gt;&gt; () {
+    @Override
+    public void accept(ArrayList &lt; Integer &gt; integers) throws Exception {
+        Log.d(TAG, &quot;===============accept &quot; + integers);
+    }
+});
+打印结果：
+===============accept [1, 2, 3, 4]
+</code></pre><h3 id="startWith-amp-startWithArray"><a href="#startWith-amp-startWithArray" class="headerlink" title="startWith() &amp; startWithArray()"></a>startWith() &amp; startWithArray()</h3><p>在发送事件之前追加事件，startWith() 追加一个事件，startWithArray() 可以追加多个事件。追加的事件会先发出。</p>
+<pre><code>public final Observable&lt;T&gt; startWith(T item)
+public final Observable&lt;T&gt; startWithArray(T... items)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(5, 6, 7)
+.startWithArray(2, 3, 4)
+.startWith(1)
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;================accept &quot; + integer);
+    }
+});
+打印结果：
+================accept 1
+================accept 2
+================accept 3
+================accept 4
+================accept 5
+================accept 6
+================accept 7
+</code></pre><h3 id="count"><a href="#count" class="headerlink" title="count()"></a>count()</h3><p>返回被观察者发送事件的数量。</p>
+<pre><code>public final Single&lt;Long&gt; count()
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3)
+.count()
+.subscribe(new Consumer &lt; Long &gt; () {
+    @Override
+    public void accept(Long aLong) throws Exception {
+        Log.d(TAG, &quot;=======================aLong &quot; + aLong);
+    }
+});
+打印结果：
+=======================aLong 3
+</code></pre><h2 id="6、过滤操作符"><a href="#6、过滤操作符" class="headerlink" title="6、过滤操作符"></a>6、过滤操作符</h2><h3 id="filter"><a href="#filter" class="headerlink" title="filter()"></a>filter()</h3><p>通过一定逻辑来过滤被观察者发送的事件，如果返回 true 则会发送事件，否则不会发送。<br>    public final Observable<t> filter(Predicate&lt;? super T&gt; predicate)</t></p>
+<p>示例如下：</p>
+<pre><code> Observable.just(1, 2, 3)
+    .filter(new Predicate &lt; Integer &gt; () {
+        @Override
+        public boolean test(Integer integer) throws Exception {
+            return integer &lt; 2;
+        }
+})
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        i += integer;
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+以上代码只有小于2的事件才会发送，来看看打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onComplete 
+</code></pre><h3 id="ofType"><a href="#ofType" class="headerlink" title="ofType()"></a>ofType()</h3><p>过滤不符合该类型事件</p>
+<pre><code>public final &lt;U&gt; Observable&lt;U&gt; ofType(final Class&lt;U&gt; clazz)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, &quot;chan&quot;, &quot;zhide&quot;)
+.ofType(Integer.class)
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        i += integer;
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onComplete 
+</code></pre><h3 id="skip-amp-skipLast"><a href="#skip-amp-skipLast" class="headerlink" title="skip() &amp; skipLast()"></a>skip() &amp; skipLast()</h3><p>跳过正序某些事件，count 代表跳过事件的数量</p>
+<pre><code>public final Observable&lt;T&gt; skip(long count)
+</code></pre><p>skipLast() 作用也是跳过某些事件，不过它是用来跳过正序的后面的事件。</p>
+<h3 id="distinct"><a href="#distinct" class="headerlink" title="distinct()"></a>distinct()</h3><p>过滤事件序列中的重复事件。</p>
+<pre><code>public final Observable&lt;T&gt; distinct() 
+</code></pre><h3 id="distinctUntilChanged"><a href="#distinctUntilChanged" class="headerlink" title="distinctUntilChanged()"></a>distinctUntilChanged()</h3><p>过滤掉连续重复的事件</p>
+<pre><code>public final Observable&lt;T&gt; distinctUntilChanged()
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 3, 2, 1)
+.distinctUntilChanged()
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        i += integer;
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果:
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onNext 2
+==================onNext 1
+==================onComplete 
+</code></pre><p>因为事件序列中连续出现两次3，所以第二次3并不会发出。</p>
+<h3 id="take-amp-takeLast"><a href="#take-amp-takeLast" class="headerlink" title="take() &amp; takeLast()"></a>take() &amp; takeLast()</h3><p>控制观察者接收的事件的数量。</p>
+<pre><code>public final Observable&lt;T&gt; take(long count)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5)
+.take(3)
+.subscribe(new Observer &lt; Integer &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;==================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Integer integer) {
+        i += integer;
+        Log.d(TAG, &quot;==================onNext &quot; + integer);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;==================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;==================onComplete &quot;);
+    }
+});
+打印结果：
+==================onSubscribe 
+==================onNext 1
+==================onNext 2
+==================onNext 3
+==================onComplete 
+</code></pre><p>takeLast() 的作用就是控制观察者只能接受事件序列的后面几件事情。</p>
+<h3 id="debounce"><a href="#debounce" class="headerlink" title="debounce()"></a>debounce()</h3><p>如果两件事件发送的时间间隔小于设定的时间间隔则前一件事件就不会发送给观察者。</p>
+<pre><code>public final Observable&lt;T&gt; debounce(long timeout, TimeUnit unit)
+</code></pre><p>throttleWithTimeout() 与此方法的作用一样。</p>
+<h3 id="firstElement-amp-amp-lastElement"><a href="#firstElement-amp-amp-lastElement" class="headerlink" title="firstElement() &amp;&amp; lastElement()"></a>firstElement() &amp;&amp; lastElement()</h3><p>firstElement() 取事件序列的第一个元素，lastElement() 取事件序列的最后一个元素。</p>
+<pre><code>public final Maybe&lt;T&gt; firstElement()
+public final Maybe&lt;T&gt; lastElement()
+</code></pre><h3 id="elementAt-amp-elementAtOrError"><a href="#elementAt-amp-elementAtOrError" class="headerlink" title="elementAt() &amp; elementAtOrError()"></a>elementAt() &amp; elementAtOrError()</h3><p>elementAt() 可以指定取出事件序列中事件，但是输入的 index 超出事件序列的总数的话就不会出现任何结果。这种情况下，你想发出异常信息的话就用 elementAtOrError() 。</p>
+<pre><code>public final Maybe&lt;T&gt; elementAt(long index)
+public final Single&lt;T&gt; elementAtOrError(long index)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4)
+.elementAt(0)
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;====================accept &quot; + integer);
+    }
+});
+打印结果：
+====================accept 1
+</code></pre><p>将 elementAt() 的值改为5，这时是没有打印结果的，因为没有满足条件的元素。<br>替换 elementAt() 为 elementAtOrError()，代码如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4)
+.elementAtOrError(5)
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;====================accept &quot; + integer);
+    }
+});
+</code></pre><p>这时候会抛出 NoSuchElementException 异常。</p>
+<h2 id="7、条件操作符"><a href="#7、条件操作符" class="headerlink" title="7、条件操作符"></a>7、条件操作符</h2><h3 id="all"><a href="#all" class="headerlink" title="all()"></a>all()</h3><p>判断事件序列是否全部满足某个事件，如果都满足则返回 true，反之则返回 false。</p>
+<pre><code>public final Single&lt;Boolean&gt; all(Predicate&lt;? super T&gt; predicate)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4)
+.all(new Predicate &lt; Integer &gt; () {
+    @Override
+    public boolean test(Integer integer) throws Exception {
+        return integer &lt; 5;
+    }
+})
+.subscribe(new Consumer &lt; Boolean &gt; () {
+    @Override
+    public void accept(Boolean aBoolean) throws Exception {
+        Log.d(TAG, &quot;==================aBoolean &quot; + aBoolean);
+    }
+});
+打印结果：
+==================aBoolean true
+</code></pre><h3 id="takeWhile"><a href="#takeWhile" class="headerlink" title="takeWhile()"></a>takeWhile()</h3><p>可以设置条件，当某个数据满足条件时就会发送该数据，反之则不发送</p>
+<pre><code>public final Observable&lt;T&gt; takeWhile(Predicate&lt;? super T&gt; predicate)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4)
+.takeWhile(new Predicate &lt; Integer &gt; () {
+    @Override
+    public boolean test(Integer integer) throws Exception {
+        return integer &lt; 3;
+    }
+})
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;========================integer &quot; + integer);
+    }
+});
+打印结果：
+========================integer 1
+========================integer 2
+</code></pre><h3 id="skipWhile"><a href="#skipWhile" class="headerlink" title="skipWhile()"></a>skipWhile()</h3><p>可以设置条件，当某个数据满足条件时不发送该数据，反之则发送。</p>
+<pre><code>public final Observable&lt;T&gt; skipWhile(Predicate&lt;? super T&gt; predicate)
+</code></pre><h3 id="takeUntil"><a href="#takeUntil" class="headerlink" title="takeUntil()"></a>takeUntil()</h3><p>可以设置条件，当事件满足此条件时，下一次的事件就不会被发送了。</p>
+<pre><code>public final Observable&lt;T&gt; takeUntil(Predicate&lt;? super T&gt; stopPredicate
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.just(1, 2, 3, 4, 5, 6)
+.takeUntil(new Predicate &lt; Integer &gt; () {
+    @Override
+    public boolean test(Integer integer) throws Exception {
+        return integer &gt; 3;
+    }
+})
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;========================integer &quot; + integer);
+    }
+});
+打印结果：
+========================integer 1
+========================integer 2
+========================integer 3
+========================integer 4
+</code></pre><h3 id="skipUntil"><a href="#skipUntil" class="headerlink" title="skipUntil()"></a>skipUntil()</h3><p>当 <strong>skipUntil() 中的 Observable 发送事件了，原来的 Observable 才会发送事件给观察者。skipUntil() 里的 Observable 并不会发送事件给观察者。</strong></p>
+<pre><code>public final &lt;U&gt; Observable&lt;T&gt; skipUntil(ObservableSource&lt;U&gt; other)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.intervalRange(1, 5, 0, 1, TimeUnit.SECONDS)
+.skipUntil(Observable.intervalRange(6, 5, 3, 1, TimeUnit.SECONDS))
+.subscribe(new Observer &lt; Long &gt; () {
+    @Override
+    public void onSubscribe(Disposable d) {
+        Log.d(TAG, &quot;========================onSubscribe &quot;);
+    }
+
+    @Override
+    public void onNext(Long along) {
+        Log.d(TAG, &quot;========================onNext &quot; + along);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        Log.d(TAG, &quot;========================onError &quot;);
+    }
+
+    @Override
+    public void onComplete() {
+        Log.d(TAG, &quot;========================onComplete &quot;);
+    }
+});
+打印结果：
+05-26 10:08:50.574 13023-13023/com.example.rxjavademo D/chan: ========================onSubscribe 
+05-26 10:08:53.576 13023-13054/com.example.rxjavademo D/chan: ========================onNext 4
+05-26 10:08:54.576 13023-13054/com.example.rxjavademo D/chan: ========================onNext 5
+========================onComplete 
+</code></pre><h3 id="sequenceEqual"><a href="#sequenceEqual" class="headerlink" title="sequenceEqual()"></a>sequenceEqual()</h3><p>判断两个  Observable 发送的事件是否相同。</p>
+<pre><code>public static &lt;T&gt; Single&lt;Boolean&gt; sequenceEqual(ObservableSource&lt;? extends T&gt; source1, ObservableSource&lt;? extends T&gt; source2)
+</code></pre><h3 id="contains"><a href="#contains" class="headerlink" title="contains()"></a>contains()</h3><p>判断事件序列中是否含有某个元素，如果有则返回 true，如果没有则返回 false。</p>
+<pre><code>public final Single&lt;Boolean&gt; contains(final Object element)
+</code></pre><h3 id="isEmpty"><a href="#isEmpty" class="headerlink" title="isEmpty()"></a>isEmpty()</h3><p>判断事件序列是否为空。</p>
+<pre><code>public final Single&lt;Boolean&gt; isEmpty()
+</code></pre><h3 id="defaultIfEmpty"><a href="#defaultIfEmpty" class="headerlink" title="defaultIfEmpty()"></a>defaultIfEmpty()</h3><p>如果观察者只发送一个 onComplete() 事件，这个方法会发送一个值。</p>
+<pre><code>public final Observable&lt;T&gt; defaultIfEmpty(T defaultItem)
+</code></pre><p>示例如下：</p>
+<pre><code>Observable.create(new ObservableOnSubscribe &lt; Integer &gt; () {
+
+    @Override
+    public void subscribe(ObservableEmitter &lt; Integer &gt; e) throws Exception {
+        e.onComplete();
+    }
+})
+.defaultIfEmpty(666)
+.subscribe(new Consumer &lt; Integer &gt; () {
+    @Override
+    public void accept(Integer integer) throws Exception {
+        Log.d(TAG, &quot;========================onNext &quot; + integer);
+    }
+});
+打印结果：
+========================onNext 666
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://juejin.im/post/5b17560e6fb9a01e2862246f" target="_blank" rel="noopener">https://juejin.im/post/5b17560e6fb9a01e2862246f</a><br><a href="https://gank.io/post/560e15be2dca930e00da1083" target="_blank" rel="noopener">https://gank.io/post/560e15be2dca930e00da1083</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3562,159 +5515,6 @@ CONSTANT_Methodref_info：类的方法信息
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/29/architecture-high-performance/" itemprop="url">数据库高性能</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-29T18:02:13+08:00">
-                2019-04-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/架构/" itemprop="url" rel="index">
-                    <span itemprop="name">架构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><p>读写分离的基本原理是将数据库读写操作分散到不同的节点上。</p>
-<p>读写分离适用单机并发无法支撑并且读的请求更多的情形。在单机数据库情况下，表上加索引一般对查询有优化作用却影响写入速度，读写分离后可以单独对读库进行优化，写库上减少索引，对读写的能力都有提升，且读的提升更多一些。<br>不适用的情况:<br>1）如果并发写入特别高，单机写入无法支撑，就不适合这种模式。<br>2）通过缓存技术或者程序优化能够满足要求</p>
-<p>读写分离的基本实现是：<br>1）数据库服务器搭建主从集群，一主一从，一主多从都可以<br>2）数据库主机负责写操作，从机负责读操作<br>3）数据库主机通过复制将数据同步到数据库从机，每台数据库服务器都存储了所有的业务数据<br>4）业务服务器将写操作发给数据库主机，将读操作发给数据库从机</p>
-<p>但有两个细节点引入了复杂度：<strong>主从复制延时</strong>和<strong>分配机制</strong>，以下为解决方案</p>
-<p>复制延时：<br>1）写操作后的读操作指定发给数据库主机<br>2）读从机失败后再度一次主机<br>3）关键业务读写操作全部指向主机，非关键业务采用读写分离</p>
-<p>分配机制：<br>将读写操作区分开来，然后访问不同的数据库，一般有两种方式：<strong>程序代码封装</strong>和<strong>中间件封装</strong></p>
-<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3><p>分库分表会带来很多复杂度。在引入分库分表之前，应该是这些操作依次尝试：<br>1.做硬件优化，例如从机械硬盘改成使用固态硬盘，当然固态硬盘不适合服务器使用，只是举个例子<br>2.先做数据库服务器的调优操作，例如增加索引，oracle有很多的参数调整;<br>3.引入缓存技术，例如Redis，减少数据库压力<br>4.程序与数据库表优化，重构，例如根据业务逻辑对程序逻辑做优化，减少不必要的查询;<br>5.在这些操作都不能大幅度优化性能的情况下，不能满足将来的发展，再考虑分库分表，也要有预估性</p>
-<h4 id="分库"><a href="#分库" class="headerlink" title="分库"></a>分库</h4><p>业务分库是指按照业务模块将数据分散到不同的数据库服务器。</p>
-<p>存在问题：<br>1）join问题<br>2）事务问题<br>3）成本问题</p>
-<h4 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h4><p>分两种方式：垂直分表、水平分表</p>
-<p>水平分表：<br>水平分表后，某条数据具体属于哪个子表，需要增加路由算法进行计算，这个算法会引入一定的复杂性。<br>常见的路由算法有：<br>1）范围路由<br>2）hash路由<br>3）配置路由</p>
-<p>其他常见的复杂性问题：join，count，order by等</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3767,7 +5567,7 @@ CONSTANT_Methodref_info：类的方法信息
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-count">58</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
