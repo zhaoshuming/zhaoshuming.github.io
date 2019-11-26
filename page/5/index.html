@@ -293,6 +293,232 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/05/architecture-extensible/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/05/architecture-extensible/" itemprop="url">可扩展架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-05T09:42:14+08:00">
+                2019-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>可扩展架构的基本思想是：拆</p>
+<p>不同的拆分方式，本质上决定了系统的可扩展性。常见的拆分思路有三种：</p>
+<p>1）面向流程拆分：分层架构<br>分层架构的本质：固定的内核，移动的数据。<br>扩展时大部分情况只需要修改其一层，少部分情况可能修改关联的两层，不会出现所有层都同时要修改。<br>以简单的学生信息管理系统为例：展示层–&gt;业务层–&gt;数据层–&gt;存储层</p>
+<p>2）面向服务拆分：SOA、微服务<br>服务是一组相似功能的集合。<br>对于某个服务扩展，或者要增加新的服务时，只需要扩展相关服务即可。<br>以简单的学生信息管理系统为例：将系统拆分为注册、登录、信息管理、安全设置等服务</p>
+<p>3）面向功能拆分:微内核架构<br>以简单的学生信息管理系统为例：每个服务都可以拆分为更多细粒度的功能</p>
+<p>当然，这几个系统架构并不是非彼既此的，而是可以组合使用。</p>
+<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>分层架构也叫N层架构，通常情况下，N至少是两层。</p>
+<p>分层架构的本质在于<strong>隔离关注点</strong>（separation of concerns），即每个层中的组件只会处理本层的逻辑，核心就是需要<strong>保证各层之间的差异足够清晰，边界足够明显，</strong>让人看到架构图后就能看懂整个架构。</p>
+<p>根据不同的划分维度和对象，可以得到多种不同的分层架构：<br>1）C/S、B/S架构<br>2）MVC、MVP架构<br>3）逻辑分层架构<br>逻辑分层架构中的层是自顶向下依赖的，如andoid操作系统的架构</p>
+<h3 id="SOA架构"><a href="#SOA架构" class="headerlink" title="SOA架构"></a>SOA架构</h3><p>SOA(Service Oriented Architecture)提出来三个关键概念：</p>
+<p>1）服务<br>所有业务功能都是一项服务，服务意味着要对外提供开发的能力，当其他系统需要使用这项功能时，无须定制化开发。</p>
+<p>2）ESB(Enterprise Service Bus)<br>ESB是将企业中各个不同的服务连接到一起。SOA使用ESB来屏蔽异构系统对外提供各种不同的接口方式，以此来达到服务间高效的互联互通。</p>
+<p>3）松耦合<br>目的是减少各个服务间的依赖和相互影响。</p>
+<p>SOA架构是集成的思想，是解决服务孤岛打通链条，是无奈之举。ESB集中化的管理带来了性能不佳、厚重等问题，也无法快速扩展。所以不适合互联网的业务特点。</p>
+<h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p>微服务是一种和SOA相似但本质上不同的架构理念。两者都关注于“服务”，都是通过服务的拆分来解决可扩展性问题。本质上不同在于几个核心理念的差异：是否有ESB、服务的粒度、架构设计的目标（<strong>small、lightweight、automated</strong>）等。</p>
+<p>微服务架构其实相当复杂，可以分成几个阶段理解：<br>1）第一阶段，微服务架构就是去掉了ESB的SOA架构，只不过是通信的方式和结构变了。对于初级的使用者而言，这样理解没有太大问题。<br>2）第二阶段，没有了ESB，原本很多由ESB组件做的事儿，转到服务的提供者和调用者这里了。他们需要考虑服务的拆分粒。大体仍然算是SOA架构。<br>3）第三阶段，随着服务的数量大幅增加，服务的管理越来越困难，此时DevOps出现了。这个阶段的微服务架构，已经是跟SOA架构完全不同的东西了。<br>要逐步演进和迭代，不要过于激进，更不要拆分过细，拆分的粒度，要与团队的架构相互匹配。（康威定律）</p>
+<p>SOA和微服务的区别：<br>1）服务粒度<br>2）服务通讯<br>微服务推荐使用统一的协议和格式。<br>3）服务交付<br>SOA更多的是考虑兼容已有的系统；微服务的架构理念要求“快速交付”，相应的要求自动化测试、持续集成、自动化部署等敏捷开发相关的最佳实践。<br>4）应用场景<br>SOA更适合庞大、复杂、异构的企业级系统，这也是SOA诞生的背景。<br>微服务更适合快速、轻量级、基于Web的物联网系统。</p>
+<h4 id="微服务的陷阱及问题"><a href="#微服务的陷阱及问题" class="headerlink" title="微服务的陷阱及问题"></a>微服务的陷阱及问题</h4><p>1）服务划分过细，服务间关系复杂<br>2）服务数量太多，团队效率急剧下降<br>3）调用链太长，性能下降<br>4）调用链太长，问题定位困难<br>5）没有自动化支撑，无法快速交付<br>6）没有服务治理，数量多了之后管理混乱</p>
+<h4 id="微服务架构实践"><a href="#微服务架构实践" class="headerlink" title="微服务架构实践"></a>微服务架构实践</h4><p>1.服务粒度<br>三个火枪手原则。亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。</p>
+<p>2.拆分方法<br>1）基于业务逻辑拆分</p>
+<p>2）基于可扩展拆分：区分稳定服务、可变服务</p>
+<p>3）基于可靠性拆分<br>好处：避免非核心业务故障影响核心业务；核心服务高可用方案可以更简单；能够降低高可用成本</p>
+<p>4）基于性能拆分<br>将性能要求高或者性能压力大的模块拆分出来，避免性能压力大的服务影响其他服务。</p>
+<p>以上方案可自由排列组合。</p>
+<p>3.基础设施<br>1）服务发现、服务路由、服务容错：这是最基本的微服务基础设施</p>
+<p>2）接口框架、API网关：主要是为了提升开发效率</p>
+<p>3）自动化部署、自动化测试、配置中心：主要为了提升测试和运维效率</p>
+<p>4）服务监控、服务跟踪、服务安全：主要是为了进一步提升运维效率</p>
+<p>以上3、4会随着微服务节点数量增加而越来越重要，当节点较少时，可以通过人工支撑，虽然效率不高，但也基本能够顶得住。</p>
+<h3 id="微内核架构"><a href="#微内核架构" class="headerlink" title="微内核架构"></a>微内核架构</h3><p>微内核架构也被称为插件化架构，是一种面向功能进行拆分的可扩展性架构。</p>
+<p>微内核架构包含两类组件：核心系统和插件模块。核心模块负责和具体业务功能无关的通用功能，如模块加载、模块间通信等；插件模块负责实现具体的业务逻辑。</p>
+<p>微内核的核心系统设计的关键技术有：插件管理、插件链接和插件通信。</p>
+<p>常见架构有：OSGI、规则引擎架构、Atlas容器化框架等。</p>
+<p>android架构模式参考：<br>1.<a href="https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&amp;mid=2247488375&amp;idx=1&amp;sn=3af36be489393783a95d5c5e3fc73b65&amp;source=41#wechat_redirect" target="_blank" rel="noopener">Atlas：手淘Native容器化框架和思考</a><br>2.<a href="https://www.infoq.cn/article/wechat-android-app-architecture" target="_blank" rel="noopener">微信 Android 客户端架构演进之路</a></p>
+<h3 id="康威定律"><a href="#康威定律" class="headerlink" title="康威定律"></a>康威定律</h3><p>微服务很多核心理念其实在半个世纪前的一篇文章中就被阐述过了，而且这篇文章中的很多论点在软件开发飞速发展的这半个世纪中竟然一再被验证，这就是康威定律（Conway’s Law）。</p>
+<p>在康威的这篇文章中，最有名的一句话就是：</p>
+<blockquote>
+<p>Organizations which design systems are constrained to produce designs which are copies of the communication structures of these organizations. - Melvin Conway(1967)</p>
+</blockquote>
+<p>中文直译大概的意思就是：<strong>设计系统的组织，其产生的设计等同于组织之内、组织之间的沟通结构。</strong></p>
+<p>Mike从他的角度归纳这篇论文中的其他一些核心观点，如下：</p>
+<ul>
+<li>第一定律：企业沟通方式会通过系统设计表达出来——Communication dictates design</li>
+<li>第二定律：再多的时间也没办法让任务完美至极，但总有时间能将它完成——There is never enough time to do something right, but there is always enough time to do it over</li>
+<li>第三定律：线型系统和线型组织架构间有潜在的异质同态特性——There is a homomorphism from the linear graph of a system to the linear graph of its design organization</li>
+<li>第四定律：大系统比小系统更适用于任务分解——The structures of large systems tend to disintegrate during development, qualitatively more so than with small systems</li>
+</ul>
+<h4 id="康威第一定律"><a href="#康威第一定律" class="headerlink" title="康威第一定律"></a>康威第一定律</h4><p>“人类是复杂的社会动物。”</p>
+<p>《The Mythical Man-Month》 这本书里有一句令人难忘的话：在应用项目后期加大人员的投资，会更加拖慢它的速度。——Fred Brooks（1975）</p>
+<p>沟通的问题会影响系统设计，进而影响整个系统的开发效率以及最终结果。</p>
+<h4 id="康威第二定律"><a href="#康威第二定律" class="headerlink" title="康威第二定律"></a>康威第二定律</h4><p>罗马不是一天建成的，学会先解决首要问题。</p>
+<p>敏捷开发巨头之一Erik Hollnagel 在他的书中阐述了类似的观点：</p>
+<blockquote>
+<p>问题太复杂？那么不妨忽略不必要的细节。<br>没有足够的资源？放弃无用的功能。<br>——Erik Hollnagel（2009）</p>
+</blockquote>
+<p>系统的复杂性、功能数量、市场竞争以及投资人的期望值都在增加，而人的智力是有上限的，没有企业能说一定能找到合适的人，对于一个极其复杂的系统，总会有考虑不周全的地方，Erik认为这个问题最好的解决办法就是：不去管它。</p>
+<p>最佳解决方案不是消除所有问题，而是允许它们存在，在发生故障时实现自动恢复。<br>在由微服务组成的系统中，每个微服务都可能停止响应，这是完全正常的，只需要确保足够的冗余和备份，这就是弹性或高可用性设计。</p>
+<h4 id="康威第三定律"><a href="#康威第三定律" class="headerlink" title="康威第三定律"></a>康威第三定律</h4><p>创建独立的子系统，减少沟通成本。</p>
+<p>团队中微服务的理念应是Inter-Operate，而不是Integrate ，Inter-Operate是指定义系统边界和接口，并为整个团队提供完整的堆栈，实现完全的自制。如此就能降低系统间的依赖性，减少通信成本。</p>
+<h4 id="康威第四定律"><a href="#康威第四定律" class="headerlink" title="康威第四定律"></a>康威第四定律</h4><p>前面提到，人类是复杂的社会动物，人与人之间的交流是非常复杂的，当涉及到一个系统时，人们经常选择增加人力去减少复杂性，对于企业来说，该如何处理这样的沟通问题？答案是：分而治之。</p>
+<h4 id="康威定律与微服务"><a href="#康威定律与微服务" class="headerlink" title="康威定律与微服务"></a>康威定律与微服务</h4><p>再来看一下康威定律是如何在半个世纪前就奠定了微服务理论基础的。</p>
+<ul>
+<li>人与人之间的交流很复杂，每个人的精力是有限的，因此当问题很复杂，需要协调地去解决时，需要将组织划分进而提高沟通效率。</li>
+<li>团队成员工作的系统设计依赖于成员之间的沟通，管理人员可以调整划分模式，实现团队之间的不同沟通方式，这也会影响系统的设计。</li>
+<li>如果子系统有清晰的外部通信便捷，那么就可以有效地降低通信成本，响应地设计将更加适合和有效。</li>
+<li>需要不断优化一个复杂的系统，并容错性和故障恢复率的帮助下进行优化，不要期望大而全面的设计或架构，因为它们的开发以迭代的方式发生。</li>
+</ul>
+<p>以下是一些具体的实践建议：</p>
+<ul>
+<li>利用一切手段提高通信效率，如Slack、Github和Wiki，且只与相关人员进行沟通，每个人和每个系统必须有明确的职责，在遇到问题时，知道该找谁去解决。</li>
+<li>在MVP模式下设计一套系统，以迭代的方式优化及验证，并确保系统的弹性。</li>
+<li>采用与系统设计相一致的团队，以扁平化和以业务为基准的方式去简化团队，每个小团队之间必须有对应负责的模块，避免模糊的界限，以免在发生问题时互相推卸责任。</li>
+<li>要做小而美的团队，人员数量的增加会降低效率以及加大成本，亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。一般来说，一家互联网公司的产品团队由7到8个人组成（包括前端和后端测试、交互和用户体验师，一些人可能身兼数职）。</li>
+</ul>
+<p>在查看以下微服务标准时，我们可以很容易地看到微服务与康威定律之间的密切关系：</p>
+<ul>
+<li>由分布式服务组成的系统</li>
+<li>企业部门的业务线</li>
+<li>开发优秀的产品</li>
+<li>Smart endpoints and dumb pipes</li>
+<li>DevOps</li>
+<li>容错</li>
+<li>快速发展</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://segmentfault.com/a/1190000011118897" target="_blank" rel="noopener">康威定律</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/29/architecture-high-performance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2734,237 +2960,6 @@ public interface HomeActivityComponent {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
-                2019-03-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
-<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
-<blockquote>
-<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
-</blockquote>
-<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
-<ol>
-<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
-<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
-<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
-<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
-<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
-</ol>
-<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
-<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
-<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
-<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
-<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
-<ol>
-<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
-</li>
-<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
-</li>
-<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
-</li>
-</ol>
-<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
-<blockquote>
-<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
-</blockquote>
-<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
-<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
-<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
-<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
-<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
-<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
-<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
-<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
-<pre><code>public class DataEncryptInterceptor implements Interceptor {
-    @Override
-    public Response intercept(Chain chain) throws IOException {
-        //请求
-        Request request = chain.request();
-        RequestBody oldRequestBody = request.body();
-        Buffer requestBuffer = new Buffer();
-        oldRequestBody.writeTo(requestBuffer);
-        String oldBodyStr = requestBuffer.readUtf8();
-        requestBuffer.close();
-        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
-        //生成随机AES密钥并用serverPublicKey进行RSA加密
-        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
-        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
-        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
-        //计算body 哈希 并使用app私钥RSA签名
-        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
-        //随机AES密钥加密oldBodyStr
-        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
-        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
-        //构造新的request
-        request = request.newBuilder()
-                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
-                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
-                .method(request.method(), newBody)
-                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
-                .header(&quot;appSignature&quot;, appSignature)
-                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
-                .build();
-        //响应
-        Response response = chain.proceed(request);
-        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
-            //获取响应头
-            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
-            //用app的RSA私钥解密AES加密密钥
-            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
-            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
-            //用AES密钥解密oldResponseBodyStr
-            ResponseBody oldResponseBody = response.body();
-            String oldResponseBodyStr = oldResponseBody.string();
-            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
-            oldResponseBody.close();
-            //构造新的response
-            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
-            response = response.newBuilder().body(newResponseBody).build();
-        }
-        response.close();
-        //返回
-        return response;
-    }
-}
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3017,7 +3012,7 @@ public interface HomeActivityComponent {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">58</span>
+                  <span class="site-state-item-count">59</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
