@@ -88,7 +88,7 @@
 <meta property="og:description" content="迭代器（Iterator）模式的定义：提供一个对象来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。是一种对象行为型模式。 结构迭代器模式是通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。  迭代器模式主要包含以下角色。1、抽象聚合（Aggregate）角色：定义存储、添加、删除聚合对象以及创建迭">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/11/11/desigin-mode-iterator/iterator.jpg">
-<meta property="og:updated_time" content="2019-11-11T05:22:04.316Z">
+<meta property="og:updated_time" content="2019-11-28T09:19:55.110Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="迭代器模式">
 <meta name="twitter:description" content="迭代器（Iterator）模式的定义：提供一个对象来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。是一种对象行为型模式。 结构迭代器模式是通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。  迭代器模式主要包含以下角色。1、抽象聚合（Aggregate）角色：定义存储、添加、删除聚合对象以及创建迭">
@@ -388,7 +388,7 @@
 
       
         <p>迭代器（Iterator）模式的定义：提供一个对象来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。是一种对象行为型模式。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>迭代器模式是通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>迭代器模式是<strong>通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现</strong>的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。</p>
 <p><img src="/2019/11/11/desigin-mode-iterator/iterator.jpg" alt></p>
 <p>迭代器模式主要包含以下角色。<br>1、抽象聚合（Aggregate）角色：定义存储、添加、删除聚合对象以及创建迭代器对象的接口。<br>2、具体聚合（ConcreteAggregate）角色：实现抽象聚合类，返回一个具体迭代器的实例。<br>3、抽象迭代器（Iterator）角色：定义访问和遍历聚合元素的接口，通常包含 hasNext()、first()、next() 等方法。<br>4、具体迭代器（Concretelterator）角色：实现抽象迭代器接口中所定义的方法，完成对聚合对象的遍历，记录遍历的当前位置。</p>
 <h2 id="模式的应用场景"><a href="#模式的应用场景" class="headerlink" title="模式的应用场景"></a>模式的应用场景</h2><p>1、当需要为聚合对象提供多种遍历方式时。<br>2、当需要为遍历不同的聚合结构提供一个统一的接口时。<br>3、当访问一个聚合对象的内容而无须暴露其内部细节的表示时。</p>
@@ -510,7 +510,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

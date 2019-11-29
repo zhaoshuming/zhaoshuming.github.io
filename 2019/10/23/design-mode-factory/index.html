@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/10/23/design-mode-factory/factory.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/10/23/design-mode-factory/factory-abstract.png">
-<meta property="og:updated_time" content="2019-10-23T08:19:45.233Z">
+<meta property="og:updated_time" content="2019-11-28T07:05:39.004Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="三种工厂模式">
 <meta name="twitter:description" content="工厂模式提供一个用于创建对象的接口(工厂接口)，让其实现类(工厂实现类)决定实例化哪一个类(产品类)，并且由该实现类创建对应类的实例。  工厂方法使一个类的实例化延迟到其子类。如图所示，Product抽象类负责定义产品的共性，实现对事物最抽象的定义，Creator为抽象工厂类，具体如何创建产品类由具体的实现工厂ConcreteCreator来完成。 通用模板代码12345678public abs">
@@ -408,7 +408,7 @@
 <h2 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h2><p>为创建一组相关或相互依赖的对象提供一个接口，而且无需指定他们的具体类。</p>
 <p><img src="/2019/10/23/design-mode-factory/factory-abstract.png" alt></p>
 <h3 id="抽象工厂模式与工厂方法模式的区别"><a href="#抽象工厂模式与工厂方法模式的区别" class="headerlink" title="抽象工厂模式与工厂方法模式的区别"></a>抽象工厂模式与工厂方法模式的区别</h3><p>抽象工厂模式是工厂方法模式的升级版本，他用来创建一组相关或者相互依赖的对象。他与工厂方法模式的区别就在于，工厂方法模式针对的是一个产品等级结构；而抽象工厂模式则是<strong>针对的是多个产品等级结构</strong>。在编程中，通常一个产品结构，表现为一个接口或者抽象类，也就是说，工厂方法模式提供的所有产品都是衍生自同一个接口或抽象类，而<strong>抽象工厂模式所提供的产品则是衍生自不同的接口或抽象类</strong>。</p>
-<p>在抽象工厂模式中，有一个<strong>产品族</strong>的概念：所谓的产品族，是指位于不同产品等级结构中功能相关联的产品组成的家族。抽象工厂模式所提供的一系列产品就组成一个产品族；而工厂方法提供的一系列产品称为一个等级结构。我们依然拿生产汽车的例子来说明他们之间的区别。</p>
+<p>在抽象工厂模式中，有一个<strong>产品族</strong>的概念：所谓的产品族，是指位于不同产品等级结构中功能相关联的产品组成的家族。抽象工厂模式所提供的一系列产品就组成一个产品族；而工厂方法提供的一系列产品称为一个等级结构。</p>
 <h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点：当一个产品族中的多个对象被设计成一起工作时，它能保证客户端始终只使用同一个产品族中的对象。此外还具有工厂方法模式的优点。</p>
 <p>缺点：产品族扩展非常困难，要增加一个系列的某一产品，既要在抽象的 Creator 里加代码，又要在具体的里面加代码。</p>
 <p>适用场景：<br>当需要创建的对象是一系列相互关联或相互依赖的产品族时，便可以使用抽象工厂模式。说的更明白一点，就是一个继承体系中，如果存在着多个等级结构（即存在着多个抽象类），并且分属各个等级结构中的实现类之间存在着一定的关联或者约束，就可以使用抽象工厂模式。假如各个等级结构中的实现类之间不存在关联或约束，则使用多个独立的工厂来对产品进行创建，则更合适一点。</p>
@@ -536,7 +536,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

@@ -80,20 +80,20 @@
 
 
 
-<meta name="description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 应用场景1、当需要给一个现有类添加附加职责，而又不能采用生成子类的方法进行扩充时。例如，该类被隐藏或者该类是终极类或者采用继承方式会产生大量的子类。2、当需要通过对现有的一组基本功能进行排列组合而产生非常多的功能时，采用继承关系很难实现，而采用装饰模式">
+<meta name="description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 主要优点有：1、采用装饰模式扩展对象的功能比采用继承方式更加灵活。2、可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。 主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。 应用场景1、当需要给一个现有类添加附加职责，而又不能">
 <meta property="og:type" content="article">
 <meta property="og:title" content="装饰模式">
 <meta property="og:url" content="http://yoursite.com/2019/11/21/design-pattern-decorator/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 应用场景1、当需要给一个现有类添加附加职责，而又不能采用生成子类的方法进行扩充时。例如，该类被隐藏或者该类是终极类或者采用继承方式会产生大量的子类。2、当需要通过对现有的一组基本功能进行排列组合而产生非常多的功能时，采用继承关系很难实现，而采用装饰模式">
+<meta property="og:description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 主要优点有：1、采用装饰模式扩展对象的功能比采用继承方式更加灵活。2、可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。 主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。 应用场景1、当需要给一个现有类添加附加职责，而又不能">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/11/21/design-pattern-decorator/decorator.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/11/21/design-pattern-decorator/decorator-simple1.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/11/21/design-pattern-decorator/decorator-simple2.jpg">
-<meta property="og:updated_time" content="2019-11-21T08:51:41.910Z">
+<meta property="og:updated_time" content="2019-11-29T01:38:18.861Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="装饰模式">
-<meta name="twitter:description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 应用场景1、当需要给一个现有类添加附加职责，而又不能采用生成子类的方法进行扩充时。例如，该类被隐藏或者该类是终极类或者采用继承方式会产生大量的子类。2、当需要通过对现有的一组基本功能进行排列组合而产生非常多的功能时，采用继承关系很难实现，而采用装饰模式">
+<meta name="twitter:description" content="装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。 主要优点有：1、采用装饰模式扩展对象的功能比采用继承方式更加灵活。2、可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。 主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。 应用场景1、当需要给一个现有类添加附加职责，而又不能">
 <meta name="twitter:image" content="http://yoursite.com/2019/11/21/design-pattern-decorator/decorator.jpg">
 
 
@@ -389,10 +389,10 @@
       
 
       
-        <p>装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。</p>
+        <p>装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，<strong>动态</strong>地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。</p>
+<p>主要优点有：<br>1、采用装饰模式扩展对象的功能<strong>比采用继承方式更加灵活</strong>。<br>2、可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。</p>
+<p>主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。</p>
 <h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、当需要给一个现有类添加附加职责，而又不能采用生成子类的方法进行扩充时。例如，该类被隐藏或者该类是终极类或者采用继承方式会产生大量的子类。<br>2、当需要通过对现有的一组基本功能进行排列组合而产生非常多的功能时，采用继承关系很难实现，而采用装饰模式却很好实现。<br>3、当对象的功能要求可以动态地添加，也可以再动态地撤销时。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>主要优点有：<br>1、采用装饰模式扩展对象的功能<strong>比采用继承方式更加灵活</strong>。<br>2、可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。</p>
-<p>其主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。</p>
 <h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>通常情况下，扩展一个类的功能会使用继承方式来实现。但继承具有静态特征，耦合度高，并且随着扩展功能的增多，子类会很膨胀。如果使用组合关系来创建一个包装对象（即装饰对象）来包裹真实对象，并在保持真实对象的类结构不变的前提下，为其提供额外的功能，这就是装饰模式的目标。</p>
 <p><img src="/2019/11/21/design-pattern-decorator/decorator.jpg" alt></p>
 <p>装饰模式主要包含以下角色:<br>1、抽象构件（Component）角色：定义一个抽象接口以规范准备接收附加责任的对象。<br>2、具体构件（Concrete    Component）角色：实现抽象构件，通过装饰角色为其添加一些职责。<br>3、抽象装饰（Decorator）角色：继承抽象构件，并包含具体构件的实例，可以通过其子类扩展具体构件的功能。<br>4、具体装饰（ConcreteDecorator）角色：实现抽象装饰的相关方法，并给具体构件对象添加附加的责任。</p>
@@ -517,7 +517,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -572,7 +572,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">1.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优缺点"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构"><span class="nav-number">3.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式的扩展"><span class="nav-number">4.</span> <span class="nav-text">模式的扩展</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用场景"><span class="nav-number">1.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构"><span class="nav-number">2.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式的扩展"><span class="nav-number">3.</span> <span class="nav-text">模式的扩展</span></a></li></ol></div>
             
 
           </div>

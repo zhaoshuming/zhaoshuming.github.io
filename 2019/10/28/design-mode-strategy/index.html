@@ -88,7 +88,7 @@
 <meta property="og:description" content="策略模式（Strategy Pattern），将各种算法封装到具体的类中，作为一个抽象策略类的子类，使得它们可以互换。客户端可以自行决定使用哪种算法。 结构策略模式是对算法的包装，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“准备一组算法，并将每一个算法封装起来，使得它们可以互换”。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/10/28/design-mode-strategy/strategy.png">
-<meta property="og:updated_time" content="2019-10-30T03:15:22.046Z">
+<meta property="og:updated_time" content="2019-11-28T07:15:10.410Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="策略模式">
 <meta name="twitter:description" content="策略模式（Strategy Pattern），将各种算法封装到具体的类中，作为一个抽象策略类的子类，使得它们可以互换。客户端可以自行决定使用哪种算法。 结构策略模式是对算法的包装，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“准备一组算法，并将每一个算法封装起来，使得它们可以互换”。">
@@ -388,7 +388,7 @@
 
       
         <p>策略模式（Strategy Pattern），将各种算法封装到具体的类中，作为一个抽象策略类的子类，使得它们可以互换。客户端可以自行决定使用哪种算法。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>策略模式是<strong>对算法的包装</strong>，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“准备一组算法，并将每一个算法封装起来，使得它们可以互换”。下面就以一个示意性的实现讲解策略模式实例的结构。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>策略模式是<strong>对算法的包装</strong>，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“<strong>准备一组算法，并将每一个算法封装起来，使得它们可以互换</strong>”。下面就以一个示意性的实现讲解策略模式实例的结构。</p>
 <p><img src="/2019/10/28/design-mode-strategy/strategy.png" alt></p>
 <p>这个模式涉及到三个角色：<br>　　●　环境(Context)角色：持有一个Strategy的引用。<br>　　●　抽象策略(Strategy)角色：这是一个抽象角色，通常由一个接口或抽象类实现。此角色给出所有的具体策略类所需的接口。<br>　　●　具体策略(ConcreteStrategy)角色：包装了相关的算法或行为。</p>
 <h2 id="认识策略模式"><a href="#认识策略模式" class="headerlink" title="认识策略模式"></a>认识策略模式</h2><p>1、策略模式的重心<br>　　策略模式的重心不是如何实现算法，而是<strong>如何组织、调用这些算法</strong>，从而让程序结构更灵活，具有更好的维护性和扩展性。</p>
@@ -522,7 +522,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
