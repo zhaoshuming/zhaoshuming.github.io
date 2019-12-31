@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/10/21/ds-sort/sort-merge.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/10/21/ds-sort/sort-heap.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/21/ds-sort/sort-time.png">
-<meta property="og:updated_time" content="2019-10-23T06:17:12.361Z">
+<meta property="og:updated_time" content="2019-12-31T05:56:48.907Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="十大经典排序算法(Java实现)">
 <meta name="twitter:description" content="本文给出常见的十种常见排序算法的原理以及 Java 实现，按照是否比较可以分为两大类： 1、 比较类排序：通过比较来决定元素间的相对次序，由于其时间复杂度不能突破O(nlogn)，因此也称为非线性时间比较类排序。&amp;emsp;&amp;emsp;比较排序的优势是，适用于各种规模的数据，也不在乎数据的分布，都能进行排序。可以说，比较排序适用于一切需要排序的情况。 2、 非比较类排序：不通过比较来决定元素间的相">
@@ -411,7 +411,8 @@
 <p>例子：<br>待划分数据：7, 6, 9, 8, 5,1，假设阈值为5<br>第一轮：左指针指向7，右指针指向1，左指针向后移，右指针向左移，发现左面第一个大于5的元素7，右面第一个小于5的元素1，交换7和1的位置，结果：1,6,9,8,5,7；<br>第二轮：从6开始找大于5的数字，找到6，右边从5起找小于5的数字，找到1，但此时由于6在1的右面，，即右指针&lt;左指针，左右指针交叉，此时划分结束。原数列被划分为两部分，左侧子数列只有一个元素，即为1，其为小于阈值的子数列；右侧子数列包括5个元素，均为大于阈值5的元素。</p>
 <p>对于基准位置的选取一般有三种方法：固定切分，随机切分和三取样切分。固定切分的效率并不是太好，随机切分是常用的一种切分，效率比较高，最坏情况下时间复杂度有可能为O(N2).对于三数取中选择基准点是最理想的一种。<br>三数取中切分：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public static int partition(int []array,int lo,int hi)&#123;</span><br><span class="line">    //三数取中</span><br><span class="line">    int mid=lo+(hi-lo)/2;</span><br><span class="line">    if(array[mid]&gt;array[hi])&#123;</span><br><span class="line">        swap(array[mid],array[hi]);</span><br><span class="line">    &#125;</span><br><span class="line">    if(array[lo]&gt;array[hi])&#123;</span><br><span class="line">        swap(array[lo],array[hi]);</span><br><span class="line">    &#125;</span><br><span class="line">    if(array[mid]&gt;array[lo])&#123;</span><br><span class="line">        swap(array[mid],array[lo]);</span><br><span class="line">    &#125;</span><br><span class="line">    int key=array[lo];</span><br><span class="line">    </span><br><span class="line">    while(lo&lt;hi)&#123;</span><br><span class="line">        while(array[hi]&gt;=key&amp;&amp;hi&gt;lo)&#123;//从后半部分向前扫描</span><br><span class="line">            hi--;</span><br><span class="line">        &#125;</span><br><span class="line">        array[lo]=array[hi];</span><br><span class="line">        while(array[lo]&lt;=key&amp;&amp;hi&gt;lo)&#123;//从前半部分向后扫描</span><br><span class="line">            lo++;</span><br><span class="line">        &#125;</span><br><span class="line">        array[hi]=array[lo];</span><br><span class="line">    &#125;</span><br><span class="line">    array[hi]=key;</span><br><span class="line">    return hi;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void swap(int a,int b)&#123;</span><br><span class="line">    int temp=a;</span><br><span class="line">    a=b;</span><br><span class="line">    b=temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public static void sort(int[] array,int lo ,int hi)&#123;</span><br><span class="line">    if(lo&gt;=hi)&#123;</span><br><span class="line">        return ;</span><br><span class="line">    &#125;</span><br><span class="line">    int index=partition(array,lo,hi);</span><br><span class="line">    sort(array,lo,index-1);</span><br><span class="line">    sort(array,index+1,hi);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>分析：<br>1、快速排序的时间复杂度为O(NlogN).<br>2、快速排序在序列中元素很少时，效率将比较低，因此一般在序列中元素很少时使用插入排序，这样可以提高整体效率。</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><p>原理：<br>归并排序（Merge）是将两个（或两个以上）有序表合并成一个新的有序表。即把待排序序列分为若干个子序列，每个子序列是有序的，然后再把有序子序列合并为整体有序序列。</p>
+<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><p>把数据分为两段，从两段中逐个选最小的元素移入新数据段的末尾。</p>
+<p>原理：<br>归并排序（Merge）是将两个（或两个以上）有序表合并成一个新的有序表。即把待排序序列分为若干个子序列，每个子序列是有序的，然后再把有序子序列合并为整体有序序列。</p>
 <p>归并排序是建立在归并操作上的一种有效的排序算法。该算法是采用分治法（Divide and Conquer）的一个非常典型的应用。 将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。若将两个有序表合并成一个有序表，称为2-路归并。</p>
 <p>每个递归过程涉及三个步骤:<br>第一, 分解: 把待排序的 n 个元素的序列分解成两个子序列, 每个子序列包括 n/2 个元素.<br>第二, 治理: 对每个子序列分别调用归并排序MergeSort, 进行递归操作<br>第三, 合并: 合并两个排好序的子序列,生成排序结果.</p>
 <p>示例如下图：<br><img src="/2019/10/21/ds-sort/sort-merge.jpg" alt></p>
@@ -559,7 +560,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">62</span>
+                  <span class="site-state-item-count">63</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -570,7 +571,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
