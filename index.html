@@ -293,6 +293,664 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/03/android-ndk-jni-invoke/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/03/android-ndk-jni-invoke/" itemprop="url">JNI 的调用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-03T13:19:25+08:00">
+                2020-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android-ndk/" itemprop="url" rel="index">
+                    <span itemprop="name">android ndk</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="注册native函数"><a href="#注册native函数" class="headerlink" title="注册native函数"></a>注册native函数</h2><p>JNI有两种注册native方法的途径：</p>
+<blockquote>
+<ul>
+<li>静态注册：<br>先由Java得到本地方法的声明，然后再通过JNI实现该声明方法</li>
+<li>动态注册：<br>先通过JNI重载JNI_OnLoad()实现本地方法，然后直接在Java中调用本地方法。</li>
+</ul>
+</blockquote>
+<h3 id="静态注册"><a href="#静态注册" class="headerlink" title="静态注册"></a>静态注册</h3><p>静态注册就是根据函数名来遍历Java和JNI函数之间的关联，而且要求JNI层函数的名字必须遵循特定的格式。具体的实现很简单，首先在Java代码中声明native函数，然后通过javah来生成native函数的具体形式，接下来在JNI代码中实现这些函数即可。</p>
+<p>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class JniDemo1&#123;</span><br><span class="line">       static &#123;</span><br><span class="line">             System.loadLibrary(&quot;samplelib_jni&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        private native void nativeMethod();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接来下通过javah来产生jni代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javah -d ./jni/ -classpath /Users/YOUR_NAME/Library/Android/sdk/platforms/android-21/android.jar:../../build/intermediates/classes/debug/ com.xxxpackagename.JniDemo1</span><br></pre></td></tr></table></figure></p>
+<p>然后就会得到一个JNI的.h文件，里面包含这几个native函数的声明，观察一下文件名以及函数名。JNI方法名的规范：</p>
+<blockquote>
+<p>返回值 + Java前缀+全路径类名+方法名+参数1JNIEnv+参数2jobject+其他参数</p>
+</blockquote>
+<p>注意事项：</p>
+<blockquote>
+<ul>
+<li>注意分隔符：<br>Java前缀与类名以及类名之间的包名和方法名之间使用”_”进行分割；</li>
+<li>注意静态：<br>如果在Java中声明的方法是”静态的”，则native方法也是static。否则不是。</li>
+</ul>
+</blockquote>
+<h3 id="动态注册"><a href="#动态注册" class="headerlink" title="动态注册"></a>动态注册</h3><p>动态注册，也就是通过RegisterNatives方法把C/C++中的方法映射到Java中的native方法，而无需遵循特定的方法命名格式。</p>
+<p>当我们使用System.loadLibarary()方法加载so库的时候，Java虚拟机就会找到这个<strong>JNI_OnLoad</strong>函数并调用该函数，<strong>这个函数的作用是告诉Dalvik虚拟机此C库使用的是哪一个JNI版本</strong>，如果你的库里面没有写明JNI_OnLoad()函数，VM会默认该库使用最老的JNI 1.1版本。由于最新版本的JNI做了很多扩充，也优化了一些内容，如果需要使用JNI新版本的功能，就必须在JNI_OnLoad()函数声明JNI的版本，同时也可以在该函数中做一些初始化的动作。该函数前面也有三个关键字分别是JNIEXPORT，JNICALL ，jint。其中JNIEXPORT和JNICALL是两个宏定义，用于指定该函数时JNI函数。jint是JNI定义的数据类型，因为Java层和C/C++的数据类型或者对象不能直接相互的引用或者使用，JNI层定义了自己的数据类型，用于衔接Java层和JNI层。与JNI_OnLoad()函数相对应的有JNI_OnUnload()函数，当虚拟机释放的该C库的时候，则会调用JNI_OnUnload()函数来进行善后清除工作。</p>
+<p>该函数会有两个参数，其中*jvm为Java虚拟机实例，JavaVM结构体定义一下函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DestroyJavaVM</span><br><span class="line">AttachCurrentThread</span><br><span class="line">DetachCurrentThread</span><br><span class="line">GetEnv</span><br></pre></td></tr></table></figure></p>
+<p>举例说明，首先是加载so库:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class JniDemo1&#123;</span><br><span class="line">       static &#123;</span><br><span class="line">             System.loadLibrary(&quot;samplelib_jni&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在jni中的实现，并且在这个函数里面去动态的注册native方法，完整的参考代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;jni.h&gt;</span><br><span class="line">#include &quot;Log4Android.h&quot;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">#ifdef __cplusplus</span><br><span class="line">extern &quot;C&quot; &#123;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">static const char *className = &quot;com/gebilaolitou/jnidemo/JNIDemo2&quot;;</span><br><span class="line"></span><br><span class="line">static void sayHello(JNIEnv *env, jobject, jlong handle) &#123;</span><br><span class="line">    LOGI(&quot;JNI&quot;, &quot;native: say hello ###&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static JNINativeMethod gJni_Methods_table[] = &#123;</span><br><span class="line">    &#123;&quot;sayHello&quot;, &quot;(J)V&quot;, (void*)sayHello&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">static int jniRegisterNativeMethods(JNIEnv* env, const char* className,</span><br><span class="line">    const JNINativeMethod* gMethods, int numMethods)</span><br><span class="line">&#123;</span><br><span class="line">    jclass clazz;</span><br><span class="line"></span><br><span class="line">    LOGI(&quot;JNI&quot;,&quot;Registering %s natives\n&quot;, className);</span><br><span class="line">    clazz = (env)-&gt;FindClass( className);</span><br><span class="line">    if (clazz == NULL) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;Native registration unable to find class &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int result = 0;</span><br><span class="line">    if ((env)-&gt;RegisterNatives(clazz, gJni_Methods_table, numMethods) &lt; 0) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;RegisterNatives failed for &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        result = -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    (env)-&gt;DeleteLocalRef(clazz);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">jint JNI_OnLoad(JavaVM* vm, void* reserved)&#123;</span><br><span class="line">    LOGI(&quot;JNI&quot;, &quot;enter jni_onload&quot;);</span><br><span class="line"></span><br><span class="line">    JNIEnv* env = NULL;</span><br><span class="line">    jint result = -1;</span><br><span class="line"></span><br><span class="line">    if (vm-&gt;GetEnv((void**) &amp;env, JNI_VERSION_1_4) != JNI_OK) &#123;</span><br><span class="line">        return result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    jniRegisterNativeMethods(env, className, gJni_Methods_table, sizeof(gJni_Methods_table) / sizeof(JNINativeMethod));</span><br><span class="line"></span><br><span class="line">    return JNI_VERSION_1_4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#ifdef __cplusplus</span><br><span class="line">&#125;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure></p>
+<p>我们一个个来说，首先看JNI_OnLoad函数的实现，里面代码很简单，主要就是两个代码块，一个是if语句，一个是jniRegisterNativeMethods函数的实现。那我们一个一个来分析。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (vm-&gt;GetEnv((void**) &amp;env, JNI_VERSION_1_4) != JNI_OK) &#123;</span><br><span class="line">    return result ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里调用了GetEnv函数时为了<strong>获取JNIEnv结构体指针</strong>，其实JNIEnv结构体指向了一个函数表，该函数表指向了对应的JNI函数，我们通过这些JNI函数实现JNI编程。</p>
+<p>然后就调用了jniRegisterNativeMethods函数来实现注册，这里面注意一个静态变量gJni_Methods_table。它其实代表了一个native方法的数组，如果你在一个Java类中有一个native方法，这里它的size就是1，如果是两个native方法，它的size就是2，大家看下这个gJni_Methods_table变量的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static JNINativeMethod gJni_Methods_table[] = &#123;</span><br><span class="line">    &#123;&quot;sayHello&quot;, &quot;(J)V&quot;, (void*)sayHello&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>我们看到他的类型是JNINativeMethod ，那我们就来研究下JNINativeMethod</p>
+<p>JNI允许我们提供一个<strong>函数映射表</strong>，注册给Java虚拟机，这样JVM就可以用函数映射表来调用相应的函数。这样就可以不必通过函数名来查找需要调用的函数了。Java与JNI通过JNINativeMethod的结构来建立联系，它被定义在jni.h中，其结构内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123; </span><br><span class="line">    const char* name; </span><br><span class="line">    const char* signature; </span><br><span class="line">    void* fnPtr; </span><br><span class="line">&#125; JNINativeMethod;</span><br></pre></td></tr></table></figure></p>
+<p>这里面有3个变量，那我们就依次来讲解下：<br>第一个变量name，代表的是Java中的函数名<br>第二个变量signature，代表的是Java中的参数和返回值<br>第三个变量fnPtr，代表的是的指向C函数的函数指针</p>
+<p>下面我们再来看下jniRegisterNativeMethods函数内部的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">static int jniRegisterNativeMethods(JNIEnv* env, const char* className,</span><br><span class="line">    const JNINativeMethod* gMethods, int numMethods)</span><br><span class="line">&#123;</span><br><span class="line">    jclass clazz;</span><br><span class="line"></span><br><span class="line">    LOGI(&quot;JNI&quot;,&quot;Registering %s natives\n&quot;, className);</span><br><span class="line">    clazz = (env)-&gt;FindClass( className);</span><br><span class="line">    if (clazz == NULL) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;Native registration unable to find class &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int result = 0;</span><br><span class="line">    if ((env)-&gt;RegisterNatives(clazz, gJni_Methods_table, numMethods) &lt; 0) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;RegisterNatives failed for &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        result = -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    (env)-&gt;DeleteLocalRef(clazz);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先通过clazz = (env)-&gt;FindClass( className);找到声明native方法的类<br>然后通过调用<strong>RegisterNatives</strong>函数将注册函数的Java类，以及注册函数的数组，以及个数注册在一起，这样就实现了绑定。</p>
+<p>上面在讲解JNINativeMethod结构体的时候，提到一个概念，就是”signature”即签名，我们下面就来讲解下。</p>
+<h2 id="JNI中的签名"><a href="#JNI中的签名" class="headerlink" title="JNI中的签名"></a>JNI中的签名</h2><p>Java是支持函数重载的。但如果JNI仅仅是根据函数名，是没有办法找到重载的函数的，所以为了解决这个问题，JNI就衍生了一个概念——“签名”，即<strong>参数类型和返回值类型的组合</strong>。如果拥有一个该函数的签名信息和这个函数的函数名，我们就可以顺序的找到对应的Java层中的函数了。</p>
+<h3 id="查看类中的方法的签名"><a href="#查看类中的方法的签名" class="headerlink" title="查看类中的方法的签名"></a>查看类中的方法的签名</h3><p>可以使用 java -p命令(建议使用该命令来对比签名)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">javap -s -p MainActivity.class</span><br><span class="line"></span><br><span class="line">Compiled from &quot;MainActivity.java&quot;</span><br><span class="line">public class com.example.hellojni.MainActivity extends android.app.Activity &#123;</span><br><span class="line">  static &#123;&#125;;</span><br><span class="line">    Signature: ()V</span><br><span class="line"></span><br><span class="line">  public com.example.hellojni.MainActivity();</span><br><span class="line">    Signature: ()V</span><br><span class="line"></span><br><span class="line">  protected void onCreate(android.os.Bundle);</span><br><span class="line">    Signature: (Landroid/os/Bundle;)V</span><br><span class="line"></span><br><span class="line">  public boolean onCreateOptionsMenu(android.view.Menu);</span><br><span class="line">    Signature: (Landroid/view/Menu;)Z</span><br><span class="line"></span><br><span class="line">  public native java.lang.String stringFromJNI(); //native 方法</span><br><span class="line">    Signature: ()Ljava/lang/String;  //签名</span><br><span class="line"></span><br><span class="line">  public native int max(int, int); //native 方法</span><br><span class="line">    Signature: (II)I    //签名</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们看到上面有()V ，(Landroid/os/Bundle;)V，(Landroid/view/Menu;)Z，(II)I我们一脸懵逼，这是什么鬼，所以我们要来研究下签名的格式</p>
+<h3 id="JNI定义的函数签名信息"><a href="#JNI定义的函数签名信息" class="headerlink" title="JNI定义的函数签名信息"></a>JNI定义的函数签名信息</h3><blockquote>
+<p>(参数1类型标示；参数2类型标示；参数3类型标示…)返回值类型标示</p>
+</blockquote>
+<p>当参数为引用类型的时候，参数类型的标示的根式为”L包名”，其中包名的.(点)要换成”/“，看我上面的例子就差不多，比如String就是Ljava/lang/String，Menu为Landroid/view/Menu。</p>
+<p>如果是基本类类型，其签名如下：</p>
+<table>
+<thead>
+<tr>
+<th>类型标示</th>
+<th>Java类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>B</td>
+<td>byte</td>
+</tr>
+<tr>
+<td>C</td>
+<td>char</td>
+</tr>
+<tr>
+<td>S</td>
+<td>short</td>
+</tr>
+<tr>
+<td>I</td>
+<td>int</td>
+</tr>
+<tr>
+<td>J</td>
+<td>long</td>
+</tr>
+<tr>
+<td>F</td>
+<td>float</td>
+</tr>
+<tr>
+<td>D</td>
+<td>double</td>
+</tr>
+</tbody>
+</table>
+<p>除了boolean和long，其他都是首字母大写。如果返回值是void，对应的签名是<strong>V</strong>。</p>
+<p>这里重点说1个特殊的类型，一个是数组及Array:</p>
+<table>
+<thead>
+<tr>
+<th>类型标示</th>
+<th>Java类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[签名</td>
+<td>数组</td>
+</tr>
+<tr>
+<td>[i</td>
+<td>int[]</td>
+</tr>
+<tr>
+<td>[Ljava/lang/Object</td>
+<td>String[]</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Native调用Java代码"><a href="#Native调用Java代码" class="headerlink" title="Native调用Java代码"></a>Native调用Java代码</h2><p>上面讲解了如何从JNI中调用Java类中的方法，其实在jni.h中已经定义了一系列函数来实现这一目的，下面我们就以此举例说明：</p>
+<h3 id="获取Class对象"><a href="#获取Class对象" class="headerlink" title="获取Class对象"></a>获取Class对象</h3><p>为了能够在C/C++中调用Java中的类，jni.h的头文件专门定义了jclass类型表示Java中Class类。JNIEnv中有3个函数可以获取jclass。</p>
+<blockquote>
+<ul>
+<li>jclass FindClass(const char* clsName)：<br>通过类的名称来获取jclass。</li>
+<li>jclass GetObjectClass(jobject obj)：<br>通过对象实例来获取jclass，相当于Java中的getClass()函数</li>
+<li>jclass getSuperClass(jclass obj)：<br>通过jclass可以获取其父类的jclass对象</li>
+</ul>
+</blockquote>
+<p>通过类的名称获取jclass(类的全名，这时候包名不是用’”.”点号而是用”/“来区分的)。比如:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//获取Java中的String对象的class对象</span><br><span class="line">jclass jcl_string=env-&gt;FindClass(&quot;java/lang/String&quot;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="获取属性方法"><a href="#获取属性方法" class="headerlink" title="获取属性方法"></a>获取属性方法</h3><p>为了在C/C++获取Java层的属性和方法，JNI在jni.h头文件中定义了jfieldID和jmethodID这两种类型来分别代表Java端的属性和方法。</p>
+<p>常见的调用Java层的方法如下，一般是使用JNIEnv来进行操作：</p>
+<blockquote>
+<p>GetFieldID/GetMethodID：获取某个属性/某个方法<br>GetStaticFieldID/GetStaticMethodID：获取某个静态属性/静态方法</p>
+</blockquote>
+<p>方法的具体实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jfieldID GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz,const char *name, const char *sig);</span><br></pre></td></tr></table></figure></p>
+<p>他们都是4个入参，并且都一样。JNIEnv代表一个JNI环境接口，jclass上面也说了代表Java层中的”类”，name则代表方法名或者属性名，那最后一个char *sig代表签名。</p>
+<h3 id="构造一个对象"><a href="#构造一个对象" class="headerlink" title="构造一个对象"></a>构造一个对象</h3><p>常用的JNI中创建对象的方法如下：</p>
+<blockquote>
+<p>jobject NewObject(jclass clazz, jmethodID methodID, …)</p>
+</blockquote>
+<p>比如有我们知道Java类中可能有多个构造函数，当我们要指定调用某个构造函数的时候，会调用下面这个方法，即把指定的构造函数传入进去即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmethodID mid = (*env)-&gt;GetMethodID(env, cls, &quot;&lt;init&gt;&quot;, &quot;()V&quot;);</span><br><span class="line">obj = (*env)-&gt;NewObject(env, cls, mid);</span><br></pre></td></tr></table></figure></p>
+<p>现在我们来看下他上面的二个主要参数</p>
+<blockquote>
+<p>clazz：是需要创建的Java对象的Class对象<br>methodID：是传递一个方法ID，想一想Java对象创建的时候，需要执行什么操作？就是执行构造函数。</p>
+</blockquote>
+<p>有人会说这要走两行代码，有没有一行代码的，是有的，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobject NewObjectA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args);</span><br></pre></td></tr></table></figure></p>
+<p>这里多了一个参数，即jvalue *args，这里是args代表的是对应构造函数的所有参数的，我们可以应将传递给构造函数的所有参数放在jvalues类型的数组args中，该数组紧跟着放在methodID参数的后面。NewObject()收到数组中的这些参数后，将把它们传给所要调用的Java方法。</p>
+<p>上面说到，参数是个数组，如果参数不是数组怎么处理，jni.h同样也提供了一个方法，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);</span><br></pre></td></tr></table></figure></p>
+<p>这个方法和上面不同在于，这里将构造函数的所有参数放到在va_list类型的参数args中，该参数紧跟着放在methodID参数的后面。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/b71aeb4ed13d" target="_blank" rel="noopener">https://www.jianshu.com/p/b71aeb4ed13d</a><br><a href="https://www.jianshu.com/p/0f34c097028a" target="_blank" rel="noopener">JNI学习Demo</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/02/android-ndk-jni/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/02/android-ndk-jni/" itemprop="url">JNI 详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T10:40:44+08:00">
+                2020-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android-ndk/" itemprop="url" rel="index">
+                    <span itemprop="name">android ndk</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>JNI，全称为Java Native Interface，即Java本地接口，JNI是Java调用Native 语言的一种特性。通过JNI可以使得Java与C/C++机型交互。即可以在Java代码中调用C/C++等语言的代码或者在C/C++代码中调用Java代码。由于JNI是JVM规范的一部分，因此可以将我们写的JNI的程序在任何实现了JNI规范的Java虚拟机中运行。</p>
+<p>JNI的主要竞争优势在于：它在设计之初就确保了二进制的兼容性，JNI编写的应用程序兼容性以及其在某些具体平台上的Java虚拟机兼容性(当谈及JNI时，这里并不特比针对Davik虚拟机，JNI适用于所有JVM虚拟机)。这就是为什么C/C++编译后的代码无论在任何平台上都能执行。不过，一些早期版本并不支持二进制兼容。二进制兼容性是一种程序兼容性类型，允许一个程序在不改变其可执行文件的条件下在不同的编译环境中工作。</p>
+<p>JNI下一共涉及到三个角色：C/C++代码、本地方法接口类、Java层中具体业务类。</p>
+<h2 id="JNI的命名规则"><a href="#JNI的命名规则" class="headerlink" title="JNI的命名规则"></a>JNI的命名规则</h2><p>举例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JNIExport jstring JNICALL Java_com_example_hellojni_MainActivity_stringFromJNI( JNIEnv* env,jobject thiz )</span><br></pre></td></tr></table></figure></p>
+<p>jstring 是返回值类型<br>Java_com_example_hellojni 是包名<br>MainActivity 是类名<br>stringFromJNI 是方法名</p>
+<p>其中JNIExport和JNICALL是不固定保留的关键字不要修改</p>
+<h2 id="如何实现JNI"><a href="#如何实现JNI" class="headerlink" title="如何实现JNI"></a>如何实现JNI</h2><p>JNI开发流程的步骤：</p>
+<blockquote>
+<ul>
+<li>第1步：在Java中先声明一个native方法</li>
+<li>第2步：编译Java源文件javac得到.class文件</li>
+<li>第3步：通过javah -jni命令导出JNI的.h头文件</li>
+<li>第4步：使用Java需要交互的本地代码，实现在Java中声明的Native方法（如果Java需要与C++交互，那么就用C++实现Java的Native方法。）</li>
+<li>第5步：将本地代码编译成动态库(Windows系统下是.dll文件，如果是Linux系统下是.so文件，如果是Mac系统下是.jnilib)</li>
+<li>第6步：通过Java命令执行Java程序，最终实现Java调用本地代码。</li>
+</ul>
+</blockquote>
+<p>PS：javah 是JDK自带的一个命令，-jni参数表示将class 中用到native 声明的函数生成JNI 规则的函数</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-flow.webp" alt title="JNI开发流程"></p>
+<h2 id="JNI结构"><a href="#JNI结构" class="headerlink" title="JNI结构"></a>JNI结构</h2><p><img src="/2020/01/02/android-ndk-jni/jni-struct.webp" alt title="JNI结构"><br>这张JNI函数表的组成就像C++的虚函数表。虚拟机可以运行多张函数表，举例来说，一张调试函数表，另一张是调用函数表。JNI接口指针仅在当前线程中起作用。这意味着指针不能从一个线程进入另一个线程。然而，可以在不同的线程中调用本地方法。</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-interface.webp" alt title="JNI接口"></p>
+<p>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jdouble Java_pkg_Cls_f__ILjava_lang_String_2 (JNIEnv *env, jobject obj, jint i, jstring s)</span><br><span class="line">&#123;</span><br><span class="line">     const char *str = (*env)-&gt;GetStringUTFChars(env, s, 0); </span><br><span class="line">     (*env)-&gt;ReleaseStringUTFChars(env, s, str); </span><br><span class="line">     return 10;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>里面的方法有三个入参，我们就依次来看下：</p>
+<blockquote>
+<ul>
+<li>*env：一个接口指针</li>
+<li>obj：在本地方法中声明的对象引用</li>
+<li>i和s：用于传递的参数</li>
+</ul>
+</blockquote>
+<p>关于obj、i和s的类型大家可以参考下面的JNI数据类型，JNI有自己的原始数据类型和数据引用类型如下：</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-type.webp" alt></p>
+<h2 id="JNI原理"><a href="#JNI原理" class="headerlink" title="JNI原理"></a>JNI原理</h2><p>Java语言的执行环境是Java虚拟机(JVM)，JVM其实是主机环境中的一个进程，每个JVM虚拟机都在本地环境中有一个JavaVM结构体，该结构体在创建Java虚拟机时被返回，在JNI环境中创建JVM的函数为JNI_CreateJavaVM。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JNI_CreateJavaVM(JavaVM **pvm, void **penv, void*args);</span><br></pre></td></tr></table></figure></p>
+<h3 id="JavaVM"><a href="#JavaVM" class="headerlink" title="JavaVM"></a>JavaVM</h3><p>JavaVM是Java虚拟机在JNI层的代表，<strong>JNI全局仅仅有一个JavaVM结构中封装了一些函数指针（或叫函数表结构）</strong>，JavaVM中封装的这些函数指针主要是对JVM操作接口。另外，在C和C++中的JavaVM的定义有所不同，在C中JavaVM是JNIInvokeInterface_类型指针，而在C++中有对JNIInvokeInterface_进行了一次封装，比C中少了一个参数，这也是为什么JNI代码更推荐使用C++来编写的原因。</p>
+<h3 id="JNIEnv"><a href="#JNIEnv" class="headerlink" title="JNIEnv"></a>JNIEnv</h3><p>JNIEnv是一个线程相关的结构体，该结构体代表了Java在本线程的执行环境。该 JNIEnv 将用于线程本地存储。因此，您<strong>无法在线程之间共享 JNIEnv</strong>。</p>
+<p>一个JVM对应一个JavaVM结构，而一个JVM中可能创建多个Java线程，每个线程对应一个JNIEnv结构，它们保存在线程本地存储TLS中。因此，不同的线程的JNIEnv是不同，也不能相互共享使用。JNIEnv结构也是一个函数表，在本地代码中通过JNIEnv的函数表来操作Java数据或者调用Java方法。也就是说，只要在本地代码中拿到了JNIEnv结构，就可以在本地代码中调用Java代码。</p>
+<h4 id="JNIEnv的作用"><a href="#JNIEnv的作用" class="headerlink" title="JNIEnv的作用"></a>JNIEnv的作用</h4><ul>
+<li>调用Java 函数：JNIEnv代表了Java执行环境，能够使用JNIEnv调用Java中的代码</li>
+<li>操作Java代码：Java对象传入JNI层就是jobject对象，需要使用JNIEnv来操作这个Java对象</li>
+</ul>
+<h4 id="JNIEnv的创建"><a href="#JNIEnv的创建" class="headerlink" title="JNIEnv的创建"></a>JNIEnv的创建</h4><p>JNIEnv 创建与释放：从JavaVM获得，这里面又分为C与C++，我们就依次来看下：</p>
+<ul>
+<li>C 中——JNIInvokeInterface：JNIInvokeInterface是C语言环境中的JavaVM结构体，调用 (*AttachCurrentThread)(JavaVM*, JNIEnv*, void) 方法，能够获得JNIEnv结构体</li>
+<li>C++中 ——_JavaVM：_JavaVM是C++中JavaVM结构体，调用jint AttachCurrentThread(JNIEnv** p_env, void* thr_args) 方法，能够获取JNIEnv结构体；</li>
+</ul>
+<h4 id="JNIEnv的释放"><a href="#JNIEnv的释放" class="headerlink" title="JNIEnv的释放"></a>JNIEnv的释放</h4><ul>
+<li>C 中释放：调用JavaVM结构体JNIInvokeInterface中的(*DetachCurrentThread)(JavaVM*)方法，能够释放本线程的JNIEnv</li>
+<li>C++ 中释放：调用JavaVM结构体_JavaVM中的jint DetachCurrentThread(){ return functions-&gt;DetachCurrentThread(this); } 方法，就可以释放 本线程的JNIEnv</li>
+</ul>
+<h4 id="JNIEnv与线程"><a href="#JNIEnv与线程" class="headerlink" title="JNIEnv与线程"></a>JNIEnv与线程</h4><p>JNIEnv是线程相关的，即在每一个线程中都有一个JNIEnv指针，每个JNIEnv都是线程专有的，其他线程不能使用本线程中的JNIEnv，即线程A不能调用线程B的JNIEnv。所以JNIEnv不能跨线程。</p>
+<h4 id="JNIEnv结构"><a href="#JNIEnv结构" class="headerlink" title="JNIEnv结构"></a>JNIEnv结构</h4><p>JNIEnv是一个指针，指向一个线程相关的结构，线程相关结构指向JNI函数指针数组，这个数组中存放了大量的JNI函数指针，这些指针指向了详细的JNI函数：</p>
+<p><img src="/2020/01/02/android-ndk-jni/jnienv-struct.webp" alt title="JNIEnv结构图"></p>
+<h4 id="与JNIEnv相关的常用函数"><a href="#与JNIEnv相关的常用函数" class="headerlink" title="与JNIEnv相关的常用函数"></a>与JNIEnv相关的常用函数</h4><h5 id="创建Java中的对象"><a href="#创建Java中的对象" class="headerlink" title="创建Java中的对象"></a>创建Java中的对象</h5><blockquote>
+<ul>
+<li>jobject NewObject(JNIEnv *env, jclass clazz,jmethodID methodID, …)：</li>
+<li>jobject NewObjectA(JNIEnv *env, jclass clazz,jmethodID methodID, const jvalue *args)：</li>
+<li>jobject NewObjectV(JNIEnv *env, jclass clazz,jmethodID methodID, va_list args)：</li>
+</ul>
+</blockquote>
+<p>第一个参数jclass class 代表的你要创建哪个类的对象，第二个参数,jmethodID methodID代表你要使用那个构造方法ID来创建这个对象。只要有jclass和jmethodID，我们就可以在本地方法创建这个Java类的对象。</p>
+<h5 id="创建Java类中的String对象"><a href="#创建Java类中的String对象" class="headerlink" title="创建Java类中的String对象"></a>创建Java类中的String对象</h5><blockquote>
+<p>jstring NewString(JNIEnv *env, const jchar *unicodeChars, jsize len)：</p>
+</blockquote>
+<p>通过Unicode字符的数组来创建一个新的String对象。<br>env是JNI接口指针；unicodeChars是指向Unicode字符串的指针；len是Unicode字符串的长度。返回值是Java字符串对象，如果无法构造该字符串，则为null。</p>
+<p>那有没有一个直接直接new一个utf-8的字符串的方法呢？答案是有的，就是jstring NewStringUTF(JNIEnv *env, const char *bytes)这个方法就是直接new一个编码为utf-8的字符串。</p>
+<h5 id="创建类型为基本类型PrimitiveType的数组"><a href="#创建类型为基本类型PrimitiveType的数组" class="headerlink" title="创建类型为基本类型PrimitiveType的数组"></a>创建类型为基本类型PrimitiveType的数组</h5><blockquote>
+<p>ArrayType New<primitivetype>Array(JNIEnv *env, jsize length)</primitivetype></p>
+</blockquote>
+<p>指定一个长度然后返回相应的Java基本类型的数组。用于构造一个新的数组对象，类型是原始类型。基本的原始类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New<primitivetype>Array Routines</primitivetype></td>
+<td>Array Type</td>
+</tr>
+<tr>
+<td>NewBooleanArray()</td>
+<td>jbooleanArray</td>
+</tr>
+<tr>
+<td>NewByteArray()</td>
+<td>jbyteArray</td>
+</tr>
+<tr>
+<td>NewCharArray()</td>
+<td>jcharArray</td>
+</tr>
+<tr>
+<td>NewShortArray()</td>
+<td>jshortArray</td>
+</tr>
+<tr>
+<td>NewIntArray()</td>
+<td>jintArray</td>
+</tr>
+<tr>
+<td>NewLongArray()</td>
+<td>jlongArray</td>
+</tr>
+<tr>
+<td>NewFloatArray()</td>
+<td>jfloatArray</td>
+</tr>
+<tr>
+<td>NewDoubleArray()</td>
+<td>jdoubleArray</td>
+</tr>
+</tbody>
+</table>
+<h5 id="创建类型为elementClass的数组"><a href="#创建类型为elementClass的数组" class="headerlink" title="创建类型为elementClass的数组"></a>创建类型为elementClass的数组</h5><blockquote>
+<p>jobjectArray NewObjectArray(JNIEnv *env, jsize length, jclass elementClass, jobject initialElement);</p>
+</blockquote>
+<p>造一个新的数据组，类型是elementClass，所有类型都被初始化为initialElement。</p>
+<h5 id="获取数组中某个位置的元素"><a href="#获取数组中某个位置的元素" class="headerlink" title="获取数组中某个位置的元素"></a>获取数组中某个位置的元素</h5><blockquote>
+<p>jobject GetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index);</p>
+</blockquote>
+<p>返回Object数组的一个元素</p>
+<h5 id="获取数组的长度"><a href="#获取数组的长度" class="headerlink" title="获取数组的长度"></a>获取数组的长度</h5><blockquote>
+<p>jsize GetArrayLength(JNIEnv *env, jarray array);</p>
+</blockquote>
+<p>获取array数组的长度.</p>
+<h5 id="GetArrayElements"><a href="#GetArrayElements" class="headerlink" title="GetArrayElements"></a>GetArrayElements</h5><blockquote>
+<p>NativeType *Get<primitivetype>ArrayElements(JNIEnv *env, ArrayType array, jboolean *isCopy);</primitivetype></p>
+</blockquote>
+<p>返回指向数组元素的指针，如果操作失败则返回NULL。</p>
+<p>这是用来<strong>返回原生数据类型数组体的家族函数</strong>。函数返回的指针在调用对应的ReleaseArrayElements()函数之前都是有效的（就是指针指向的区域没有被释放，是可以使用的）。因为这个函数返回的数组可能是Java数组的一份拷贝，所以直到调用ReleaseArrayElements()方法，对返回的数组所做的修改才会反映到原始数组中。</p>
+<p>GetArrayElements()函数的返回值是和JVM相关的，如果JVM的GC支持pin操作，那么返回值就是指向原始数组的指针；否则返回的就是原始数组的一份拷贝的首地址。</p>
+<p>如果isCopy不为NULL，如果进行了复制，则*isCopy设置为JNI_TRUE; 如果没有复制，则设置为JNI_FALSE。</p>
+<p>下表描述了特定的原始数组元素访问器。您应该进行以下替换：</p>
+<blockquote>
+<ul>
+<li>将GetArrayElements替换为下表中的一个实际原始元素访问器例程名称。</li>
+<li>将ArrayType替换为相应的数组类型。</li>
+<li>将NativeType替换为该例程的相应本地类型。</li>
+</ul>
+</blockquote>
+<p>无论如何在JVM中表示布尔数组，GetBooleanArrayElements()始终返回指向jbooleans的指针，每个字节表示一个元素（解包表示）。其他类型的所有数组都保证在内存中是连续的。</p>
+<table>
+<thead>
+<tr>
+<th>GetArrayElements例程</th>
+<th>数组类型</th>
+<th>本地类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GetBooleanArrayElements()</td>
+<td>jbooleanArray</td>
+<td>jboolean</td>
+</tr>
+<tr>
+<td>GetByteArrayElements()</td>
+<td>jbyteArray</td>
+<td>jbyte</td>
+</tr>
+<tr>
+<td>GetCharArrayElements()    jcharArray</td>
+<td>jchar</td>
+</tr>
+<tr>
+<td>GetShortArrayElements()</td>
+<td>jshortArray</td>
+<td>jshort</td>
+</tr>
+<tr>
+<td>GetIntArrayElements()</td>
+<td>jintArray</td>
+<td>jint</td>
+</tr>
+<tr>
+<td>GetLongArrayElements()</td>
+<td>jlongArray</td>
+<td>jlong</td>
+</tr>
+<tr>
+<td>GetFloatArrayElements()</td>
+<td>jfloatArray</td>
+<td>jfloat</td>
+</tr>
+<tr>
+<td>GetDoubleArrayElements()</td>
+<td>jdoubleArray</td>
+<td>jdouble</td>
+</tr>
+</tbody>
+</table>
+<h5 id="ReleaseArrayElements"><a href="#ReleaseArrayElements" class="headerlink" title="ReleaseArrayElements"></a>ReleaseArrayElements</h5><blockquote>
+<p>void Release<primitivetype>ArrayElements(JNIEnv *env, ArrayType array, NativeType *elems, jint mode);</primitivetype></p>
+</blockquote>
+<p>一系列函数，通知VM本地代码不再需要访问elems。elems参数是使用相应的GetArrayElements()函数从数组派生的指针。<strong>如有必要，此函数会将对elems所做的所有更改复制回原始数组</strong>。</p>
+<p>mode参数提供有关如何释放数组缓冲区的信息。如果elems不是数组中元素的副本，则mode无效。否则，模式会产生以下影响，如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>复制回内容并释放elems缓冲区</td>
+</tr>
+<tr>
+<td>JNI_COMMIT</td>
+<td>复制回内容，但不释放elems缓冲区</td>
+</tr>
+<tr>
+<td>JNI_ABORT</td>
+<td>释放缓冲区而不复制回可能的更改</td>
+</tr>
+</tbody>
+</table>
+<p>在大多数情况下，程序员<strong>将“0”传递给mode参数，以确保固定和复制数组的一致行为</strong>。其他选项使程序员可以更好地控制内存管理，并且应该非常谨慎地使用。</p>
+<p>关于更多JNI的常用方法，文档可以参考 <a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#wp9502" target="_blank" rel="noopener">JNI Functions</a></p>
+<h2 id="JNI的引用"><a href="#JNI的引用" class="headerlink" title="JNI的引用"></a>JNI的引用</h2><p>在JNI规范中定义了三种引用：局部引用（Local Reference）、全局引用（Global Reference）、弱全局引用（Weak Global Reference）。</p>
+<h3 id="局部引用-Local-Reference"><a href="#局部引用-Local-Reference" class="headerlink" title="局部引用(Local Reference)"></a>局部引用(Local Reference)</h3><p>局部引用，也成本地引用，通常是在函数中创建并使用。会阻止GC回收所有引用对象。</p>
+<p>最常见的引用类型，基本上通过JNI返回来的引用都是局部引用，例如使用NewObject，就会返回创建出来的实例的局部引用，局部引用值在该native函数有效，所有在该函数中产生的局部引用，都会<strong>在函数返回的时候自动释放(freed)，也可以使用DeleteLocalRef函数手动释放该应用</strong>。之所以使用DeleteLocalRef函数：实际上局部引用存在，就会防止其指向对象被垃圾回收期回收，尤其是当一个局部变量引用指向一个很庞大的对象，或是在一个循环中生成一个局部引用，最好的做法就是在使用完该对象后，或在该循环尾部把这个引用是释放掉，以确保在垃圾回收器被触发的时候被回收。在局部引用的有效期中，可以传递到别的本地函数中，要强调的是它的有效期仍然只是在第一次的Java本地函数调用中，所以千万不能用C++全部变量保存它或是把它定义为C++静态局部变量。</p>
+<h3 id="全局引用-Global-Reference"><a href="#全局引用-Global-Reference" class="headerlink" title="全局引用(Global Reference)"></a>全局引用(Global Reference)</h3><p>全局引用可以跨方法、跨线程使用，直到被开发者<strong>显式释放</strong>。类似局部引用，一个全局引用在被释放前保证引用对象不被GC回收。能创建全部引用的函数只有NewGlobalRef，而释放它需要使用ReleaseGlobalRef函数</p>
+<h3 id="弱全局引用-Weak-Global-Reference"><a href="#弱全局引用-Weak-Global-Reference" class="headerlink" title="弱全局引用(Weak Global Reference)"></a>弱全局引用(Weak Global Reference)</h3><p>与全局引用类似，创建跟删除都需要由编程人员来进行，不一样的是，弱引用将不会阻止垃圾回收期回收这个引用所指向的对象，所以在使用时需要多加小心，它所引用的对象可能是不存在的或者已经被回收。</p>
+<p>通过使用NewWeakGlobalRef、ReleaseWeakGlobalRef来产生和解除引用。</p>
+<h3 id="引用比较"><a href="#引用比较" class="headerlink" title="引用比较"></a>引用比较</h3><p>在给定两个引用，不管是什么引用，我们只需要调用IsSameObject函数来判断他们是否是指向相同的对象。代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(*env)-&gt;IsSameObject(env, obj1, obj2)</span><br></pre></td></tr></table></figure></p>
+<p>如果obj1和obj2指向相同的对象，则返回JNI_TRUE(或者1)，否则返回JNI_FALSE(或者0),</p>
+<p>PS：有一个特殊的引用需要注意：NULL，JNI中的NULL引用指向JVM中的null对象，如果obj是一个全局或者局部引用，使用(*env)-&gt;IsSameObject(env, obj, NULL)或者obj == NULL用来判断obj是否指向一个null对象即可。但是需要注意的是，IsSameObject用于弱全局引用与NULL比较时，返回值的意义是不同于局部引用和全局引用的。代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jobject local_obj_ref = (*env)-&gt;NewObject(env, xxx_cls,xxx_mid);</span><br><span class="line">jobject g_obj_ref = (*env)-&gt;NewWeakGlobalRef(env, local_ref);</span><br><span class="line">// ... 业务逻辑处理</span><br><span class="line">jboolean isEqual = (*env)-&gt;IsSameObject(env, g_obj_ref, NULL);</span><br></pre></td></tr></table></figure></p>
+<h2 id="UTF-8-和-UTF-16-字符串"><a href="#UTF-8-和-UTF-16-字符串" class="headerlink" title="UTF-8 和 UTF-16 字符串"></a>UTF-8 和 UTF-16 字符串</h2><p>Java 编程语言使用的是 UTF-16。为方便起见，JNI 还提供了使用修改后的 UTF-8 的方法。修改后的编码对 C 代码非常有用，因为它将 \u0000 编码为 0xc0 0x80，而不是 0x00。这样做的好处是，您可以依靠以零终止的 C 样式字符串，非常适合与标准 libc 字符串函数配合使用。但缺点是，您<strong>无法将任意 UTF-8 数据传递给 JNI 并期望它能够正常工作</strong>。</p>
+<p>如果可能，使用 UTF-16 字符串执行操作通常会更快。Android 目前不需要 GetStringChars 的副本，而 GetStringUTFChars 需要分配和转换为 UTF-8。请注意，UTF-16 字符串不是以零终止的，并且允许使用 \u0000，因此您需要保留字符串长度和 jchar 指针。</p>
+<p><strong>不要忘记 Release 您 Get 的字符串</strong>。字符串函数会返回 jchar* 或 jbyte*，它们是指向原始数据而非局部引用的 C 样式指针。这些指针在调用 Release 之前保证有效，这意味着在原生方法返回时不会释放这些指针。</p>
+<p><strong>传递给 NewStringUTF 的数据必须采用修改后的 UTF-8 格式</strong>。一种常见的错误就是从文件或网络数据流中读取字符数据，并在未过滤的情况下将其传递给 NewStringUTF。除非您确定数据是有效的 MUTF-8（或 7 位 ASCII，这是一个兼容子集），否则您需要剔除无效字符或将它们转换为适当的修改后的 UTF-8 格式。如果不这样做，UTF-16 转换可能会产生意外的结果。CheckJNI 默认状态下为模拟器启用，它会扫描字符串并且在收到无效输入时会中止虚拟机。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/87ce6f565d37" target="_blank" rel="noopener">https://www.jianshu.com/p/87ce6f565d37</a><br><a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#wp9502" target="_blank" rel="noopener">JNI Functions</a><br><a href="https://www.jianshu.com/p/67081d9b0a9c" target="_blank" rel="noopener">JNI的常用方法的中文API</a><br><a href="https://developer.android.google.cn/training/articles/perf-jni#%E5%8E%9F%E5%A7%8B%E6%95%B0%E7%BB%84" target="_blank" rel="noopener">JNI 提示</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/24/c-language/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1286,6 +1944,23 @@ if(!ptr)    /* 如果 p 为空，则完成 */
 <h2 id="命令行参数"><a href="#命令行参数" class="headerlink" title="命令行参数"></a>命令行参数</h2><p>命令行参数是使用 main() 函数参数来处理的，其中，argc 是指传入参数的个数，argv[] 是一个指针数组，指向传递给程序的每个参数。下面是一个简单的实例，检查命令行是否有提供参数，并根据参数执行相应的动作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main( int argc, char *argv[] )  </span><br><span class="line">&#123;</span><br><span class="line">   if( argc == 2 )</span><br><span class="line">   &#123;</span><br><span class="line">      printf(&quot;The argument supplied is %s\n&quot;, argv[1]);</span><br><span class="line">   &#125;</span><br><span class="line">   else if( argc &gt; 2 )</span><br><span class="line">   &#123;</span><br><span class="line">      printf(&quot;Too many arguments supplied.\n&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   else</span><br><span class="line">   &#123;</span><br><span class="line">      printf(&quot;One argument expected.\n&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">使用一个参数，编译并执行上面的代码，它会产生下列结果：</span><br><span class="line">$./a.out testing</span><br><span class="line">The argument supplied is testing</span><br><span class="line"></span><br><span class="line">使用两个参数，编译并执行上面的代码，它会产生下列结果：</span><br><span class="line">$./a.out testing1 testing2</span><br><span class="line">Too many arguments supplied.</span><br><span class="line"></span><br><span class="line">不传任何参数，编译并执行上面的代码，它会产生下列结果：</span><br><span class="line">$./a.out</span><br><span class="line">One argument expected</span><br></pre></td></tr></table></figure></p>
 <p>应当指出的是，<strong>argv[0] 存储程序的名称，argv[1] 是一个指向第一个命令行参数的指针</strong>，*argv[n] 是最后一个参数。如果没有提供任何参数，argc 将为 1，否则，如果传递了一个参数，argc 将被设置为 2。</p>
 <p>多个命令行参数之间用空格分隔，但是如果参数本身带有空格，那么传递参数的时候应把参数放置在双引号 “” 或单引号 ‘’ 内部。</p>
+<h2 id="库函数"><a href="#库函数" class="headerlink" title="库函数"></a>库函数</h2><h3 id="printf"><a href="#printf" class="headerlink" title="printf()"></a>printf()</h3><p>C 库函数 int printf(const char *format, …) 发送格式化输出到标准输出 stdout。</p>
+<p>规定符:</p>
+<ul>
+<li>%d 十进制有符号整数</li>
+<li>%u 十进制无符号整数</li>
+<li>%f 浮点数</li>
+<li>%s 字符串</li>
+<li>%c 单个字符</li>
+<li>%p 指针的值</li>
+<li>%e 指数形式的浮点数</li>
+<li>%x, %X 无符号以十六进制表示的整数</li>
+<li>%o 无符号以八进制表示的整数</li>
+<li>%g 把输出的值按照 %e 或者 %f 类型中输出长度较小的方式输出</li>
+<li>%p 输出地址符</li>
+<li>%lu 32位无符号整数</li>
+<li>%llu 64位无符号整数</li>
+</ul>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.runoob.com/cprogramming/c-tutorial.html" target="_blank" rel="noopener">https://www.runoob.com/cprogramming/c-tutorial.html</a></p>
 
           
@@ -2443,313 +3118,6 @@ if(!ptr)    /* 如果 p 为空，则完成 */
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-proxy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/15/design-mode-proxy/" itemprop="url">代理模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-15T16:59:59+08:00">
-                2019-11-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>代理模式的定义：由于某些原因需要给某对象提供一个代理以控制对该对象的访问。这时，访问对象不适合或者不能直接引用目标对象，代理对象作为访问对象和目标对象之间的中介。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>代理模式的结构比较简单，主要是通过定义一个继承抽象主题的代理来包含真实主题，从而实现对真实主题的访问：</p>
-<p><img src="/2019/11/15/design-mode-proxy/proxy.jpg" alt></p>
-<p>代理模式的主要角色如下:<br>1、抽象主题（Subject）类：通过接口或抽象类声明真实主题和代理对象实现的业务方法。<br>2、真实主题（Real Subject）类：实现了抽象主题中的具体业务，是代理对象所代表的真实对象，是最终要引用的对象。<br>3、代理（Proxy）类：提供了与真实主题相同的接口，其内部含有对真实主题的引用，它<strong>可以访问、控制或扩展真实主题</strong>的功能。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>代理模式的主要优点有：<br>1、代理模式在客户端与目标对象之间起到一个中介作用和保护目标对象的作用；<br>2、代理对象可以扩展目标对象的功能；<br>3、代理模式能将客户端与目标对象分离，在一定程度上降低了系统的耦合度；</p>
-<p>其主要缺点是：<br>1、在客户端和目标对象之间增加一个代理对象，会造成请求处理速度变慢；<br>2、增加了系统的复杂度；</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、远程代理，这种方式通常是为了隐藏目标对象存在于不同地址空间的事实，方便客户端访问。例如，用户申请某些网盘空间时，会在用户的文件系统中建立一个虚拟的硬盘，用户访问虚拟硬盘时实际访问的是网盘空间。<br>2、虚拟代理，这种方式通常用于要创建的目标对象开销很大时。例如，下载一幅很大的图像需要很长时间，因某种计算比较复杂而短时间无法完成，这时可以先用小比例的虚拟代理替换真实的对象，消除用户对服务器慢的感觉。<br>3、安全代理，这种方式通常用于控制不同种类客户对真实对象的访问权限。<br>4、智能指引，主要用于调用目标对象时，代理附加一些额外的处理功能。例如，增加计算真实对象的引用次数的功能，这样当该对象没有被引用时，就可以自动释放它。<br>5、延迟加载，指为了提高系统的性能，延迟对目标的加载。例如，Hibernate 中就存在属性的延迟加载和关联表的延时加载。</p>
-<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">//抽象主题</span><br><span class="line">interface Subject</span><br><span class="line">&#123;</span><br><span class="line">    void Request();</span><br><span class="line">&#125;</span><br><span class="line">//真实主题</span><br><span class="line">class RealSubject implements Subject</span><br><span class="line">&#123;</span><br><span class="line">    public void Request()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题方法...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//代理</span><br><span class="line">class Proxy implements Subject</span><br><span class="line">&#123;</span><br><span class="line">    private RealSubject realSubject;</span><br><span class="line">    public void Request()</span><br><span class="line">    &#123;</span><br><span class="line">        if (realSubject==null)</span><br><span class="line">        &#123;</span><br><span class="line">            realSubject=new RealSubject();</span><br><span class="line">        &#125;</span><br><span class="line">        preRequest();</span><br><span class="line">        realSubject.Request();</span><br><span class="line">        postRequest();</span><br><span class="line">    &#125;</span><br><span class="line">    public void preRequest()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题之前的预处理。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public void postRequest()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题之后的后续处理。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class ProxyPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Proxy proxy=new Proxy();</span><br><span class="line">        proxy.Request();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>在前面介绍的代理模式中，代理类中包含了对真实主题的引用，这种方式存在两个缺点：<br>1、真实主题与代理主题一一对应，增加真实主题也要增加代理。<br>2、设计代理以前真实主题必须事先存在，不太灵活。采用动态代理模式可以解决以上问题，如SpringAOP，结构图如下图所示：</p>
-<p><img src="/2019/11/15/design-mode-proxy/proxy-dynamic.jpg" alt title="动态代理模式结构图"></p>
-<h3 id="java中的动态代理"><a href="#java中的动态代理" class="headerlink" title="java中的动态代理"></a>java中的动态代理</h3><p>java动态代理机制中有两个重要的类和接口InvocationHandler（接口）和Proxy（类），这一个类Proxy和接口InvocationHandler是我们实现动态代理的核心：</p>
-<p>1.InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。</p>
-<p>每一个动态代理类的调用处理程序都必须实现InvocationHandler接口，并且每个代理类的实例都关联到了实现该接口的动态代理类调用处理程序中，当我们通过动态代理对象调用一个方法时候，这个方法的调用就会被转发到实现InvocationHandler接口类的invoke方法来调用，看如下invoke方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">  * proxy:代理类代理的真实代理对象com.sun.proxy.$Proxy0</span><br><span class="line">  * method:我们所要调用某个对象真实的方法的Method对象</span><br><span class="line">  * args:指代代理对象方法传递的参数</span><br><span class="line">  */</span><br><span class="line">  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable;</span><br></pre></td></tr></table></figure></p>
-<p>2.Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader, </span><br><span class="line">                                            Class&lt;?&gt;[] interfaces, </span><br><span class="line">                                            InvocationHandler h)</span><br></pre></td></tr></table></figure></p>
-<p>这个方法的作用就是创建一个代理类对象，它接收三个参数，我们来看下几个参数的含义：<br>1）loader：一个classloader对象，定义了由哪个classloader对象对生成的代理类进行加载<br>2）interfaces：一个interface对象数组，表示我们将要给我们的代理对象提供一组什么样的接口，如果我们提供了这样一个接口对象数组，那么也就是声明了代理类实现了这些接口，代理类就可以调用接口中声明的所有方法。<br>3）h：一个InvocationHandler对象，表示的是当动态代理对象调用方法的时候会关联到哪一个InvocationHandler对象上，并最终由其调用。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-mediator/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/15/design-mode-mediator/" itemprop="url">中介者模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-15T15:37:33+08:00">
-                2019-11-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>中介者（Mediator）模式的定义：定义一个中介对象来封装一系列对象之间的交互，使原有对象之间的耦合松散，且可以独立地改变它们之间的交互。中介者模式又叫调停模式，它是迪米特法则的典型应用。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p><img src="/2019/11/15/design-mode-mediator/media.jpg" alt></p>
-<p>中介者模式包含以下主要角色:<br>1、抽象中介者（Mediator）角色：它是中介者的接口，提供了<strong>同事对象注册与转发同事对象信息</strong>的抽象方法。<br>2、具体中介者（ConcreteMediator）角色：实现中介者接口，定义一个 List 来管理同事对象，协调各个同事角色之间的交互关系，因此它依赖于同事角色。<br>3、抽象同事类（Colleague）角色：定义同事类的接口，<strong>保存中介者对象，提供同事对象交互的抽象方法</strong>，实现所有相互影响的同事类的公共功能。<br>4、具体同事类（Concrete Colleague）角色：是抽象同事类的实现者，当需要与其他同事对象交互时，由中介者对象负责后续的交互。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、当对象之间存在复杂的网状结构关系而导致依赖关系混乱且难以复用时。<br>2、当想创建一个运行于多个类之间的对象，又不想生成新的子类时。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>中介者模式是一种对象行为型模式，其主要优点如下：<br>1、降低了对象之间的耦合性，使得对象易于独立地被复用。<br>2、将对象间的一对多关联转变为一对一的关联，提高系统的灵活性，使得系统易于维护和扩展。</p>
-<p>其主要缺点是：当同事类太多时，中介者的职责将很大，它会变得复杂而庞大，以至于系统难以维护。</p>
-<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">//抽象中介者</span><br><span class="line">abstract class Mediator</span><br><span class="line">&#123;</span><br><span class="line">    public abstract void register(Colleague colleague);</span><br><span class="line">    public abstract void relay(Colleague cl); //转发</span><br><span class="line">&#125;</span><br><span class="line">//具体中介者</span><br><span class="line">class ConcreteMediator extends Mediator</span><br><span class="line">&#123;</span><br><span class="line">    private List&lt;Colleague&gt; colleagues=new ArrayList&lt;Colleague&gt;();</span><br><span class="line">    public void register(Colleague colleague)</span><br><span class="line">    &#123;</span><br><span class="line">        if(!colleagues.contains(colleague))</span><br><span class="line">        &#123;</span><br><span class="line">            colleagues.add(colleague);</span><br><span class="line">            colleague.setMedium(this);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public void relay(Colleague cl)</span><br><span class="line">    &#123;</span><br><span class="line">        for(Colleague ob:colleagues)</span><br><span class="line">        &#123;</span><br><span class="line">            if(!ob.equals(cl))</span><br><span class="line">            &#123;</span><br><span class="line">                ((Colleague)ob).receive();</span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象同事类</span><br><span class="line">abstract class Colleague</span><br><span class="line">&#123;</span><br><span class="line">    protected Mediator mediator;</span><br><span class="line">    public void setMedium(Mediator mediator)</span><br><span class="line">    &#123;</span><br><span class="line">        this.mediator=mediator;</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void receive();   </span><br><span class="line">    public abstract void send();</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class ConcreteColleague1 extends Colleague</span><br><span class="line">&#123;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类1收到请求。&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类1发出请求。&quot;);</span><br><span class="line">        mediator.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class ConcreteColleague2 extends Colleague</span><br><span class="line">&#123;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类2收到请求。&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类2发出请求。&quot;);</span><br><span class="line">        mediator.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class MediatorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Mediator md=new ConcreteMediator();</span><br><span class="line">        Colleague c1,c2;</span><br><span class="line">        c1=new ConcreteColleague1();</span><br><span class="line">        c2=new ConcreteColleague2();</span><br><span class="line">        md.register(c1);</span><br><span class="line">        md.register(c2);</span><br><span class="line">        c1.send();</span><br><span class="line">        System.out.println(&quot;-------------&quot;);</span><br><span class="line">        c2.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体同事类1发出请求。</span><br><span class="line">具体同事类2收到请求。</span><br><span class="line">-------------</span><br><span class="line">具体同事类2发出请求。</span><br><span class="line">具体同事类1收到请求。</span><br></pre></td></tr></table></figure>
-<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>在实际开发中，通常采用以下两种方法来简化中介者模式，使开发变得更简单：<br>1、不定义中介者接口，把具体中介者对象实现成为单例。<br>2、同事对象不持有中介者，而是在需要时直接获取中介者对象并调用。</p>
-<p><img src="/2019/11/15/design-mode-mediator/mediator-singleton.jpg" alt title="简化中介者模式的结构图"></p>
-<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">//简单单例中介者</span><br><span class="line">class SimpleMediator</span><br><span class="line">&#123;</span><br><span class="line">    private static SimpleMediator smd=new SimpleMediator();   </span><br><span class="line">    private List&lt;SimpleColleague&gt; colleagues=new ArrayList&lt;SimpleColleague&gt;();   </span><br><span class="line">    private SimpleMediator()&#123;&#125;   </span><br><span class="line">    public static SimpleMediator getMedium()</span><br><span class="line">    &#123;    return(smd);   &#125;</span><br><span class="line">    public void register(SimpleColleague colleague)</span><br><span class="line">    &#123;</span><br><span class="line">        if(!colleagues.contains(colleague))</span><br><span class="line">        &#123;</span><br><span class="line">            colleagues.add(colleague);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public void relay(SimpleColleague scl)</span><br><span class="line">    &#123;       </span><br><span class="line">        for(SimpleColleague ob:colleagues)</span><br><span class="line">        &#123;</span><br><span class="line">            if(!ob.equals(scl))</span><br><span class="line">            &#123;</span><br><span class="line">                ((SimpleColleague)ob).receive();</span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象同事类</span><br><span class="line">interface SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    void receive();   </span><br><span class="line">    void send();</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class SimpleConcreteColleague1 implements SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    SimpleConcreteColleague1()&#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        smd.register(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;    System.out.println(&quot;具体同事类1：收到请求。&quot;);    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        System.out.println(&quot;具体同事类1：发出请求...&quot;);</span><br><span class="line">        smd.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class SimpleConcreteColleague2 implements SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    SimpleConcreteColleague2()&#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        smd.register(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;    System.out.println(&quot;具体同事类2：收到请求。&quot;);    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        System.out.println(&quot;具体同事类2：发出请求...&quot;);</span><br><span class="line">        smd.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class SimpleMediatorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleColleague c1,c2;</span><br><span class="line">        c1=new SimpleConcreteColleague1();</span><br><span class="line">        c2=new SimpleConcreteColleague2();</span><br><span class="line">        c1.send();</span><br><span class="line">        System.out.println(&quot;-----------------&quot;);</span><br><span class="line">        c2.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2802,7 +3170,7 @@ if(!ptr)    /* 如果 p 为空，则完成 */
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-count">65</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2824,7 +3192,7 @@ if(!ptr)    /* 如果 p 为空，则完成 */
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">30</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2864,7 +3232,7 @@ if(!ptr)    /* 如果 p 为空，则完成 */
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

@@ -293,6 +293,420 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/ds-hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/16/ds-hashmap/" itemprop="url">HashMap实现原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T15:26:44+08:00">
+                2019-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>哈希表（hash table）也叫散列表，是一种非常重要的数据结构，应用场景及其丰富，许多缓存技术（比如memcached）的核心其实就是在内存中维护一张大的哈希表。本文会对java集合框架中的对应实现HashMap的实现原理进行讲解，然后会对JDK8的HashMap源码进行分析。</p>
+<h2 id="什么是哈希表"><a href="#什么是哈希表" class="headerlink" title="什么是哈希表"></a>什么是哈希表</h2><p>　　在讨论哈希表之前，我们先大概了解下其他数据结构在新增，查找等基础操作执行性能</p>
+<p>　　 <strong>数组</strong>：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)<br>　　<strong>线性链表</strong>：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历链表逐一进行比对，复杂度为O(n)<br>　　<strong>二叉树</strong>：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。<br>　　<strong>哈希表</strong>：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)，接下来我们就来看看哈希表是如何实现达到惊艳的常数阶O(1)的。</p>
+<p>　　我们知道，数据结构的物理存储结构只有两种：<strong>顺序存储结构和链式存储结构</strong>（像栈，队列，树，图等是从逻辑结构去抽象的，映射到内存中，也这两种物理组织形式），而在上面我们提到过，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，<strong>哈希表的主干就是数组</strong>。</p>
+<p>　　比如我们要新增或查找某个元素，我们通过把当前元素的关键字 通过某个函数映射到数组中的某个位置，通过数组下标一次定位就可完成操作。</p>
+<p>　　　　　　　　<strong>存储位置 = f(关键字)</strong></p>
+<p>　　其中，这个函数f一般称为哈希函数，这个函数的设计好坏会直接影响到哈希表的优劣。举个例子，比如我们要在哈希表中执行插入操作：</p>
+<p><img src="/2019/10/16/ds-hashmap/hash-insert.png" alt></p>
+<p>　　查找操作同理，先通过哈希函数计算出实际存储地址，然后从数组中对应地址取出即可。</p>
+<h3 id="哈希冲突"><a href="#哈希冲突" class="headerlink" title="哈希冲突"></a>哈希冲突</h3><p>然而万事无完美，如果两个不同的元素，通过哈希函数得出的实际存储地址相同怎么办？也就是说，<strong>当我们对某个元素进行哈希运算，得到一个存储地址，然后要进行插入的时候，发现已经被其他元素占用了，其实这就是所谓的哈希冲突，也叫哈希碰撞</strong>。哈希函数的设计至关重要，好的哈希函数会尽可能地保证 计算简单和散列地址分布均匀,但是，我们需要清楚的是，数组是一块连续的固定长度的内存空间，再好的哈希函数也不能保证得到的存储地址绝对不发生冲突。那么哈希冲突如何解决呢？哈希冲突的解决方案有多种:开放定址法（发生冲突，继续寻找下一块未被占用的存储地址），再散列函数法，链地址法，而<strong>HashMap即是采用了链地址法，也就是数组+链表+红黑树的方式</strong>。</p>
+<h2 id="HashMap底层存储结构"><a href="#HashMap底层存储结构" class="headerlink" title="HashMap底层存储结构"></a>HashMap底层存储结构</h2><p>HashMap是一个用于存储Key-Value键值对的集合，每一个键值对也叫做一个Entry。这些Entry分散存储在一个数组当中，这个数组就是HashMap的主干。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * The table, initialized on first use, and resized as</span><br><span class="line"> * necessary. When allocated, length is always a power of two.</span><br><span class="line"> * (We also tolerate length zero in some operations to allow</span><br><span class="line"> * bootstrapping mechanics that are currently not needed.)</span><br><span class="line"> */</span><br><span class="line">transient Node&lt;K,V&gt;[] table;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Basic hash bin node, used for most entries.  (See below for</span><br><span class="line"> * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)</span><br><span class="line"> */</span><br><span class="line">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</span><br><span class="line">    final int hash;</span><br><span class="line">    final K key;</span><br><span class="line">    V value;</span><br><span class="line">    Node&lt;K,V&gt; next;</span><br><span class="line"></span><br><span class="line">    Node(int hash, K key, V value, Node&lt;K,V&gt; next) &#123; ... &#125;</span><br><span class="line">    public final K getKey()        &#123; return key; &#125;</span><br><span class="line">    public final V getValue()      &#123; return value; &#125;</span><br><span class="line">    public final String toString() &#123; return key + &quot;=&quot; + value; &#125;</span><br><span class="line">    public final int hashCode() &#123; return Objects.hashCode(key) ^ Objects.hashCode(value);&#125;</span><br><span class="line">    public final V setValue(V newValue) &#123; ... &#125;</span><br><span class="line">    public final boolean equals(Object o) &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为table数组的长度是有限的，再好的hash函数也会出现index冲突的情况，所以我们用<strong>链表</strong>来解决这个问题，table数组的每一个元素不只是一个Entry对象，也是一个链表的头节点，每一个Entry对象通过Next指针指向下一个Entry节点。当新来的Entry映射到冲突数组位置时，只需要插入对应的链表即可。</p>
+<p>需要注意的是：新来的Entry节点插入链表时，会插在链表的头部，因为HashMap的发明者认为，后插入的Entry被查找的可能性更大。</p>
+<p>HashMap中的table数组如下所示：</p>
+<p><img src="/2019/10/16/ds-hashmap/hashmap-table.png" alt></p>
+<p>所以，HashMap是<strong>数组+链表+红黑树</strong>（在Java 8中为了优化Entry的查找性能，新加了红黑树部分）实现的。</p>
+<h2 id="Put方法原理"><a href="#Put方法原理" class="headerlink" title="Put方法原理"></a>Put方法原理</h2><p>调用hashMap.put(“str”, 1)，将会在HashMap的table数组中插入一个Key为“str”的元素，这时候需要我们用一个hash()函数来确定Entry的插入位置，而每种数据类型有自己的hashCode()函数，比如String类型的hashCode()函数如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public static int hashCode(byte[] value) &#123;</span><br><span class="line">    int h = 0;</span><br><span class="line">    for (byte v : value) &#123;</span><br><span class="line">        h = 31 * h + (v &amp; 0xff);</span><br><span class="line">    &#125;</span><br><span class="line">    return h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>所以，put()函数的执行路径是这样的：</p>
+<ol>
+<li>首先put(“str”, 1)会调用HashMap的hash(“str”)方法。</li>
+<li>在hash()内部，会调用String(Latin1)内部的hashcode()获取字符串”str”的hashcode。</li>
+<li>“str”的hashcode被返回给put()，put()通过一定计算得到最终的插入位置index。</li>
+<li>最后将这个Entry插入到table的index位置。</li>
+</ol>
+<p>这里就出现了两个问题，问题1: 在put()里怎样得到插入位置index？问题2: 为什么会调用HashMap的hash()函数，直接调用String的hashcode()不好吗？</p>
+<h3 id="问题1-在put-里怎样得到插入位置index？"><a href="#问题1-在put-里怎样得到插入位置index？" class="headerlink" title="问题1: 在put()里怎样得到插入位置index？"></a>问题1: 在put()里怎样得到插入位置index？</h3><p>对于不同的hash码我们希望它被插入到不同的位置，所以我们首先会想到对数组长度的取模运算，但是由于取模运算的效率很低，所以HashMap的发明者用<strong>位运算</strong>替代了取模运算。</p>
+<p>在put()里是通过如下的语句得到插入位置的(<strong>key的哈希值与map长度-1相与</strong>)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">index = hash(key) &amp; (Length - 1)</span><br></pre></td></tr></table></figure></p>
+<p>其中Length是table数组的长度。为了实现和取模运算相同的功能，这里要求(Length - 1)这部分的二进制表示全为1，我们用HashMap的默认初始长度16举例说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">假设&quot;str&quot;的hash吗为: 1001 0110 1011 1110 1101 0010 1001 0101</span><br><span class="line"></span><br><span class="line">Length - 1 = 15 : 1111</span><br><span class="line"></span><br><span class="line">hash(&quot;str&quot;) &amp; (Length - 1) = 0101</span><br></pre></td></tr></table></figure>
+<p>如果(Length - 1)这部分不全为1，假如Length是10，那么Length - 1 = 9 ：1001 那么无论再和任何hash码做与操作，中间两位数都会是0，这样就会出现大量不同的hash码被映射到相同位置的情况。</p>
+<p>所以，<strong>在HashMap中table数组的默认长度是16，并且要求每次自动扩容或者手动扩容时，长度都必须是2的幂。</strong></p>
+<h3 id="问题2-为什么会调用HashMap的hash-函数，直接调用String的hashcode-不好吗？"><a href="#问题2-为什么会调用HashMap的hash-函数，直接调用String的hashcode-不好吗？" class="headerlink" title="问题2: 为什么会调用HashMap的hash()函数，直接调用String的hashcode()不好吗？"></a>问题2: 为什么会调用HashMap的hash()函数，直接调用String的hashcode()不好吗？</h3><p>HashMap中的hash()函数如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static final int hash(Object key) &#123;</span><br><span class="line">    int h;</span><br><span class="line">    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>HashMap中的hash()函数是将得到hashcode做进一步处理，它将hashcode的高16位和低16位进行异或操作</strong>，这样做的目的是：在table的长度比较小的情况下，也能保证hashcode的高位参与到地址映射的计算当中，同时不会有太大的开销。</p>
+<p>综上所述：从hashcode计算得到table索引的计算过程如下所示：</p>
+<p><img src="/2019/10/16/ds-hashmap/hash-process.png" alt></p>
+<p>put()方法的执行过程如下所示：</p>
+<p><img src="/2019/10/16/ds-hashmap/hash-put.png" alt></p>
+<h2 id="HashMap的扩容机制"><a href="#HashMap的扩容机制" class="headerlink" title="HashMap的扩容机制"></a>HashMap的扩容机制</h2><p>在HashMap中有一下两个属性和扩容相关：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int threshold;</span><br><span class="line">final float loadFactor;</span><br></pre></td></tr></table></figure></p>
+<p>其中threshold = Length * loadFactor，Length表示table数组的长度（默认值是16），<strong>loadFactor为负载因子（默认值是0.75）</strong>，阀值threshold表示当table数组中存储的元素超过这个阀值的时候，就需要扩容了。以默认长度16，和默认负载因子0.75为例，threshold = 16 * 0.75 = 12，即当table数组中存储的元素个数超过12个的时候，table数组就该扩容了。</p>
+<p>当然Java中的数组是无法自动扩容的，方法是使用一个新的数组代替已有的容量小的数组，然后将旧数组中的元素经过重新计算放到新数组中，那么怎样对旧元素进行重新映射呢？</p>
+<p>其实很简单，由于我们在扩容时，是使用2的幂扩展，即数组的长度扩大到原来的2倍, 4倍, 8倍…，因此<strong>在resize时(Length - 1)这部分相当于在高位新增一个或多个1bit</strong>，我们以扩大到原来的两倍为例说明：</p>
+<p><img src="/2019/10/16/ds-hashmap/rehash1.png" alt></p>
+<p>(a)中n为16，(b)中n扩大到两倍为32，相当于(n - 1)这部分的高位多了一个1, 然后和原hash码作与操作，<strong>这样元素在数组中映射的位置要么不变，要不向后移动16个位置</strong>：</p>
+<p><img src="/2019/10/16/ds-hashmap/rehash2.png" alt></p>
+<p>因此，我们在扩充HashMap的时候，只需要看看原来的hash值新增的那个bit是1还是0就好了，是0的话索引没变，是1的话索引变成“原索引+oldCap”，可以看看下图为16扩充为32的resize示意图：</p>
+<p><img src="/2019/10/16/ds-hashmap/rehash3.png" alt></p>
+<p>这个设计确实非常的巧妙，既省去了重新计算hash值的时间，而且同时，由于新增的1bit是0还是1可以认为是随机的，因此resize的过程，均匀的把之前的冲突的节点分散到新的bucket了。这一块就是JDK1.8新增的优化点。有一点注意区别，JDK1.7中resize的时候，旧链表迁移新链表的时候，如果在新表的数组索引位置相同，则链表元素会倒置，但是从上图可以看出，JDK1.8不会倒置。</p>
+<p>JDK 1.8 以后哈希表的 添加、删除、查找、扩容方法都增加了一种 节点为 TreeNode 的情况：</p>
+<ul>
+<li>添加时，当桶中链表个数超过 8 时会转换成红黑树；</li>
+<li>删除、扩容时，如果桶中结构为红黑树，并且树中元素个数太少的话，会进行修剪或者直接还原成链表结构；</li>
+<li>查找时即使哈希函数不优，大量元素集中在一个桶中，由于有红黑树结构，性能也不会差。</li>
+</ul>
+<h2 id="HashMap死锁形成原理"><a href="#HashMap死锁形成原理" class="headerlink" title="HashMap死锁形成原理"></a>HashMap死锁形成原理</h2><p>HashMap非线程安全，即任一时刻可以有多个线程同时写HashMap，可能会导致数据的不一致。如果需要满足线程安全，可以用 Collections的synchronizedMap方法使HashMap具有线程安全的能力，或者使用线程安全的ConcurrentHashMap。</p>
+<p>要理解HashMap死锁形成的原理，我们要对HashMap的resize里的transfer过程有所了解，transfer过程是将旧数组中的元素复制到新数组中，在Java 8之前，复制过程会导致链表倒置，这也是形成死锁的重要原因（Java 8中已经不会倒置），transfer的基本过程如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 新建节点e指向当前节点，新建节点next指向e.next</span><br><span class="line">2. 将e.next指向新数组中指定位置newTable[i]</span><br><span class="line">3. newTable[i] = e</span><br><span class="line">4. e = next</span><br></pre></td></tr></table></figure></p>
+<p>举个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">现在有链表1-&gt;2-&gt;3，要将它复制到新数组的newTable[i]位置</span><br><span class="line">1. Node e = 1, next = e.next;</span><br><span class="line">2. e.next = newTable[i];</span><br><span class="line">3. newTable[i] = e;</span><br><span class="line">4. e = next, next = e.next;</span><br><span class="line">执行完后会得到这样的结果：</span><br><span class="line">newTable[i]=3-&gt;2-&gt;1</span><br></pre></td></tr></table></figure></p>
+<p>死锁会在这种情况产生：两个线程同时往HashMap里放Entry，同时HashMap正好需要扩容，如果一个线程已经完成了transfer过程，而另一个线程不知道，并且又要进行transfer的时候，死锁就会形成。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">现在Thread1已将完成了transfer，newTable[i]=3-&gt;2-&gt;1</span><br><span class="line">在Thread2中:</span><br><span class="line">Node e = 1, next = e.next;</span><br><span class="line">e.next = newTable[i]    : 1 -&gt; newTable[i]=3</span><br><span class="line">newTable[i] = e         : newTable[i] = 1-&gt;3-&gt;2-&gt;1  //这时候链表换已经形成了</span><br></pre></td></tr></table></figure></p>
+<p>在形成链表换以后再对HashMap进行Get操作时，就会形成死循环。</p>
+<p>在Java 8中对这里进行了优化，链表复制到新数组时并不会倒置，不会因为多个线程put导致死循环，但是还有很多弊端，比如数据丢失等，因此多线程情况下还是建议使用ConcurrentHashMap。</p>
+<h2 id="HashMap和Hashtable有什么区别"><a href="#HashMap和Hashtable有什么区别" class="headerlink" title="HashMap和Hashtable有什么区别"></a>HashMap和Hashtable有什么区别</h2><p>Java为数据结构中的映射定义了一个接口java.util.Map，此接口主要有四个常用的实现类，分别是HashMap、Hashtable、LinkedHashMap和TreeMap，类继承关系如下图所示：</p>
+<p><img src="/2019/10/16/ds-hashmap/hashmap-extends-tree.png" alt></p>
+<p>Hashtable：Hashtable是遗留类，很多映射的常用功能与HashMap类似，不同的是它承自Dictionary类，并且是线程安全的，任一时间只有一个线程能写Hashtable，并发性不如ConcurrentHashMap，因为<strong>ConcurrentHashMap引入了分段锁</strong>。Hashtable不建议在新代码中使用，不需要线程安全的场合可以用HashMap替换，需要线程安全的场合可以用ConcurrentHashMap替换。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>扩容是一个特别耗性能的操作，所以当程序员在使用HashMap的时候，估算map的大小，初始化的时候给一个大致的数值，避免map进行频繁的扩容。</li>
+<li>负载因子是可以修改的，也可以大于1，但是建议不要轻易修改，除非情况非常特殊。</li>
+<li>HashMap是线程不安全的，不要在并发的环境中同时操作HashMap，建议使用ConcurrentHashMap。</li>
+<li>JDK1.8引入红黑树大程度优化了HashMap的性能。</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://xinxingastro.github.io/2018/05/11/Java/HashMap%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" target="_blank" rel="noopener">HashMap底层实现原理</a><br><a href="https://www.cnblogs.com/chengxiao/p/6059914.html" target="_blank" rel="noopener">HashMap实现原理及源码分析</a><br><a href="https://www.cnblogs.com/chengxiao/p/6842045.html" target="_blank" rel="noopener">ConcurrentHashMap实现原理及源码分析</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/android-webview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/26/android-webview/" itemprop="url">Android WebView 性能优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-26T09:44:09+08:00">
+                2019-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="离线缓存"><a href="#离线缓存" class="headerlink" title="离线缓存"></a>离线缓存</h2><p>这个比较容易，开启webView的缓存功能就可以了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WebSettings settings = webView.getSettings();</span><br><span class="line">settings.setAppCacheEnabled(true);</span><br><span class="line">settings.setDatabaseEnabled(true);</span><br><span class="line">settings.setDomStorageEnabled(true);//开启DOM缓存，关闭的话H5自身的一些操作是无效的</span><br><span class="line">settings.setCacheMode(WebSettings.LOAD_DEFAULT);</span><br><span class="line">settings.setJavaScriptEnabled(true);</span><br></pre></td></tr></table></figure></p>
+<p>这边我们通过setCacheMode方法来设置WebView的缓存策略，WebSettings.LOAD_DEFAULT是默认的缓存策略，它在缓存可获取并且没有过期的情况下加载缓存，否则通过网络获取资源。这样的话可以减少页面的网络请求次数，那我们如何在离线的情况下也能打开页面呢，这里我们在加载页面的时候可以通过判断网络状态，<strong>在无网络的情况下更改webview的缓存策略</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);</span><br><span class="line">NetworkInfo info = cm.getActiveNetworkInfo();</span><br><span class="line">if(info.isAvailable())</span><br><span class="line">&#123;</span><br><span class="line">    settings.setCacheMode(WebSettings.LOAD_DEFAULT);</span><br><span class="line">&#125;else </span><br><span class="line">&#123;</span><br><span class="line">    settings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);//不使用网络，只加载缓存</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样我们就可以使我们的混合应用在没有网络的情况下也能使用一部分的功能，不至于什么都显示不了了，当然如果我们将缓存做的更好一些，在网络好的时候，比如说在WIFI状态下，去后台加载一些网页缓存起来，这样处理的话，即使在无网络情况下第一次打开某些页面的时候，也能将该页面显示出来。<br>当然缓存资源后随之会带来一个问题，那就是<strong>资源无法及时更新，WebSettings.LOAD_DEFAULT中的页面中的缓存版本好像不是很起作用，所以我们这边可能需要自己做一个缓存版本控制</strong>。这个缓存版本控制可以放在APP版本更新中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (upgrade.cacheControl &gt; cacheControl)</span><br><span class="line">&#123;</span><br><span class="line">    webView.clearCache(true);//删除DOM缓存</span><br><span class="line">    VersionUtils.clearCache(mContext.getCacheDir());//删除APP缓存</span><br><span class="line">    try</span><br><span class="line">    &#123;</span><br><span class="line">        mContext.deleteDatabase(&quot;webview.db&quot;);//删除数据库缓存</span><br><span class="line">        mContext.deleteDatabase(&quot;webviewCache.db&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    catch (Exception e)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="内存泄露"><a href="#内存泄露" class="headerlink" title="内存泄露"></a>内存泄露</h2><p>1.可以将 Webview 的 Activity 新起一个进程，结束的时候直接System.exit(0);退出当前进程；<br>启动新进程，主要代码： AndroidManifest.xml 配置文件代码如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;activity</span><br><span class="line">    android:name=&quot;.ui.activity.Html5Activity&quot;</span><br><span class="line">    android:process=&quot;:lyl.boon.process.web&quot;&gt;</span><br><span class="line">    &lt;intent-filter&gt;</span><br><span class="line">        &lt;action android:name=&quot;com.lyl.boon.ui.activity.htmlactivity&quot;/&gt;</span><br><span class="line">        &lt;category android:name=&quot;android.intent.category.DEFAULT&quot;/&gt;</span><br><span class="line">    &lt;/intent-filter&gt;</span><br><span class="line">&lt;/activity&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在新进程中启动 Activity ，里面传了 一个 Url：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Intent intent = new Intent(&quot;com.lyl.boon.ui.activity.htmlactivity&quot;);</span><br><span class="line">Bundle bundle = new Bundle();</span><br><span class="line">bundle.putString(&quot;url&quot;, gankDataEntity.getUrl());</span><br><span class="line">intent.putExtra(&quot;bundle&quot;,bundle);</span><br><span class="line">startActivity(intent);</span><br></pre></td></tr></table></figure></p>
+<p>然后在 Html5Activity 的onDestory() 最后加上 System.exit(0); 杀死当前进程。</p>
+<p>Android7.0系统以后，WebView相对来说是比较稳定的，无论承载WebView的容器是否在主进程，都不需要担心WebView崩溃导致应用也跟着崩溃。然后7.0以下的系统就没有这么幸运了，特别是低版本的WebView。考虑应用的稳定性，我们可以把7.0以下系统的WebView使用一个独立进程的Activity来包装，这样即使WebView崩溃了，也只是WebView所在的进程发生了崩溃，主进程还是不受影响的。</p>
+<p>2.不在xml中定义 Webview ，而是在需要的时候在Activity中创建，并且Context使用 getApplicationgContext()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">        mWebView = new WebView(getApplicationContext());</span><br><span class="line">        mWebView.setLayoutParams(params);</span><br><span class="line">        mLayout.addView(mWebView);</span><br></pre></td></tr></table></figure></p>
+<p>3.在 Activity 销毁（ WebView ）的时候，先让 WebView 加载null内容，然后移除 WebView，再销毁 WebView，最后置空<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">    protected void onDestroy() &#123;</span><br><span class="line">        if (mWebView != null) &#123;</span><br><span class="line">            mWebView.loadDataWithBaseURL(null, &quot;&quot;, &quot;text/html&quot;, &quot;utf-8&quot;, null);</span><br><span class="line">			mWebView.getSettings().setJavaScriptEnabled(false);</span><br><span class="line">        	mWebView.clearFormData();</span><br><span class="line">            mWebView.clearHistory();</span><br><span class="line">			mWebView.stopLoading();</span><br><span class="line"></span><br><span class="line">            ((ViewGroup) mWebView.getParent()).removeView(mWebView);</span><br><span class="line">            mWebView.destroy();</span><br><span class="line">            mWebView = null;</span><br><span class="line">        &#125;</span><br><span class="line">        super.onDestroy();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="预加载"><a href="#预加载" class="headerlink" title="预加载"></a>预加载</h2><p>有时候一个页面资源比较多，图片，CSS，js比较多，还引用了JQuery这种庞然巨兽，从加载到页面渲染完成需要比较长的时间，有一个解决方案是<strong>将这些资源打包进APK里面，然后当页面加载这些资源的时候让它从本地获取</strong>，这样可以提升加载速度也能减少服务器压力。重写WebClient类中的shouldInterceptRequest方法，再将这个类设置给WebView。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">webView.setWebViewClient(new WebViewClient()</span><br><span class="line">&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public WebResourceResponse shouldInterceptRequest(WebView view, String url)</span><br><span class="line">    &#123;</span><br><span class="line">        if (url.contains(&quot;[tag]&quot;))</span><br><span class="line">        &#123;</span><br><span class="line">            String localPath = url.replaceFirst(&quot;^http.*[tag]\\]&quot;, &quot;&quot;);</span><br><span class="line">            try</span><br><span class="line">            &#123;</span><br><span class="line">                InputStream is = getApplicationContext().getAssets().open(localPath);</span><br><span class="line">                Log.d(TAG, &quot;shouldInterceptRequest: localPath &quot; + localPath);</span><br><span class="line">                String mimeType = &quot;text/javascript&quot;;</span><br><span class="line">                if (localPath.endsWith(&quot;css&quot;))</span><br><span class="line">                &#123;</span><br><span class="line">                    mimeType = &quot;text/css&quot;;</span><br><span class="line">                &#125;</span><br><span class="line">                return new WebResourceResponse(mimeType, &quot;UTF-8&quot;, is);</span><br><span class="line">            &#125;</span><br><span class="line">            catch (Exception e)</span><br><span class="line">            &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                return null;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>这里我们队页面中带有特殊标记的请求进行过滤替换，也就是上面代码中的[tag]，这个可以跟做后台开发的同事约定好来就行了。对图片资源或者其他资源进行替换也是可以的。补充一个小点<strong>可以通过settings.setLoadsImagesAutomatically(true);来设置在页面装载完成之后再去加载图片。</strong>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">webView.getSettings().setBlockNetworkImage(true);  </span><br><span class="line">webView.setWebChromeClient(new WebChromeClient() &#123;  </span><br><span class="line">            @Override  </span><br><span class="line">            public void onProgressChanged(WebView view, int newProgress) &#123;  </span><br><span class="line">                if (newProgress == 100) &#123;  </span><br><span class="line">                    // 网页加载完成  </span><br><span class="line">                    loadDialog.dismiss();  </span><br><span class="line">                    webView.getSettings().setBlockNetworkImage(false);  </span><br><span class="line">                &#125; else &#123;  </span><br><span class="line">                    // 网页加载中  </span><br><span class="line">                    loadDialog.show();  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure></p>
+<h2 id="白屏"><a href="#白屏" class="headerlink" title="白屏"></a>白屏</h2><h3 id="SSL问题"><a href="#SSL问题" class="headerlink" title="SSL问题"></a>SSL问题</h3><p>通常情况下，通过WebView的loadUrl(String url)方法，可以顺利加载页面。但是，当load通过SSL加密的HTTPS页面时，如果这个页面的安全证书无法得到认证，WebView就会显示成空白页。</p>
+<p>解决方式：<br>通过重写WebViewClient的onReceivedSslError方法来接受所有网站的证书，忽略SSL错误。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) &#123;</span><br><span class="line">    handler.proceed();</span><br><span class="line">    super.onReceivedSslError(view, handler, error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="低版本兼容问题"><a href="#低版本兼容问题" class="headerlink" title="低版本兼容问题"></a>低版本兼容问题</h3><p>由于现在h5大部分都是 vue的形式打包，（可能过个一两年就变了，但是万变不离其中），这个时候要注意了， 由于是webv加载的h5，在Android老的机型上  webview 内核可能不支持  最新的h5 框架，这时候 就需要我们找h5 的同学 搞事情了，  对于 vue，想要老机器不出现白屏其实也很简单，让h5的同学 做一下老版本的兼容，具体方法：</p>
+<p>虽然vue-cli引入了babel对js语法进行降级，但是还是有些老旧的机型会发生各种各样的问题，这里需要引入一个叫babel-polyfill的包。所以你只需只在你引入import vue之前 import babel-polyfill进来就可以了，主要是为了让es6对个别机型做到兼容。</p>
+<h2 id="301-302重定向问题"><a href="#301-302重定向问题" class="headerlink" title="301/302重定向问题"></a>301/302重定向问题</h2><p>WebView的301/302重定向问题，绝对在踩坑排行榜里名列前茅。。。随便搜了几个解决方案，要么不能满足业务需求，要么清一色没有彻底解决问题。</p>
+<p><a href="https://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser" target="_blank" rel="noopener">https://stackoverflow.com/questions/4066438/android-webview-how-to-handle-redirects-in-app-instead-of-opening-a-browser</a><br><a href="http://blog.csdn.net/jdsjlzx/article/details/51698250" target="_blank" rel="noopener">http://blog.csdn.net/jdsjlzx/article/details/51698250</a><br><a href="http://www.cnblogs.com/pedro-neer/p/5318354.html" target="_blank" rel="noopener">http://www.cnblogs.com/pedro-neer/p/5318354.html</a><br><a href="http://www.jianshu.com/p/c01769ababfa" target="_blank" rel="noopener">http://www.jianshu.com/p/c01769ababfa</a></p>
+<h3 id="301-302业务场景及白屏问题"><a href="#301-302业务场景及白屏问题" class="headerlink" title="301/302业务场景及白屏问题"></a>301/302业务场景及白屏问题</h3><p>先来分析一下业务场景。对于需要对url进行拦截以及在url中需要拼接特定参数的WebView来说，301和302发生的情景主要有以下几种：</p>
+<ul>
+<li>首次进入，有重定向，然后直接加载H5页面，如http跳转https</li>
+<li>首次进入，有重定向，然后跳转到native页面，如扫一扫短链，然后跳转到native</li>
+<li>二次加载，有重定向，跳转到native页面</li>
+<li>对于考拉业务来说，还有类似登录后跳转到某个页面的需求。如我的拼团，未登录状态下点击我的拼团跳转到登录页面，登录完成后再加载我的拼团页。</li>
+</ul>
+<p>第一种情况属于正常情况，暂时没遇到什么坑。</p>
+<p>第二种情况，会遇到<strong>WebView空白页问题</strong>，属于原始url不能拦截到native页面，但301/302后的url拦截到native页面的情况，当遇到这种情况时，需要把WebView对应的Activity结束，否则当用户从拦截后的页面返回上一个页面时，是一个WebView空白页。</p>
+<p>第三种情况，也会遇到<strong>WebView空白页问题</strong>，原因在于加载的第一个页面发生了重定向到了第二个页面，第二个页面被客户端拦截跳转到native页面，那么WebView就停留在第一个页面的状态了，第一个页面显然是空白页。</p>
+<p>第四种情况，会遇到<strong>无限加载登录页面的问题</strong>。考拉的登录链接是类似下面这种格式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://m.kaola.com/login.html?target=登录后跳转的url</span><br></pre></td></tr></table></figure></p>
+<p>如果登录成功后还重新加载这个url，那么就会循环跳转到登录页面。第四点解决起来比较简单，登录成功以后拿到target后的跳转url再重新加载即可。</p>
+<h3 id="301-302回退栈问题"><a href="#301-302回退栈问题" class="headerlink" title="301/302回退栈问题"></a>301/302回退栈问题</h3><p>无论是哪种重定向场景，都不可避免地会遇到回退栈的处理问题，如果处理不当，用户按返回键的时候不一定能回到重定向之前的那个页面。很多开发者在覆写WebViewClient.shouldOverrideUrlLoading()方法时，会简单地使用以下方式粗暴处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WebView.setWebViewClient(new WebViewClient() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">    	view.loadUrl(url);</span><br><span class="line">    	return true;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>这种方法最致命的弱点就是如果不经过特殊处理，那么按返回键是没有效果的，还会停留在302之前的页面。现有的解决方案无非就几种：</p>
+<ol>
+<li>手动管理回退栈，遇到重定向时回退两次<a href="https://qbeenslee.com/article/android-webview-302-redirect/" target="_blank" rel="noopener">^6</a>。</li>
+<li>通过HitTestResult判断是否是重定向，从而决定是否自己加载url<a href="https://www.cnblogs.com/zimengfang/p/6183869.html" target="_blank" rel="noopener">^7</a>。</li>
+<li>通过设置标记位，在onPageStarted和onPageFinished分别标记变量避免重定向<a href="https://blog.csdn.net/dg_summer/article/details/78105582" target="_blank" rel="noopener">^9</a>。</li>
+</ol>
+<p>可以说，这几种解决方案都不是完美的，都有缺陷。以下给出301/302较优解决方案：</p>
+<h3 id="解决301-302回退栈问题"><a href="#解决301-302回退栈问题" class="headerlink" title="解决301/302回退栈问题"></a>解决301/302回退栈问题</h3><p>能否结合上面的几种方案，来更加准确地判断301/302的情况呢？下面说一下本文的解决思路。在提供解决方案之前，我们需要了解一下shouldOverrideUrlLoading方法的返回值代表什么意思。</p>
+<blockquote>
+<p>Give the host application a chance to take over the control when a new url is about to be loaded in the current WebView. If WebViewClient is not provided, by default WebView will ask Activity Manager to choose the proper handler for the url. If WebViewClient is provided, return true means the host application handles the url, while return false means the current WebView handles the url.</p>
+</blockquote>
+<p>简单地说，就是返回true，那么url就已经由客户端处理了，WebView就不管了，如果返回false，那么当前的WebView实现就会去处理这个url。</p>
+<p>WebView能否知道某个url是不是301/302呢？当然知道，WebView能够拿到url的请求信息和响应信息，根据header里的code很轻松就可以实现，事实正是如此，交给WebView来处理重定向(return false)，这时候按返回键，是可以正常地回到重定向之前的那个页面的。（PS：WebView在5.0以后是一个独立的apk，可以单独升级，新版本的WebView实现肯定处理了重定向问题）</p>
+<p>但是，业务对url拦截有需求，肯定不能把所有的情况都交给系统WebView处理。为了解决url拦截问题，本文引入了另一种思想——通过用户的touch事件来判断重定向。下面通过代码来说明。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * WebView基础类，处理一些基础的公有操作</span><br><span class="line"> *</span><br><span class="line"> * @author xingli</span><br><span class="line"> * @time 2017-12-06</span><br><span class="line"> */</span><br><span class="line">public class BaseWebView extends WebView &#123;</span><br><span class="line">    private boolean mTouchByUser;</span><br><span class="line">    public BaseWebView(Context context) &#123;</span><br><span class="line">        super(context);</span><br><span class="line">    &#125;</span><br><span class="line">    public BaseWebView(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">    &#125;</span><br><span class="line">    public BaseWebView(Context context, AttributeSet attrs, int defStyleAttr) &#123;</span><br><span class="line">        super(context, attrs, defStyleAttr);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadUrl(String url, Map&lt;String, String&gt; additionalHttpHeaders) &#123;</span><br><span class="line">        super.loadUrl(url, additionalHttpHeaders);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void loadUrl(String url) &#123;</span><br><span class="line">        super.loadUrl(url);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void postUrl(String url, byte[] postData) &#123;</span><br><span class="line">        super.postUrl(url, postData);</span><br><span class="line">        resetAllStateInternal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadData(String data, String mimeType, String encoding) &#123;</span><br><span class="line">        super.loadData(data, mimeType, encoding);</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public final void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding,</span><br><span class="line">            String historyUrl) &#123;</span><br><span class="line">        super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void reload() &#123;</span><br><span class="line">        super.reload();</span><br><span class="line">        resetAllStateInternal(getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean isTouchByUser() &#123;</span><br><span class="line">        return mTouchByUser;</span><br><span class="line">    &#125;</span><br><span class="line">    private void resetAllStateInternal(String url) &#123;</span><br><span class="line">        if (!TextUtils.isEmpty(url) &amp;&amp; url.startsWith(&quot;javascript:&quot;)) &#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        resetAllState();</span><br><span class="line">    &#125;</span><br><span class="line">	// 加载url时重置touch状态</span><br><span class="line">    protected void resetAllState() &#123;</span><br><span class="line">        mTouchByUser = false;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onTouchEvent(MotionEvent event) &#123;</span><br><span class="line">        switch (event.getAction()) &#123;</span><br><span class="line">            case MotionEvent.ACTION_DOWN:</span><br><span class="line">            	//用户按下到下一个链接加载之前，置为true</span><br><span class="line">                mTouchByUser = true;</span><br><span class="line">                break;</span><br><span class="line">        &#125;</span><br><span class="line">        return super.onTouchEvent(event);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void setWebViewClient(final WebViewClient client) &#123;</span><br><span class="line">        super.setWebViewClient(new WebViewClient() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">                boolean handleByChild = null != client &amp;&amp; client.shouldOverrideUrlLoading(view, url);</span><br><span class="line">            	   if (handleByChild) &#123;</span><br><span class="line">             		// 开放client接口给上层业务调用，如果返回true，表示业务已处理。</span><br><span class="line">                    return true;</span><br><span class="line">            	   &#125; else if (!isTouchByUser()) &#123;</span><br><span class="line">             		// 如果业务没有处理，并且在加载过程中用户没有再次触摸屏幕，认为是301/302事件，直接交由系统处理。</span><br><span class="line">                    return super.shouldOverrideUrlLoading(view, url);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                	//否则，属于二次加载某个链接的情况，为了解决拼接参数丢失问题，重新调用loadUrl方法添加固有参数。</span><br><span class="line">                    loadUrl(url);</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            @RequiresApi(api = Build.VERSION_CODES.N)</span><br><span class="line">            @Override</span><br><span class="line">            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) &#123;</span><br><span class="line">                boolean handleByChild = null != client &amp;&amp; client.shouldOverrideUrlLoading(view, request);</span><br><span class="line">                if (handleByChild) &#123;</span><br><span class="line">                    return true;</span><br><span class="line">                &#125; else if (!isTouchByUser()) &#123;</span><br><span class="line">                    return super.shouldOverrideUrlLoading(view, request);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    loadUrl(request.getUrl().toString());</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上述代码解决了正常情况下的回退栈问题。</p>
+<h3 id="解决业务白屏问题"><a href="#解决业务白屏问题" class="headerlink" title="解决业务白屏问题"></a>解决业务白屏问题</h3><p>为了解决白屏问题，考拉目前的解决思路和上面的回退栈问题思路有些类似，通过监听touch事件分发以及onPageFinished事件来判断是否产生白屏，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">public class KaolaWebview extends BaseWebView implements DownloadListener, Lifeful, OnActivityResultListener &#123;</span><br><span class="line">    private boolean mIsBlankPageRedirect;  //是否因重定向导致的空白页面。</span><br><span class="line">    public KaolaWebview(Context context) &#123;</span><br><span class="line">        super(context);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    public KaolaWebview(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    public KaolaWebview(Context context, AttributeSet attrs, int defStyleAttr) &#123;</span><br><span class="line">        super(context, attrs, defStyleAttr);</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line">    protected void back() &#123;</span><br><span class="line">        if (mBackStep &lt; 1) &#123;</span><br><span class="line">            mJsApi.trigger2(&quot;kaolaGoback&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            realBack();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean dispatchTouchEvent(MotionEvent ev) &#123;</span><br><span class="line">        if (ev.getAction() == MotionEvent.ACTION_UP) &#123;</span><br><span class="line">            mIsBlankPageRedirect = true;</span><br><span class="line">        &#125;</span><br><span class="line">        return super.dispatchTouchEvent(ev);</span><br><span class="line">    &#125;</span><br><span class="line">    private WebViewClient mWebViewClient = new WebViewClient() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">            url = WebViewUtils.removeBlank(url);</span><br><span class="line">            //允许启动第三方应用客户端</span><br><span class="line">            if (WebViewUtils.canHandleUrl(url)) &#123;</span><br><span class="line">                boolean handleByCaller = false;</span><br><span class="line">                // 如果不是用户触发的操作，就没有必要交给上层处理了，直接走url拦截规则。</span><br><span class="line">                if (null != mIWebViewClient &amp;&amp; isTouchByUser()) &#123;</span><br><span class="line">                    handleByCaller = mIWebViewClient.shouldOverrideUrlLoading(view, url);</span><br><span class="line">                &#125;</span><br><span class="line">                if (!handleByCaller) &#123;</span><br><span class="line">                    handleByCaller = handleOverrideUrl(url);</span><br><span class="line">                &#125;</span><br><span class="line">                return handleByCaller || super.shouldOverrideUrlLoading(view, url);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    notifyBeforeLoadUrl(url);</span><br><span class="line">                    Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);</span><br><span class="line">                    intent.addCategory(Intent.CATEGORY_BROWSABLE);</span><br><span class="line">                    mContext.startActivity(intent);</span><br><span class="line">                    if (!mIsBlankPageRedirect) &#123;</span><br><span class="line">                    	// 如果遇到白屏问题，手动后退</span><br><span class="line">                        back();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    ExceptionUtils.printExceptionTrace(e);</span><br><span class="line">                &#125;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)</span><br><span class="line">        @Override</span><br><span class="line">        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) &#123;</span><br><span class="line">            return shouldOverrideUrlLoading(view, request.getUrl().toString());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        private boolean handleOverrideUrl(final String url) &#123;</span><br><span class="line">           RouterResult result =  WebActivityRouter.startFromWeb(</span><br><span class="line">                    new IntentBuilder(mContext, url).setRouterActivityResult(new RouterActivityResult() &#123;</span><br><span class="line">                        @Override</span><br><span class="line">                        public void onActivityFound() &#123;</span><br><span class="line">                            if (!mIsBlankPageRedirect) &#123;</span><br><span class="line">                    			// 路由已经拦截到跳转到native页面，但此时可能发生了</span><br><span class="line">                    			// 301/302跳转，那么执行后退动作，防止白屏。</span><br><span class="line">                                back();</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                        @Override</span><br><span class="line">                        public void onActivityNotFound() &#123;</span><br><span class="line">                            if (mIWebViewClient != null) &#123;</span><br><span class="line">                                mIWebViewClient.onActivityNotFound();</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;));</span><br><span class="line">            return result.isSuccess();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPageFinished(WebView view, String url) &#123;</span><br><span class="line">        mIsBlankPageRedirect = true;</span><br><span class="line">        if (null != mIWebViewClient) &#123;</span><br><span class="line">            mIWebViewClient.onPageReallyFinish(view, url);</span><br><span class="line">        &#125;</span><br><span class="line">        super.onPageFinished(view, url);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>本来上面的两个问题可以用同一个变量控制解决的，但由于历史代码遗留问题，目前还没有时间优化测试，这也是代码暂不公布的原因之一。</p>
+<h2 id="loadUrl-url-map-方法加载带hash（带-号）的url导致刷新问题或请求头缓存问题"><a href="#loadUrl-url-map-方法加载带hash（带-号）的url导致刷新问题或请求头缓存问题" class="headerlink" title="loadUrl(url,map)方法加载带hash（带#号）的url导致刷新问题或请求头缓存问题"></a>loadUrl(url,map)方法加载带hash（带#号）的url导致刷新问题或请求头缓存问题</h2><p>1.如果调用loadUrl(url,map)方法去加载资源，那么在此调用loadUrl(ur),reload,loadUrl(url,map)造成无法刷新的问题。这个现象主要出现在Android 8.0的系统中。<br>可尝试调用如下url尝试：</p>
+<pre><code>https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#/
+https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#/?a=123
+https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#3
+</code></pre><p>2.loadUrl(url,map) 第二个参数map中传入的数据用于请求头，此外这个请求头数据会被webview缓存下来，刷新时，请求头中的数据还是原来的，因此，不适用传入需要进程变化的“状态”信息。</p>
+<p>解决方法：不要使用loadUrl(url,map)，推荐使用loadUrl(url)，如果非要传输参数，还不如在url中添加参数。</p>
+<h2 id="是否应该开启硬件加速"><a href="#是否应该开启硬件加速" class="headerlink" title="是否应该开启硬件加速"></a>是否应该开启硬件加速</h2><p>由于碎片化问题太多，建议保持默认状态【默认表示由系统决定，不要手动设置】，否则可能产生问题。</p>
+<h2 id="Cookie同步导致的内存泄漏"><a href="#Cookie同步导致的内存泄漏" class="headerlink" title="Cookie同步导致的内存泄漏"></a>Cookie同步导致的内存泄漏</h2><p>使用CookieSyncManager同步时，会永久引用第一个acitivity的的Context，为了避免此种情况，请使用ApplicationContext<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> if (Build.VERSION.SDK_INT &lt; 21) &#123;</span><br><span class="line">        android.webkit.CookieSyncManager.createInstance(context.getApplicationContext());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Android5-0-WebView中Http和Https混合问题"><a href="#Android5-0-WebView中Http和Https混合问题" class="headerlink" title="Android5.0 WebView中Http和Https混合问题"></a>Android5.0 WebView中Http和Https混合问题</h2><p>在Android 5.0上 Webview 默认不允许加载 Http 与 Https 混合内容：</p>
+<p>解决办法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">     webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>参数类型说明：<br>MIXED_CONTENT_ALWAYS_ALLOW：允许从任何来源加载内容，即使起源是不安全的；<br>MIXED_CONTENT_NEVER_ALLOW：不允许Https加载Http的内容，即不允许从安全的起源去加载一个不安全的资源；<br>MIXED_CONTENT_COMPATIBILITY_MODE：当涉及到混合式内容时，WebView 会尝试去兼容最新Web浏览器的风格。</p>
+<p>在5.0以下 Android 默认是 全允许，但是到了5.0以上，就是不允许，实际情况下很我们很难确定所有的网页都是https的，所以就需要这一步的操作。</p>
+<h2 id="onPageFinished被调用多次"><a href="#onPageFinished被调用多次" class="headerlink" title="onPageFinished被调用多次"></a>onPageFinished被调用多次</h2><p>使用onPageProgressChanged代替<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">private void  handleProgress(WebView view, int newProgress)&#123;</span><br><span class="line">    if(progressPending.get()!=newProgress)&#123;</span><br><span class="line">        progressPending.set(newProgress);</span><br><span class="line">        onProgressChanged(newProgress);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">@Override</span><br><span class="line">public final void onProgressChanged(WebView view, int newProgress) &#123;</span><br><span class="line">    super.onProgressChanged(view, newProgress);</span><br><span class="line">    handleProgress(view,newProgress);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void onProgressChanged(int newProgress)&#123;</span><br><span class="line">   Log.i(&quot;WebChromeClient&quot;,&quot;progress=&quot;+newProgress+&quot;%&quot;);</span><br><span class="line">   if(newProgress==100)&#123;</span><br><span class="line">       Log.i(&quot;WebChromeClient&quot;,&quot;加载完成&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="H5优化"><a href="#H5优化" class="headerlink" title="H5优化"></a>H5优化</h2><p>Android的OnPageFinished事件会在Javascript脚本执行完成之后才会触发。如果在页面中使 用JQuery，会在处理完DOM对象，执行完$(document).ready(function() {});事件自会后才会渲染并显示页面。而同样的页面在iPhone上却是载入相当的快，因为iPhone是显示完页面才会触发脚本的执行。所以我们这边的解决方案延迟JS脚本的载入，这个方面的问题是需要Web前端工程师帮忙优化的，网上应该有比较多LazyLoad插件，这里放一个比较老的链接<a href="https://wonko.com/post/painless_javascript_lazy_loading_with_lazyload/" target="_blank" rel="noopener">Painless JavaScript lazy loading with LazyLoad</a>,同样也放上一小段前端代码，仅供参考。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=&quot;/css/j/lazyload-min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot; charset=&quot;utf-8&quot;&gt;</span><br><span class="line">  loadComplete() &#123;</span><br><span class="line">    //instead of document.read();</span><br><span class="line">  &#125; </span><br><span class="line">  function loadscript() &#123;</span><br><span class="line">    LazyLoad.loadOnce([</span><br><span class="line">      &apos;/css/j/jquery-1.6.2.min.js&apos;,</span><br><span class="line">      &apos;/css/j/flow/jquery.flow.1.1.min.js&apos;,</span><br><span class="line">      &apos;/css/j/min.js?v=2011100852&apos;</span><br><span class="line">      ], loadComplete);</span><br><span class="line">  &#125;</span><br><span class="line">  setTimeout(loadscript,10);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/427600ca2107" target="_blank" rel="noopener">https://www.jianshu.com/p/427600ca2107</a><br><a href="https://my.oschina.net/ososchina/blog/1799575" target="_blank" rel="noopener">https://my.oschina.net/ososchina/blog/1799575</a><br><a href="https://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/" target="_blank" rel="noopener">https://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/05/android-listview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -619,61 +1033,29 @@
     }
 }
 </code></pre><p>defaultConfig中的externalNativeBuild各项属性和前面创建项目时的选项配置有关，外部的externalNativeBuild则定义了CMakeLists.txt的存放路径。<br>如果只是在自己的项目中使用，CMake的方式在打包APK的时候会自动将cpp文件编译成so文件拷贝进去。如果要提供给外部使用时，Make Project，之后在libs目录下就可以看到生成的对应配置的相关CPU平台的.so文件。</p>
-<h3 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h3><p>CMakeLists.txt可以自定义命令、查找文件、头文件包含、设置变量，具体可见 官方文档。</p>
-<pre><code># 编译本地库时我们需要的最小的cmake版本
-cmake_minimum_required(VERSION 3.4.1)
-
-#设置生成的so动态库最后输出的路径，一定要在add_library之前设置，否则不会生效
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/libs/${ANDROID_ABI})
-
-# 相当于Android.mk。如果是多次使用add_library，则会生成多个so库；
-# 如果想将多个本地文件编译到一个so库中，只要最后一个参数添加多个C/C++文件的相对路径就可以
-add_library( # Sets the name of the library.设置编译生成本地库的名字
-             native-lib
-
-             # Sets the library as a shared library.库的类型
-             SHARED
-
-             # Provides a relative path to your source file(s).编译文件的路径
-             src/main/cpp/native-lib.cpp )
-
-# 添加一些我们在编译我们的本地库的时候需要依赖的一些库，这里是用来打log的库。可以写多个find_library
-find_library( # Sets the name of the path variable.
-              log-lib
-
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
-
-# 关联自己生成的库和一些第三方库或者系统库
-target_link_libraries( # Specifies the target library.
-                       native-lib
-
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
-
-#设置头文件搜索路径（和此txt同个路径的头文件无需设置），可选
-#INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/common)
-
-#指定用到的系统库或者NDK库或者第三方库的搜索路径，可选。
-#LINK_DIRECTORIES(/usr/local/lib)
-
-#添加子目录,将会调用子目录中的CMakeLists.txt
-ADD_SUBDIRECTORY(one)
-ADD_SUBDIRECTORY(two)
-</code></pre><p>如果想要配置so库的目标CPU平台，可以在build.gradle中设置</p>
-<pre><code>android {
-    ...
-    defaultConfig {
-        ...
-        ndk{
-            abiFilters &quot;x86&quot;,&quot;armeabi&quot;,&quot;armeabi-v7a&quot;
-        }
-    }
-    ...
-}
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/wzhseu/article/details/79683045" target="_blank" rel="noopener">https://blog.csdn.net/wzhseu/article/details/79683045</a></p>
+<h3 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h3><p>CMakeLists.txt可以自定义命令、查找文件、头文件包含、设置变量，具体可见 官方文档。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"># 编译本地库时我们需要的最小的cmake版本</span><br><span class="line">cmake_minimum_required(VERSION 3.4.1)</span><br><span class="line"></span><br><span class="line">#设置生成的so动态库最后输出的路径，一定要在add_library之前设置，否则不会生效</span><br><span class="line">set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $&#123;PROJECT_SOURCE_DIR&#125;/libs/$&#123;ANDROID_ABI&#125;)</span><br><span class="line"></span><br><span class="line"># 相当于Android.mk。如果是多次使用add_library，则会生成多个so库；</span><br><span class="line"># 如果想将多个本地文件编译到一个so库中，只要最后一个参数添加多个C/C++文件的相对路径就可以</span><br><span class="line">add_library( # Sets the name of the library.设置编译生成本地库的名字</span><br><span class="line">             native-lib</span><br><span class="line"></span><br><span class="line">             # Sets the library as a shared library.库的类型</span><br><span class="line">             SHARED</span><br><span class="line"></span><br><span class="line">             # Provides a relative path to your source file(s).编译文件的路径</span><br><span class="line">             src/main/cpp/native-lib.cpp )</span><br><span class="line"></span><br><span class="line"># 添加一些我们在编译我们的本地库的时候需要依赖的一些库，这里是用来打log的库。可以写多个find_library</span><br><span class="line">find_library( # Sets the name of the path variable.</span><br><span class="line">              log-lib</span><br><span class="line"></span><br><span class="line">              # Specifies the name of the NDK library that</span><br><span class="line">              # you want CMake to locate.</span><br><span class="line">              log )</span><br><span class="line"></span><br><span class="line"># 关联自己生成的库和一些第三方库或者系统库</span><br><span class="line">target_link_libraries( # Specifies the target library.</span><br><span class="line">                       native-lib</span><br><span class="line"></span><br><span class="line">                       # Links the target library to the log library</span><br><span class="line">                       # included in the NDK.</span><br><span class="line">                       $&#123;log-lib&#125; )</span><br><span class="line"></span><br><span class="line">#设置头文件搜索路径（和此txt同个路径的头文件无需设置），可选</span><br><span class="line">#INCLUDE_DIRECTORIES($&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/common)</span><br><span class="line"></span><br><span class="line">#指定用到的系统库或者NDK库或者第三方库的搜索路径，可选。</span><br><span class="line">#LINK_DIRECTORIES(/usr/local/lib)</span><br><span class="line"></span><br><span class="line">#添加子目录,将会调用子目录中的CMakeLists.txt</span><br><span class="line">ADD_SUBDIRECTORY(one)</span><br><span class="line">ADD_SUBDIRECTORY(two)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>cmake_minimum_required(VERSION 3.4.1)：指定CMake的最小版本</li>
+<li>add_library：创建一个静态或者动态库，并提供其关联的源文件路径，开发者可以定义多个库，CMake会自动去构建它们。Gradle可以自动将它们打包进APK中。<br>第一个参数——native-lib：是库的名称<br>第二个参数——SHARED：是库的类别，是动态的还是静态的<br>第三个参数——src/main/cpp/native-lib.cpp：是库的源文件的路径</li>
+<li>find_library：找到一个预编译的库，并作为一个变量保存起来。由于CMake在搜索库路径的时候会包含系统库，并且CMake会检查它自己之前编译的库的名字，所以开发者需要保证开发者自行添加的库的名字的独特性。<br>第一个参数——log-lib：设置路径变量的名称<br>第一个参数—— log：指定NDK库的名子，这样CMake就可以找到这个库</li>
+<li>target_link_libraries：指定CMake链接到目标库。开发者可以链接多个库，比如开发者可以在此定义库的构建脚本，并且预编译第三方库或者系统库。<br>第一个参数——native-lib：指定的目标库<br>第一个参数——${log-lib}：将目标库链接到NDK中的日志库，</li>
+</ul>
+<p>如果想要配置so库的目标CPU平台，可以在build.gradle中设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        ndk&#123;</span><br><span class="line">            abiFilters &quot;x86&quot;,&quot;armeabi&quot;,&quot;armeabi-v7a&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="包含其他-CMake-项目"><a href="#包含其他-CMake-项目" class="headerlink" title="包含其他 CMake 项目"></a>包含其他 CMake 项目</h3><p>如果想要编译多个 CMake 项目并在 Android 项目中包含它们的输出，您可以使用一个 CMakeLists.txt 文件（即您关联到 Gradle 的那个文件）作为顶级 CMake 编译脚本，并添加其他 CMake 项目作为此编译脚本的依赖项。以下顶级 CMake 编译脚本使用 add_subdirectory() 命令将另一个 CMakeLists.txt 文件指定为编译依赖项，然后关联其输出，就像处理任何其他预编译库一样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># Sets lib_src_DIR to the path of the target CMake project.</span><br><span class="line">set( lib_src_DIR ../gmath )</span><br><span class="line"></span><br><span class="line"># Sets lib_build_DIR to the path of the desired output directory.</span><br><span class="line">set( lib_build_DIR ../gmath/outputs )</span><br><span class="line">file(MAKE_DIRECTORY $&#123;lib_build_DIR&#125;)</span><br><span class="line"></span><br><span class="line"># Adds the CMakeLists.txt file located in the specified directory</span><br><span class="line"># as a build dependency.</span><br><span class="line">add_subdirectory( # Specifies the directory of the CMakeLists.txt file.</span><br><span class="line">                  $&#123;lib_src_DIR&#125;</span><br><span class="line"></span><br><span class="line">                  # Specifies the directory for the build outputs.</span><br><span class="line">                  $&#123;lib_build_DIR&#125; )</span><br><span class="line"></span><br><span class="line"># Adds the output of the additional CMake build as a prebuilt static</span><br><span class="line"># library and names it lib_gmath.</span><br><span class="line">add_library( lib_gmath STATIC IMPORTED )</span><br><span class="line">set_target_properties( lib_gmath PROPERTIES IMPORTED_LOCATION</span><br><span class="line">                       $&#123;lib_build_DIR&#125;/$&#123;ANDROID_ABI&#125;/lib_gmath.a )</span><br><span class="line">include_directories( $&#123;lib_src_DIR&#125;/include )</span><br><span class="line"></span><br><span class="line"># Links the top-level CMake build output against lib_gmath.</span><br><span class="line">target_link_libraries( native-lib ... lib_gmath )</span><br></pre></td></tr></table></figure></p>
+<h2 id="3、Android-mk"><a href="#3、Android-mk" class="headerlink" title="3、Android.mk"></a>3、Android.mk</h2><p>Android.mk内容示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LOCAL_PATH := $(call my-dir)</span><br><span class="line"></span><br><span class="line">include $(CLEAR_VARS)</span><br><span class="line"></span><br><span class="line">LOCAL_MODULE    := ndkdemotest-jni</span><br><span class="line"></span><br><span class="line">LOCAL_SRC_FILES := ndkdemotest.c</span><br><span class="line"></span><br><span class="line">include $(BUILD_SHARED_LIBRARY)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>LOCAL_PATH := $(call my-dir)：每个Android.mk文件必须以定义开始。它用于在开发tree中查找源文件。宏my-dir则由Build System 提供。返回包含Android.mk目录路径。</p>
+</li>
+<li><p>include $(CLEAR_VARS) ：CLEAR_VARS变量由Build System提供。并指向一个指定的GNU Makefile，由它负责清理很多LOCAL_xxx。例如LOCAL_MODULE，LOCAL_SRC_FILES，LOCAL_STATIC_LIBRARIES等等。但不是清理LOCAL_PATH。这个清理是必须的，因为所有的编译控制文件由同一个GNU Make解析和执行，其变量是全局的。所以清理后才能便面相互影响。</p>
+</li>
+<li><p>LOCAL_MODULE := ndkdemotest-jni：LOCAL_MODULE模块必须定义，以表示Android.mk中的每一个模块。名字必须唯一且不包含空格。Build System 会自动添加适当的前缀和后缀。例如，demo，要生成动态库，则生成libdemo.so。但请注意：如果模块名字被定义为libabd，则生成libabc.so。不再添加前缀。</p>
+</li>
+<li><p>LOCAL_SRC_FILES := ndkdemotest.c：这行代码表示将要打包的C/C++源码。不必列出头文件，build System 会自动帮我们找出依赖文件。缺省的C++ 源码的扩展名为.cpp。</p>
+</li>
+<li><p>include $(BUILD_SHARED_LIBRARY)：BUILD_SHARED_LIBRARY是Build System提供的一个变量，指向一个GUN Makefile Script。它负责收集自从上次调用include $(CLEAR_VARS)后的所有LOCAL_xxxxinx。并决定编译什么类型：<br>1）BUILD_STATIC_LIBRARY：编译为静态库<br>2）BUILD_SHARED_LIBRARY：编译为动态库<br>3）BUILD_EXECUTABLE：编译为Native C 可执行程序<br>4）BUILD_PREBUILT：该模块已经预先编译</p>
+</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/wzhseu/article/details/79683045" target="_blank" rel="noopener">https://blog.csdn.net/wzhseu/article/details/79683045</a></p>
 
           
         
@@ -5474,813 +5856,6 @@ void microtask(){
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/flutter-knowledge/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/25/flutter-knowledge/" itemprop="url">Flutter知识点</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T18:22:12+08:00">
-                2019-06-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Views"><a href="#Views" class="headerlink" title="Views"></a>Views</h2><p>在Flutter中，View相当于是Widget。<strong>Widget仅支持一帧</strong>，并且在每一帧上，Flutter的框架都会创建一个Widget实例树(相当于一次性绘制整个界面)。在Flutter中的widget是不可变的，这允许widget变得超级轻量。</p>
-<h3 id="Widget状态"><a href="#Widget状态" class="headerlink" title="Widget状态"></a>Widget状态</h3><p>在Flutter中Widget是不可变的，不会直接更新，而必须使用Widget的状态。这是<strong>Stateful和Stateless widget</strong>的概念的来源。一个Stateless Widget就像它的名字，是一个没有状态信息的widget。</p>
-<p>这里要注意的重要一点是无状态和有状态widget的核心特性是相同的。每一帧它们都会重新构建，不同之处在于<strong>StatefulWidget有一个State对象，它可以跨帧存储状态数据并恢复它</strong>。</p>
-<p>如果你有疑问，那么要记住这个规则：<strong>如果一个widget发生了变化（例如用户与它交互），它就是有状态的。但是，如果一个子widget对变化做出反应，而其父widget对变化没有反应，那么包含的父widget仍然可以是无状态的widget。</strong></p>
-<h3 id="Widget编写"><a href="#Widget编写" class="headerlink" title="Widget编写"></a>Widget编写</h3><p>在Android中，您通过XML编写布局，但在Flutter中，使用widget树来编写布局。<br>可以查看Flutter所提供的所有布局: <a href="https://flutterchina.club/widgets/layout/" target="_blank" rel="noopener">Flutter widget layout</a></p>
-<p>在Android中，您可以从父级控件调用addChild或removeChild以动态添加或删除View。 在Flutter中，因为widget是不可变的，所以没有addChild。相反，您可以传入一个函数，该函数返回一个widget给父项，并通过布尔值控制该widget的创建。</p>
-<p>在Flutter中，可以通过动画库给widget添加动画，将widget包装到Animation中。与Android相似，在Flutter中，您有一个AnimationController和一个Interpolator， 它是Animation类的扩展，例如CurvedAnimation。您将控制器和动画传递到AnimationWidget中，并告诉控制器启动动画。<br>See <a href="https://flutter.io/widgets/animation/" target="_blank" rel="noopener">https://flutter.io/widgets/animation/</a> and <a href="https://flutter.io/tutorials/animation" target="_blank" rel="noopener">https://flutter.io/tutorials/animation</a> for more specific details.</p>
-<p>Flutter有两个类可以帮助您绘制画布，CustomPaint和CustomPainter，它们实现您的算法以绘制到画布。<br>在这个人气较高的的StackOverFlow答案中，您可以看到签名painter是如何实现的：请参阅<a href="https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter" target="_blank" rel="noopener">https://stackoverflow.com/questions/46241071/create-signature-area-for-mobile-app-in-dart-flutter</a></p>
-<h3 id="如何构建自定义-Widgets"><a href="#如何构建自定义-Widgets" class="headerlink" title="如何构建自定义 Widgets"></a>如何构建自定义 Widgets</h3><p>在Flutter中，<strong>一个自定义widget通常是通过组合其它widget来实现的，而不是继承</strong>。</p>
-<p>我们来看看如何构建持有一个label的CustomButton。这是通过将Text与RaisedButton组合来实现的，而不是扩展RaisedButton并重写其绘制方法实现：</p>
-<pre><code>class CustomButton extends StatelessWidget {
-  final String label;
-  CustomButton(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return new RaisedButton(onPressed: () {}, child: new Text(label));
-  }
-}
-</code></pre><h2 id="Intents"><a href="#Intents" class="headerlink" title="Intents"></a>Intents</h2><p>Flutter不具有Intents的概念，但如果需要的话，Flutter可以通过Native整合来触发Intents。</p>
-<p>要在Flutter中切换屏幕，您可以访问路由以绘制新的Widget。 管理多个屏幕有两个核心概念和类：<strong>Route 和 Navigator</strong>。Route是应用程序的“屏幕”或“页面”的抽象（可以认为是Activity）， Navigator是管理Route的Widget。Navigator可以通过push和pop route以实现页面切换。</p>
-<p>在Flutter中，可以将具有指定Route的Map传递到顶层MaterialApp实例</p>
-<pre><code>void main() {
-  runApp(new MaterialApp(
-    home: new MyAppHome(), // becomes the route named &apos;/&apos;
-    routes: &lt;String, WidgetBuilder&gt; {
-      &apos;/a&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page A&apos;),
-      &apos;/b&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page B&apos;),
-      &apos;/c&apos;: (BuildContext context) =&gt; new MyPage(title: &apos;page C&apos;),
-    },
-  ));
-}
-</code></pre><p>然后，您可以通过Navigator来切换到命名路由的页面。</p>
-<pre><code>Navigator.of(context).pushNamed(&apos;/b&apos;);
-</code></pre><p>Intents的另一个主要的用途是调用外部组件，如Camera或File picker。为此，您需要和native集成（或使用现有的库）</p>
-<h3 id="处理外部传入的Intents"><a href="#处理外部传入的Intents" class="headerlink" title="处理外部传入的Intents"></a>处理外部传入的Intents</h3><p>Flutter可以通过直接与Android层通信并请求共享的数据来处理来自Android的Intents</p>
-<p>在这个例子中，我们注册文本共享intent，所以其他应用程序可以共享文本到我们的Flutter应用程序</p>
-<p>这个应用程序的基本流程是我们<strong>首先处理Android端的共享文本数据，然后等待Flutter请求数据，然后通过MethodChannel发送</strong>。</p>
-<p>首先在在AndroidManifest.xml中注册我们想要处理的intent:</p>
-<pre><code>&lt;activity
-       android:name=&quot;.MainActivity&quot;
-       android:launchMode=&quot;singleTop&quot;
-       android:theme=&quot;@style/LaunchTheme&quot;
-       android:configChanges=&quot;orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection&quot;
-       android:hardwareAccelerated=&quot;true&quot;
-       android:windowSoftInputMode=&quot;adjustResize&quot;&gt;
-       &lt;!-- This keeps the window background of the activity showing
-            until Flutter renders its first frame. It can be removed if
-            there is no splash screen (such as the default splash screen
-            defined in @style/LaunchTheme). --&gt;
-       &lt;meta-data
-           android:name=&quot;io.flutter.app.android.SplashScreenUntilFirstFrame&quot;
-           android:value=&quot;true&quot; /&gt;
-       &lt;intent-filter&gt;
-           &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
-           &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
-       &lt;/intent-filter&gt;
-       &lt;intent-filter&gt;
-           &lt;action android:name=&quot;android.intent.action.SEND&quot; /&gt;
-           &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;
-           &lt;data android:mimeType=&quot;text/plain&quot; /&gt;
-       &lt;/intent-filter&gt;
-   &lt;/activity&gt;
-</code></pre><p>然后，在MainActivity中处理intent，一旦我们从intent中获得共享文本数据，我们就会持有它，直到Flutter在完成准备就绪时请求它。</p>
-<pre><code>public class MainActivity extends FlutterActivity {
-    String sharedText;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GeneratedPluginRegistrant.registerWith(this);
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
-
-        if (Intent.ACTION_SEND.equals(action) &amp;&amp; type != null) {
-            if (&quot;text/plain&quot;.equals(type)) {
-                handleSendText(intent); // Handle text being sent
-            }
-        }
-
-        new MethodChannel(getFlutterView(), &quot;app.channel.shared.data&quot;).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-            @Override
-            public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-                if (methodCall.method.contentEquals(&quot;getSharedText&quot;)) {
-                    result.success(sharedText);
-                    sharedText = null;
-                }
-            }
-        });
-    }
-
-
-    void handleSendText(Intent intent) {
-        sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-    }
-}
-</code></pre><p>最后，在Flutter中，在渲染Flutter视图时请求数据：</p>
-<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
-  static const platform = const MethodChannel(&apos;app.channel.shared.data&apos;);
-  String dataShared = &quot;No data&quot;;
-
-  @override
-  void initState() {
-    super.initState();
-    getSharedText();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(body: new Center(child: new Text(dataShared)));
-  }
-
-  getSharedText() async {
-    var sharedData = await platform.invokeMethod(&quot;getSharedText&quot;);
-    if (sharedData != null) {
-      setState(() {
-        dataShared = sharedData;
-      });
-    }
-  }
-}
-</code></pre><h3 id="startActivityForResult-在Flutter中等价于什么"><a href="#startActivityForResult-在Flutter中等价于什么" class="headerlink" title="startActivityForResult 在Flutter中等价于什么"></a>startActivityForResult 在Flutter中等价于什么</h3><p>处理Flutter中所有路由的Navigator类可用于从已经push到栈的路由中获取结果。 这可以通过等待push返回的Future来完成。例如，如果您要启动让用户选择其位置的位置的路由，则可以执行以下操作：</p>
-<pre><code>Map coordinates = await Navigator.of(context).pushNamed(&apos;/location&apos;);
-</code></pre><p>然后在你的位置路由中，一旦用户选择了他们的位置，你可以将结果”pop”出栈：</p>
-<pre><code>Navigator.of(context).pop({&quot;lat&quot;:43.821757,&quot;long&quot;:-79.226392});
-</code></pre><h2 id="异步UI"><a href="#异步UI" class="headerlink" title="异步UI"></a>异步UI</h2><h3 id="runOnUiThread-在Flutter中等价于什么"><a href="#runOnUiThread-在Flutter中等价于什么" class="headerlink" title="runOnUiThread 在Flutter中等价于什么"></a>runOnUiThread 在Flutter中等价于什么</h3><p>Dart是单线程执行模型，<strong>支持Isolates（在另一个线程上运行Dart代码的方式）、事件循环和异步编程</strong>。 除非您启动一个Isolate，否则您的Dart代码将在主UI线程中运行，并由事件循环驱动（译者语：和JavaScript一样）。</p>
-<h3 id="AsyncTask和IntentService在Flutter中等价于什么"><a href="#AsyncTask和IntentService在Flutter中等价于什么" class="headerlink" title="AsyncTask和IntentService在Flutter中等价于什么"></a>AsyncTask和IntentService在Flutter中等价于什么</h3><p>由于Flutter是单线程的，运行一个事件循环（如Node.js），所以您不必担心线程管理或者使用AsyncTasks、IntentServices。</p>
-<p>要异步运行代码，可以将函数声明为异步函数，并在该函数中等待这个耗时任务</p>
-<pre><code>loadData() async {
-  String dataURL = &quot;https://jsonplaceholder.typicode.com/posts&quot;;
-  http.Response response = await http.get(dataURL);
-  setState(() {
-    widgets = JSON.decode(response.body);
-  });
-}
-</code></pre><p>这就是典型的进行网络或数据库调用的方式</p>
-<p>在Android上，当您继承AsyncTask时，通常会覆盖3个方法，OnPreExecute、doInBackground和onPostExecute。 在Flutter中没有这种模式的等价物，因为您只需等待一个长时间运行的函数，而Dart的事件循环将负责其余的事情。但是，有时您可能需要处理大量数据，导致UI可能会挂起。在这种情况下，与AsyncTask一样，在Flutter中，可以利用多个CPU内核来执行耗时或计算密集型任务。这是通过使用<strong>Isolates</strong>来完成的。</p>
-<p>Isolate是一个独立的执行线程，它运行时不会与主线程共享任何内存。这意味着你不能从该线程访问变量或通过调用setState来更新你的UI。</p>
-<h3 id="OkHttp在Flutter中等价于什么"><a href="#OkHttp在Flutter中等价于什么" class="headerlink" title="OkHttp在Flutter中等价于什么"></a>OkHttp在Flutter中等价于什么</h3><p>当使用受欢迎的“http”package时，Flutter进行网络信非常简单。</p>
-<p>虽然<a href="https://pub.dartlang.org/packages/http" target="_blank" rel="noopener">“http” package </a>没有实现OkHttp的所有功能，但“http” package 抽象出了许多常用的API，可以简单有效的发起网络请求。</p>
-<p>您可以通过在pubspec.yaml中添加依赖项来使用它</p>
-<pre><code>dependencies:
-  ...
-  http: &apos;&gt;=0.11.3+12&apos;
-</code></pre><p>在Android中，当您执行耗时任务时，通常会显示进度指示器。在Flutter中，这可以通过渲染<strong>Progress Indicator widget</strong>来实现。您可以通过编程方式显示Progress Indicator ， 通过布尔值通知Flutter在耗时任务发起之前更新其状态。</p>
-<h2 id="项目结构和资源"><a href="#项目结构和资源" class="headerlink" title="项目结构和资源"></a>项目结构和资源</h2><h3 id="在哪里存储分辨率相关的图片文件-HDPI-XXHDPI"><a href="#在哪里存储分辨率相关的图片文件-HDPI-XXHDPI" class="headerlink" title="在哪里存储分辨率相关的图片文件? HDPI/XXHDPI"></a>在哪里存储分辨率相关的图片文件? HDPI/XXHDPI</h3><p>Flutter遵循像iOS这样简单的3种分辨率格式: 1x, 2x, and 3x.</p>
-<p>创建一个名为images的文件夹，并为每个图像文件生成一个@2x和@3x文件，并将它们放置在如下这样的文件夹中:</p>
-<pre><code>…/my_icon.png
-…/2.0x/my_icon.png
-…/3.0x/my_icon.png
-</code></pre><p>然后，您需要在pubspec.yaml文件中声明这些图片:</p>
-<pre><code>assets:
- - images/a_dot_burr.jpeg
- - images/a_dot_ham.jpeg
-</code></pre><p>然后您可以使用AssetImage访问您的图像</p>
-<pre><code>return new AssetImage(&quot;images/a_dot_burr.jpeg&quot;);
-</code></pre><h3 id="在哪里存储字符串-如何存储不同的语言"><a href="#在哪里存储字符串-如何存储不同的语言" class="headerlink" title="在哪里存储字符串? 如何存储不同的语言"></a>在哪里存储字符串? 如何存储不同的语言</h3><p>目前，最好的做法是创建一个名为Strings的类</p>
-<pre><code>class Strings{
-  static String welcomeMessage = &quot;Welcome To Flutter&quot;;
-}
-</code></pre><p>然后在你的代码中，你可以像访问你的字符串一样：</p>
-<pre><code>new Text(Strings.welcomeMessage)
-</code></pre><p>Flutter对Android的可访问性提供了基本的支持，虽然这个功能正在进行中。</p>
-<p>鼓励Flutter开发者使用<a href="https://pub.dev/packages/intl" target="_blank" rel="noopener">intl package</a>进行国际化和本地化</p>
-<h3 id="Android-Gradle-vs-Flutter-pubspec-yaml"><a href="#Android-Gradle-vs-Flutter-pubspec-yaml" class="headerlink" title="Android Gradle vs Flutter pubspec.yaml"></a>Android Gradle vs Flutter pubspec.yaml</h3><p>在Android中，您可以在Gradle文件来添加依赖项。</p>
-<p>在Flutter中，虽然在Flutter项目中的Android文件夹下有Gradle文件，但只有在添加平台相关所需的依赖关系时才使用这些文件。 否则，应该使用pubspec.yaml声明用于Flutter的外部依赖项。</p>
-<p>发现好的flutter packages的一个好地方 <a href="https://pub.dartlang.org/flutter/packages/" target="_blank" rel="noopener">Pub</a></p>
-<h2 id="Activities-和-Fragments"><a href="#Activities-和-Fragments" class="headerlink" title="Activities 和 Fragments"></a>Activities 和 Fragments</h2><p>在Flutter中，这两个概念都等同于Widget。</p>
-<h3 id="如何监听Android-Activity生命周期事件"><a href="#如何监听Android-Activity生命周期事件" class="headerlink" title="如何监听Android Activity生命周期事件"></a>如何监听Android Activity生命周期事件</h3><p>在Android中，您可以覆盖Activity的方法来捕获Activity的生命周期回调。</p>
-<p>在Flutter中您可以通过<strong>挂接到WidgetsBinding观察并监听didChangeAppLifecycleState更改事件来监听</strong>生命周期事件</p>
-<p>您可以监听到的生命周期事件是</p>
-<ul>
-<li>resumed - 应用程序可见并响应用户输入。这是来自Android的onResume</li>
-<li>inactive - 应用程序处于非活动状态，并且未接收用户输入。此事件在Android上未使用，仅适用于iOS</li>
-<li>paused - 应用程序当前对用户不可见，不响应用户输入，并在后台运行。这是来自Android的暂停</li>
-<li><p>suspending - 该应用程序将暂时中止。这在iOS上未使用</p>
-<p>  class _LifecycleWatcherState extends State<lifecyclewatcher> with WidgetsBindingObserver {</lifecyclewatcher></p>
-<pre><code>AppLifecycleState _lastLifecyleState;
-
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addObserver(this);
-}
-
-@override
-void dispose() {
-  WidgetsBinding.instance.removeObserver(this);
-  super.dispose();
-}
-
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  setState(() {
-    _lastLifecyleState = state;
-  });
-}
-
-@override
-Widget build(BuildContext context) {
-  if (_lastLifecyleState == null)
-    return new Text(&apos;This widget has not observed any lifecycle changes.&apos;, textDirection: TextDirection.ltr);
-  return new Text(&apos;The most recent lifecycle state this widget observed was: $_lastLifecyleState.&apos;,
-      textDirection: TextDirection.ltr);
-}
-</code></pre><p>  }</p>
-</li>
-</ul>
-<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><h3 id="LinearLayout在Flutter中相当于什么"><a href="#LinearLayout在Flutter中相当于什么" class="headerlink" title="LinearLayout在Flutter中相当于什么"></a>LinearLayout在Flutter中相当于什么</h3><p>在Android中，使用LinearLayout来使您的控件呈水平或垂直排列。在Flutter中，您可以使用Row或Co​​lumn来实现相同的结果:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: &lt;Widget&gt;[
-      new Text(&apos;Row One&apos;),
-      new Text(&apos;Row Two&apos;),
-      new Text(&apos;Row Three&apos;),
-      new Text(&apos;Row Four&apos;),
-    ],
-  );
-}
-</code></pre><h3 id="RelativeLayout在Flutter中等价于什么"><a href="#RelativeLayout在Flutter中等价于什么" class="headerlink" title="RelativeLayout在Flutter中等价于什么"></a>RelativeLayout在Flutter中等价于什么</h3><p>RelativeLayout用于使widget相对于彼此位置排列。在Flutter中，有几种方法可以实现相同的结果</p>
-<p>您可以通过使用Column、Row和Stack的组合来实现RelativeLayout的效果。您可以为widget构造函数指定相对于父组件的布局规则。</p>
-<p>一个在Flutter中构建RelativeLayout的好例子，请参考在StackOverflow上: <a href="https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in" target="_blank" rel="noopener">https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in</a> -flutter</p>
-<h3 id="ScrollView在Flutter中等价于什么"><a href="#ScrollView在Flutter中等价于什么" class="headerlink" title="ScrollView在Flutter中等价于什么"></a>ScrollView在Flutter中等价于什么</h3><p>在Android中，ScrollView允许您包含一个子控件，以便在用户设备的屏幕比控件内容小的情况下，使它们可以滚动。</p>
-<p>在Flutter中，最简单的方法是使用ListView。但<strong>在Flutter中，一个ListView既是一个ScrollView，也是一个Android ListView</strong>。</p>
-<h2 id="手势检测和触摸事件处理"><a href="#手势检测和触摸事件处理" class="headerlink" title="手势检测和触摸事件处理"></a>手势检测和触摸事件处理</h2><h3 id="如何将一个onClick监听器添加到Flutter中的widget"><a href="#如何将一个onClick监听器添加到Flutter中的widget" class="headerlink" title="如何将一个onClick监听器添加到Flutter中的widget"></a>如何将一个onClick监听器添加到Flutter中的widget</h3><p>在Flutter中，添加触摸监听器有两种方法:</p>
-<ol>
-<li><p>如果Widget支持事件监听，则可以将一个函数传递给它并进行处理。例如，RaisedButton有一个onPressed参数:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new RaisedButton(
-      onPressed: () {
-        print(&quot;click&quot;);
-      },
-      child: new Text(&quot;Button&quot;));
-}
-</code></pre></li>
-<li><p>如果Widget不支持事件监听，则可以将该Widget包装到GestureDetector中，并将处理函数传递给onTap参数:</p>
-<pre><code>class SampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        body: new Center(
-      child: new GestureDetector(
-        child: new FlutterLogo(
-          size: 200.0,
-        ),
-        onTap: () {
-          print(&quot;tap&quot;);
-        },
-      ),
-    ));
-  }
-}
-</code></pre></li>
-</ol>
-<h3 id="如何处理widget上的其他手势"><a href="#如何处理widget上的其他手势" class="headerlink" title="如何处理widget上的其他手势"></a>如何处理widget上的其他手势</h3><p>使用GestureDetector，可以监听多种手势，例如:</p>
-<p>Tap</p>
-<blockquote>
-<p>onTapDown<br>onTapUp<br>onTap<br>onTapCancel</p>
-</blockquote>
-<p>Double tap</p>
-<blockquote>
-<p>onDoubleTap 用户快速连续两次在同一位置轻敲屏幕.</p>
-</blockquote>
-<p>长按</p>
-<blockquote>
-<p>onLongPress</p>
-</blockquote>
-<p>垂直拖动</p>
-<blockquote>
-<p>onVerticalDragStart<br>onVerticalDragUpdate<br>onVerticalDragEnd</p>
-</blockquote>
-<p>水平拖拽</p>
-<blockquote>
-<p>onHorizontalDragStart<br>onHorizontalDragUpdate<br>onHorizontalDragEnd</p>
-</blockquote>
-<h2 id="Listview-amp-Adapter"><a href="#Listview-amp-Adapter" class="headerlink" title="Listview &amp; Adapter"></a>Listview &amp; Adapter</h2><h3 id="ListView在Flutter中相当于什么"><a href="#ListView在Flutter中相当于什么" class="headerlink" title="ListView在Flutter中相当于什么"></a>ListView在Flutter中相当于什么</h3><p>在Flutter中，ListView就是一个ListView！</p>
-<p>在Android ListView中，您可以创建一个适配器，然后您可以将它传递给ListView，该适配器将使用适配器返回的内容来展示每一行。 然而，你必须确保在合适的时机回收行，否则，你会得到各种疯狂的视觉和内存问题。</p>
-<p>在Flutter中，由于Flutter的不可变的widget模型，将一个Widgets列表传递给的ListView，而Flutter将负责确保它们快速平滑地滚动。</p>
-<h3 id="怎么知道哪个列表项被点击"><a href="#怎么知道哪个列表项被点击" class="headerlink" title="怎么知道哪个列表项被点击"></a>怎么知道哪个列表项被点击</h3><p>在Android中，ListView有一个方法’onItemClickListener’来确定哪个列表项被点击。 Flutter中可以更轻松地通过您传入的处理回调来进行操作：</p>
-<pre><code>_getListData() {
-   List&lt;Widget&gt; widgets = [];
-   for (int i = 0; i &lt; 100; i++) {
-     widgets.add(new GestureDetector(
-       child: new Padding(
-           padding: new EdgeInsets.all(10.0),
-           child: new Text(&quot;Row $i&quot;)),
-       onTap: () {
-         print(&apos;row tapped&apos;);
-       },
-     ));
-   }
-   return widgets;
- }
-</code></pre><h3 id="如何动态更新ListView"><a href="#如何动态更新ListView" class="headerlink" title="如何动态更新ListView"></a>如何动态更新ListView</h3><p>需要更新适配器并调用notifyDataSetChanged。在Flutter中，如果setState（）中更新widget列表，您会发现没有变化， 这是因为当setState被调用时，Flutter渲染引擎会遍历所有的widget以查看它们是否已经改变。 当遍历到你的ListView时，它会做一个==运算，以查看两个ListView是否相同，因为没有任何改变，因此没有更新数据。</p>
-<p>要更新您的ListView，然后在setState中创建一个新的List（）并将所有旧数据复制到新列表中。这是实现更新的简单方法（译者语：此时状态改变，ListView被<strong>重新构建</strong>）</p>
-<p>然而，<strong>推荐的方法是使用ListView.Builder</strong>。当您拥有动态列表或包含大量数据的列表时，此方法非常有用。 这实际上相当于在Android上使用RecyclerView，它会自动为您回收列表元素：</p>
-<pre><code>@override
- Widget build(BuildContext context) {
-   return new Scaffold(
-       appBar: new AppBar(
-         title: new Text(&quot;Sample App&quot;),
-       ),
-       body: new ListView.builder(
-           itemCount: widgets.length,
-           itemBuilder: (BuildContext context, int position) {
-             return getRow(position);
-           }));
- }
-
-Widget getRow(int i) {
-   return new GestureDetector(
-     child: new Padding(
-         padding: new EdgeInsets.all(10.0),
-         child: new Text(&quot;Row $i&quot;)),
-     onTap: () {
-       setState(() {
-         widgets.add(getRow(widgets.length + 1));
-         print(&apos;row $i&apos;);
-       });
-     },
-   );
- }
-</code></pre><p>我们不是创建一个“新的ListView”，而是创建一个新的ListView.builder，它接受两个参数，即列表的初始长度和一个ItemBuilder函数。ItemBuilder函数非常类似于Android适配器中的getView函数，它需要一个位置并返回要为该位置渲染的行。</p>
-<p>最后，但最重要的是，如果您注意到onTap函数，在里面，我们不会再重新创建列表，而只是添加新元素到列表。</p>
-<h2 id="使用-Text"><a href="#使用-Text" class="headerlink" title="使用 Text"></a>使用 Text</h2><h3 id="如何在-Text-widget上设置自定义字体"><a href="#如何在-Text-widget上设置自定义字体" class="headerlink" title="如何在 Text widget上设置自定义字体"></a>如何在 Text widget上设置自定义字体</h3><p>在Android SDK（从Android O开始）中，创建一个Font资源文件并将其传递到TextView的FontFamily参数中。</p>
-<p>在Flutter中，首先你需要把你的字体文件放在项目文件夹中（最好的做法是创建一个名为assets的文件夹）</p>
-<p>接下来在pubspec.yaml文件中，声明字体：</p>
-<pre><code>fonts:
-   - family: MyCustomFont
-     fonts:
-       - asset: fonts/MyCustomFont.ttf
-       - style: italic
-</code></pre><p>最后，将字体应用到Text widget:</p>
-<pre><code>@override
-Widget build(BuildContext context) {
-  return new Scaffold(
-    appBar: new AppBar(
-      title: new Text(&quot;Sample App&quot;),
-    ),
-    body: new Center(
-      child: new Text(
-        &apos;This is a custom font text&apos;,
-        style: new TextStyle(fontFamily: &apos;MyCustomFont&apos;),
-      ),
-    ),
-  );
-}
-</code></pre><h3 id="如何在Text上定义样式"><a href="#如何在Text上定义样式" class="headerlink" title="如何在Text上定义样式"></a>如何在Text上定义样式</h3><p>Text的样式参数需要一个TextStyle对象，您可以在其中自定义许多参数。</p>
-<h2 id="表单输入"><a href="#表单输入" class="headerlink" title="表单输入"></a>表单输入</h2><h3 id="Input的”hint”在flutter中相当于什么"><a href="#Input的”hint”在flutter中相当于什么" class="headerlink" title="Input的”hint”在flutter中相当于什么"></a>Input的”hint”在flutter中相当于什么</h3><p>在Flutter中，您可以通过向Text Widget的装饰构造函数参数添加<strong>InputDecoration对象</strong>，轻松地为输入框显示占位符文本</p>
-<pre><code>body: new Center(
-  child: new TextField(
-    decoration: new InputDecoration(hintText: &quot;This is a hint&quot;),
-  )
-)
-</code></pre><h3 id="如何显示验证错误"><a href="#如何显示验证错误" class="headerlink" title="如何显示验证错误"></a>如何显示验证错误</h3><p>就像您如何使用“hint”一样，您可以将InputDecoration对象传递给Text的装饰构造函数。</p>
-<p>但是，您不希望首先显示错误，并且通常会在用户输入一些无效数据时显示该错误。这可以通过更新状态并传递一个新的InputDecoration对象来完成：</p>
-<pre><code>class _SampleAppPageState extends State&lt;SampleAppPage&gt; {
-  String _errorText;
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(&quot;Sample App&quot;),
-      ),
-      body: new Center(
-        child: new TextField(
-          onSubmitted: (String text) {
-            setState(() {
-              if (!isEmail(text)) {
-                _errorText = &apos;Error: This is not an email&apos;;
-              } else {
-                _errorText = null;
-              }
-            });
-          },
-          decoration: new InputDecoration(hintText: &quot;This is a hint&quot;, errorText: _getErrorText()),
-        ),
-      ),
-    );
-  }
-
-  _getErrorText() {
-    return _errorText;
-  }
-
-  bool isEmail(String em) {
-    String emailRegexp =
-        r&apos;^(([^&lt;&gt;()[\]\\.,;:\s@\&quot;]+(\.[^&lt;&gt;()[\]\\.,;:\s@\&quot;]+)*)|(\&quot;.+\&quot;))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$&apos;;
-
-    RegExp regExp = new RegExp(p);
-
-    return regExp.hasMatch(em);
-  }
-}
-</code></pre><h2 id="Flutter-插件"><a href="#Flutter-插件" class="headerlink" title="Flutter 插件"></a>Flutter 插件</h2><p>如何使用 GPS sensor<br>要访问GPS传感器，您可以使用社区插件 <a href="https://pub.dartlang.org/packages/location" target="_blank" rel="noopener">https://pub.dartlang.org/packages/location</a></p>
-<p>如何访问相机<br>访问相机的流行社区插件是 <a href="https://pub.dartlang.org/packages/image_picker" target="_blank" rel="noopener">https://pub.dartlang.org/packages/image_picker</a></p>
-<p>如何使用Facebook登陆<br>要访问Facebook Connect功能，您可以使用 <a href="https://pub.dartlang.org/packages/flutter_facebook_connect" target="_blank" rel="noopener">https://pub.dartlang.org/packages/flutter_facebook_connect</a> .</p>
-<p>如何构建自定义集成Native功能<br>如果有Flutter或其社区插件缺失的平台特定功能，那么您可以自己按照以下教程构建<a href="https://flutterchina.club/developing-packages/" target="_blank" rel="noopener">https://flutterchina.club/developing-packages/</a><br>简而言之，Flutter的插件架构就像在Android中使用Event bus一样：您可以发出消息并让接收者进行处理并将结果返回给您，在这种情况下，接收者将是iOS或Android。</p>
-<p>如何在我的Flutter应用程序中使用NDK<br>自定义插件首先会与Android应用程序通信，您可以在其中调用native标记的函数。一旦Native完成了相应操作，就可以将响应消息发回给Flutter并呈现结果。</p>
-<h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><p>Flutter很好的实现了一个美丽的Material Design，它会满足很多样式和主题的需求。 与Android中使用XML声明主题不同，在Flutter中，您可以<strong>通过顶层widget声明主题</strong>。</p>
-<p>MaterialApp是一个方便的widget，它包装了许多Material Design应用通常需要的widget，它通过添加Material特定功能构建在WidgetsApp上。</p>
-<p>如果你不想使用Material Components，那么你可以声明一个顶级widget-WidgetsApp，它是一个便利的类，它包装了许多应用程序通常需要的widget。</p>
-<p>要自定义Material Components的颜色和样式，您可以将ThemeData对象传递到MaterialApp widget中，例如在下面的代码中，您可以看到主色板设置为蓝色，并且所有选择区域的文本颜色都应为红色。</p>
-<pre><code>class SampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: &apos;Sample App&apos;,
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-        textSelectionColor: Colors.red
-      ),
-      home: new SampleAppPage(),
-    );
-  }
-}
-</code></pre><p>Scaffold 是 Material library 中提供的一个widget, 它提供了默认的导航栏、标题和包含主屏幕widget树的body属性。widget树可以很复杂。</p>
-<h2 id="数据库和本地存储"><a href="#数据库和本地存储" class="headerlink" title="数据库和本地存储"></a>数据库和本地存储</h2><h3 id="如何在Flutter中访问Shared-Preferences"><a href="#如何在Flutter中访问Shared-Preferences" class="headerlink" title="如何在Flutter中访问Shared Preferences ?"></a>如何在Flutter中访问Shared Preferences ?</h3><p>在Flutter中，您可以通过使用插件Shared_Preferences来访问此功能</p>
-<p>这个插件包装了<a href="https://pub.dartlang.org/packages/shared_preferences" target="_blank" rel="noopener">Shared Preferences</a>和NSUserDefaults（与iOS相同）的功能</p>
-<pre><code>import &apos;package:flutter/material.dart&apos;;
-import &apos;package:shared_preferences/shared_preferences.dart&apos;;
-
-void main() {
-  runApp(
-    new MaterialApp(
-      home: new Scaffold(
-        body: new Center(
-          child: new RaisedButton(
-            onPressed: _incrementCounter,
-            child: new Text(&apos;Increment Counter&apos;),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-_incrementCounter() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int counter = (prefs.getInt(&apos;counter&apos;) ?? 0) + 1;
-  print(&apos;Pressed $counter times.&apos;);
-  prefs.setInt(&apos;counter&apos;, counter);
-}
-</code></pre><h3 id="如何在Flutter中访问SQLite"><a href="#如何在Flutter中访问SQLite" class="headerlink" title="如何在Flutter中访问SQLite"></a>如何在Flutter中访问SQLite</h3><p>在Android中，您可以使用SQLite存储，通过SQL查询的结构化数据。</p>
-<p>在Flutter中，您可以使用<a href="https://pub.dartlang.org/packages/sqflite" target="_blank" rel="noopener">SQFlite插件</a>来访问SQFlite此功能</p>
-<h2 id="通知"><a href="#通知" class="headerlink" title="通知"></a>通知</h2><p>在Android中，您可以使用Firebase云消息传递为您的应用设置推送通知。</p>
-<p>在Flutter中，您可以使用<a href="https://github.com/flutter/plugins/tree/master/packages/firebase_messaging" target="_blank" rel="noopener">Firebase_Messaging</a>插件访问此功能</p>
-<blockquote>
-<p>注意：在中国无法使用Firebase服务。</p>
-</blockquote>
-<h2 id="yaml"><a href="#yaml" class="headerlink" title="yaml"></a>yaml</h2><p>YAML是一个类似 XML的标记语言。YAML强调以数据为中心，并不是以标识语言为重点</p>
-<p>规范：</p>
-<ul>
-<li>大小写敏感</li>
-<li>缩进代表层级，使用空格，默认2个空格（flutter工具做了处理，tab也可以）</li>
-<li>#表示注释内容</li>
-<li>: 表示键值对，注意后面要空格</li>
-<li>{} 表示键值表</li>
-<li>表示列表，注意后面要空格</li>
-<li>[] 表示数组，注意每项之间有空格</li>
-<li><p>? 表示复杂的键</p>
-<pre><code># 依赖库
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^0.1.2
-
-flutter:
-  #使用Material图标
-  uses-material-design: true
-  #assets文件
-  assets:
-    - images/1.png
-    - images/2.gif
-  #字体样式
-  fonts:
-     #family与fonts是一个整体，列表的一项
-     - family: Schyler
-       fonts:
-         - asset: fonts/Schyler-Regular.ttf
-         - asset: fonts/Schyler-Italic.ttf
-           style: italic
-     - family: Trajan Pro
-       fonts:
-         - asset: fonts/TrajanPro.ttf
-         - asset: fonts/TrajanPro_Bold.ttf
-           weight: 700
-</code></pre></li>
-</ul>
-<p>-可转化为[]，:也可以转化为{}，转化后类似json</p>
-<pre><code>dependencies: {flutter: {sdk: flutter}, cupertino_icons: ^0.1.2}
-assets: [images/1.png, images/2.gif]
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://flutterchina.club/flutter-for-android" target="_blank" rel="noopener">Flutter for Android 开发者</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/hybird-redux/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/25/hybird-redux/" itemprop="url">Redux概念</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-25T16:36:23+08:00">
-                2019-06-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Redux是一个状态管理器。</p>
-<p>Redux最主要是用作应用状态的管理。简言之，Redux用一个单独的常量状态树（对象）保存这一整个应用的状态，这个对象不能直接被改变。当一些数据变化了，一个新的对象就会被创建（使用actions和reducers）。</p>
-<h3 id="Redux核心概念"><a href="#Redux核心概念" class="headerlink" title="Redux核心概念"></a>Redux核心概念</h3><ul>
-<li>actions</li>
-<li>store</li>
-<li>reducers</li>
-</ul>
-<p><img src="/2019/06/25/hybird-redux/redux.jpg" alt></p>
-<p><strong>Actions</strong><br>简单地，<strong>Actions就是事件。Actions传递来自这个应用（用户接口，内部事件比如API调用和表单提交）的数据给store。store只获取来自Actions的信息</strong>。内部Actions就是简单的具有一个type属性（通常是常量）的JavaScript对象，这个对象描述了action的类型以及传递给store的负载信息:</p>
-<pre><code>{
-    type: LOGIN_FORM_SUBMIT,
-    payload: {username: &apos;alex&apos;, password: &apos;123456&apos;}
-}
-</code></pre><p><strong>Reducers</strong><br>在函数式JavaScript中reducer基于数组reduce方法，接收一个回调（reducer）让你从多个值中获得单个值，整数和，或者一个一系列值的累积。在Redux中，<strong>reducer就是获得这个应用的当前状态和事件然后返回一个新状态的函数</strong>。理解reducer是怎样工作的至关重要，因为它们完成大部分工作。这是一个非常简单的reducer，通过获取当前state和一个action作为参数，再返回下一个state：</p>
-<pre><code>function handleAuth(state, action) {
-    return _.assign({}, state, {
-        auth: action.payload  
-    });
-}
-</code></pre><p>对于更多复杂的项目，使用Redux提供的combineReducers()实例是必要的（推荐）。它把在这个应用中所有的reducer结合在一起成为单个索引reducer。每一个reducer负责它自己那部分应用的状态，这个状态参数和其他reducer的不一样。<strong>combineReducers()实例使文件结构更容易维护</strong>。<br>如果一个对象（state）只改变一些值，Redux就创建一个新的对象，那些没有改变的值将会指向旧的对象而且新的值将会被创建。这对性能是极好的。为了让它更有效率你可以添加 Immutable.js</p>
-<pre><code>const rootReducer = combineReducers({
-    handleAuth: handleAuth,
-    editProfile: editProfile,
-    changePassword: changePassword
-});
-</code></pre><p><strong>Store</strong><br>Store对象<strong>保存应用的状态并提供一些帮助方法来存取状态，分发状态以及注册监听。全部state由一个store来表示</strong>。任何action通过reducer返回一个新的状态对象。这就使得Redux非常简单以及可预测。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/post/5d04790a6fb9a07efa09164d" target="_blank" rel="noopener">完全理解 redux（从零实现一个 redux）</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -6333,7 +5908,7 @@ assets: [images/1.png, images/2.gif]
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-count">65</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -6355,7 +5930,7 @@ assets: [images/1.png, images/2.gif]
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">30</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -6395,7 +5970,7 @@ assets: [images/1.png, images/2.gif]
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

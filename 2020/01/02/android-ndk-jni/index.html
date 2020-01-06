@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JNI,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="JNI，全称为Java Native Interface，即Java本地接口，JNI是Java调用Native 语言的一种特性。通过JNI可以使得Java与C/C++机型交互。即可以在Java代码中调用C/C++等语言的代码或者在C/C++代码中调用Java代码。由于JNI是JVM规范的一部分，因此可以将我们写的JNI的程序在任何实现了JNI规范的Java虚拟机中运行。 JNI的主要竞争优势在于：">
+<meta name="keywords" content="JNI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNI 详解">
+<meta property="og:url" content="http://yoursite.com/2020/01/02/android-ndk-jni/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="JNI，全称为Java Native Interface，即Java本地接口，JNI是Java调用Native 语言的一种特性。通过JNI可以使得Java与C/C++机型交互。即可以在Java代码中调用C/C++等语言的代码或者在C/C++代码中调用Java代码。由于JNI是JVM规范的一部分，因此可以将我们写的JNI的程序在任何实现了JNI规范的Java虚拟机中运行。 JNI的主要竞争优势在于：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jni-flow.webp">
+<meta property="og:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jni-struct.webp">
+<meta property="og:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jni-interface.webp">
+<meta property="og:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jni-type.webp">
+<meta property="og:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jnienv-struct.webp">
+<meta property="og:updated_time" content="2020-01-06T07:32:23.669Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JNI 详解">
+<meta name="twitter:description" content="JNI，全称为Java Native Interface，即Java本地接口，JNI是Java调用Native 语言的一种特性。通过JNI可以使得Java与C/C++机型交互。即可以在Java代码中调用C/C++等语言的代码或者在C/C++代码中调用Java代码。由于JNI是JVM规范的一部分，因此可以将我们写的JNI的程序在任何实现了JNI规范的Java虚拟机中运行。 JNI的主要竞争优势在于：">
+<meta name="twitter:image" content="http://yoursite.com/2020/01/02/android-ndk-jni/jni-flow.webp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/02/android-ndk-jni/">
+
+
+
+
+
+  <title>JNI 详解 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/02/android-ndk-jni/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JNI 详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T10:40:44+08:00">
+                2020-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android-ndk/" itemprop="url" rel="index">
+                    <span itemprop="name">android ndk</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>JNI，全称为Java Native Interface，即Java本地接口，JNI是Java调用Native 语言的一种特性。通过JNI可以使得Java与C/C++机型交互。即可以在Java代码中调用C/C++等语言的代码或者在C/C++代码中调用Java代码。由于JNI是JVM规范的一部分，因此可以将我们写的JNI的程序在任何实现了JNI规范的Java虚拟机中运行。</p>
+<p>JNI的主要竞争优势在于：它在设计之初就确保了二进制的兼容性，JNI编写的应用程序兼容性以及其在某些具体平台上的Java虚拟机兼容性(当谈及JNI时，这里并不特比针对Davik虚拟机，JNI适用于所有JVM虚拟机)。这就是为什么C/C++编译后的代码无论在任何平台上都能执行。不过，一些早期版本并不支持二进制兼容。二进制兼容性是一种程序兼容性类型，允许一个程序在不改变其可执行文件的条件下在不同的编译环境中工作。</p>
+<p>JNI下一共涉及到三个角色：C/C++代码、本地方法接口类、Java层中具体业务类。</p>
+<h2 id="JNI的命名规则"><a href="#JNI的命名规则" class="headerlink" title="JNI的命名规则"></a>JNI的命名规则</h2><p>举例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JNIExport jstring JNICALL Java_com_example_hellojni_MainActivity_stringFromJNI( JNIEnv* env,jobject thiz )</span><br></pre></td></tr></table></figure></p>
+<p>jstring 是返回值类型<br>Java_com_example_hellojni 是包名<br>MainActivity 是类名<br>stringFromJNI 是方法名</p>
+<p>其中JNIExport和JNICALL是不固定保留的关键字不要修改</p>
+<h2 id="如何实现JNI"><a href="#如何实现JNI" class="headerlink" title="如何实现JNI"></a>如何实现JNI</h2><p>JNI开发流程的步骤：</p>
+<blockquote>
+<ul>
+<li>第1步：在Java中先声明一个native方法</li>
+<li>第2步：编译Java源文件javac得到.class文件</li>
+<li>第3步：通过javah -jni命令导出JNI的.h头文件</li>
+<li>第4步：使用Java需要交互的本地代码，实现在Java中声明的Native方法（如果Java需要与C++交互，那么就用C++实现Java的Native方法。）</li>
+<li>第5步：将本地代码编译成动态库(Windows系统下是.dll文件，如果是Linux系统下是.so文件，如果是Mac系统下是.jnilib)</li>
+<li>第6步：通过Java命令执行Java程序，最终实现Java调用本地代码。</li>
+</ul>
+</blockquote>
+<p>PS：javah 是JDK自带的一个命令，-jni参数表示将class 中用到native 声明的函数生成JNI 规则的函数</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-flow.webp" alt title="JNI开发流程"></p>
+<h2 id="JNI结构"><a href="#JNI结构" class="headerlink" title="JNI结构"></a>JNI结构</h2><p><img src="/2020/01/02/android-ndk-jni/jni-struct.webp" alt title="JNI结构"><br>这张JNI函数表的组成就像C++的虚函数表。虚拟机可以运行多张函数表，举例来说，一张调试函数表，另一张是调用函数表。JNI接口指针仅在当前线程中起作用。这意味着指针不能从一个线程进入另一个线程。然而，可以在不同的线程中调用本地方法。</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-interface.webp" alt title="JNI接口"></p>
+<p>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jdouble Java_pkg_Cls_f__ILjava_lang_String_2 (JNIEnv *env, jobject obj, jint i, jstring s)</span><br><span class="line">&#123;</span><br><span class="line">     const char *str = (*env)-&gt;GetStringUTFChars(env, s, 0); </span><br><span class="line">     (*env)-&gt;ReleaseStringUTFChars(env, s, str); </span><br><span class="line">     return 10;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>里面的方法有三个入参，我们就依次来看下：</p>
+<blockquote>
+<ul>
+<li>*env：一个接口指针</li>
+<li>obj：在本地方法中声明的对象引用</li>
+<li>i和s：用于传递的参数</li>
+</ul>
+</blockquote>
+<p>关于obj、i和s的类型大家可以参考下面的JNI数据类型，JNI有自己的原始数据类型和数据引用类型如下：</p>
+<p><img src="/2020/01/02/android-ndk-jni/jni-type.webp" alt></p>
+<h2 id="JNI原理"><a href="#JNI原理" class="headerlink" title="JNI原理"></a>JNI原理</h2><p>Java语言的执行环境是Java虚拟机(JVM)，JVM其实是主机环境中的一个进程，每个JVM虚拟机都在本地环境中有一个JavaVM结构体，该结构体在创建Java虚拟机时被返回，在JNI环境中创建JVM的函数为JNI_CreateJavaVM。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JNI_CreateJavaVM(JavaVM **pvm, void **penv, void*args);</span><br></pre></td></tr></table></figure></p>
+<h3 id="JavaVM"><a href="#JavaVM" class="headerlink" title="JavaVM"></a>JavaVM</h3><p>JavaVM是Java虚拟机在JNI层的代表，<strong>JNI全局仅仅有一个JavaVM结构中封装了一些函数指针（或叫函数表结构）</strong>，JavaVM中封装的这些函数指针主要是对JVM操作接口。另外，在C和C++中的JavaVM的定义有所不同，在C中JavaVM是JNIInvokeInterface_类型指针，而在C++中有对JNIInvokeInterface_进行了一次封装，比C中少了一个参数，这也是为什么JNI代码更推荐使用C++来编写的原因。</p>
+<h3 id="JNIEnv"><a href="#JNIEnv" class="headerlink" title="JNIEnv"></a>JNIEnv</h3><p>JNIEnv是一个线程相关的结构体，该结构体代表了Java在本线程的执行环境。该 JNIEnv 将用于线程本地存储。因此，您<strong>无法在线程之间共享 JNIEnv</strong>。</p>
+<p>一个JVM对应一个JavaVM结构，而一个JVM中可能创建多个Java线程，每个线程对应一个JNIEnv结构，它们保存在线程本地存储TLS中。因此，不同的线程的JNIEnv是不同，也不能相互共享使用。JNIEnv结构也是一个函数表，在本地代码中通过JNIEnv的函数表来操作Java数据或者调用Java方法。也就是说，只要在本地代码中拿到了JNIEnv结构，就可以在本地代码中调用Java代码。</p>
+<h4 id="JNIEnv的作用"><a href="#JNIEnv的作用" class="headerlink" title="JNIEnv的作用"></a>JNIEnv的作用</h4><ul>
+<li>调用Java 函数：JNIEnv代表了Java执行环境，能够使用JNIEnv调用Java中的代码</li>
+<li>操作Java代码：Java对象传入JNI层就是jobject对象，需要使用JNIEnv来操作这个Java对象</li>
+</ul>
+<h4 id="JNIEnv的创建"><a href="#JNIEnv的创建" class="headerlink" title="JNIEnv的创建"></a>JNIEnv的创建</h4><p>JNIEnv 创建与释放：从JavaVM获得，这里面又分为C与C++，我们就依次来看下：</p>
+<ul>
+<li>C 中——JNIInvokeInterface：JNIInvokeInterface是C语言环境中的JavaVM结构体，调用 (*AttachCurrentThread)(JavaVM*, JNIEnv*, void) 方法，能够获得JNIEnv结构体</li>
+<li>C++中 ——_JavaVM：_JavaVM是C++中JavaVM结构体，调用jint AttachCurrentThread(JNIEnv** p_env, void* thr_args) 方法，能够获取JNIEnv结构体；</li>
+</ul>
+<h4 id="JNIEnv的释放"><a href="#JNIEnv的释放" class="headerlink" title="JNIEnv的释放"></a>JNIEnv的释放</h4><ul>
+<li>C 中释放：调用JavaVM结构体JNIInvokeInterface中的(*DetachCurrentThread)(JavaVM*)方法，能够释放本线程的JNIEnv</li>
+<li>C++ 中释放：调用JavaVM结构体_JavaVM中的jint DetachCurrentThread(){ return functions-&gt;DetachCurrentThread(this); } 方法，就可以释放 本线程的JNIEnv</li>
+</ul>
+<h4 id="JNIEnv与线程"><a href="#JNIEnv与线程" class="headerlink" title="JNIEnv与线程"></a>JNIEnv与线程</h4><p>JNIEnv是线程相关的，即在每一个线程中都有一个JNIEnv指针，每个JNIEnv都是线程专有的，其他线程不能使用本线程中的JNIEnv，即线程A不能调用线程B的JNIEnv。所以JNIEnv不能跨线程。</p>
+<h4 id="JNIEnv结构"><a href="#JNIEnv结构" class="headerlink" title="JNIEnv结构"></a>JNIEnv结构</h4><p>JNIEnv是一个指针，指向一个线程相关的结构，线程相关结构指向JNI函数指针数组，这个数组中存放了大量的JNI函数指针，这些指针指向了详细的JNI函数：</p>
+<p><img src="/2020/01/02/android-ndk-jni/jnienv-struct.webp" alt title="JNIEnv结构图"></p>
+<h4 id="与JNIEnv相关的常用函数"><a href="#与JNIEnv相关的常用函数" class="headerlink" title="与JNIEnv相关的常用函数"></a>与JNIEnv相关的常用函数</h4><h5 id="创建Java中的对象"><a href="#创建Java中的对象" class="headerlink" title="创建Java中的对象"></a>创建Java中的对象</h5><blockquote>
+<ul>
+<li>jobject NewObject(JNIEnv *env, jclass clazz,jmethodID methodID, …)：</li>
+<li>jobject NewObjectA(JNIEnv *env, jclass clazz,jmethodID methodID, const jvalue *args)：</li>
+<li>jobject NewObjectV(JNIEnv *env, jclass clazz,jmethodID methodID, va_list args)：</li>
+</ul>
+</blockquote>
+<p>第一个参数jclass class 代表的你要创建哪个类的对象，第二个参数,jmethodID methodID代表你要使用那个构造方法ID来创建这个对象。只要有jclass和jmethodID，我们就可以在本地方法创建这个Java类的对象。</p>
+<h5 id="创建Java类中的String对象"><a href="#创建Java类中的String对象" class="headerlink" title="创建Java类中的String对象"></a>创建Java类中的String对象</h5><blockquote>
+<p>jstring NewString(JNIEnv *env, const jchar *unicodeChars, jsize len)：</p>
+</blockquote>
+<p>通过Unicode字符的数组来创建一个新的String对象。<br>env是JNI接口指针；unicodeChars是指向Unicode字符串的指针；len是Unicode字符串的长度。返回值是Java字符串对象，如果无法构造该字符串，则为null。</p>
+<p>那有没有一个直接直接new一个utf-8的字符串的方法呢？答案是有的，就是jstring NewStringUTF(JNIEnv *env, const char *bytes)这个方法就是直接new一个编码为utf-8的字符串。</p>
+<h5 id="创建类型为基本类型PrimitiveType的数组"><a href="#创建类型为基本类型PrimitiveType的数组" class="headerlink" title="创建类型为基本类型PrimitiveType的数组"></a>创建类型为基本类型PrimitiveType的数组</h5><blockquote>
+<p>ArrayType New<primitivetype>Array(JNIEnv *env, jsize length)</primitivetype></p>
+</blockquote>
+<p>指定一个长度然后返回相应的Java基本类型的数组。用于构造一个新的数组对象，类型是原始类型。基本的原始类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New<primitivetype>Array Routines</primitivetype></td>
+<td>Array Type</td>
+</tr>
+<tr>
+<td>NewBooleanArray()</td>
+<td>jbooleanArray</td>
+</tr>
+<tr>
+<td>NewByteArray()</td>
+<td>jbyteArray</td>
+</tr>
+<tr>
+<td>NewCharArray()</td>
+<td>jcharArray</td>
+</tr>
+<tr>
+<td>NewShortArray()</td>
+<td>jshortArray</td>
+</tr>
+<tr>
+<td>NewIntArray()</td>
+<td>jintArray</td>
+</tr>
+<tr>
+<td>NewLongArray()</td>
+<td>jlongArray</td>
+</tr>
+<tr>
+<td>NewFloatArray()</td>
+<td>jfloatArray</td>
+</tr>
+<tr>
+<td>NewDoubleArray()</td>
+<td>jdoubleArray</td>
+</tr>
+</tbody>
+</table>
+<h5 id="创建类型为elementClass的数组"><a href="#创建类型为elementClass的数组" class="headerlink" title="创建类型为elementClass的数组"></a>创建类型为elementClass的数组</h5><blockquote>
+<p>jobjectArray NewObjectArray(JNIEnv *env, jsize length, jclass elementClass, jobject initialElement);</p>
+</blockquote>
+<p>造一个新的数据组，类型是elementClass，所有类型都被初始化为initialElement。</p>
+<h5 id="获取数组中某个位置的元素"><a href="#获取数组中某个位置的元素" class="headerlink" title="获取数组中某个位置的元素"></a>获取数组中某个位置的元素</h5><blockquote>
+<p>jobject GetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index);</p>
+</blockquote>
+<p>返回Object数组的一个元素</p>
+<h5 id="获取数组的长度"><a href="#获取数组的长度" class="headerlink" title="获取数组的长度"></a>获取数组的长度</h5><blockquote>
+<p>jsize GetArrayLength(JNIEnv *env, jarray array);</p>
+</blockquote>
+<p>获取array数组的长度.</p>
+<h5 id="GetArrayElements"><a href="#GetArrayElements" class="headerlink" title="GetArrayElements"></a>GetArrayElements</h5><blockquote>
+<p>NativeType *Get<primitivetype>ArrayElements(JNIEnv *env, ArrayType array, jboolean *isCopy);</primitivetype></p>
+</blockquote>
+<p>返回指向数组元素的指针，如果操作失败则返回NULL。</p>
+<p>这是用来<strong>返回原生数据类型数组体的家族函数</strong>。函数返回的指针在调用对应的ReleaseArrayElements()函数之前都是有效的（就是指针指向的区域没有被释放，是可以使用的）。因为这个函数返回的数组可能是Java数组的一份拷贝，所以直到调用ReleaseArrayElements()方法，对返回的数组所做的修改才会反映到原始数组中。</p>
+<p>GetArrayElements()函数的返回值是和JVM相关的，如果JVM的GC支持pin操作，那么返回值就是指向原始数组的指针；否则返回的就是原始数组的一份拷贝的首地址。</p>
+<p>如果isCopy不为NULL，如果进行了复制，则*isCopy设置为JNI_TRUE; 如果没有复制，则设置为JNI_FALSE。</p>
+<p>下表描述了特定的原始数组元素访问器。您应该进行以下替换：</p>
+<blockquote>
+<ul>
+<li>将GetArrayElements替换为下表中的一个实际原始元素访问器例程名称。</li>
+<li>将ArrayType替换为相应的数组类型。</li>
+<li>将NativeType替换为该例程的相应本地类型。</li>
+</ul>
+</blockquote>
+<p>无论如何在JVM中表示布尔数组，GetBooleanArrayElements()始终返回指向jbooleans的指针，每个字节表示一个元素（解包表示）。其他类型的所有数组都保证在内存中是连续的。</p>
+<table>
+<thead>
+<tr>
+<th>GetArrayElements例程</th>
+<th>数组类型</th>
+<th>本地类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GetBooleanArrayElements()</td>
+<td>jbooleanArray</td>
+<td>jboolean</td>
+</tr>
+<tr>
+<td>GetByteArrayElements()</td>
+<td>jbyteArray</td>
+<td>jbyte</td>
+</tr>
+<tr>
+<td>GetCharArrayElements()    jcharArray</td>
+<td>jchar</td>
+</tr>
+<tr>
+<td>GetShortArrayElements()</td>
+<td>jshortArray</td>
+<td>jshort</td>
+</tr>
+<tr>
+<td>GetIntArrayElements()</td>
+<td>jintArray</td>
+<td>jint</td>
+</tr>
+<tr>
+<td>GetLongArrayElements()</td>
+<td>jlongArray</td>
+<td>jlong</td>
+</tr>
+<tr>
+<td>GetFloatArrayElements()</td>
+<td>jfloatArray</td>
+<td>jfloat</td>
+</tr>
+<tr>
+<td>GetDoubleArrayElements()</td>
+<td>jdoubleArray</td>
+<td>jdouble</td>
+</tr>
+</tbody>
+</table>
+<h5 id="ReleaseArrayElements"><a href="#ReleaseArrayElements" class="headerlink" title="ReleaseArrayElements"></a>ReleaseArrayElements</h5><blockquote>
+<p>void Release<primitivetype>ArrayElements(JNIEnv *env, ArrayType array, NativeType *elems, jint mode);</primitivetype></p>
+</blockquote>
+<p>一系列函数，通知VM本地代码不再需要访问elems。elems参数是使用相应的GetArrayElements()函数从数组派生的指针。<strong>如有必要，此函数会将对elems所做的所有更改复制回原始数组</strong>。</p>
+<p>mode参数提供有关如何释放数组缓冲区的信息。如果elems不是数组中元素的副本，则mode无效。否则，模式会产生以下影响，如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>复制回内容并释放elems缓冲区</td>
+</tr>
+<tr>
+<td>JNI_COMMIT</td>
+<td>复制回内容，但不释放elems缓冲区</td>
+</tr>
+<tr>
+<td>JNI_ABORT</td>
+<td>释放缓冲区而不复制回可能的更改</td>
+</tr>
+</tbody>
+</table>
+<p>在大多数情况下，程序员<strong>将“0”传递给mode参数，以确保固定和复制数组的一致行为</strong>。其他选项使程序员可以更好地控制内存管理，并且应该非常谨慎地使用。</p>
+<p>关于更多JNI的常用方法，文档可以参考 <a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#wp9502" target="_blank" rel="noopener">JNI Functions</a></p>
+<h2 id="JNI的引用"><a href="#JNI的引用" class="headerlink" title="JNI的引用"></a>JNI的引用</h2><p>在JNI规范中定义了三种引用：局部引用（Local Reference）、全局引用（Global Reference）、弱全局引用（Weak Global Reference）。</p>
+<h3 id="局部引用-Local-Reference"><a href="#局部引用-Local-Reference" class="headerlink" title="局部引用(Local Reference)"></a>局部引用(Local Reference)</h3><p>局部引用，也成本地引用，通常是在函数中创建并使用。会阻止GC回收所有引用对象。</p>
+<p>最常见的引用类型，基本上通过JNI返回来的引用都是局部引用，例如使用NewObject，就会返回创建出来的实例的局部引用，局部引用值在该native函数有效，所有在该函数中产生的局部引用，都会<strong>在函数返回的时候自动释放(freed)，也可以使用DeleteLocalRef函数手动释放该应用</strong>。之所以使用DeleteLocalRef函数：实际上局部引用存在，就会防止其指向对象被垃圾回收期回收，尤其是当一个局部变量引用指向一个很庞大的对象，或是在一个循环中生成一个局部引用，最好的做法就是在使用完该对象后，或在该循环尾部把这个引用是释放掉，以确保在垃圾回收器被触发的时候被回收。在局部引用的有效期中，可以传递到别的本地函数中，要强调的是它的有效期仍然只是在第一次的Java本地函数调用中，所以千万不能用C++全部变量保存它或是把它定义为C++静态局部变量。</p>
+<h3 id="全局引用-Global-Reference"><a href="#全局引用-Global-Reference" class="headerlink" title="全局引用(Global Reference)"></a>全局引用(Global Reference)</h3><p>全局引用可以跨方法、跨线程使用，直到被开发者<strong>显式释放</strong>。类似局部引用，一个全局引用在被释放前保证引用对象不被GC回收。能创建全部引用的函数只有NewGlobalRef，而释放它需要使用ReleaseGlobalRef函数</p>
+<h3 id="弱全局引用-Weak-Global-Reference"><a href="#弱全局引用-Weak-Global-Reference" class="headerlink" title="弱全局引用(Weak Global Reference)"></a>弱全局引用(Weak Global Reference)</h3><p>与全局引用类似，创建跟删除都需要由编程人员来进行，不一样的是，弱引用将不会阻止垃圾回收期回收这个引用所指向的对象，所以在使用时需要多加小心，它所引用的对象可能是不存在的或者已经被回收。</p>
+<p>通过使用NewWeakGlobalRef、ReleaseWeakGlobalRef来产生和解除引用。</p>
+<h3 id="引用比较"><a href="#引用比较" class="headerlink" title="引用比较"></a>引用比较</h3><p>在给定两个引用，不管是什么引用，我们只需要调用IsSameObject函数来判断他们是否是指向相同的对象。代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(*env)-&gt;IsSameObject(env, obj1, obj2)</span><br></pre></td></tr></table></figure></p>
+<p>如果obj1和obj2指向相同的对象，则返回JNI_TRUE(或者1)，否则返回JNI_FALSE(或者0),</p>
+<p>PS：有一个特殊的引用需要注意：NULL，JNI中的NULL引用指向JVM中的null对象，如果obj是一个全局或者局部引用，使用(*env)-&gt;IsSameObject(env, obj, NULL)或者obj == NULL用来判断obj是否指向一个null对象即可。但是需要注意的是，IsSameObject用于弱全局引用与NULL比较时，返回值的意义是不同于局部引用和全局引用的。代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jobject local_obj_ref = (*env)-&gt;NewObject(env, xxx_cls,xxx_mid);</span><br><span class="line">jobject g_obj_ref = (*env)-&gt;NewWeakGlobalRef(env, local_ref);</span><br><span class="line">// ... 业务逻辑处理</span><br><span class="line">jboolean isEqual = (*env)-&gt;IsSameObject(env, g_obj_ref, NULL);</span><br></pre></td></tr></table></figure></p>
+<h2 id="UTF-8-和-UTF-16-字符串"><a href="#UTF-8-和-UTF-16-字符串" class="headerlink" title="UTF-8 和 UTF-16 字符串"></a>UTF-8 和 UTF-16 字符串</h2><p>Java 编程语言使用的是 UTF-16。为方便起见，JNI 还提供了使用修改后的 UTF-8 的方法。修改后的编码对 C 代码非常有用，因为它将 \u0000 编码为 0xc0 0x80，而不是 0x00。这样做的好处是，您可以依靠以零终止的 C 样式字符串，非常适合与标准 libc 字符串函数配合使用。但缺点是，您<strong>无法将任意 UTF-8 数据传递给 JNI 并期望它能够正常工作</strong>。</p>
+<p>如果可能，使用 UTF-16 字符串执行操作通常会更快。Android 目前不需要 GetStringChars 的副本，而 GetStringUTFChars 需要分配和转换为 UTF-8。请注意，UTF-16 字符串不是以零终止的，并且允许使用 \u0000，因此您需要保留字符串长度和 jchar 指针。</p>
+<p><strong>不要忘记 Release 您 Get 的字符串</strong>。字符串函数会返回 jchar* 或 jbyte*，它们是指向原始数据而非局部引用的 C 样式指针。这些指针在调用 Release 之前保证有效，这意味着在原生方法返回时不会释放这些指针。</p>
+<p><strong>传递给 NewStringUTF 的数据必须采用修改后的 UTF-8 格式</strong>。一种常见的错误就是从文件或网络数据流中读取字符数据，并在未过滤的情况下将其传递给 NewStringUTF。除非您确定数据是有效的 MUTF-8（或 7 位 ASCII，这是一个兼容子集），否则您需要剔除无效字符或将它们转换为适当的修改后的 UTF-8 格式。如果不这样做，UTF-16 转换可能会产生意外的结果。CheckJNI 默认状态下为模拟器启用，它会扫描字符串并且在收到无效输入时会中止虚拟机。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/87ce6f565d37" target="_blank" rel="noopener">https://www.jianshu.com/p/87ce6f565d37</a><br><a href="https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#wp9502" target="_blank" rel="noopener">JNI Functions</a><br><a href="https://www.jianshu.com/p/67081d9b0a9c" target="_blank" rel="noopener">JNI的常用方法的中文API</a><br><a href="https://developer.android.google.cn/training/articles/perf-jni#%E5%8E%9F%E5%A7%8B%E6%95%B0%E7%BB%84" target="_blank" rel="noopener">JNI 提示</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JNI/" rel="tag"># JNI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/24/c-language/" rel="next" title="C 语言笔记">
+                <i class="fa fa-chevron-left"></i> C 语言笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/03/android-ndk-jni-invoke/" rel="prev" title="JNI 的调用">
+                JNI 的调用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI的命名规则"><span class="nav-number">1.</span> <span class="nav-text">JNI的命名规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何实现JNI"><span class="nav-number">2.</span> <span class="nav-text">如何实现JNI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI结构"><span class="nav-number">3.</span> <span class="nav-text">JNI结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI原理"><span class="nav-number">4.</span> <span class="nav-text">JNI原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaVM"><span class="nav-number">4.1.</span> <span class="nav-text">JavaVM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JNIEnv"><span class="nav-number">4.2.</span> <span class="nav-text">JNIEnv</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JNIEnv的作用"><span class="nav-number">4.2.1.</span> <span class="nav-text">JNIEnv的作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JNIEnv的创建"><span class="nav-number">4.2.2.</span> <span class="nav-text">JNIEnv的创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JNIEnv的释放"><span class="nav-number">4.2.3.</span> <span class="nav-text">JNIEnv的释放</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JNIEnv与线程"><span class="nav-number">4.2.4.</span> <span class="nav-text">JNIEnv与线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JNIEnv结构"><span class="nav-number">4.2.5.</span> <span class="nav-text">JNIEnv结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#与JNIEnv相关的常用函数"><span class="nav-number">4.2.6.</span> <span class="nav-text">与JNIEnv相关的常用函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建Java中的对象"><span class="nav-number">4.2.6.1.</span> <span class="nav-text">创建Java中的对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建Java类中的String对象"><span class="nav-number">4.2.6.2.</span> <span class="nav-text">创建Java类中的String对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建类型为基本类型PrimitiveType的数组"><span class="nav-number">4.2.6.3.</span> <span class="nav-text">创建类型为基本类型PrimitiveType的数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建类型为elementClass的数组"><span class="nav-number">4.2.6.4.</span> <span class="nav-text">创建类型为elementClass的数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取数组中某个位置的元素"><span class="nav-number">4.2.6.5.</span> <span class="nav-text">获取数组中某个位置的元素</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#获取数组的长度"><span class="nav-number">4.2.6.6.</span> <span class="nav-text">获取数组的长度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GetArrayElements"><span class="nav-number">4.2.6.7.</span> <span class="nav-text">GetArrayElements</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ReleaseArrayElements"><span class="nav-number">4.2.6.8.</span> <span class="nav-text">ReleaseArrayElements</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI的引用"><span class="nav-number">5.</span> <span class="nav-text">JNI的引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#局部引用-Local-Reference"><span class="nav-number">5.1.</span> <span class="nav-text">局部引用(Local Reference)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全局引用-Global-Reference"><span class="nav-number">5.2.</span> <span class="nav-text">全局引用(Global Reference)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弱全局引用-Weak-Global-Reference"><span class="nav-number">5.3.</span> <span class="nav-text">弱全局引用(Weak Global Reference)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#引用比较"><span class="nav-number">5.4.</span> <span class="nav-text">引用比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTF-8-和-UTF-16-字符串"><span class="nav-number">6.</span> <span class="nav-text">UTF-8 和 UTF-16 字符串</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
