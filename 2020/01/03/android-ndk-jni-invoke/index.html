@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="注册native函数JNI有两种注册native方法的途径：   静态注册：先由Java得到本地方法的声明，然后再通过JNI实现该声明方法 动态注册：先通过JNI重载JNI_OnLoad()实现本地方法，然后直接在Java中调用本地方法。   静态注册静态注册就是根据函数名来遍历Java和JNI函数之间的关联，而且要求JNI层函数的名字必须遵循特定的格式。具体的实现很简单，首先在Java代码中声明">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-06T03:04:16.578Z">
+<meta property="og:updated_time" content="2020-02-28T02:02:01.125Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JNI 的调用">
 <meta name="twitter:description" content="注册native函数JNI有两种注册native方法的途径：   静态注册：先由Java得到本地方法的声明，然后再通过JNI实现该声明方法 动态注册：先通过JNI重载JNI_OnLoad()实现本地方法，然后直接在Java中调用本地方法。   静态注册静态注册就是根据函数名来遍历Java和JNI函数之间的关联，而且要求JNI层函数的名字必须遵循特定的格式。具体的实现很简单，首先在Java代码中声明">
@@ -525,7 +525,14 @@
 <p>这里多了一个参数，即jvalue *args，这里是args代表的是对应构造函数的所有参数的，我们可以应将传递给构造函数的所有参数放在jvalues类型的数组args中，该数组紧跟着放在methodID参数的后面。NewObject()收到数组中的这些参数后，将把它们传给所要调用的Java方法。</p>
 <p>上面说到，参数是个数组，如果参数不是数组怎么处理，jni.h同样也提供了一个方法，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);</span><br></pre></td></tr></table></figure></p>
 <p>这个方法和上面不同在于，这里将构造函数的所有参数放到在va_list类型的参数args中，该参数紧跟着放在methodID参数的后面。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/b71aeb4ed13d" target="_blank" rel="noopener">https://www.jianshu.com/p/b71aeb4ed13d</a><br><a href="https://www.jianshu.com/p/0f34c097028a" target="_blank" rel="noopener">JNI学习Demo</a></p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
+<li>JNI获取类的成员变量的ID调用GetFieldID获取，通过Set[类型]Field修改变量值。</li>
+<li>JNI获取类的静态变量的ID调用GetStaticFieldID获取，通过SetStatic[类型]Field修改变量值。</li>
+<li>JNI获取类的方法的ID调用GetMethodID获取，通过Call[类型]Method调用方法。</li>
+<li>JNI获取类的静态方法的ID调用GetStaticMethodID获取，通过CallStatic[类型]Method调用方法。</li>
+<li>JNI获取类的构造方法的ID调用GetMethodID获取，通过NewObject构造，构造函数名为”<init>“。</init></li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/b71aeb4ed13d" target="_blank" rel="noopener">https://www.jianshu.com/p/b71aeb4ed13d</a><br><a href="https://www.jianshu.com/p/0f34c097028a" target="_blank" rel="noopener">JNI学习Demo</a><br><a href="https://www.jianshu.com/p/83f3ec4f3ac1" target="_blank" rel="noopener">JNI访问Java变量和方法</a></p>
 
       
     </div>
@@ -702,7 +709,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#注册native函数"><span class="nav-number">1.</span> <span class="nav-text">注册native函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态注册"><span class="nav-number">1.1.</span> <span class="nav-text">静态注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态注册"><span class="nav-number">1.2.</span> <span class="nav-text">动态注册</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI中的签名"><span class="nav-number">2.</span> <span class="nav-text">JNI中的签名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看类中的方法的签名"><span class="nav-number">2.1.</span> <span class="nav-text">查看类中的方法的签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JNI定义的函数签名信息"><span class="nav-number">2.2.</span> <span class="nav-text">JNI定义的函数签名信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native调用Java代码"><span class="nav-number">3.</span> <span class="nav-text">Native调用Java代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取Class对象"><span class="nav-number">3.1.</span> <span class="nav-text">获取Class对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取属性方法"><span class="nav-number">3.2.</span> <span class="nav-text">获取属性方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造一个对象"><span class="nav-number">3.3.</span> <span class="nav-text">构造一个对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#注册native函数"><span class="nav-number">1.</span> <span class="nav-text">注册native函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态注册"><span class="nav-number">1.1.</span> <span class="nav-text">静态注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态注册"><span class="nav-number">1.2.</span> <span class="nav-text">动态注册</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI中的签名"><span class="nav-number">2.</span> <span class="nav-text">JNI中的签名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看类中的方法的签名"><span class="nav-number">2.1.</span> <span class="nav-text">查看类中的方法的签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JNI定义的函数签名信息"><span class="nav-number">2.2.</span> <span class="nav-text">JNI定义的函数签名信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native调用Java代码"><span class="nav-number">3.</span> <span class="nav-text">Native调用Java代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取Class对象"><span class="nav-number">3.1.</span> <span class="nav-text">获取Class对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取属性方法"><span class="nav-number">3.2.</span> <span class="nav-text">获取属性方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造一个对象"><span class="nav-number">3.3.</span> <span class="nav-text">构造一个对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">3.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
