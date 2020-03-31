@@ -2609,7 +2609,14 @@ if(!ptr)    /* 如果 p 为空，则完成 */
 <li><p>新增 quick_exit() 函数作为第三种终止程序的方式。当 exit()失败时可以做最少的清理工作。</p>
 </li>
 </ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.runoob.com/cprogramming/c-tutorial.html" target="_blank" rel="noopener">https://www.runoob.com/cprogramming/c-tutorial.html</a></p>
+<h2 id="重入函数"><a href="#重入函数" class="headerlink" title="重入函数"></a>重入函数</h2><p>在实时系统的设计中，经常会出现多个任务调用同一个函数的情况。所谓<strong>可重入是指一个可以被多个任务调用的过程，任务在调用时不必担心数据是否会 出错</strong>。不可重入函数在实时系统设计中被视为不安全函数。</p>
+<p>可重入函数可以被一个以上的任务调用，而不必担心数据被破坏。可重入函数任何时候都可以被中断，一段时间以后又可以运行，而相应的数据不会丢失。可重入函数或者只使用局部变量，即保存在CPU寄存器中或堆栈中；或者使用全局变量，则要对全局变量予以保护。而不可重入的函数由于使用了一些系统资源，比如全局变量区，中断向量表等等，所以他如果被中断的话，可能出现问题，所以这类函数是 不能运行在多任务环境下的。</p>
+<p>满足下列条件的函数多数是不可重入的：<br>（1）函数体内使用了静态的数据结构；<br>（2）函数体内调用了malloc()或者free()函数；<br>（3）函数体内调用了标准I/O函数。</p>
+<p>如何写出可重入的函数？<br>在函数体内不访问那些全局变量，不使用静态局部变量，坚持只使用缺省态（auto）局部变量，写出的函数就将是可重入的。如果必须访问全局变量，记住利用互斥信号量来保护全局变量。或者调用该函数前关中断，调用后再开中断。</p>
+<p>把一个不可重入函数变成可重入的唯一方法是用可重入规则来重写他。只要遵守以下几条很容易理解的规则：<br>第一，不要使用全局变量。因为别的代码很可能覆盖这些变量值。<br>第二，在和硬件发生交互的时候，切记执行类似disinterrupt()之类的操作，就是关闭硬件中断。完成交互记得打开中断，在有些系列上，这叫做“进入/退出核心”或者用OS_ENTER_KERNAL/OS_EXIT_KERNAL来描述。<br>第三，不能调用任何不可重入的函数。<br>第四，谨慎使用堆栈。最好先在使用前先OS_ENTER_KERNAL。<br>还有一些规则，都是很好理解的，总之，时刻记住一句话：<strong>保证中断是安全的</strong>！<br>通俗的来讲吧：由于中断是可能随时发生的，断点位置也是无法预期的。所以必须保证每个函数都具有不被中断发生，压栈，转向ISR，弹栈后继续执行影响的稳定性。也就是说具有不会被中断影响的能力。既然有这个要求，你提供和编写的每个函数就不能拿公共的资源或者是变量来使用，因为该函数使用的同时，ISR（中断服务程序）也可那会去修改或者是获取这个资源，从而有可能使中断返回之后，这部分公用的资源已经面目全非。</p>
+<p>案例：<br>相信很多人都看过下面这个面试题<br>中断是嵌入式系统中重要的组成部分，这导致了很多编译开发商提供一种扩展—让标准C支持中断。具代表事实是，产生了一个新的关键字 <strong>interrupt。下面的代码就使用了</strong>interrupt关键字去定义了一个中断服务子程序(ISR)，请评论一下这段代码的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">__interrupt double compute_area (double radius) </span><br><span class="line">&#123;</span><br><span class="line">    double area = PI * radius * radius;</span><br><span class="line">    printf(&quot;\nArea = %f&quot;, area);</span><br><span class="line">    return area;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数有太多的错误了，以至让人不知从何说起了：<br>1)ISR 不能返回一个值。如果你不懂这个，那么你不会被雇用的。<br>2) ISR 不能传递参数。如果你没有看到这一点，你被雇用的机会等同第一项。<br>3) 在许多的处理器/编译器中，浮点一般都是不可重入的。有些处理器/编译器需要让额处的寄存器入栈，有些处理器/编译器就是不允许在ISR中做浮点运算。此外，ISR应该是短而有效率的，在ISR中做浮点运算是不明智的。<br>4) 与第三点一脉相承，printf()经常有重入和性能上的问题。如果你丢掉了第三和第四点，我不会太为难你的。不用说，如果你能得到后两点，那么你的被雇用前景越来越光明了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.runoob.com/cprogramming/c-tutorial.html" target="_blank" rel="noopener">https://www.runoob.com/cprogramming/c-tutorial.html</a><br><a href="https://www.cnblogs.com/AlwaysOnLines/p/3912680.html" target="_blank" rel="noopener">C语言之可重入函数 &amp;&amp; 不可重入函数</a></p>
 
           
         
