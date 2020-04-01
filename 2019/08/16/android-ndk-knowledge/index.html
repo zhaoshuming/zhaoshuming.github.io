@@ -82,14 +82,14 @@
 
 <meta name="description" content="1、简介JNI（Java Native Interface），是方便Java调用C、C++等Native代码所封装的一层接口，相当于一座桥梁。通过JNI可以操作一些Java无法完成的与系统相关的特性，尤其在图像和视频处理中大量用到。 NDK（native development kit）提供了一系列的工具，帮助开发者快速开发C（或C++）的动态库，并能自动将so和java应用一起打包成apk。ND">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android NDK基础知识">
+<meta property="og:title" content="NDK之CMake">
 <meta property="og:url" content="http://yoursite.com/2019/08/16/android-ndk-knowledge/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="1、简介JNI（Java Native Interface），是方便Java调用C、C++等Native代码所封装的一层接口，相当于一座桥梁。通过JNI可以操作一些Java无法完成的与系统相关的特性，尤其在图像和视频处理中大量用到。 NDK（native development kit）提供了一系列的工具，帮助开发者快速开发C（或C++）的动态库，并能自动将so和java应用一起打包成apk。ND">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-03T02:24:58.810Z">
+<meta property="og:updated_time" content="2020-04-01T08:11:41.755Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android NDK基础知识">
+<meta name="twitter:title" content="NDK之CMake">
 <meta name="twitter:description" content="1、简介JNI（Java Native Interface），是方便Java调用C、C++等Native代码所封装的一层接口，相当于一座桥梁。通过JNI可以操作一些Java无法完成的与系统相关的特性，尤其在图像和视频处理中大量用到。 NDK（native development kit）提供了一系列的工具，帮助开发者快速开发C（或C++）的动态库，并能自动将so和java应用一起打包成apk。ND">
 
 
@@ -126,7 +126,7 @@
 
 
 
-  <title>Android NDK基础知识 | Blog</title>
+  <title>NDK之CMake | Blog</title>
   
 
 
@@ -313,7 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Android NDK基础知识</h1>
+          <h1 class="post-title" itemprop="name headline">NDK之CMake</h1>
         
 
         <div class="post-meta">
@@ -424,6 +424,11 @@
 <li>target_link_libraries：指定CMake链接到目标库。开发者可以链接多个库，比如开发者可以在此定义库的构建脚本，并且预编译第三方库或者系统库。<br>第一个参数——native-lib：指定的目标库<br>第一个参数——${log-lib}：将目标库链接到NDK中的日志库，</li>
 </ul>
 <p>如果想要配置so库的目标CPU平台，可以在build.gradle中设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        ndk&#123;</span><br><span class="line">            abiFilters &quot;x86&quot;,&quot;armeabi&quot;,&quot;armeabi-v7a&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="set-target-properties"><a href="#set-target-properties" class="headerlink" title="set_target_properties"></a>set_target_properties</h4><p>设置目标的一些属性来改变它们构建的方式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(target1 target2 ...</span><br><span class="line">                      PROPERTIES prop1 value1</span><br><span class="line">                      prop2 value2 ...)</span><br></pre></td></tr></table></figure></p>
+<p>使用示例为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(cocos2d</span><br><span class="line">    PROPERTIES</span><br><span class="line">    ARCHIVE_OUTPUT_DIRECTORY &quot;$&#123;CMAKE_BINARY_DIR&#125;/lib&quot;</span><br><span class="line">    LIBRARY_OUTPUT_DIRECTORY &quot;$&#123;CMAKE_BINARY_DIR&#125;/lib&quot;</span><br><span class="line">    VERSION &quot;$&#123;COCOS2D_X_VERSION&#125;&quot;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>为一个目标设置属性。该命令的语法是列出所有你想要变更的文件，然后提供你想要设置的值。你能够使用任何你想要的属性/值对，并且在随后的代码中调用GET_TARGET_PROPERTY命令取出属性的值。</p>
+<p>大家在用cmake时，应该经常会用到第三方so库，导入第三方so库中需要使用到set_target_properties,例如这样写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(</span><br><span class="line"></span><br><span class="line">Thirdlib</span><br><span class="line"></span><br><span class="line">PROPERTIES IMPORTED_LOCATION</span><br><span class="line"></span><br><span class="line">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/jniLibs/libThirdlib.so</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>CMAKE_CURRENT_SOURCE_DIR 这个变量是系统自定义的，表示CMakeLists.txt文件的绝对路径</p>
 <h3 id="包含其他-CMake-项目"><a href="#包含其他-CMake-项目" class="headerlink" title="包含其他 CMake 项目"></a>包含其他 CMake 项目</h3><p>如果想要编译多个 CMake 项目并在 Android 项目中包含它们的输出，您可以使用一个 CMakeLists.txt 文件（即您关联到 Gradle 的那个文件）作为顶级 CMake 编译脚本，并添加其他 CMake 项目作为此编译脚本的依赖项。以下顶级 CMake 编译脚本使用 add_subdirectory() 命令将另一个 CMakeLists.txt 文件指定为编译依赖项，然后关联其输出，就像处理任何其他预编译库一样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># Sets lib_src_DIR to the path of the target CMake project.</span><br><span class="line">set( lib_src_DIR ../gmath )</span><br><span class="line"></span><br><span class="line"># Sets lib_build_DIR to the path of the desired output directory.</span><br><span class="line">set( lib_build_DIR ../gmath/outputs )</span><br><span class="line">file(MAKE_DIRECTORY $&#123;lib_build_DIR&#125;)</span><br><span class="line"></span><br><span class="line"># Adds the CMakeLists.txt file located in the specified directory</span><br><span class="line"># as a build dependency.</span><br><span class="line">add_subdirectory( # Specifies the directory of the CMakeLists.txt file.</span><br><span class="line">                  $&#123;lib_src_DIR&#125;</span><br><span class="line"></span><br><span class="line">                  # Specifies the directory for the build outputs.</span><br><span class="line">                  $&#123;lib_build_DIR&#125; )</span><br><span class="line"></span><br><span class="line"># Adds the output of the additional CMake build as a prebuilt static</span><br><span class="line"># library and names it lib_gmath.</span><br><span class="line">add_library( lib_gmath STATIC IMPORTED )</span><br><span class="line">set_target_properties( lib_gmath PROPERTIES IMPORTED_LOCATION</span><br><span class="line">                       $&#123;lib_build_DIR&#125;/$&#123;ANDROID_ABI&#125;/lib_gmath.a )</span><br><span class="line">include_directories( $&#123;lib_src_DIR&#125;/include )</span><br><span class="line"></span><br><span class="line"># Links the top-level CMake build output against lib_gmath.</span><br><span class="line">target_link_libraries( native-lib ... lib_gmath )</span><br></pre></td></tr></table></figure></p>
 <h2 id="3、Android-mk"><a href="#3、Android-mk" class="headerlink" title="3、Android.mk"></a>3、Android.mk</h2><p>Android.mk内容示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LOCAL_PATH := $(call my-dir)</span><br><span class="line"></span><br><span class="line">include $(CLEAR_VARS)</span><br><span class="line"></span><br><span class="line">LOCAL_MODULE    := ndkdemotest-jni</span><br><span class="line"></span><br><span class="line">LOCAL_SRC_FILES := ndkdemotest.c</span><br><span class="line"></span><br><span class="line">include $(BUILD_SHARED_LIBRARY)</span><br></pre></td></tr></table></figure></p>
 <ul>
@@ -438,7 +443,7 @@
 <li><p>include $(BUILD_SHARED_LIBRARY)：BUILD_SHARED_LIBRARY是Build System提供的一个变量，指向一个GUN Makefile Script。它负责收集自从上次调用include $(CLEAR_VARS)后的所有LOCAL_xxxxinx。并决定编译什么类型：<br>1）BUILD_STATIC_LIBRARY：编译为静态库<br>2）BUILD_SHARED_LIBRARY：编译为动态库<br>3）BUILD_EXECUTABLE：编译为Native C 可执行程序<br>4）BUILD_PREBUILT：该模块已经预先编译</p>
 </li>
 </ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/wzhseu/article/details/79683045" target="_blank" rel="noopener">https://blog.csdn.net/wzhseu/article/details/79683045</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/wzhseu/article/details/79683045" target="_blank" rel="noopener">https://blog.csdn.net/wzhseu/article/details/79683045</a><br><a href="https://www.cnblogs.com/alphagl/p/6280061.html" target="_blank" rel="noopener">CMake学习</a></p>
 
       
     </div>
@@ -609,7 +614,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、简介"><span class="nav-number">1.</span> <span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、CMake"><span class="nav-number">2.</span> <span class="nav-text">2、CMake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建使用CMake构建的项目"><span class="nav-number">2.1.</span> <span class="nav-text">创建使用CMake构建的项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工程的目录结构"><span class="nav-number">2.2.</span> <span class="nav-text">工程的目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMakeLists-txt"><span class="nav-number">2.3.</span> <span class="nav-text">CMakeLists.txt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#包含其他-CMake-项目"><span class="nav-number">2.4.</span> <span class="nav-text">包含其他 CMake 项目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、Android-mk"><span class="nav-number">3.</span> <span class="nav-text">3、Android.mk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、简介"><span class="nav-number">1.</span> <span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、CMake"><span class="nav-number">2.</span> <span class="nav-text">2、CMake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建使用CMake构建的项目"><span class="nav-number">2.1.</span> <span class="nav-text">创建使用CMake构建的项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工程的目录结构"><span class="nav-number">2.2.</span> <span class="nav-text">工程的目录结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CMakeLists-txt"><span class="nav-number">2.3.</span> <span class="nav-text">CMakeLists.txt</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#set-target-properties"><span class="nav-number">2.3.1.</span> <span class="nav-text">set_target_properties</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#包含其他-CMake-项目"><span class="nav-number">2.4.</span> <span class="nav-text">包含其他 CMake 项目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、Android-mk"><span class="nav-number">3.</span> <span class="nav-text">3、Android.mk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
