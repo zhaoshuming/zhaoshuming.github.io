@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2020/04/03/android-plugin-knowledge/plugin_history.jpg">
 <meta property="og:image" content="http://yoursite.com/2020/04/03/android-plugin-knowledge/plugin_generate.jpg">
-<meta property="og:updated_time" content="2020-04-03T07:33:14.701Z">
+<meta property="og:updated_time" content="2020-04-07T05:43:05.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android插件化方案">
 <meta name="twitter:description" content="插件化技术涉及得非常广泛，其中最核心的就是Android的类加载机制和反射机制。下图载自腾讯bugly：  插件化发展历史插件化技术最初源于免安装运行apk的想法，这个免安装的apk可以理解为插件。支持插件化的app可以在运行时加载和运行插件，这样便可以将app中一些不常用的功能模块做成插件，一方面减小了安装包的大小，另一方面可以实现app功能的动态扩展。想要实现插件化，主要是解决下面三个问题：">
@@ -398,7 +398,7 @@
 </ul>
 <p>下面是比较出名的几个开源的插件化框架，按照出现的时间排序。研究它们的实现原理，可以大致看出插件化技术的发展，根据实现原理可以将这几个框架划分成了三代。</p>
 <p><img src="/2020/04/03/android-plugin-knowledge/plugin_generate.jpg" alt></p>
-<p><strong>第一代</strong>：dynamic-load-apk最早使用ProxyActivity这种静态代理技术，由ProxyActivity去控制插件中PluginActivity的生命周期。该种方式缺点明显，插件中的activity必须继承PluginActivity，开发时要小心处理context。而DroidPlugin通过Hook系统服务的方式启动插件中的Activity，使得开发插件的过程和开发普通的app没有什么区别，但是由于hook过多系统服务，异常复杂且不够稳定。<br><strong>第二代</strong>：为了同时达到插件开发的低侵入性（像开发普通app一样开发插件）和框架的稳定性，在实现原理上都是趋近于选择尽量少的hook，并通过在manifest中预埋一些组件实现对四大组件的插件化。另外各个框架根据其设计思想都做了不同程度的扩展，其中Small更是做成了一个跨平台，组件化的开发框架。<br><strong>第三代</strong>：VirtualApp比较厉害，能够完全模拟app的运行环境，能够实现app的免安装运行和双开技术。Atlas是阿里今年开源出来的一个结合组件化和热修复技术的一个app基础框架，其广泛的应用与阿里系的各个app，其号称是一个容器化框架。</p>
+<p><strong>第一代</strong>：dynamic-load-apk最早使用ProxyActivity这种静态代理技术，由ProxyActivity去控制插件中PluginActivity的生命周期。该种方式缺点明显，插件中的activity必须继承PluginActivity，开发时要小心处理context。而DroidPlugin通过Hook系统服务的方式启动插件中的Activity，使得开发插件的过程和开发普通的app没有什么区别，但是由于hook过多系统服务，异常复杂且不够稳定。<br><strong>第二代</strong>：为了同时达到插件开发的低侵入性（像开发普通app一样开发插件）和框架的稳定性，在实现原理上都是趋近于选择尽量少的hook，并通过在manifest中预埋一些组件实现对四大组件的插件化。另外各个框架根据其设计思想都做了不同程度的扩展，其中Small更是做成了一个跨平台，组件化的开发框架。<br><strong>第三代</strong>：VirtualApp比较厉害，能够完全模拟app的运行环境，能够实现app的免安装运行和双开技术。Atlas是阿里开源出来的一个结合组件化和热修复技术的一个app基础框架，其广泛的应用与阿里系的各个app，其号称是一个容器化框架。</p>
 
       
     </div>
@@ -432,6 +432,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/07/android-plugin-virtualApp/" rel="prev" title="VirtualApp沙盒基本原理">
+                VirtualApp沙盒基本原理 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -510,7 +514,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">67</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
