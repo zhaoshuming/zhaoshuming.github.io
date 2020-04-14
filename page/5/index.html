@@ -293,6 +293,864 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/07/android-rxjava-role/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/07/android-rxjava-role/" itemprop="url">RxJava2五种被观察者及背压</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-07T13:17:26+08:00">
+                2019-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>RxJava五种被观察者为Flowable, Observable，Single, Completable, Maybe。</p>
+<p>五种被观察者可通过toFlowable, toObservable，toSingle, toCompletable, toMaybe相互转换。</p>
+<h2 id="1、Flowable"><a href="#1、Flowable" class="headerlink" title="1、Flowable"></a>1、Flowable</h2><h3 id="1-1、Flowable简介"><a href="#1-1、Flowable简介" class="headerlink" title="1.1、Flowable简介"></a>1.1、Flowable简介</h3><p>Flowable类，用于实现Reactive-Streams模式，并提供工厂方法，中间运算符以及使用反应式数据流的能力。</p>
+<p>Reactive-Streams使用Flowable运行，Flowable实现了Publishers。因此，许多运算符直接接受Publishers，并允许与其他Reactive-Streams的实现进行直接交互操作</p>
+<pre><code>public abstract class Flowable&lt;T&gt; implements Publisher&lt;T&gt;
+</code></pre><p><strong>Flowable为操作符提供128个元素的默认缓冲区大小，可通过bufferSize() 方法获取，可通过系统参数rx2.buffer-size全局覆盖</strong>。但是大多数运算符都有重载，允许显式设置其内部缓冲区大小。</p>
+<pre><code>/** The default buffer size. */
+static final int BUFFER_SIZE;
+static {
+    BUFFER_SIZE = Math.max(16, Integer.getInteger(&quot;rx2.buffer-size&quot;, 128));
+}
+
+/**
+ * Returns the default internal buffer size used by most async operators.
+ * &lt;p&gt;The value can be overridden via system parameter {@code rx2.buffer-size}
+ * &lt;em&gt;before&lt;/em&gt; the Flowable class is loaded.
+ * @return the default internal buffer size.
+ */
+public static int bufferSize() {
+    return BUFFER_SIZE;
+}
+</code></pre><h3 id="1-2、Flowable官方图解"><a href="#1-2、Flowable官方图解" class="headerlink" title="1.2、Flowable官方图解"></a>1.2、Flowable官方图解</h3><p><img src="/2019/08/07/android-rxjava-role/rxjava-flowable.jpg" alt><br>1）看到上图有点疑问，不是在说Flowable嘛，怎么图解里的说明是Observable呢？</p>
+<p>2）其实在官方文档里面Flowable和Observable都使用的是上面这个图解，因此这两个类肯定是提供相似功能，既然是相似，那么这幅图就是他们的共性，那不同的地方是什么呢？</p>
+<p>不同之处是：<strong>Flowable支持Backpressure，Observable不支持Backpressure；只有在需要处理背压问题时，才需要使用Flowable</strong>。</p>
+<p>由于<strong>只有在上下游运行在不同的线程中，且上游发射数据的速度大于下游接收处理数据的速度时，才会产生背压问题</strong>；<br>所以，如果能够确定：<br>1、上下游运行在同一个线程中，<br>2、上下游工作在不同的线程中，但是下游处理数据的速度不慢于上游发射数据的速度，<br>3、上下游工作在不同的线程中，但是数据流中只有一条数据<br>则不会产生背压问题，就没有必要使用Flowable，以免影响性能。</p>
+<p>类似于Observable,在使用Flowable时，也可以通过create操作符创建发射数据流，代码如下：</p>
+<pre><code>Flowable.create(new FlowableOnSubscribe&lt;Integer&gt;() {
+            @Override
+            public void subscribe(FlowableEmitter&lt;Integer&gt; e) throws Exception {
+                e.onNext(1);
+                e.onNext(2);
+                e.onNext(3);
+                e.onComplete();
+            }
+        }, BackpressureStrategy.BUFFER) //create方法中多了一个BackpressureStrategy类型的参数
+        .subscribeOn(Schedulers.newThread())//为上下游分别指定各自的线程
+        .observeOn(Schedulers.newThread())
+        .subscribe(new Subscriber&lt;Integer&gt;() {
+            @Override
+            public void onSubscribe(Subscription s) {   //onSubscribe回调的参数不是Disposable而是Subscription
+                s.request(Long.MAX_VALUE);            //注意此处，暂时先这么设置
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                System.out.println(&quot;接收----&gt; &quot; + integer);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;接收----&gt; 完成&quot;);
+            }
+        });
+</code></pre><p>运行结果如下：</p>
+<pre><code>System.out: 接收----&gt; 1
+System.out: 接收----&gt; 2
+System.out: 接收----&gt; 3
+System.out: 接收----&gt; 完成
+</code></pre><p>发射与处理数据流在形式上与Observable大同小异，发射器中均有onNext，onError，onComplete方法，订阅器中也均有onSubscribe，onNext，onError，onComplete方法。<br>但是在细节方面还是有三点不同：<br>一、create方法中多了一个BackpressureStrategy类型的参数。<br>二、订阅器Subscriber中，方法onSubscribe回调的参数不是Disposable而是Subscription，多了行代码：s.request(Long.MAX_VALUE);<br>三、Flowable发射数据时，使用特有的发射器FlowableEmitter，不同于Observable的ObservableEmitter</p>
+<h3 id="1-3、Backpressure"><a href="#1-3、Backpressure" class="headerlink" title="1.3、Backpressure"></a>1.3、Backpressure</h3><p>在通过create操作符创建Flowable时，多了一个BackpressureStrategy类型的参数，BackpressureStrategy是个枚举，源码如下：</p>
+<pre><code>/**
+ * Represents the options for applying backpressure to a source sequence.
+ */
+public enum BackpressureStrategy {
+    /**
+     * OnNext events are written without any buffering or dropping.
+     * Downstream has to deal with any overflow.
+     * &lt;p&gt;Useful when one applies one of the custom-parameter onBackpressureXXX operators.
+     */
+    MISSING,
+    /**
+     * Signals a MissingBackpressureException in case the downstream can&apos;t keep up.
+     */
+    ERROR,
+    /**
+     * Buffers &lt;em&gt;all&lt;/em&gt; onNext values until the downstream consumes it.
+     */
+    BUFFER,
+    /**
+     * Drops the most recent onNext value if the downstream can&apos;t keep up.
+     */
+    DROP,
+    /**
+     * Keeps only the latest onNext value, overwriting any previous value if the
+     * downstream can&apos;t keep up.
+     */
+    LATEST
+}
+</code></pre><p><strong>当上游发送数据的速度快于下游接收数据的速度，且运行在不同的线程中时，Flowable通过自身特有的异步缓存池，来缓存没来得及处理的数据，缓存池的容量上限为128</strong></p>
+<p>BackpressureStrategy的作用便是用来设置Flowable通过异步缓存池缓存数据的策略。在源码FlowableCreate类中，可以看到五个泛型分别对应五个java类，通过代理模式对原始的发射器进行了包装：</p>
+<pre><code>Override
+public void subscribeActual(Subscriber&lt;? super T&gt; t) {
+    BaseEmitter&lt;T&gt; emitter;
+
+    switch (backpressure) {
+        case MISSING: {
+            emitter = new MissingEmitter&lt;T&gt;(t);
+            break;
+        }
+        case ERROR: {
+            emitter = new ErrorAsyncEmitter&lt;T&gt;(t);
+            break;
+        }
+        case DROP: {
+            emitter = new DropAsyncEmitter&lt;T&gt;(t);
+            break;
+        }
+        case LATEST: {
+            emitter = new LatestAsyncEmitter&lt;T&gt;(t);
+            break;
+        }
+        default: {
+            emitter = new BufferAsyncEmitter&lt;T&gt;(t, bufferSize());
+            break;
+        }
+    }
+
+    t.onSubscribe(emitter);
+    try {
+        source.subscribe(emitter);
+    } catch (Throwable ex) {
+        Exceptions.throwIfFatal(ex);
+        emitter.onError(ex);
+    }
+}
+</code></pre><h4 id="ERROR"><a href="#ERROR" class="headerlink" title="ERROR"></a>ERROR</h4><p>对应于ErrorAsyncEmitter<t>类，在其源码</t></p>
+<pre><code>static final class ErrorAsyncEmitter&lt;T&gt; extends NoOverflowBaseAsyncEmitter&lt;T&gt; {
+        private static final long serialVersionUID = 338953216916120960L;
+
+        ErrorAsyncEmitter(Subscriber&lt;? super T&gt; actual) {
+            super(actual);
+        }
+
+        @Override
+        void onOverflow() {
+            onError(new MissingBackpressureException(&quot;create: could not emit value due to lack of requests&quot;));
+        }
+
+    }
+
+abstract static class NoOverflowBaseAsyncEmitter&lt;T&gt; extends BaseEmitter&lt;T&gt; {
+
+        private static final long serialVersionUID = 4127754106204442833L;
+
+        NoOverflowBaseAsyncEmitter(Subscriber&lt;? super T&gt; actual) {
+            super(actual);
+        }
+
+        @Override
+        public final void onNext(T t) {
+            if (isCancelled()) {
+                return;
+            }
+
+            if (t == null) {
+                onError(new NullPointerException(&quot;onNext called with null. Null values are generally not allowed in 2.x operators and sources.&quot;));
+                return;
+            }
+
+            if (get() != 0) {
+                actual.onNext(t);
+                BackpressureHelper.produced(this, 1);
+            } else {
+                onOverflow();
+            }
+        }
+
+        abstract void onOverflow();
+    }
+</code></pre><p>onOverflow方法中可以看到，<strong>在此策略下，如果放入Flowable的异步缓存池中的数据超限了，则会抛出MissingBackpressureException异常。父类的onNext中，在判断get() != 0，即缓存池未满的情况下，才会让被代理类调用onNext方法</strong>。运行如下代码：</p>
+<pre><code>Flowable.create(new FlowableOnSubscribe&lt;Integer&gt;() {
+            @Override
+            public void subscribe(FlowableEmitter&lt;Integer&gt; e) throws Exception {
+                for (int i = 1; i &lt;= 129; i++) {
+                    e.onNext(i);
+                }
+                e.onComplete();
+            }
+        }, BackpressureStrategy.ERROR)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(Schedulers.newThread())
+        .subscribe(new Subscriber&lt;Integer&gt;() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(Long.MAX_VALUE);            //注意此处，暂时先这么设置
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignore) {
+                }
+                System.out.println(integer);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;接收----&gt; 完成&quot;);
+            }
+        });
+</code></pre><p>创建并通过Flowable发射129条数据，Subscriber的onNext方法睡10秒之后再开始接收，运行后会发现控制台打印如下异常：</p>
+<pre><code>W/System.err: io.reactivex.exceptions.MissingBackpressureException: create: could not emit value due to lack of requests
+W/System.err:     at io.reactivex.internal.operators.flowable.FlowableCreate$ErrorAsyncEmitter.onOverflow(FlowableCreate.java:411)
+W/System.err:     at io.reactivex.internal.operators.flowable.FlowableCreate$NoOverflowBaseAsyncEmitter.onNext(FlowableCreate.java:377)
+</code></pre><p>如果将Flowable发射数据的条数改为128，则不会出现此异常。</p>
+<h4 id="DROP"><a href="#DROP" class="headerlink" title="DROP"></a>DROP</h4><p>对应于DropAsyncEmitter<t>类，通过DropAsyncEmitter类和它父类NoOverflowBaseAsyncEmitter的源码</t></p>
+<pre><code>static final class DropAsyncEmitter&lt;T&gt; extends NoOverflowBaseAsyncEmitter&lt;T&gt; {
+    private static final long serialVersionUID = 8360058422307496563L;
+
+    DropAsyncEmitter(Subscriber&lt;? super T&gt; actual) {
+        super(actual);
+    }
+
+    @Override
+    void onOverflow() {
+        // nothing to do
+    }
+}
+</code></pre><p>可以看到，DropAsyncEmitter的onOverflow是个空方法，没有执行任何操作。所以<strong>在此策略下，如果Flowable的异步缓存池满了，会丢掉上游发送的数据</strong>。</p>
+<p>存池中数据的清理，并不是Subscriber接收一条，便清理一条，而是存在一个延迟，等累积一段时间后统一清理一次。也就是Subscriber接收到第96条数据时，缓存池才开始清理数据，之后Flowable发射的数据才得以放入。如果数据处于缓存池存满的状态时，则被丢弃。</p>
+<h4 id="LATEST"><a href="#LATEST" class="headerlink" title="LATEST"></a>LATEST</h4><p>对应于LatestAsyncEmitter<t>类<br>与Drop策略一样，如果缓存池满了，会丢掉将要放入缓存池中的数据，不同的是，不管缓存池的状态如何，<strong>LATEST都会将最后一条数据强行放入缓存池中</strong>，来保证观察者在接收到完成通知之前，能够接收到Flowable最新发射的一条数据。</t></p>
+<h4 id="BUFFER"><a href="#BUFFER" class="headerlink" title="BUFFER"></a>BUFFER</h4><p>Flowable处理背压的默认策略，对应于BufferAsyncEmitter<t>类</t></p>
+<p>其部分源码为：</p>
+<pre><code>static final class BufferAsyncEmitter&lt;T&gt; extends BaseEmitter&lt;T&gt; {
+        private static final long serialVersionUID = 2427151001689639875L;
+        final SpscLinkedArrayQueue&lt;T&gt; queue;
+        . . . . . .
+        final AtomicInteger wip;
+        BufferAsyncEmitter(Subscriber&lt;? super T&gt; actual, int capacityHint) {
+            super(actual);
+            this.queue = new SpscLinkedArrayQueue&lt;T&gt;(capacityHint);
+            this.wip = new AtomicInteger();
+        }
+        . . . . . .
+}
+</code></pre><p>在其构造方法中可以发现，其内部维护了一个缓存池SpscLinkedArrayQueue，其大小不限，此策略下，<strong>如果Flowable默认的异步缓存池满了，会通过此缓存池暂存数据，它与Observable的异步缓存池一样，可以无限制向里添加数据，不会抛出MissingBackpressureException异常，但会导致OOM</strong>。</p>
+<p>和使用Observable时一样，都会导致内存剧增，最后导致OOM,不同的是使用Flowable内存增长的速度要慢得多，那是因为基于Flowable发射的数据流，以及对数据加工处理的各操作符都添加了背压支持，附加了额外的逻辑，其运行效率要比Observable低得多。</p>
+<h4 id="MISSING"><a href="#MISSING" class="headerlink" title="MISSING"></a>MISSING</h4><p>对应于MissingEmitter<t>类，通过其源码：</t></p>
+<pre><code>static final class MissingEmitter&lt;T&gt; extends BaseEmitter&lt;T&gt; {
+
+
+        private static final long serialVersionUID = 3776720187248809713L;
+
+        MissingEmitter(Subscriber&lt;? super T&gt; actual) {
+            super(actual);
+        }
+
+        @Override
+        public void onNext(T t) {
+            if (isCancelled()) {
+                return;
+            }
+
+            if (t != null) {
+                actual.onNext(t);
+            } else {
+                onError(new NullPointerException(&quot;onNext called with null. Null values are generally not allowed in 2.x operators and sources.&quot;));
+                return;
+            }
+
+            for (;;) {
+                long r = get();
+                if (r == 0L || compareAndSet(r, r - 1)) {
+                    return;
+                }
+            }
+        }
+
+    }
+</code></pre><p>可以发现，在传递数据时</p>
+<pre><code>actual.onNext(t);
+</code></pre><p>并没有对缓存池的状态进行判断，所以在此策略下，通过Create方法创建的Flowable相当于没有指定背压策略，不会对通过onNext发射的数据做缓存或丢弃处理，需要下游通过背压操作符（onBackpressureBuffer()/onBackpressureDrop()/onBackpressureLatest()）指定背压策略。</p>
+<p>onBackpressureXXX背压操作符：<strong>Flowable除了通过create创建的时候指定背压策略，也可以在通过其它创建操作符just，fromArray等创建后通过背压操作符指定背压策略</strong>。</p>
+<blockquote>
+<p>onBackpressureBuffer()对应BackpressureStrategy.BUFFER<br>onBackpressureDrop()对应BackpressureStrategy.DROP<br>onBackpressureLatest()对应BackpressureStrategy.LATEST</p>
+</blockquote>
+<p>例如代码</p>
+<pre><code>Flowable.range(0, 500)
+        .onBackpressureDrop()
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(Schedulers.newThread())
+        .subscribe(new Consumer&lt;Integer&gt;() {
+            @Override
+            public void accept(@NonNull Integer integer) throws Exception {
+                System.out.println(integer);
+            }
+        });
+</code></pre><h4 id="Subscription"><a href="#Subscription" class="headerlink" title="Subscription"></a>Subscription</h4><p>Subscription与Disposable均是观察者与可观察对象建立订阅状态后回调回来的参数，如同<strong>通过Disposable的dispose()方法可以取消Observer与Oberverable的订阅关系一样，通过Subscription的cancel()方法也可以取消Subscriber与Flowable的订阅关系</strong>。<br>不同的是接口Subscription中多了一个方法request(long n)，如上面代码中的：</p>
+<pre><code>s.request(Long.MAX_VALUE);   
+</code></pre><p>Flowable在设计的时候，采用了一种新的思路——<strong>响应式拉取</strong>方式，来<strong>设置下游对数据的请求数量，上游可以根据下游的需求量，按需发送数据。如果不显示调用request则默认下游的需求量为零，上游Flowable发射的数据不会交给下游Subscriber处理。</strong></p>
+<p>多次调用request，数字会累积。</p>
+<p>上游并没有根据下游的实际需求，发送数据，而是能发送多少，就发送多少，不管下游是否需要。而且超出下游需求之外的数据，仍然放到了异步缓存池中。这点我们可以通过以下代码来验证：</p>
+<pre><code>Flowable.create(new FlowableOnSubscribe&lt;Integer&gt;() {
+            @Override
+            public void subscribe(FlowableEmitter&lt;Integer&gt; e) throws Exception {
+                for (int i = 1; i &lt; 130; i++) {
+                    System.out.println(&quot;发射----&gt;&quot; + i);
+                    e.onNext(i);
+                }
+                e.onComplete();
+            }
+        }, BackpressureStrategy.ERROR)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(Schedulers.newThread())
+        .subscribe(new Subscriber&lt;Integer&gt;() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                System.out.println(&quot;接收------&gt;&quot; + integer);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println(&quot;接收------&gt;完成&quot;);
+            }
+        });
+</code></pre><p>通过Flowable发射130条数据，通过s.request(1)设置下游的数据请求量为1条，设置缓存策略为BackpressureStrategy.ERROR，如果异步缓存池超限，会导致MissingBackpressureException异常。久违的异常出现了，所以超出下游需求之外的数据，仍然放到了异步缓存池中，并导致缓存池溢出。</p>
+<p>那么上游如何才能按照下游的请求数量发送数据呢，虽然通过request可以设置下游的请求数量，但是上游并没有获取到这个数量，如何获取呢？这便需要用到Flowable与Observable的第三点区别，Flowable特有的发射器FlowableEmitter</p>
+<h4 id="FlowableEmitter"><a href="#FlowableEmitter" class="headerlink" title="FlowableEmitter"></a>FlowableEmitter</h4><p>flowable的发射器FlowableEmitter与observable的发射器ObservableEmitter均继承自Emitter<br>比较两者源码可以发现：</p>
+<pre><code>public interface ObservableEmitter&lt;T&gt; extends Emitter&lt;T&gt; {
+
+    void setDisposable(Disposable d);
+
+    void setCancellable(Cancellable c);
+
+    boolean isDisposed();
+
+    ObservableEmitter&lt;T&gt; serialize();
+}
+</code></pre><p>与</p>
+<pre><code>public interface FlowableEmitter&lt;T&gt; extends Emitter&lt;T&gt; {
+
+    void setDisposable(Disposable s);
+
+    void setCancellable(Cancellable c);
+
+    long requested();
+
+    boolean isCancelled();
+
+    FlowableEmitter&lt;T&gt; serialize();
+}
+</code></pre><p>接口FlowableEmitter中多了一个方法</p>
+<pre><code>long requested();
+</code></pre><p>上游在发送数据的时候并不需要考虑下游需不需要，而只需要考虑异步缓存池中是否放得下，放得下便发，放不下便暂停。所以，通过e.requested()获取到的值，并不是下游真正的数据请求数量，而是异步缓存池中可放入数据的数量。数据放入缓存池中后，再由缓存池按照下游的数据请求量向下传递，待到传递完的数据累积到95条之后，将其清除，腾出空间存放新的数据。如果下游处理数据缓慢，则缓存池向下游传递数据的速度也相应变慢，进而没有传递完的数据可清除，也就没有足够的空间存放新的数据，上游通过e.requested()获取的值也就变成了0，如果此时，再发送数据的话，则会根据BackpressureStrategy背压策略的不同，抛出MissingBackpressureException异常，或者丢掉这条数据。</p>
+<p>我们<strong>可以通过这个方法来获取当前未完成的请求数量，上游只需要在e.requested()等于0时，暂停发射数据，便可解决背压问题。</strong></p>
+<h4 id="最终方案"><a href="#最终方案" class="headerlink" title="最终方案"></a>最终方案</h4><p>下面，对其通过Flowable做些改进，让其既不会产生背压问题，也不会引起异常或者数据丢失。<br>代码如下：</p>
+<pre><code>Flowable.create(new FlowableOnSubscribe&lt;Integer&gt;() {
+            @Override
+            public void subscribe(FlowableEmitter&lt;Integer&gt; e) throws Exception {
+                int i = 0;
+                while (true) {
+                    if (e.requested() == 0) continue;//此处添加代码，让flowable按需发送数据
+                    System.out.println(&quot;发射----&gt;&quot; + i);
+                    i++;
+                    e.onNext(i);
+                }
+            }
+        }, BackpressureStrategy.MISSING)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(Schedulers.newThread())
+        .subscribe(new Subscriber&lt;Integer&gt;() {
+            private Subscription mSubscription;
+
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);            //设置初始请求数据量为1
+                mSubscription = s;
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                try {
+                    Thread.sleep(50);
+                    System.out.println(&quot;接收------&gt;&quot; + integer);
+                    mSubscription.request(1);//每接收到一条数据增加一条请求量
+                } catch (InterruptedException ignore) {
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+</code></pre><p>下游处理数据的速度Thread.sleep(50)赶不上上游发射数据的速度，不同的是，我们在下游onNext(Integer integer) 方法中，每接收一条数据增加一条请求量，</p>
+<pre><code>mSubscription.request(1)
+</code></pre><p>在上游添加代码</p>
+<pre><code>if(e.requested()==0)continue;
+</code></pre><p>让上游按需发送数据，上游严格按照下游的需求量发送数据，不会产生MissingBackpressureException异常，或者丢失数据。</p>
+<h2 id="2、Observable"><a href="#2、Observable" class="headerlink" title="2、Observable"></a>2、Observable</h2><h3 id="2-1、Observable简介"><a href="#2-1、Observable简介" class="headerlink" title="2.1、Observable简介"></a>2.1、Observable简介</h3><p>Observable类是不支持背压的，Observable是Reactive的一个抽象基类，Observable提供工厂方法，中间运算符以及消费同步和/或异步数据流的功能。</p>
+<p>Observable类中的多数运算符接受一个或者多个ObservableSource，ObservableSource是非背压的基本接口，Observable实现了这个接口。</p>
+<p>public abstract class Observable<t> implements ObservableSource<t><br>默认情况下，Observable的为其运算符提供128个元素的缓冲区大小运行，可看考Flowable.bufferSize()，可以通过系统参数rx2.buffer-size全局覆盖。但是，大多数运算符都有重载，允许设置其内部缓冲区大小。</t></t></p>
+<h3 id="2-2、Flowable和Observable对比"><a href="#2-2、Flowable和Observable对比" class="headerlink" title="2.2、Flowable和Observable对比"></a>2.2、Flowable和Observable对比</h3><p>在上面已经说明了二者最大的区别。</p>
+<p>官方也给出的解释是：</p>
+<blockquote>
+<p>The design of this class was derived from the Reactive-Streams design and specification by removing any backpressure-related infrastructure and implementation detail, replacing the org.reactivestreams.Subscription with Disposable as the primary means to dispose of a flow.</p>
+</blockquote>
+<p>中文翻译：</p>
+<blockquote>
+<p>该类的设计源自Reactive-Streams设计和规范，通过删除任何与背压相关的基本结构和实现细节，将Disposable替换为org.reactivestreams.Subscription作为处理流的主要方式。</p>
+</blockquote>
+<p>从代码层面上做简单的说明,Flowable实现了Publisher接口，Publisher源码如下:</p>
+<pre><code>public interface Publisher&lt;T&gt; {
+
+    /**
+     * Request {@link Publisher} to start streaming data.
+     * &lt;p&gt;
+     * This is a &quot;factory method&quot; and can be called multiple times, each time starting a new {@link Subscription}.
+     * &lt;p&gt;
+     * Each {@link Subscription} will work for only a single {@link Subscriber}.
+     * &lt;p&gt;
+     * A {@link Subscriber} should only subscribe once to a single {@link Publisher}.
+     * &lt;p&gt;
+     * If the {@link Publisher} rejects the subscription attempt or otherwise fails it will
+     * signal the error via {@link Subscriber#onError}.
+     *
+     * @param s the {@link Subscriber} that will consume signals from this {@link Publisher}
+     */
+    public void subscribe(Subscriber&lt;? super T&gt; s);
+}
+</code></pre><p>Observable实现了ObservableSource接口，ObservableSource源码如下</p>
+<p>public interface ObservableSource<t> {</t></p>
+<pre><code>/**
+ * Subscribes the given Observer to this ObservableSource instance.
+ * @param observer the Observer, not null
+ * @throws NullPointerException if {@code observer} is null
+ */
+void subscribe(Observer&lt;? super T&gt; observer);
+</code></pre><p>}<br>对比ObservableSource和Publisher，都有一个同名的接口subscribe()</p>
+<h3 id="2-4、形象理解ObservableSource和Publisher有何异同"><a href="#2-4、形象理解ObservableSource和Publisher有何异同" class="headerlink" title="2.4、形象理解ObservableSource和Publisher有何异同"></a>2.4、形象理解ObservableSource和Publisher有何异同</h3><p>ObservableSource：可观察源</p>
+<p>Publisher：发布者</p>
+<p>subscribe：订阅</p>
+<p>Subscriber：订阅者</p>
+<p>Observer：观察者</p>
+<p>对于ObservableSource，可以将subscribe(Observer observer)理解为Observer通过subscribe订阅了ObservableSource</p>
+<p>对于Publisher，可以将subscribe(Subscriber s)理解为Subscriber通过subscribe订阅了Publisher</p>
+<p>上面的解释可能比较抽象，通俗的举个例子，来个角色扮演</p>
+<p>第一组：报刊（ObservableSource）、报刊订阅者（Observer）、订阅报刊的行为（subscribe)</p>
+<p>第二组：报刊发布人(Publisher)、报刊订阅者（Subscriber）、订阅报刊的行为（subscribe)</p>
+<p>把这个场景串起来讲就是：报刊订阅者订阅了报刊，或者说报刊订阅者在报刊发布人手中订阅了报刊。</p>
+<p><strong>这其实是典型的观察者模式，所不同的是信息的发布者是ObservableSource还是Publisher，信息的订阅者是Observer还是Subscriber，统一的行为都是subscribe。</strong></p>
+<h2 id="3、Single"><a href="#3、Single" class="headerlink" title="3、Single"></a>3、Single</h2><h3 id="3-1、Single简介"><a href="#3-1、Single简介" class="headerlink" title="3.1、Single简介"></a>3.1、Single简介</h3><pre><code>public abstract class Single&lt;T&gt; implements SingleSource&lt;T&gt; 
+</code></pre><p>Single实现了SingleSource</p>
+<pre><code>/**
+ * Represents a basic {@link Single} source base interface,
+ * consumable via an {@link SingleObserver}.
+ * &lt;p&gt;
+ * This class also serves the base type for custom operators wrapped into
+ * Single via {@link Single#create(SingleOnSubscribe)}.
+ *
+ * @param &lt;T&gt; the element type
+ * @since 2.0
+ */
+public interface SingleSource&lt;T&gt; {
+
+    /**
+     * Subscribes the given SingleObserver to this SingleSource instance.
+     * @param observer the SingleObserver, not null
+     * @throws NullPointerException if {@code observer} is null
+     */
+    void subscribe(SingleObserver&lt;? super T&gt; observer);
+}
+</code></pre><p>Single类为单个值响应实现Reactive Pattern。</p>
+<p><strong>Single和Observable类似，所不同的是Single只能发出一个值，要么发射成功要么发射失败，也没有“onComplete”作为完成时的回调</strong></p>
+<p>Single类实现了基类SingleSource的接口，SingleObserver作为Single发出来的消息的默认消费者，SingleObserver通过subscribe(SingleObserver&lt;? super T&gt; observer)在Single中订阅消息</p>
+<pre><code>public interface SingleObserver&lt;T&gt; {
+
+    /**
+     * Provides the SingleObserver with the means of cancelling (disposing) the
+     * connection (channel) with the Single in both
+     * synchronous (from within {@code onSubscribe(Disposable)} itself) and asynchronous manner.
+     * @param d the Disposable instance whose {@link Disposable#dispose()} can
+     * be called anytime to cancel the connection
+     * @since 2.0
+     */
+    void onSubscribe(Disposable d);
+
+    /**
+     * Notifies the SingleObserver with a single item and that the {@link Single} has finished sending
+     * push-based notifications.
+     * &lt;p&gt;
+     * The {@link Single} will not call this method if it calls {@link #onError}.
+     *
+     * @param value
+     *          the item emitted by the Single
+     */
+    void onSuccess(T value);
+
+    /**
+     * Notifies the SingleObserver that the {@link Single} has experienced an error condition.
+     * &lt;p&gt;
+     * If the {@link Single} calls this method, it will not thereafter call {@link #onSuccess}.
+     *
+     * @param e
+     *          the exception encountered by the Single
+     */
+    void onError(Throwable e);
+}
+</code></pre><h3 id="3-2、Single与Observable的区别"><a href="#3-2、Single与Observable的区别" class="headerlink" title="3.2、Single与Observable的区别"></a>3.2、Single与Observable的区别</h3><p>Single只能发送单个消息，不能发送消息流，而且观察者接收到消息也只有两种情况，要么接收成功，要么接收失败</p>
+<h3 id="3-3、Single官方图解"><a href="#3-3、Single官方图解" class="headerlink" title="3.3、Single官方图解"></a>3.3、Single官方图解</h3><p><img src="/2019/08/07/android-rxjava-role/rxjava-single.jpg" alt></p>
+<h2 id="4、Completable"><a href="#4、Completable" class="headerlink" title="4、Completable"></a>4、Completable</h2><h3 id="4-1、Completable简介"><a href="#4-1、Completable简介" class="headerlink" title="4.1、Completable简介"></a>4.1、Completable简介</h3><p>Completable类<strong>表示延迟计算，没有任何值，只表示完成或异常</strong>。</p>
+<p>Completable的行为类似于Observable，在计算完成后只能发出完成或错误信号，由onComplete或onError接口来处理，没有onNext或onSuccess等回调接口</p>
+<p>Completable实现了基类CompletableSource的接口，CompletableObserver通过subscribe()方法在Completable处订阅消息。</p>
+<p>Completable遵循协议：onSubscribe (onComplete | onError)</p>
+<pre><code>public abstract class Completable implements CompletableSource
+
+
+public interface CompletableSource {
+
+    /**
+     * Subscribes the given CompletableObserver to this CompletableSource instance.
+     * @param cs the CompletableObserver, not null
+     * @throws NullPointerException if {@code cs} is null
+     */
+    void subscribe(CompletableObserver cs);
+}
+
+
+public interface CompletableObserver {
+
+    void onSubscribe(Disposable d);
+
+    void onComplete();
+
+    void onError(Throwable e);
+}
+</code></pre><p>从源码中我们可以看到CompletableObserver里面有三个接口：</p>
+<p>1）onSubscribe中传入参数Disposable，由Completable调用一次，在CompletableObserver实例上设置Disposable，然后可以随时取消订阅。</p>
+<p>2）onComplete一旦延迟计算正常完成将会被调用</p>
+<p>3）onError 一旦延迟计算抛出异常将会被调用</p>
+<h3 id="4-3、Completable示例"><a href="#4-3、Completable示例" class="headerlink" title="4.3、Completable示例"></a>4.3、Completable示例</h3><p>注意：<strong> 通过Disposable调用dispose()取消订阅，后面的消息无法接收。</strong></p>
+<p>运行下面的例子，可以看到在调用dispose后，onStart被回调后，后续的消息就收不到了；去掉dispose，onStart回调后，三秒后onComplete将会被回调</p>
+<pre><code> private void doCompletable() {
+        Disposable d = Completable.complete()
+                .delay(3, TimeUnit.SECONDS, Schedulers.io())
+                .subscribeWith(new DisposableCompletableObserver() {
+                    @Override
+                    public void onStart() {
+                        System.out.println(&quot;Started&quot;);
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+                        error.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        System.out.println(&quot;onComplete!&quot;);
+                    }
+                });
+
+
+        d.dispose();
+
+    }
+
+运行完毕的结果是：
+10-02 11:10:34.797 15565-15565/hq.demo.net I/System.out: Started
+
+注释d.dispose()后在运行结果是：
+10-02 14:34:19.490 23232-23232/hq.demo.net I/System.out: Started
+10-02 14:34:22.492 23232-23483/hq.demo.net I/System.out: Done!
+</code></pre><p>上面使用的是DisposableCompletableObserver通过subscribeWith来订阅消息，返回一个Disposable可以通过dispose来取消订阅关系，DisposableCompletableObserver是CompletableObserve的子类，只是增加了可取消订阅的功能。当然也能通过CompletableObserve方法操作，但是无法取消订阅关系，除此外没什么本质区别。</p>
+<h2 id="5、Maybe"><a href="#5、Maybe" class="headerlink" title="5、Maybe"></a>5、Maybe</h2><h3 id="5-1、Maybe简介"><a href="#5-1、Maybe简介" class="headerlink" title="5.1、Maybe简介"></a>5.1、Maybe简介</h3><p>Maybe类<strong>表示延迟计算和单个值的发射，这个值可能根本没有或异常。</strong></p>
+<p>Maybe类实现MaybeSource的接口，MaybeObserver通过subscribe(MaybeObserver)在Maybe处订阅消息</p>
+<p>Maybe遵循协议：onSubscribe (onSuccess | onError | onComplete)，也就是Maybe发射消息后，可能会回调的接口是onSuccess | onError | onComplete</p>
+<pre><code>public abstract class Maybe&lt;T&gt; implements MaybeSource&lt;T&gt;
+
+public interface MaybeSource&lt;T&gt; {
+
+    /**
+     * Subscribes the given MaybeObserver to this MaybeSource instance.
+     * @param observer the MaybeObserver, not null
+     * @throws NullPointerException if {@code observer} is null
+     */
+    void subscribe(MaybeObserver&lt;? super T&gt; observer);
+}
+
+
+public interface MaybeObserver&lt;T&gt; {
+    void onSubscribe(Disposable d);
+    void onSuccess(T value);
+    void onError(Throwable e);
+    void onComplete();
+}
+</code></pre><h3 id="5-3、Maybe示例"><a href="#5-3、Maybe示例" class="headerlink" title="5.3、Maybe示例"></a>5.3、Maybe示例</h3><p>下面是个例子，注意让线程睡多少秒可以修改测试dispose，与Completable类似，但是<strong>无论怎么onStart()都会被回调</strong>，为什么onStart()都会被回调呢？可以看DisposableMaybeObserver源码，在订阅消息的时候就会首先回调onSubscribe，这个时候dispose还没有运行了，这个动作发生在订阅的时候，没有订阅何来取消订阅呢。</p>
+<pre><code>public abstract class DisposableMaybeObserver&lt;T&gt; implements MaybeObserver&lt;T&gt;, Disposable {
+    final AtomicReference&lt;Disposable&gt; s = new AtomicReference&lt;Disposable&gt;();
+
+    @Override
+    public final void onSubscribe(Disposable s) {
+        if (DisposableHelper.setOnce(this.s, s)) {
+            onStart();
+        }
+    }
+
+    /**
+     * Called once the single upstream Disposable is set via onSubscribe.
+     */
+    protected void onStart() {
+    }
+
+    @Override
+    public final boolean isDisposed() {
+        return s.get() == DisposableHelper.DISPOSED;
+    }
+
+    @Override
+    public final void dispose() {
+        DisposableHelper.dispose(s);
+    }
+}
+</code></pre><p>下面是实例的运行和结果</p>
+<pre><code>private void doMaybe() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Disposable d = Maybe.just(&quot;Hello World&quot;)
+                        .delay(3, TimeUnit.SECONDS, Schedulers.io())
+                        .subscribeWith(new DisposableMaybeObserver&lt;String&gt;() {
+                            @Override
+                            public void onStart() {
+                                System.out.println(&quot;Started&quot;);
+                            }
+
+                            @Override
+                            public void onSuccess(String value) {
+                                System.out.println(&quot;Success: &quot; + value);
+                            }
+
+                            @Override
+                            public void onError(Throwable error) {
+                                error.printStackTrace();
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                System.out.println(&quot;Done!&quot;);
+                            }
+                        });
+
+                try {
+                    Thread.sleep(4000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                d.dispose();
+            }
+        }).start();
+
+    }
+
+
+运行结果是：
+10-02 15:01:53.320 25573-25649/hq.demo.net I/System.out: Started
+10-02 15:01:56.324 25573-25654/hq.demo.net I/System.out: Success: Hello World
+
+如果把Thread.sleep(4000)修改为Thread.sleep(2000)运行结果是：
+10-02 15:05:34.362 25840-25872/hq.demo.net I/System.out: Started
+</code></pre><p>上面例子使用DisposableMaybeObserver通过subscribeWith在Maybe处订阅，并返回一个Disposable，可以通过Disposable调用dispose来取消订阅。当然我们也可以通过下面的方式来完成，但是无法取消订阅关系：</p>
+<pre><code>private void doMaybe() {
+    Maybe.just(&quot;Hello World&quot;)
+            .delay(3, TimeUnit.SECONDS, Schedulers.io())
+            .subscribe(new MaybeObserver&lt;String&gt;() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                    System.out.println(&quot;Started&quot;);
+                }
+
+                @Override
+                public void onSuccess(String value) {
+                    System.out.println(&quot;Success: &quot; + value);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onComplete() {
+                    System.out.println(&quot;Done!&quot;);
+                }
+            });
+
+    }
+</code></pre><h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><p>Single、Completable、Maybe是简化的Observable，只是具有少部分功能：</p>
+<blockquote>
+<p><strong>Single：只能发射一条单一数据或者一条异常通知，不能发射完成通知，数据与通知只能发射一个，二选一<br>Completable：只能发射一条完成通知或者一条异常通知，不能发射数据，要么发射完成通知要么发射异常通知，二选一<br>Maybe：只能发射一条单一数据，和发射一条完成通知，或者一条异常通知，完成通知和异常通知二选一，只能在发射完成通知或异常通知之前发射数据，否则发射数据无效</strong></p>
+</blockquote>
+<h2 id="7、参考资料"><a href="#7、参考资料" class="headerlink" title="7、参考资料"></a>7、参考资料</h2><p><a href="https://blog.csdn.net/weixin_36709064/article/details/82911270" target="_blank" rel="noopener">https://blog.csdn.net/weixin_36709064/article/details/82911270</a><br><a href="https://www.jianshu.com/p/ff8167c1d191/" target="_blank" rel="noopener">Flowable背压支持</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/06/android-rxjava/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -5106,7 +5964,7 @@ s不等于t，它们不是同一个对象
 <li>类加载隔离<br>不同ClassLoader加载的class文件肯定不是一个。举个栗子，一些系统层级的class文件在系统初始化的时候被加载，比如java.net.String，这个是在应用启动前就被系统加载好的。如果在一个应用里能简单地用一个自定义的String类把这个String类替换掉的话，将有严重的安全问题。</li>
 </ul>
 <h4 id="线程上下文类加载器"><a href="#线程上下文类加载器" class="headerlink" title="线程上下文类加载器"></a>线程上下文类加载器</h4><p>线程上下文类加载器（context class loader）是从 JDK 1.2 开始引入的。类 java.lang.Thread中的方法 getContextClassLoader()和 setContextClassLoader(ClassLoader cl)用来获取和设置线程的上下文类加载器。如果没有通过 setContextClassLoader(ClassLoader cl)方法进行设置的话，线程将继承其父线程的上下文类加载器。Java 应用运行的初始线程的上下文类加载器是系统类加载器。在线程中运行的代码可以通过此类加载器来加载类和资源。</p>
-<h4 id="类加载器与-OSGi"><a href="#类加载器与-OSGi" class="headerlink" title="类加载器与 OSGi"></a>类加载器与 OSGi</h4><p>OSGi™是 Java 上的动态模块系统。它为开发人员提供了面向服务和基于组件的运行环境，并提供标准的方式用来管理软件的生命周期。OSGi 已经被实现和部署在很多产品上，在开源社区也得到了广泛的支持。Eclipse 就是基于 OSGi 技术来构建的。</p>
+<h4 id="类加载器与-OSGi"><a href="#类加载器与-OSGi" class="headerlink" title="类加载器与 OSGi"></a>类加载器与 OSGi</h4><p>OSGi（开放服务网关协议，Open Service Gateway Initiative）是 Java 上的动态模块系统。它为开发人员提供了面向服务和基于组件的运行环境，并提供标准的方式用来管理软件的生命周期。OSGi 已经被实现和部署在很多产品上，在开源社区也得到了广泛的支持。Eclipse 就是基于 OSGi 技术来构建的。</p>
 <p>OSGi 中的每个模块（bundle）都包含 Java 包和类。模块可以声明它所依赖的需要导入（import）的其它模块的 Java 包和类（通过 Import-Package），也可以声明导出（export）自己的包和类，供其它模块使用（通过 Export-Package）。也就是说需要能够隐藏和共享一个模块中的某些 Java 包和类。这是通过 OSGi 特有的类加载器机制来实现的。<strong>OSGi 中的每个模块都有对应的一个类加载器。它负责加载模块自己包含的 Java 包和类。当它需要加载 Java 核心库的类时（以 java开头的包和类），它会代理给父类加载器（通常是启动类加载器）来完成。当它需要加载所导入的 Java 类时，它会代理给导出此 Java 类的模块来完成加载。</strong>模块也可以显式的声明某些 Java 包和类，必须由父类加载器来加载。只需要设置系统属性 org.osgi.framework.bootdelegation的值即可。</p>
 <p>OSGi 模块的这种类加载器结构，使得一个类的不同版本可以共存在 Java 虚拟机中，带来了很大的灵活性。不过它的这种不同，也会给开发人员带来一些麻烦，尤其当模块需要使用第三方提供的库的时候。下面提供几条比较好的建议：</p>
 <ul>
@@ -5292,232 +6150,6 @@ CONSTANT_Methodref_info：类的方法信息
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/05/architecture-extensible/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/05/architecture-extensible/" itemprop="url">可扩展架构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-05T09:42:14+08:00">
-                2019-05-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/架构/" itemprop="url" rel="index">
-                    <span itemprop="name">架构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>可扩展架构的基本思想是：拆</p>
-<p>不同的拆分方式，本质上决定了系统的可扩展性。常见的拆分思路有三种：</p>
-<p>1）面向流程拆分：分层架构<br>分层架构的本质：固定的内核，移动的数据。<br>扩展时大部分情况只需要修改其一层，少部分情况可能修改关联的两层，不会出现所有层都同时要修改。<br>以简单的学生信息管理系统为例：展示层–&gt;业务层–&gt;数据层–&gt;存储层</p>
-<p>2）面向服务拆分：SOA、微服务<br>服务是一组相似功能的集合。<br>对于某个服务扩展，或者要增加新的服务时，只需要扩展相关服务即可。<br>以简单的学生信息管理系统为例：将系统拆分为注册、登录、信息管理、安全设置等服务</p>
-<p>3）面向功能拆分:微内核架构<br>以简单的学生信息管理系统为例：每个服务都可以拆分为更多细粒度的功能</p>
-<p>当然，这几个系统架构并不是非彼既此的，而是可以组合使用。</p>
-<h3 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h3><p>分层架构也叫N层架构，通常情况下，N至少是两层。</p>
-<p>分层架构的本质在于<strong>隔离关注点</strong>（separation of concerns），即每个层中的组件只会处理本层的逻辑，核心就是需要<strong>保证各层之间的差异足够清晰，边界足够明显，</strong>让人看到架构图后就能看懂整个架构。</p>
-<p>根据不同的划分维度和对象，可以得到多种不同的分层架构：<br>1）C/S、B/S架构<br>2）MVC、MVP架构<br>3）逻辑分层架构<br>逻辑分层架构中的层是自顶向下依赖的，如andoid操作系统的架构</p>
-<h3 id="SOA架构"><a href="#SOA架构" class="headerlink" title="SOA架构"></a>SOA架构</h3><p>SOA(Service Oriented Architecture)提出来三个关键概念：</p>
-<p>1）服务<br>所有业务功能都是一项服务，服务意味着要对外提供开发的能力，当其他系统需要使用这项功能时，无须定制化开发。</p>
-<p>2）ESB(Enterprise Service Bus)<br>ESB是将企业中各个不同的服务连接到一起。SOA使用ESB来屏蔽异构系统对外提供各种不同的接口方式，以此来达到服务间高效的互联互通。</p>
-<p>3）松耦合<br>目的是减少各个服务间的依赖和相互影响。</p>
-<p>SOA架构是集成的思想，是解决服务孤岛打通链条，是无奈之举。ESB集中化的管理带来了性能不佳、厚重等问题，也无法快速扩展。所以不适合互联网的业务特点。</p>
-<h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p>微服务是一种和SOA相似但本质上不同的架构理念。两者都关注于“服务”，都是通过服务的拆分来解决可扩展性问题。本质上不同在于几个核心理念的差异：是否有ESB、服务的粒度、架构设计的目标（<strong>small、lightweight、automated</strong>）等。</p>
-<p>微服务架构其实相当复杂，可以分成几个阶段理解：<br>1）第一阶段，微服务架构就是去掉了ESB的SOA架构，只不过是通信的方式和结构变了。对于初级的使用者而言，这样理解没有太大问题。<br>2）第二阶段，没有了ESB，原本很多由ESB组件做的事儿，转到服务的提供者和调用者这里了。他们需要考虑服务的拆分粒。大体仍然算是SOA架构。<br>3）第三阶段，随着服务的数量大幅增加，服务的管理越来越困难，此时DevOps出现了。这个阶段的微服务架构，已经是跟SOA架构完全不同的东西了。<br>要逐步演进和迭代，不要过于激进，更不要拆分过细，拆分的粒度，要与团队的架构相互匹配。（康威定律）</p>
-<p>SOA和微服务的区别：<br>1）服务粒度<br>2）服务通讯<br>微服务推荐使用统一的协议和格式。<br>3）服务交付<br>SOA更多的是考虑兼容已有的系统；微服务的架构理念要求“快速交付”，相应的要求自动化测试、持续集成、自动化部署等敏捷开发相关的最佳实践。<br>4）应用场景<br>SOA更适合庞大、复杂、异构的企业级系统，这也是SOA诞生的背景。<br>微服务更适合快速、轻量级、基于Web的物联网系统。</p>
-<h4 id="微服务的陷阱及问题"><a href="#微服务的陷阱及问题" class="headerlink" title="微服务的陷阱及问题"></a>微服务的陷阱及问题</h4><p>1）服务划分过细，服务间关系复杂<br>2）服务数量太多，团队效率急剧下降<br>3）调用链太长，性能下降<br>4）调用链太长，问题定位困难<br>5）没有自动化支撑，无法快速交付<br>6）没有服务治理，数量多了之后管理混乱</p>
-<h4 id="微服务架构实践"><a href="#微服务架构实践" class="headerlink" title="微服务架构实践"></a>微服务架构实践</h4><p>1.服务粒度<br>三个火枪手原则。亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。</p>
-<p>2.拆分方法<br>1）基于业务逻辑拆分</p>
-<p>2）基于可扩展拆分：区分稳定服务、可变服务</p>
-<p>3）基于可靠性拆分<br>好处：避免非核心业务故障影响核心业务；核心服务高可用方案可以更简单；能够降低高可用成本</p>
-<p>4）基于性能拆分<br>将性能要求高或者性能压力大的模块拆分出来，避免性能压力大的服务影响其他服务。</p>
-<p>以上方案可自由排列组合。</p>
-<p>3.基础设施<br>1）服务发现、服务路由、服务容错：这是最基本的微服务基础设施</p>
-<p>2）接口框架、API网关：主要是为了提升开发效率</p>
-<p>3）自动化部署、自动化测试、配置中心：主要为了提升测试和运维效率</p>
-<p>4）服务监控、服务跟踪、服务安全：主要是为了进一步提升运维效率</p>
-<p>以上3、4会随着微服务节点数量增加而越来越重要，当节点较少时，可以通过人工支撑，虽然效率不高，但也基本能够顶得住。</p>
-<h3 id="微内核架构"><a href="#微内核架构" class="headerlink" title="微内核架构"></a>微内核架构</h3><p>微内核架构也被称为插件化架构，是一种面向功能进行拆分的可扩展性架构。</p>
-<p>微内核架构包含两类组件：核心系统和插件模块。核心模块负责和具体业务功能无关的通用功能，如模块加载、模块间通信等；插件模块负责实现具体的业务逻辑。</p>
-<p>微内核的核心系统设计的关键技术有：插件管理、插件链接和插件通信。</p>
-<p>常见架构有：OSGI、规则引擎架构、Atlas容器化框架等。</p>
-<p>android架构模式参考：<br>1.<a href="https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&amp;mid=2247488375&amp;idx=1&amp;sn=3af36be489393783a95d5c5e3fc73b65&amp;source=41#wechat_redirect" target="_blank" rel="noopener">Atlas：手淘Native容器化框架和思考</a><br>2.<a href="https://www.infoq.cn/article/wechat-android-app-architecture" target="_blank" rel="noopener">微信 Android 客户端架构演进之路</a></p>
-<h3 id="康威定律"><a href="#康威定律" class="headerlink" title="康威定律"></a>康威定律</h3><p>微服务很多核心理念其实在半个世纪前的一篇文章中就被阐述过了，而且这篇文章中的很多论点在软件开发飞速发展的这半个世纪中竟然一再被验证，这就是康威定律（Conway’s Law）。</p>
-<p>在康威的这篇文章中，最有名的一句话就是：</p>
-<blockquote>
-<p>Organizations which design systems are constrained to produce designs which are copies of the communication structures of these organizations. - Melvin Conway(1967)</p>
-</blockquote>
-<p>中文直译大概的意思就是：<strong>设计系统的组织，其产生的设计等同于组织之内、组织之间的沟通结构。</strong></p>
-<p>Mike从他的角度归纳这篇论文中的其他一些核心观点，如下：</p>
-<ul>
-<li>第一定律：企业沟通方式会通过系统设计表达出来——Communication dictates design</li>
-<li>第二定律：再多的时间也没办法让任务完美至极，但总有时间能将它完成——There is never enough time to do something right, but there is always enough time to do it over</li>
-<li>第三定律：线型系统和线型组织架构间有潜在的异质同态特性——There is a homomorphism from the linear graph of a system to the linear graph of its design organization</li>
-<li>第四定律：大系统比小系统更适用于任务分解——The structures of large systems tend to disintegrate during development, qualitatively more so than with small systems</li>
-</ul>
-<h4 id="康威第一定律"><a href="#康威第一定律" class="headerlink" title="康威第一定律"></a>康威第一定律</h4><p>“人类是复杂的社会动物。”</p>
-<p>《The Mythical Man-Month》 这本书里有一句令人难忘的话：在应用项目后期加大人员的投资，会更加拖慢它的速度。——Fred Brooks（1975）</p>
-<p>沟通的问题会影响系统设计，进而影响整个系统的开发效率以及最终结果。</p>
-<h4 id="康威第二定律"><a href="#康威第二定律" class="headerlink" title="康威第二定律"></a>康威第二定律</h4><p>罗马不是一天建成的，学会先解决首要问题。</p>
-<p>敏捷开发巨头之一Erik Hollnagel 在他的书中阐述了类似的观点：</p>
-<blockquote>
-<p>问题太复杂？那么不妨忽略不必要的细节。<br>没有足够的资源？放弃无用的功能。<br>——Erik Hollnagel（2009）</p>
-</blockquote>
-<p>系统的复杂性、功能数量、市场竞争以及投资人的期望值都在增加，而人的智力是有上限的，没有企业能说一定能找到合适的人，对于一个极其复杂的系统，总会有考虑不周全的地方，Erik认为这个问题最好的解决办法就是：不去管它。</p>
-<p>最佳解决方案不是消除所有问题，而是允许它们存在，在发生故障时实现自动恢复。<br>在由微服务组成的系统中，每个微服务都可能停止响应，这是完全正常的，只需要确保足够的冗余和备份，这就是弹性或高可用性设计。</p>
-<h4 id="康威第三定律"><a href="#康威第三定律" class="headerlink" title="康威第三定律"></a>康威第三定律</h4><p>创建独立的子系统，减少沟通成本。</p>
-<p>团队中微服务的理念应是Inter-Operate，而不是Integrate ，Inter-Operate是指定义系统边界和接口，并为整个团队提供完整的堆栈，实现完全的自制。如此就能降低系统间的依赖性，减少通信成本。</p>
-<h4 id="康威第四定律"><a href="#康威第四定律" class="headerlink" title="康威第四定律"></a>康威第四定律</h4><p>前面提到，人类是复杂的社会动物，人与人之间的交流是非常复杂的，当涉及到一个系统时，人们经常选择增加人力去减少复杂性，对于企业来说，该如何处理这样的沟通问题？答案是：分而治之。</p>
-<h4 id="康威定律与微服务"><a href="#康威定律与微服务" class="headerlink" title="康威定律与微服务"></a>康威定律与微服务</h4><p>再来看一下康威定律是如何在半个世纪前就奠定了微服务理论基础的。</p>
-<ul>
-<li>人与人之间的交流很复杂，每个人的精力是有限的，因此当问题很复杂，需要协调地去解决时，需要将组织划分进而提高沟通效率。</li>
-<li>团队成员工作的系统设计依赖于成员之间的沟通，管理人员可以调整划分模式，实现团队之间的不同沟通方式，这也会影响系统的设计。</li>
-<li>如果子系统有清晰的外部通信便捷，那么就可以有效地降低通信成本，响应地设计将更加适合和有效。</li>
-<li>需要不断优化一个复杂的系统，并容错性和故障恢复率的帮助下进行优化，不要期望大而全面的设计或架构，因为它们的开发以迭代的方式发生。</li>
-</ul>
-<p>以下是一些具体的实践建议：</p>
-<ul>
-<li>利用一切手段提高通信效率，如Slack、Github和Wiki，且只与相关人员进行沟通，每个人和每个系统必须有明确的职责，在遇到问题时，知道该找谁去解决。</li>
-<li>在MVP模式下设计一套系统，以迭代的方式优化及验证，并确保系统的弹性。</li>
-<li>采用与系统设计相一致的团队，以扁平化和以业务为基准的方式去简化团队，每个小团队之间必须有对应负责的模块，避免模糊的界限，以免在发生问题时互相推卸责任。</li>
-<li>要做小而美的团队，人员数量的增加会降低效率以及加大成本，亚马逊CEO Jeff Bezos有个一个经验法则：如果两个披萨对于一个团队来说不够，那么这个团队就太大了。一般来说，一家互联网公司的产品团队由7到8个人组成（包括前端和后端测试、交互和用户体验师，一些人可能身兼数职）。</li>
-</ul>
-<p>在查看以下微服务标准时，我们可以很容易地看到微服务与康威定律之间的密切关系：</p>
-<ul>
-<li>由分布式服务组成的系统</li>
-<li>企业部门的业务线</li>
-<li>开发优秀的产品</li>
-<li>Smart endpoints and dumb pipes</li>
-<li>DevOps</li>
-<li>容错</li>
-<li>快速发展</li>
-</ul>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://segmentfault.com/a/1190000011118897" target="_blank" rel="noopener">康威定律</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -5570,7 +6202,7 @@ CONSTANT_Methodref_info：类的方法信息
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

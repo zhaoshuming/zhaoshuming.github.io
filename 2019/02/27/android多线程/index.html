@@ -80,18 +80,21 @@
 
 
 
-<meta name="description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta name="description" content="前言异步处理实现方式主要有：  实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask(已废弃) LoaderManager WorkManager  Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式会导致创建大量的线程，这会影响用户交互。  关键字">
 <meta name="keywords" content="android,thread">
 <meta property="og:type" content="article">
-<meta property="og:title" content="android多线程">
+<meta property="og:title" content="android异步处理">
 <meta property="og:url" content="http://yoursite.com/2019/02/27/android多线程/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta property="og:description" content="前言异步处理实现方式主要有：  实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask(已废弃) LoaderManager WorkManager  Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式会导致创建大量的线程，这会影响用户交互。  关键字">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-04-03T07:23:09.038Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/27/android多线程/workmanager.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/02/27/android多线程/workmanager-create.jpg">
+<meta property="og:updated_time" content="2020-04-13T06:19:56.844Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="android多线程">
-<meta name="twitter:description" content="前言在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点多线程实现方式主要有： 实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask LoaderManager Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务">
+<meta name="twitter:title" content="android异步处理">
+<meta name="twitter:description" content="前言异步处理实现方式主要有：  实现Thread的run()方法或者实现Runable接口 HandlerThread AsyncTask(已废弃) LoaderManager WorkManager  Thread直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式会导致创建大量的线程，这会影响用户交互。  关键字">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/27/android多线程/workmanager.jpg">
 
 
 
@@ -127,7 +130,7 @@
 
 
 
-  <title>android多线程 | Blog</title>
+  <title>android异步处理 | Blog</title>
   
 
 
@@ -314,7 +317,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">android多线程</h1>
+          <h1 class="post-title" itemprop="name headline">android异步处理</h1>
         
 
         <div class="post-meta">
@@ -386,11 +389,14 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
-<p>实现Thread的run()方法或者实现Runable接口</p>
-<p>HandlerThread</p>
-<p>AsyncTask</p>
-<p>LoaderManager</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>异步处理实现方式主要有：</p>
+<ul>
+<li>实现Thread的run()方法或者实现Runable接口</li>
+<li>HandlerThread</li>
+<li>AsyncTask(已废弃)</li>
+<li>LoaderManager</li>
+<li>WorkManager</li>
+</ul>
 <h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
 <ol>
 <li><p>关键字join、sleep、yield</p>
@@ -412,7 +418,7 @@
 <p>消息处理类（Handler）允许发送和处理Message和Rannable对象到其所在线程的MessageQueue中。（它主要有两个作用：1、将Message或Runnable应用post()方法或sendMessage()方法发送到MessageQueue中，在发送时可以指定延时时间、发送时间或者要携带的bundle数据。当MessageQueue循环到该Message时，调用相应的Handler对象的handlerMessage()方法对其进行处理。2、在子线程中与主线程进行通信，也就是在工作线程中与UI线程进行通信。）</p>
 <p>另外，在一个线程中只能有一个Looper和MessageQueue，但是可以有多个Handler,而且这些Handler可以共享一个Looper和MessageQueue。</p>
 <p>消息类(Message)被存放在MessageQueue中，一个MessageQueue中可以包含多个Message对象。每个Message对象可以通过Messhe.obtain()方法或者Handler.obtainMessage()方法获得。Message是一个final类，所以不可被继承。</p>
-<h3 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
+<h3 id="AsyncTask-已废弃"><a href="#AsyncTask-已废弃" class="headerlink" title="AsyncTask(已废弃)"></a>AsyncTask(已废弃)</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
 <p>当然我们是可以跳过不需要进行排队，直接就通过线程池分配一个线程并执行异步任务，但需要注意同时执行太多的异步任务，会影响用户体验，我想Google就是为了限制同时创建太多的线程才会采用一个排队机制的</p>
 <pre><code>/** @hide */
 public static void setDefaultExecutor(Executor exec) {
@@ -420,6 +426,12 @@ public static void setDefaultExecutor(Executor exec) {
 }
 </code></pre><p>该方法是隐藏，但可使用反射，设置一个线程池。</p>
 <p>AsyncTask， <strong>通常用于耗时的异步处理，且时效性要求不是非常高的那种异步操作</strong>。如果时效性要求非常高的操作，不建议使用这个方式，因为AsyncTask的默认实现是有内部排队机制，且是整个应用的AsyncTask的任务进行排队，所以不能保证异步任务能很快的被执行。</p>
+<p>问题如下：</p>
+<ol>
+<li>并行串行问题：AsyncTasks should ideally be used for short operations (a few seconds at the most)</li>
+<li>错误处理问题：AsyncTask没有对发生的一些异常进行处理，你只能在onBackground里进行一些判断，但之外的一些异常情况发生你都无法了解，比如线程异常退出等。</li>
+<li>多个任务的管理问题：如果需要多个后台任务，需要新建多个AsyncTask来执行任务，在需要退出的时候你需要对每一个都进行一定的处理来避免内存泄露以及UI问题，这是一个很麻烦的事情。</li>
+</ol>
 <h3 id="LoaderManager"><a href="#LoaderManager" class="headerlink" title="LoaderManager"></a>LoaderManager</h3><p>LoaderManager，当<strong>请求处理时机需要根据Activity的生命周期进行调整</strong>，或需要<strong>时刻监测数据的变化</strong>，那LoaderManager是很不错的解决方案。</p>
 <p>LoaderManager可以解决的问题包括：</p>
 <p>1.加载的数据有变化时，会自动通知我们，而不自己监控数据的变化情况，如：用CursorLoader来加载数据库数据，当数据库数据有变化时，可是个展示变化的数据</p>
@@ -441,7 +453,33 @@ public static void setDefaultExecutor(Executor exec) {
 </code></pre><p>一般我们不直接继承Loader，而是继承AsyncTaskLoader，因为Loader的加载工作并不是在异步线程中。而AsyncTaskLoader实现了异步线程，加载流程在子线程中执行。注意：对该类的调用应该在主线程中完成。</p>
 <p><strong>Loader负责数据加载逻辑，LoaderManager负责Loader的调度</strong>，开发者只需要自定义自己的Loader，实现数据的加载逻辑，而不再关注数据加载时由于Activity销毁引发的问题。</p>
 <p>注意：其实AsyncTaskLoader内部实现异步的方式是使用AsyncTask完成的，上面我们说过AsyncTask的内部是有一个排队机制，但<strong>AsyncTaskLoader内部使用AsyncTask进行数据异步加载时，异步任务并不进行排队</strong>。而直接由线程池分配新线程来执行。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a></p>
+<h3 id="WorkManager"><a href="#WorkManager" class="headerlink" title="WorkManager"></a>WorkManager</h3><p>WorkManager<strong>最适用于可以延迟的任务，即使应用程序或设备重新启动（例如，使用后端服务定期同步数据并上载日志或分析数据），仍然可以运行</strong>。</p>
+<p><strong>特点：</strong></p>
+<ul>
+<li>允许在任务运行时设置约束，例如网络状态或充电状态；</li>
+<li>支持异步一次性和周期性任务；</li>
+<li>支持带输入和输出的链式任务；</li>
+<li>即使应用程序或设备重新启动，也可确保任务执行</li>
+</ul>
+<p>使用WorkManager，可以轻松添加网络可用性或计费状态等约束。任务将在满足约束时运行，并在运行时失败时自动重试。例如，如果任务需要网络可用，则当网络不再可用时将停止该任务，并在以后重试。<br>不仅如此，它还可以使用LiveData监视工作状态并检索工作结果，这样可以在任务完成时通知您的UI。如果任务执行失败，可以通过配置退避的处理方式来控制工作的重试方式。如果发生应用程序或设备重新启动，WorkManager还可以使用本地数据库中的工作记录重新安排工作。<br>利用OneTimeWorkRequest进行一次性调度或使用PeriodicWorkRequest进行重复调度。并且，我们还可以将一次性工作请求链接到按顺序或并行运行，如果链中的任何工作失败，WorkManager将确保不会运行剩余的工作链。</p>
+<p>WorkManager API <strong>可以很容易的指定可延迟的异步任务。允许你创建任务，并把它交给WorkManager来立即运行或在适当的时间运行。</strong>WorkManager根据设备API的级别和应用程序状态等因素来选择适当的方式运行任务。如果WorkManager在应用程序运行时执行你的任务，它会在应用程序进程的新线程中执行。如果应用程序没有运行，WorkManager会根据设备API级别和包含的依赖项选择适当的方式安排后台任务，可能会使用JobScheduler、Firebase JobDispatcher或AlarmManager。你不需要编写设备逻辑来确定设备有哪些功能和选择适当的API；相反，你只要把它交给WorkManager让它选择最佳的方式。</p>
+<p><img src="/2019/02/27/android多线程/workmanager.jpg" alt></p>
+<p>基础功能:</p>
+<ul>
+<li>使用WorkManager创建运行在你选择的环境下的单个任务或指定间隔的重复任务</li>
+<li>WorkManager API使用几个不同的类，有时，你需要继承一些类。</li>
+<li>Worker 指定需要执行的任务。有一个抽象类Worker，你需要继承并在此处工作。在后台线程同步工作的类。WorkManager在运行时实例化Worker类，并在预先指定的线程调用doWork方法(见Configuration.getExecutor())。此方法同步处理你的工作，意味着一旦方法返回，Worker被视为已经完成并被销毁。如果你需要异步执行或调用异步API，应使用ListenableWorker。如果因为某种原因工作没抢占，相同的Worker实例不会被重用。即每个Worker实例只会调用一次doWork()方法，如果需要重新运行工作单元，需要创建新的Worker。Worker最大10分钟完成执行并ListenableWorker.Result。如果过期，则会被发出信号停止。(Worker的doWork()方法是同步的，方法执行完则结束，不会重复执行，且默认超时时间是10分钟，超过则被停止。)</li>
+<li>WorkRequest 代表一个独立的任务。一个WorkRequest对象至少指定哪个Worker类应该执行该任务。但是，你还可以给WorkRequest添加详细信息，比如任务运行时的环境。每个WorkRequest有一个自动生成的唯一ID，你可以使用ID来取消排队的任务或获取任务的状态。WorkRequest是一个抽象类，你需要使用它一个子类，OneTimeWorkRequest或PeriodicWorkRequest。<br>1)WorkRequest.Builder 创建WorkRequest对象的帮助类，你需要使用子类OneTimeWorkRequest.Builder或PeriodicWorkRequest.Builder。<br>2)Constraints(约束) 指定任务执行时的限制(如只有网络连接时)。使用Constraints.Builder创建Constraints对象，并在创建WorkRequest对象前传递给WorkRequest.Builder。</li>
+<li>WorkManager 排队和管理WorkRequest。将WorkRequest对象传递给WorkManager来将任务添加到队列。WorkManager 使用分散加载系统资源的方式安排任务，同时遵守你指定的约束。<br>1)WorkManager使用一种底层作业调度服务基于下面的标注<br>2)使用JobScheduler API23+<br>3)使用AlarmManager + BroadcastReceiver API14-22</li>
+<li>WorkInfo 包含有关特定任务的信息。WorkManager为每个WorkRequest对象提供一个LiveData。LiveData持有WorkInfo对象，通过观察LiveData，你可以确定任务的当前状态，并在任务完成后获取任何返回的值。</li>
+</ul>
+<p><img src="/2019/02/27/android多线程/workmanager-create.jpg" alt></p>
+<p>注意：</p>
+<ol>
+<li>WorkManager组件库里面提供了一个专门做周期性任务的类PeriodicWorkRequest。但是PeriodicWorkRequest类有一个限制条件最小的周期时间是15分钟。</li>
+<li>链式任务的任务链里面的任何一个任务返回WorkerResult.FAILURE，则整个任务链终止；WorkManager会把上一个任务的输出自动作为下一个任务的输入。链式任务的关键在WorkContinuation，通过WorkContinuation来整理好队列(是顺序执行，还是组合执行)然后入队执行。</li>
+</ol>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a><br><a href="https://juejin.im/post/5c6134f2e51d4563567cbd89" target="_blank" rel="noopener">WorkManager浅析</a><br><a href="https://blog.csdn.net/wuyuxing24/article/details/80955646" target="_blank" rel="noopener">Android架构组件WorkManager详解</a></p>
 
       
     </div>
@@ -565,7 +603,7 @@ public static void setDefaultExecutor(Executor exec) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -620,7 +658,7 @@ public static void setDefaultExecutor(Executor exec) {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread"><span class="nav-number">2.</span> <span class="nav-text">Thread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HandlerThread"><span class="nav-number">3.</span> <span class="nav-text">HandlerThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AsyncTask-已废弃"><span class="nav-number">4.</span> <span class="nav-text">AsyncTask(已废弃)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LoaderManager"><span class="nav-number">5.</span> <span class="nav-text">LoaderManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-LoaderManager"><span class="nav-number">5.1.</span> <span class="nav-text">1.LoaderManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Loader"><span class="nav-number">5.2.</span> <span class="nav-text">2.Loader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WorkManager"><span class="nav-number">6.</span> <span class="nav-text">WorkManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

@@ -293,6 +293,237 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/java-https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/19/java-https/" itemprop="url">https加密解析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T10:52:25+08:00">
+                2019-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>HTTPS全称为Hypertext Transfer Protocol over Secure Socket Layer，中文含义为“超文本传输安全协议”。</p>
+<p>HTTP协议是没有加密无状态的明文传输协议，如果APP采用HTTP传输数据，则会泄露传输内容，可能被中间人劫持，修改传输的内容。HTTPS相当于HTTP的安全版本，作用如下：</p>
+<blockquote>
+<p>认证用户和服务器，确保数据发送到正确的客户机和服务器；(身份认证)<br>加密数据以防止数据中途被窃取；（内容加密）<br>维护数据的完整性，确保数据在传输过程中不被改变。（数据完整性）</p>
+</blockquote>
+<h2 id="Https通讯原理"><a href="#Https通讯原理" class="headerlink" title="Https通讯原理"></a>Https通讯原理</h2><p>HTTPS是HTTP over SSL/TLS，HTTP是应用层协议，TCP是传输层协议，在应用层和传输层之间，增加了一个安全套接层SSL/TLS：<br><img src="https.png" alt><br>TLS协议主要有五部分：应用数据层协议，握手协议，报警协议，加密消息确认协议，心跳协议。TLS协议本身又是有record协议传输的，record协议的格式如上图最右所示。<br>SSL/TLS层负责客户端和服务器之间的加解密算法协商、密钥交换、通信连接的建立，安全连接的建立过程如下所示：<br><img src="https_hand.jpg" alt><br>简单描述如下：</p>
+<ol>
+<li>浏览器将自己支持的一套加密算法、HASH算法发送给网站。</li>
+<li>网站从中选出一组加密算法与HASH算法，并将自己的身份信息以证书的形式发回给浏览器。证书里面包含了网站地址，加密公钥，以及证书的颁发机构等信息。</li>
+<li>浏览器获得网站证书之后，开始验证证书的合法性，如果证书信任，则生成一串随机数字作为通讯过程中对称加密的秘钥。然后取出证书中的公钥，将这串数字以及HASH的结果进行加密，然后发给网站。</li>
+<li>网站接收浏览器发来的数据之后，通过私钥进行解密，然后HASH校验，如果一致，则使用浏览器发来的数字串使加密一段握手消息发给浏览器。</li>
+<li>浏览器解密，并HASH校验，没有问题，则握手结束。接下来的传输过程将由之前浏览器生成的随机密码并利用对称加密算法进行加密。</li>
+</ol>
+<h2 id="数字证书、CA"><a href="#数字证书、CA" class="headerlink" title="数字证书、CA"></a>数字证书、CA</h2><p>信息安全的基础依赖密码学，密码学涉及算法和密钥，算法一般是公开的，而密钥需要得到妥善的保护，密钥如何产生、分配、使用和回收，这涉及公钥基础设施。</p>
+<p>公钥基础设施（PKI）是一组由硬件、软件、参与者、管理政策与流程组成的基础架构，其目的在于创造、管理、分配、使用、存储以及撤销数字证书。公钥存储在数字证书中，标准的数字证书一般由可信数字证书认证机构(CA，根证书颁发机构)签发，此证书将用户的身份跟公钥链接在一起。CA必须保证其签发的每个证书的用户身份是唯一的。</p>
+<p>链接关系（证书链）通过注册和发布过程创建，取决于担保级别，链接关系可能由CA的各种软件或在人为监督下完成。PKI的确定链接关系的这一角色称为注册管理中心（RA，也称中级证书颁发机构或者中间机构）。RA确保公钥和个人身份链接，可以防抵赖。如果没有RA，CA的Root 证书遭到破坏或者泄露，由此CA颁发的其他证书就全部失去了安全性，所以现在主流的商业数字证书机构CA一般都是提供三级证书，Root 证书签发中级RA证书，由RA证书签发用户使用的证书。</p>
+<p>X509证书链，左边的是CA根证书，中间的是RA中间机构，右边的是用户：<br><img src="/2019/03/19/java-https/ca.jpg" alt></p>
+<h3 id="pfx格式和-cer格式的区别"><a href="#pfx格式和-cer格式的区别" class="headerlink" title=".pfx格式和.cer格式的区别"></a>.pfx格式和.cer格式的区别</h3><p>购买的证书，格式为.pfx，带有公钥和私钥，附带一个密码。还有一种格式为.cer的证书，这种证书是没有私钥的。 </p>
+<ol>
+<li><p>带有私钥的证书<br>　　由Public Key Cryptography Standards #12，PKCS#12标准定义，包含了公钥和私钥的二进制格式的证书形式，以pfx作为证书文件后缀名(导出私钥,是需要输入密码的)。</p>
+</li>
+<li><p>二进制编码的证书<br>　　证书中没有私钥，DER 编码二进制格式的证书文件，以cer作为证书文件后缀名。</p>
+</li>
+<li><p>Base64编码的证书<br>证书中没有私钥，BASE64 编码格式的证书文件，也是以cer作为证书文件后缀名。</p>
+</li>
+</ol>
+<h2 id="https加密"><a href="#https加密" class="headerlink" title="https加密"></a>https加密</h2><p>加密算法一般分为对称加密与非对称加密。HTTPS一般使用的加密与HASH算法如下：</p>
+<blockquote>
+<p>非对称加密算法：RSA，DSA/DSS<br>对称加密算法：AES，RC4，3DES<br>HASH算法：MD5，SHA1，SHA256</p>
+</blockquote>
+<h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>客户端与服务器使用相同的密钥对消息进行加密<br>优点：1.加密强度高，很难被破解 2.计算量小，仅为非对称加密计算量的 0.1%<br>缺点：1.无法安全的生成和管理密钥 2.服务器管理大量客户端密钥复杂</p>
+<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>非对称指加密与解密的密钥为两种密钥。服务器提供公钥，客户端通过公钥对消息进行加密，并由服务器端的私钥对密文进行解密。<br>优点：安全<br>缺点： 1. 性能低下，CPU 计算资源消耗巨大，一次完全的 TLS 握手，密钥交换时的非对称加密解密占了整个握手过程的 90% 以上。而对称加密的计算量只相当于非对称加密的 0.1%，因此如果对应用层使用非对称加密，性能开销过大，无法承受。2. 非对称加密对加密内容长度有限制，不能超过公钥的长度。比如现在常用的公钥长度是 2048 位，意味着被加密消息内容不能超过 256 字节。</p>
+<p>其中<strong>非对称加密算法用于在握手过程中加密生成的密码，对称加密算法用于对真正传输的数据进行加密，而HASH算法用于验证数据的完整性</strong>。</p>
+<p>非对称密钥加密最大的一个问题，就是无法证明公钥本身就是货真价实的公钥。比如，正准备和某台服务器建立非对称密钥加密方式下的通信时，如何证明收到的公开密钥就是原本预想的那台服务器发行的公开密钥。或许在公开密钥传输途中，真正的公开密钥已经被攻击者替换掉了。<br>为了解决上述问题，可以使用由数字证书认证机构(CA，Certificate Authority)和其相关机关颁发的公开密钥证书。</p>
+<h3 id="Hash算法（摘要算法）"><a href="#Hash算法（摘要算法）" class="headerlink" title="Hash算法（摘要算法）"></a>Hash算法（摘要算法）</h3><p>Hash算法特别的地方在于它是一种<strong>单向算法</strong>，用户可以通过hash算法对目标信息生成一段特定长度的唯一hash值，却不能通过这个hash值重新获得目标信息。因此Hash算法常用在不可还原的密码存储、信息完整性校验等。</p>
+<p>常见的Hash算法有MD2、MD4、MD5、HAVAL、SHA</p>
+<h3 id="HTTPS采用混合加密机制"><a href="#HTTPS采用混合加密机制" class="headerlink" title="HTTPS采用混合加密机制"></a>HTTPS采用混合加密机制</h3><p>HTTPS采用对称密钥加密和非对称密钥加密两者并用的混合加密机制，在交换密钥环节使用非对称密钥加密方式（安全地交换在稍后的对称密钥加密中要使用的密钥），之后的建立通信交换报文阶段则使用对称密钥加密方式。</p>
+<p><img src="/2019/03/19/java-https/aes_rsa.png" alt><br>所以，AES+RSA结合才更好，AES加密数据，且密钥随机生成，RSA用对方（服务器）的公钥加密随机生成的AES密钥。传输时要把密文，加密的AES密钥和自己的公钥传给对方（服务器）。对方（服务器）接到数据后，用自己的私钥解密AES密钥，再拿AES密钥解密数据得到明文。这样就综合了两种加密体系的优点。下面代码展示OkHttp添加拦截器实现（要对response.code()做处理，只有在和后台约定好的返回码下才走解密的逻辑，具体看自己的需求）：</p>
+<pre><code>public class DataEncryptInterceptor implements Interceptor {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        //请求
+        Request request = chain.request();
+        RequestBody oldRequestBody = request.body();
+        Buffer requestBuffer = new Buffer();
+        oldRequestBody.writeTo(requestBuffer);
+        String oldBodyStr = requestBuffer.readUtf8();
+        requestBuffer.close();
+        MediaType mediaType = MediaType.parse(&quot;text/plain; charset=utf-8&quot;);
+        //生成随机AES密钥并用serverPublicKey进行RSA加密
+        SecretKeySpec appAESKeySpec = EncryptUtils.generateAESKey(256);
+        String appAESKeyStr = EncryptUtils.covertAESKey2String(appAESKeySpec);
+        String appEncryptedKey = RSAUtils.encryptDataString(appAESKeyStr, serverPublicKey);
+        //计算body 哈希 并使用app私钥RSA签名
+        String appSignature = RSAUtils.signature(oldBodyStr, appPrivateKey);
+        //随机AES密钥加密oldBodyStr
+        String newBodyStr = EncryptUtils.encryptAES(appAESKeySpec, oldBodyStr);
+        RequestBody newBody = RequestBody.create(mediaType, newBodyStr);
+        //构造新的request
+        request = request.newBuilder()
+                .header(&quot;Content-Type&quot;, newBody.contentType().toString())
+                .header(&quot;Content-Length&quot;, String.valueOf(newBody.contentLength()))
+                .method(request.method(), newBody)
+                .header(&quot;appEncryptedKey&quot;, appEncryptedKey)
+                .header(&quot;appSignature&quot;, appSignature)
+                .header(&quot;appPublicKey&quot;, appPublicKeyStr)
+                .build();
+        //响应
+        Response response = chain.proceed(request);
+        if (response.code() == 200) {//只有约定的返回码才经过加密，才需要走解密的逻辑
+            //获取响应头
+            String serverEncryptedKey = response.header(&quot;serverEncryptedKey&quot;);
+            //用app的RSA私钥解密AES加密密钥
+            String serverDecryptedKey = RSAUtils.decryptDataString(serverEncryptedKey, appPrivateKey);
+            SecretKeySpec serverAESKeySpec = EncryptUtils.covertString2AESKey(serverDecryptedKey);
+            //用AES密钥解密oldResponseBodyStr
+            ResponseBody oldResponseBody = response.body();
+            String oldResponseBodyStr = oldResponseBody.string();
+            String newResponseBodyStr = EncryptUtils.decryptAES(serverAESKeySpec, oldResponseBodyStr);
+            oldResponseBody.close();
+            //构造新的response
+            ResponseBody newResponseBody = ResponseBody.create(mediaType, newResponseBodyStr);
+            response = response.newBuilder().body(newResponseBody).build();
+        }
+        response.close();
+        //返回
+        return response;
+    }
+}
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/alisecurity/p/5939336.html" target="_blank" rel="noopener">https://www.cnblogs.com/alisecurity/p/5939336.html</a><br><a href="https://blog.csdn.net/weixin_35973945/article/details/82021116" target="_blank" rel="noopener">Https原理和实现</a><br><a href="https://www.jianshu.com/p/25525e8180e6" target="_blank" rel="noopener">Android Okhttp网络请求加解密实现方案</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/18/android-https/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2090,7 +2321,7 @@ header中标明了Content-Encoding为gzip
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/02/27/android多线程/" itemprop="url">android多线程</a></h1>
+                <a class="post-title-link" href="/2019/02/27/android多线程/" itemprop="url">android异步处理</a></h1>
         
 
         <div class="post-meta">
@@ -2164,11 +2395,14 @@ header中标明了Content-Encoding为gzip
       
         
           
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Android开发中经常会使用到多线程，这里主要是总结Android开发中常见的多线程实现方式，以及这些多线程实现方式的一些特点<br>多线程实现方式主要有：</p>
-<p>实现Thread的run()方法或者实现Runable接口</p>
-<p>HandlerThread</p>
-<p>AsyncTask</p>
-<p>LoaderManager</p>
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>异步处理实现方式主要有：</p>
+<ul>
+<li>实现Thread的run()方法或者实现Runable接口</li>
+<li>HandlerThread</li>
+<li>AsyncTask(已废弃)</li>
+<li>LoaderManager</li>
+<li>WorkManager</li>
+</ul>
 <h3 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h3><p>直接使用Thread实现方式，这种方式简单，但不是很优雅。适合数量很少（偶尔一两次）的异步任务，但要处理的异步任务很多的话，使用该方式<strong>会导致创建大量的线程</strong>，这会影响用户交互。</p>
 <ol>
 <li><p>关键字join、sleep、yield</p>
@@ -2190,7 +2424,7 @@ header中标明了Content-Encoding为gzip
 <p>消息处理类（Handler）允许发送和处理Message和Rannable对象到其所在线程的MessageQueue中。（它主要有两个作用：1、将Message或Runnable应用post()方法或sendMessage()方法发送到MessageQueue中，在发送时可以指定延时时间、发送时间或者要携带的bundle数据。当MessageQueue循环到该Message时，调用相应的Handler对象的handlerMessage()方法对其进行处理。2、在子线程中与主线程进行通信，也就是在工作线程中与UI线程进行通信。）</p>
 <p>另外，在一个线程中只能有一个Looper和MessageQueue，但是可以有多个Handler,而且这些Handler可以共享一个Looper和MessageQueue。</p>
 <p>消息类(Message)被存放在MessageQueue中，一个MessageQueue中可以包含多个Message对象。每个Message对象可以通过Messhe.obtain()方法或者Handler.obtainMessage()方法获得。Message是一个final类，所以不可被继承。</p>
-<h3 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
+<h3 id="AsyncTask-已废弃"><a href="#AsyncTask-已废弃" class="headerlink" title="AsyncTask(已废弃)"></a>AsyncTask(已废弃)</h3><p>AsyncTask的内部使用了两个线程池，使用AsyncTask执行异步操作时，会先在SerialExecutor进行一个顺序排队， 后再用ThreadPoolExcutor线程池为你分配一个线程并执行。而整个应用的AsyncTask任务都在排同一条队，有可能等待排队的任务很多，所以一般不会使用AsyncTask执行一些优先级比较高的异步任务。 </p>
 <p>当然我们是可以跳过不需要进行排队，直接就通过线程池分配一个线程并执行异步任务，但需要注意同时执行太多的异步任务，会影响用户体验，我想Google就是为了限制同时创建太多的线程才会采用一个排队机制的</p>
 <pre><code>/** @hide */
 public static void setDefaultExecutor(Executor exec) {
@@ -2198,6 +2432,12 @@ public static void setDefaultExecutor(Executor exec) {
 }
 </code></pre><p>该方法是隐藏，但可使用反射，设置一个线程池。</p>
 <p>AsyncTask， <strong>通常用于耗时的异步处理，且时效性要求不是非常高的那种异步操作</strong>。如果时效性要求非常高的操作，不建议使用这个方式，因为AsyncTask的默认实现是有内部排队机制，且是整个应用的AsyncTask的任务进行排队，所以不能保证异步任务能很快的被执行。</p>
+<p>问题如下：</p>
+<ol>
+<li>并行串行问题：AsyncTasks should ideally be used for short operations (a few seconds at the most)</li>
+<li>错误处理问题：AsyncTask没有对发生的一些异常进行处理，你只能在onBackground里进行一些判断，但之外的一些异常情况发生你都无法了解，比如线程异常退出等。</li>
+<li>多个任务的管理问题：如果需要多个后台任务，需要新建多个AsyncTask来执行任务，在需要退出的时候你需要对每一个都进行一定的处理来避免内存泄露以及UI问题，这是一个很麻烦的事情。</li>
+</ol>
 <h3 id="LoaderManager"><a href="#LoaderManager" class="headerlink" title="LoaderManager"></a>LoaderManager</h3><p>LoaderManager，当<strong>请求处理时机需要根据Activity的生命周期进行调整</strong>，或需要<strong>时刻监测数据的变化</strong>，那LoaderManager是很不错的解决方案。</p>
 <p>LoaderManager可以解决的问题包括：</p>
 <p>1.加载的数据有变化时，会自动通知我们，而不自己监控数据的变化情况，如：用CursorLoader来加载数据库数据，当数据库数据有变化时，可是个展示变化的数据</p>
@@ -2219,7 +2459,33 @@ public static void setDefaultExecutor(Executor exec) {
 </code></pre><p>一般我们不直接继承Loader，而是继承AsyncTaskLoader，因为Loader的加载工作并不是在异步线程中。而AsyncTaskLoader实现了异步线程，加载流程在子线程中执行。注意：对该类的调用应该在主线程中完成。</p>
 <p><strong>Loader负责数据加载逻辑，LoaderManager负责Loader的调度</strong>，开发者只需要自定义自己的Loader，实现数据的加载逻辑，而不再关注数据加载时由于Activity销毁引发的问题。</p>
 <p>注意：其实AsyncTaskLoader内部实现异步的方式是使用AsyncTask完成的，上面我们说过AsyncTask的内部是有一个排队机制，但<strong>AsyncTaskLoader内部使用AsyncTask进行数据异步加载时，异步任务并不进行排队</strong>。而直接由线程池分配新线程来执行。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a></p>
+<h3 id="WorkManager"><a href="#WorkManager" class="headerlink" title="WorkManager"></a>WorkManager</h3><p>WorkManager<strong>最适用于可以延迟的任务，即使应用程序或设备重新启动（例如，使用后端服务定期同步数据并上载日志或分析数据），仍然可以运行</strong>。</p>
+<p><strong>特点：</strong></p>
+<ul>
+<li>允许在任务运行时设置约束，例如网络状态或充电状态；</li>
+<li>支持异步一次性和周期性任务；</li>
+<li>支持带输入和输出的链式任务；</li>
+<li>即使应用程序或设备重新启动，也可确保任务执行</li>
+</ul>
+<p>使用WorkManager，可以轻松添加网络可用性或计费状态等约束。任务将在满足约束时运行，并在运行时失败时自动重试。例如，如果任务需要网络可用，则当网络不再可用时将停止该任务，并在以后重试。<br>不仅如此，它还可以使用LiveData监视工作状态并检索工作结果，这样可以在任务完成时通知您的UI。如果任务执行失败，可以通过配置退避的处理方式来控制工作的重试方式。如果发生应用程序或设备重新启动，WorkManager还可以使用本地数据库中的工作记录重新安排工作。<br>利用OneTimeWorkRequest进行一次性调度或使用PeriodicWorkRequest进行重复调度。并且，我们还可以将一次性工作请求链接到按顺序或并行运行，如果链中的任何工作失败，WorkManager将确保不会运行剩余的工作链。</p>
+<p>WorkManager API <strong>可以很容易的指定可延迟的异步任务。允许你创建任务，并把它交给WorkManager来立即运行或在适当的时间运行。</strong>WorkManager根据设备API的级别和应用程序状态等因素来选择适当的方式运行任务。如果WorkManager在应用程序运行时执行你的任务，它会在应用程序进程的新线程中执行。如果应用程序没有运行，WorkManager会根据设备API级别和包含的依赖项选择适当的方式安排后台任务，可能会使用JobScheduler、Firebase JobDispatcher或AlarmManager。你不需要编写设备逻辑来确定设备有哪些功能和选择适当的API；相反，你只要把它交给WorkManager让它选择最佳的方式。</p>
+<p><img src="/2019/02/27/android多线程/workmanager.jpg" alt></p>
+<p>基础功能:</p>
+<ul>
+<li>使用WorkManager创建运行在你选择的环境下的单个任务或指定间隔的重复任务</li>
+<li>WorkManager API使用几个不同的类，有时，你需要继承一些类。</li>
+<li>Worker 指定需要执行的任务。有一个抽象类Worker，你需要继承并在此处工作。在后台线程同步工作的类。WorkManager在运行时实例化Worker类，并在预先指定的线程调用doWork方法(见Configuration.getExecutor())。此方法同步处理你的工作，意味着一旦方法返回，Worker被视为已经完成并被销毁。如果你需要异步执行或调用异步API，应使用ListenableWorker。如果因为某种原因工作没抢占，相同的Worker实例不会被重用。即每个Worker实例只会调用一次doWork()方法，如果需要重新运行工作单元，需要创建新的Worker。Worker最大10分钟完成执行并ListenableWorker.Result。如果过期，则会被发出信号停止。(Worker的doWork()方法是同步的，方法执行完则结束，不会重复执行，且默认超时时间是10分钟，超过则被停止。)</li>
+<li>WorkRequest 代表一个独立的任务。一个WorkRequest对象至少指定哪个Worker类应该执行该任务。但是，你还可以给WorkRequest添加详细信息，比如任务运行时的环境。每个WorkRequest有一个自动生成的唯一ID，你可以使用ID来取消排队的任务或获取任务的状态。WorkRequest是一个抽象类，你需要使用它一个子类，OneTimeWorkRequest或PeriodicWorkRequest。<br>1)WorkRequest.Builder 创建WorkRequest对象的帮助类，你需要使用子类OneTimeWorkRequest.Builder或PeriodicWorkRequest.Builder。<br>2)Constraints(约束) 指定任务执行时的限制(如只有网络连接时)。使用Constraints.Builder创建Constraints对象，并在创建WorkRequest对象前传递给WorkRequest.Builder。</li>
+<li>WorkManager 排队和管理WorkRequest。将WorkRequest对象传递给WorkManager来将任务添加到队列。WorkManager 使用分散加载系统资源的方式安排任务，同时遵守你指定的约束。<br>1)WorkManager使用一种底层作业调度服务基于下面的标注<br>2)使用JobScheduler API23+<br>3)使用AlarmManager + BroadcastReceiver API14-22</li>
+<li>WorkInfo 包含有关特定任务的信息。WorkManager为每个WorkRequest对象提供一个LiveData。LiveData持有WorkInfo对象，通过观察LiveData，你可以确定任务的当前状态，并在任务完成后获取任何返回的值。</li>
+</ul>
+<p><img src="/2019/02/27/android多线程/workmanager-create.jpg" alt></p>
+<p>注意：</p>
+<ol>
+<li>WorkManager组件库里面提供了一个专门做周期性任务的类PeriodicWorkRequest。但是PeriodicWorkRequest类有一个限制条件最小的周期时间是15分钟。</li>
+<li>链式任务的任务链里面的任何一个任务返回WorkerResult.FAILURE，则整个任务链终止；WorkManager会把上一个任务的输出自动作为下一个任务的输入。链式任务的关键在WorkContinuation，通过WorkContinuation来整理好队列(是顺序执行，还是组合执行)然后入队执行。</li>
+</ol>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/baidu_36385172/article/details/79705915" target="_blank" rel="noopener">https://blog.csdn.net/baidu_36385172/article/details/79705915</a><br><a href="https://www.cnblogs.com/diysoul/p/5124886.html" target="_blank" rel="noopener">https://www.cnblogs.com/diysoul/p/5124886.html</a><br><a href="https://juejin.im/post/5c6134f2e51d4563567cbd89" target="_blank" rel="noopener">WorkManager浅析</a><br><a href="https://blog.csdn.net/wuyuxing24/article/details/80955646" target="_blank" rel="noopener">Android架构组件WorkManager详解</a></p>
 
           
         
@@ -2491,7 +2757,7 @@ tags: #文章標籤 可以省略
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

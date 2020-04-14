@@ -80,17 +80,19 @@
 
 
 
-<meta name="description" content="如何识别复杂度架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是： （1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。 （2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？ “高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从">
+<meta name="description" content="Google 在2018年推出了 Android Jetpack。Jetpack 是一套库、工具和指南，可帮助开发者更轻松地编写优质应用。这些组件可帮助您遵循最佳做法、让您摆脱编写样板代码的工作并简化复杂任务，以便您将精力集中放在所需的代码上。 Android Jetpack 组件是库的集合，这些库是为协同工作而构建的，不过也可以单独采用，同时利用 Kotlin 语言功能帮助您提高工作效率。可全部">
 <meta property="og:type" content="article">
-<meta property="og:title" content="架构设计流程">
-<meta property="og:url" content="http://yoursite.com/2019/04/28/architecture-design-flow/index.html">
+<meta property="og:title" content="Android Jetpack">
+<meta property="og:url" content="http://yoursite.com/2020/04/09/android-jetpack/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="如何识别复杂度架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是： （1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。 （2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？ “高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从">
+<meta property="og:description" content="Google 在2018年推出了 Android Jetpack。Jetpack 是一套库、工具和指南，可帮助开发者更轻松地编写优质应用。这些组件可帮助您遵循最佳做法、让您摆脱编写样板代码的工作并简化复杂任务，以便您将精力集中放在所需的代码上。 Android Jetpack 组件是库的集合，这些库是为协同工作而构建的，不过也可以单独采用，同时利用 Kotlin 语言功能帮助您提高工作效率。可全部">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-29T09:56:48.184Z">
+<meta property="og:image" content="http://yoursite.com/2020/04/09/android-jetpack/jetpack-composition.png">
+<meta property="og:updated_time" content="2020-04-09T09:13:38.125Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="架构设计流程">
-<meta name="twitter:description" content="如何识别复杂度架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是： （1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。 （2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？ “高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从">
+<meta name="twitter:title" content="Android Jetpack">
+<meta name="twitter:description" content="Google 在2018年推出了 Android Jetpack。Jetpack 是一套库、工具和指南，可帮助开发者更轻松地编写优质应用。这些组件可帮助您遵循最佳做法、让您摆脱编写样板代码的工作并简化复杂任务，以便您将精力集中放在所需的代码上。 Android Jetpack 组件是库的集合，这些库是为协同工作而构建的，不过也可以单独采用，同时利用 Kotlin 语言功能帮助您提高工作效率。可全部">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/09/android-jetpack/jetpack-composition.png">
 
 
 
@@ -120,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
+  <link rel="canonical" href="http://yoursite.com/2020/04/09/android-jetpack/">
 
 
 
 
 
-  <title>架构设计流程 | Blog</title>
+  <title>Android Jetpack | Blog</title>
   
 
 
@@ -296,7 +298,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/09/android-jetpack/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Shuming Zhao">
@@ -313,7 +315,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">架构设计流程</h1>
+          <h1 class="post-title" itemprop="name headline">Android Jetpack</h1>
         
 
         <div class="post-meta">
@@ -325,8 +327,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-28T17:55:33+08:00">
-                2019-04-28
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-09T16:19:49+08:00">
+                2020-04-09
               </time>
             
 
@@ -348,8 +350,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/架构/" itemprop="url" rel="index">
-                    <span itemprop="name">架构</span>
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
                   </a>
                 </span>
 
@@ -385,38 +387,17 @@
       
 
       
-        <h3 id="如何识别复杂度"><a href="#如何识别复杂度" class="headerlink" title="如何识别复杂度"></a>如何识别复杂度</h3><p>架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是：</p>
-<p>（1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。</p>
-<p>（2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？</p>
-<p>“高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从用户的主观感受方面去考虑。</p>
-<p>“可用性”主要从服务不中断等质量属性，符合行业政策、国家法规等方面去考虑。</p>
-<p>“扩展性”则主要从功能需求的未来变更幅度等方面去考虑。</p>
-<p>（3）按照上述的分析结论，得到复杂度按照优先级的排序清单，越是排在前面的复杂度，就越关键，就越优先解决。</p>
-<p>需要特别注意的是：随着所处的业务阶段不同、外部的技术条件和环境的不同，得到的复杂度问题的优先级排序就会有所不同。一切皆变化。</p>
-<h3 id="备选方案设计"><a href="#备选方案设计" class="headerlink" title="备选方案设计"></a>备选方案设计</h3><p>经过架构设计流程第 1 步——识别复杂度，确定了系统面临的主要复杂度问题，进而明确了设计方案的目标，就可以开展架构设计流程第 2 步——设计备选方案。架构设计备选方案的工作更多的是从需求、团队、技术、资源等综合情况出发，对主流、成熟的架构模式进行选择、组合、调整、创新。</p>
-<p>1.几种常见的架构设计误区</p>
-<p>（1）设计最优秀的方案。不要面向“简历”进行架构设计，而是要根据“合适”、“简单”、“演进”的架构设计原则，决策出与需求、团队、技术能力相匹配的合适方案。</p>
-<p>（2）只做一个方案。一个方案容易陷入思考问题片面、自我坚持的认知陷阱。</p>
-<p>2.备选方案设计的注意事项</p>
-<p>（1）备选方案不要过于详细。备选阶段解决的是技术选型问题，而不是技术细节。</p>
-<p>（2）备选方案的数量以 3~5个为最佳。</p>
-<p>（3）备选方案的技术差异要明显。</p>
-<p>（4）备选方案不要只局限于已经熟悉的技术。</p>
-<p>3.问题思考</p>
-<p>可以从开源、自研的角度提出架构设计方案</p>
-<p>如果是创业公司的业务早、中期阶段，可直接考虑采用阿里云/腾讯云，性能、HA、伸缩性都有保证。</p>
-<p>最大的感悟是：做事情永远都要有B方案。</p>
-<h3 id="评估和选择备选方案"><a href="#评估和选择备选方案" class="headerlink" title="评估和选择备选方案"></a>评估和选择备选方案</h3><p>1 评估和选择备选方案的方法<br><strong>列出我们需要关注的质量属性点，然后分别从这些质量属性的维度去评估每个方案，再综合挑选适合当时情况的最优方案。</strong>常见的质量属性点有：性能、可用性、硬件成本、项目投入、复杂度、安全性、可扩展性。<br>按优先级选择，即架构师综合当前的业务发展情况、团队人员规模和技能、业务发展预测等因素，将质量属性按照优先级排序，首先挑选满足第一优先级的，如果方案都满足，那就再看第二优先级……以此类推。</p>
-<p>2 RocketMQ 和 Kafka 有什么区别？</p>
-<p>（1） 适用场景<br>Kafka适合日志处理；RocketMQ适合业务处理。</p>
-<p>（2） 性能<br>Kafka单机写入TPS号称在百万条/秒；RocketMQ大约在10万条/秒。Kafka单机性能更高。</p>
-<p>（3） 可靠性<br>RocketMQ支持异步/同步刷盘;异步/同步Replication；Kafka使用异步刷盘方式，异步Replication。RocketMQ所支持的同步方式提升了数据的可靠性。</p>
-<p>（4） 实时性<br>均支持pull长轮询，RocketMQ消息实时性更好</p>
-<p>（5） 支持的队列数<br>Kafka单机超过64个队列/分区，消息发送性能降低严重；RocketMQ单机支持最高5万个队列，性能稳定（这也是适合业务处理的原因之一）</p>
-<p>3 为什么阿里会自研RocketMQ？</p>
-<p>（1） Kafka的业务应用场景主要定位于日志传输；对于复杂业务支持不够<br>（2） 阿里很多业务场景对数据可靠性、数据实时性、消息队列的个数等方面的要求很高<br>（3）当业务成长到一定规模，采用开源方案的技术成本会变高（开源方案无法满足业务的需要；旧版本、自开发代码与新版本的兼容等）<br>（4） 阿里在团队、成本、资源投入等方面约束性条件几乎没有</p>
-<h3 id="详细设计方案"><a href="#详细设计方案" class="headerlink" title="详细设计方案"></a>详细设计方案</h3><p>完成备选方案的设计和选择后，接下来需要将确定的备选方案细化，使得备选方案变成一个可以落地的设计方案。</p>
-<p>1）架构师不但要进行备选方案的设计和选型，还需要对备选方案的关键细节有较深入的理解。<br>2）通过分步骤、分阶段、分系统等方式，尽量减低方案复杂度，方案本身的复杂度越高，某个细节推翻整个方案的可能性就越大，适当降低复杂度，可以降低这种风险。<br>3）如果方案本身就很复杂，那就采取设计团队的方式来进行设计，博采众长，防止可能出现的盲点或经验误区。</p>
+        <p>Google 在2018年推出了 Android Jetpack。Jetpack 是一套库、工具和指南，可帮助开发者更轻松地编写优质应用。这些组件可帮助您遵循最佳做法、让您摆脱编写样板代码的工作并简化复杂任务，以便您将精力集中放在所需的代码上。</p>
+<p>Android Jetpack 组件是库的集合，这些库是为协同工作而构建的，不过也可以单独采用，同时利用 Kotlin 语言功能帮助您提高工作效率。可全部使用，也可混合搭配！Jetpack 也包含了与平台 API 解除捆绑的 androidx.* 软件包库。</p>
+<p>特点如下：</p>
+<ul>
+<li>加速开发：组件可以单独采用（不过这些组件是为协同工作而构建的），同时利用 Kotlin 语言功能帮助您提高工作效率。</li>
+<li>消除样板代码：Android Jetpack 可管理繁琐的 Activity（如后台任务、导航和生命周期管理），以便您可以专注于如何让自己的应用出类拔萃。</li>
+<li>构建高质量的强大应用：Android Jetpack 组件围绕现代化设计实践构建而成，具有向后兼容性，可以减少崩溃和内存泄漏。</li>
+</ul>
+<h2 id="JetPack的组成"><a href="#JetPack的组成" class="headerlink" title="JetPack的组成"></a>JetPack的组成</h2><p><img src="/2020/04/09/android-jetpack/jetpack-composition.png" alt></p>
+<p>WorkManager很强大，需要的地方可以替代以前的方案。LifeCycles也不错，扩展其他类具有关联生命周期的。还有Room数据库的框架，简单了很多。LiveData和ViewModel的结合基本上就是RxJava和RxAndroid的结合的功能了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://developer.android.google.cn/jetpack?hl=zh_cn" target="_blank" rel="noopener">https://developer.android.google.cn/jetpack?hl=zh_cn</a></p>
 
       
     </div>
@@ -441,8 +422,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/26/flutter-package-size/" rel="next" title="Flutter APP体积为何比较大">
-                <i class="fa fa-chevron-left"></i> Flutter APP体积为何比较大
+              <a href="/2020/04/07/android-plugin-virtualApp/" rel="next" title="VirtualApp沙盒基本原理">
+                <i class="fa fa-chevron-left"></i> VirtualApp沙盒基本原理
               </a>
             
           </div>
@@ -450,10 +431,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/04/29/architecture-high-performance/" rel="prev" title="数据库高性能">
-                数据库高性能 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -587,7 +564,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#如何识别复杂度"><span class="nav-number">1.</span> <span class="nav-text">如何识别复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#备选方案设计"><span class="nav-number">2.</span> <span class="nav-text">备选方案设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#评估和选择备选方案"><span class="nav-number">3.</span> <span class="nav-text">评估和选择备选方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#详细设计方案"><span class="nav-number">4.</span> <span class="nav-text">详细设计方案</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JetPack的组成"><span class="nav-number">1.</span> <span class="nav-text">JetPack的组成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
