@@ -293,6 +293,161 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/21/design-mode-prototype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/21/design-mode-prototype/" itemprop="url">原型模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-21T11:03:21+08:00">
+                2019-10-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>原型模式属于对象的创建模式：<strong>通过给出一个原型对象来指明所有创建的对象的类型，然后用复制这个原型对象的办法创建出更多同类型的对象</strong>。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、对象之间相同或相似，即只是个别的几个属性不同的时候。<br>2、对象的创建过程比较麻烦，但复制比较简单的时候。</p>
+<h2 id="原型模式的结构"><a href="#原型模式的结构" class="headerlink" title="原型模式的结构"></a>原型模式的结构</h2><p>原型模式要求对象实现一个可以“克隆”自身的接口，这样就可以通过复制一个实例对象本身来创建一个新的实例。这样一来，通过原型实例创建新的对象，就不再需要关心这个实例本身的类型，只要实现了克隆自身的方法，就可以通过这个方法来获取新的对象，而无须再去通过new来创建。</p>
+<p><img src="/2019/10/21/design-mode-prototype/prototype.png" alt></p>
+<p>这种形式涉及到三个角色：<br>（1）客户(Client)角色：客户类提出创建对象的请求。<br>（2）抽象原型(Prototype)角色：这是一个抽象角色，通常由一个Java接口或Java抽象类实现。此角色给出所有的具体原型类所需的接口。<br>（3）具体原型（Concrete Prototype）角色：被复制的对象。此角色需要实现抽象的原型角色所要求的接口。</p>
+<h2 id="浅克隆与深克隆"><a href="#浅克隆与深克隆" class="headerlink" title="浅克隆与深克隆"></a>浅克隆与深克隆</h2><p>浅克隆只是复制了基础属性，列如八大基本类型，然而引用类型实际上没有复制，只是将对应的引用给复制了。</p>
+<p>简单的说：如果一个对象中只有基本类型属性，那深克隆和浅克隆效果都是一样的，基本类型数据不管是用深克隆还是浅克隆都会被克隆出一份，但如果对象中包含引用对象属性，那浅克隆其实这是拷贝了一份引用，而深克隆确实把整个引用对象都拷贝了一份。</p>
+<h2 id="原型模式的优点"><a href="#原型模式的优点" class="headerlink" title="原型模式的优点"></a>原型模式的优点</h2><p>（1）根据客户端要求实现动态创建对象，客户端不需要知道对象的创建细节，便于代码的维护和扩展。</p>
+<p>（2）使用原型模式创建对象比直接new一个对象在性能上要好的多，因为Object类的clone方法是一个本地方法，它直接操作内存中的二进制流，特别是<strong>复制大对象时</strong>，性能的差别非常明显。所以在<strong>需要重复地创建相似对象时</strong>可以考虑使用原型模式。比如需要在一个循环体内创建对象，假如对象创建过程比较复杂或者循环次数很多的话，使用原型模式不但可以简化创建过程，而且可以使系统的整体性能提高很多。</p>
+<p>（3）原型模式类似于工厂模式，但它没有了工厂模式中的抽象工厂和具体工厂的实现，代码结构更清晰和简单。</p>
+<p>（4）可用于<strong>保护性拷贝</strong>，避免原始的对象被外部修改。</p>
+<h2 id="原型模式的注意事项"><a href="#原型模式的注意事项" class="headerlink" title="原型模式的注意事项"></a>原型模式的注意事项</h2><p>（1）使用原型模式复制对象不会调用类的构造方法。因为对象的复制是通过调用Object类的clone方法来完成的，它直接在内存中复制数据，因此不 会调用到类的构造方法。不但构造方法中的代码不会执行，甚至连访问权限都对原型模式无效。还记得单例模式吗？单例模式中，只要将构造方法的访问权限设置为 private型，就可以实现单例。但是clone方法直接无视构造方法的权限，所以，单例模式与原型模式是冲突的。</p>
+<p>（2）在使用时要注意深拷贝与浅拷贝的问题。clone方法只会拷贝对象中的基本的数据类型，对于数组、容器对象、引用对象等都不会拷贝，这就是浅拷贝。如果要实现深拷贝，必须将原型模式中的数组、容器对象、引用对象等另行拷贝。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">//具体原型类</span><br><span class="line">class Realizetype implements Cloneable</span><br><span class="line">&#123;</span><br><span class="line">    Realizetype()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体原型创建成功！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public Object clone() throws CloneNotSupportedException</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体原型复制成功！&quot;);</span><br><span class="line">        return (Realizetype)super.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//原型模式的测试类</span><br><span class="line">public class PrototypeTest</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)throws CloneNotSupportedException</span><br><span class="line">    &#123;</span><br><span class="line">        Realizetype obj1=new Realizetype();</span><br><span class="line">        Realizetype obj2=(Realizetype)obj1.clone();</span><br><span class="line">        System.out.println(&quot;obj1==obj2?&quot;+(obj1==obj2));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体原型创建成功！</span><br><span class="line">具体原型复制成功！</span><br><span class="line">obj1==obj2?false</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/21/design-mode-builder/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2007,502 +2162,6 @@ try {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/android-rxjava-principle/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/09/android-rxjava-principle/" itemprop="url">RxJava2原理解析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T15:03:10+08:00">
-                2019-08-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">Android知识点</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本篇主要对以下三个方面进行讲解：</p>
-<ul>
-<li>RxJava是流式编程，在每一条流中，都至少包含三个要素：源头/被订阅者(Observable或Flowable)、订阅者(Observer或subscriber)、触发时机(subscribe()方法)；</li>
-<li>其次就是线程切换（subscribeOn()和observeOn()）；</li>
-<li>最后就是数据操作(如map()、flatMap()等)。</li>
-</ul>
-<h2 id="1、订阅（subscribe）"><a href="#1、订阅（subscribe）" class="headerlink" title="1、订阅（subscribe）"></a>1、订阅（subscribe）</h2><p>首先看下最简单的情况：</p>
-<pre><code>Observable.create(new ObservableOnSubscribe&lt;String&gt;() {
-    @Override
-    public void subscribe(ObservableEmitter&lt;String&gt; emitter) throws Exception {
-        // doSomething, eg: 
-        // emitter.onNext(&quot;onNext&quot;);
-        // emitter.onComplete();
-    }
-}).subscribe();
-</code></pre><p>一条RxJava流若是没有调用subscribe()方法，该流便无法执行，即<strong>必须由subscribe()确定了订阅关系后这条流才能生效</strong>，原因如下：</p>
-<pre><code>// Observable.java
-public static &lt;T&gt; Observable&lt;T&gt; create(ObservableOnSubscribe&lt;T&gt; source) {
-    ObjectHelper.requireNonNull(source, &quot;source is null&quot;);
-    // 可以直接忽略RxJavaPlugins的相关方法，不影响我们理解原理
-    return RxJavaPlugins.onAssembly(new ObservableCreate&lt;T&gt;(source)); 
- }
-// 无论调用subscribe的哪个重载方法，最终都会走到这个方法
-public final void subscribe(Observer&lt;? super T&gt; observer) {
-    ... // 省去不重要代码
-    subscribeActual(observer);
-    ...
-}
-protected abstract void subscribeActual(Observer&lt;? super T&gt; observer);
-</code></pre><p>可以看到subscribe()里面主要是调用了subscribeActual，而subscribeActual是一个抽象方法，所以具体实现在子类中，这里的子类便是ObservableCreate，再来看它的实现：</p>
-<pre><code>// ObservableCreate.java
-public ObservableCreate(ObservableOnSubscribe&lt;T&gt; source) {
-    this.source = source;
-}
-protected void subscribeActual(Observer&lt;? super T&gt; observer) {
-    CreateEmitter&lt;T&gt; parent = new CreateEmitter&lt;T&gt;(observer);
-    observer.onSubscribe(parent);
-    try {
-        source.subscribe(parent);
-    } catch (Throwable ex) {
-        Exceptions.throwIfFatal(ex);
-        parent.onError(ex);
-    }
-}
-</code></pre><p><strong>ObservableCreate中subscribeActual的实现就是将我们的observer封装成CreateEmitter（ObservableEmitter的实现类），再执行observer.onSubscribe，确保onSubscribe总能在onNext等其他订阅行为之前执行，接着就是我们的核心代码：source.subscribe(parent)，source便是我们一开始创建流时新建的ObservableOnSubscribe对象，而parent则是封装后的CreateEmitter，所以其实此时执行的便是在创建ObservableOnSubscribe时实现的public void subscribe(ObservableEmitter<string> emitter) throws Exception方法，此时整条流的订阅关系便成立了。</string></strong></p>
-<p>现在我们知道，事件流的执行实际上是由子类实现的subscribeActual控制的，所以其他的Observable创建方式也是一样的道理，这里再以fromIterable为例看一下：</p>
-<pre><code>// Observable.java
-public static &lt;T&gt; Observable&lt;T&gt; fromIterable(Iterable&lt;? extends T&gt; source) {
-    ObjectHelper.requireNonNull(source, &quot;source is null&quot;);
-    return RxJavaPlugins.onAssembly(new ObservableFromIterable&lt;T&gt;(source));
-}
-
-// ObservableFromIterable.java
-public ObservableFromIterable(Iterable&lt;? extends T&gt; source) {
-    this.source = source;
-}
-@Override
-public void subscribeActual(Observer&lt;? super T&gt; s) {
-    Iterator&lt;? extends T&gt; it;
-    try {
-        it = source.iterator();
-    } catch (Throwable e) {
-        Exceptions.throwIfFatal(e);
-        EmptyDisposable.error(e, s);
-        return;
-    }
-    boolean hasNext;
-    try {
-        hasNext = it.hasNext();
-    } catch (Throwable e) {
-        Exceptions.throwIfFatal(e);
-        EmptyDisposable.error(e, s);
-        return;
-    }
-    if (!hasNext) {
-        EmptyDisposable.complete(s);
-        return;
-    }
-    FromIterableDisposable&lt;T&gt; d = new FromIterableDisposable&lt;T&gt;(s, it);
-    s.onSubscribe(d);
-    if (!d.fusionMode) {
-        d.run();
-    }
-}    
-</code></pre><p>可以看到，这里是将observer和我们的数据源列表封装为FromIterableDisposable，然后执行d.run()，下面看下run的实现：</p>
-<pre><code>// FromIterableDisposable.java
-FromIterableDisposable(Observer&lt;? super T&gt; actual, Iterator&lt;? extends T&gt; it) {
-    this.actual = actual;
-    this.it = it;
-}
-void run() {
-    boolean hasNext;
-    do {
-        if (isDisposed()) {
-            return;
-        }
-        T v;
-        try {
-            v = ObjectHelper.requireNonNull(it.next(), &quot;The iterator returned a null value&quot;);
-        } catch (Throwable e) {
-            Exceptions.throwIfFatal(e);
-            actual.onError(e);
-            return;
-        }
-        actual.onNext(v);
-        if (isDisposed()) {
-            return;
-        }
-        try {
-            hasNext = it.hasNext();
-        } catch (Throwable e) {
-            Exceptions.throwIfFatal(e);
-            actual.onError(e);
-            return;
-        }
-    } while (hasNext);
-    if (!isDisposed()) {
-        actual.onComplete();
-    }
-}
-</code></pre><p>在run方法中不停地遍历数据源列表，然后根据实际情况执行对应的事件处理方法(actual.onNext(v);等，actual即为我们传进来的observer)，这便完成了RxJava流的处理。</p>
-<p>总结：<strong>RxJava2的订阅原理其实便是在subcribe时执行子类中实现的subscribeActual方法，该方法最终会去调用observer相关的订阅方法，可理解为观察者模式的一种变形。</strong></p>
-<h2 id="2、线程切换"><a href="#2、线程切换" class="headerlink" title="2、线程切换"></a>2、线程切换</h2><h3 id="subscribeOn"><a href="#subscribeOn" class="headerlink" title="subscribeOn"></a>subscribeOn</h3><pre><code>// Observable.java
-public final Observable&lt;T&gt; subscribeOn(Scheduler scheduler) {
-    ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
-    return RxJavaPlugins.onAssembly(new ObservableSubscribeOn&lt;T&gt;(this, scheduler));
-    }
-</code></pre><p>subscribeOn时其实也是创建了一个Observable子类去实现subscribeActual方法：</p>
-<pre><code>// ObservableSubscribeOn.java
-public void subscribeActual(final Observer&lt;? super T&gt; s) {
-    final SubscribeOnObserver&lt;T&gt; parent = new SubscribeOnObserver&lt;T&gt;(s);
-    s.onSubscribe(parent);
-    parent.setDisposable(scheduler.scheduleDirect(new SubscribeTask(parent)));
-}
-</code></pre><p>这里将下游的Observer s封装成SubscribeOnObserver后又封装成Runnable的实现类SubscribeTask，在run方法中source.subscribe(parent)：</p>
-<pre><code>// ObservableSubscribeOn.java
-final class SubscribeTask implements Runnable {
-    private final SubscribeOnObserver&lt;T&gt; parent;
-    SubscribeTask(SubscribeOnObserver&lt;T&gt; parent) {
-        this.parent = parent;
-    }
-    @Override
-    public void run() {
-        source.subscribe(parent);
-    }
-}
-</code></pre><p>然后通过scheduler.scheduleDirect(new SubscribeTask(parent))将这个Task放到Worker中：</p>
-<pre><code>// Scheduler.java
-public Disposable scheduleDirect(@NonNull Runnable run) {
-    return scheduleDirect(run, 0L, TimeUnit.NANOSECONDS);
-}
-public Disposable scheduleDirect(@NonNull Runnable run, long delay, @NonNull TimeUnit unit) {
-    final Worker w = createWorker();
-    final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
-    DisposeTask task = new DisposeTask(decoratedRun, w);
-    w.schedule(task, delay, unit);
-    return task;
-}
-public abstract Worker createWorker();
-</code></pre><p>而createWorker由Scheduler子类实现，即我们执行的线程类型，如AndroidSchedulers.mainThread()、Schedulers.io()，这里以mainThread()为例，</p>
-<pre><code>// AndroidSchedulers.java
-public static Scheduler mainThread() {
-    return RxAndroidPlugins.onMainThreadScheduler(MAIN_THREAD);
-}
-private static final Scheduler MAIN_THREAD = RxAndroidPlugins.initMainThreadScheduler(new Callable&lt;Scheduler&gt;() {
-    @Override 
-    public Scheduler call() throws Exception {
-        return MainHolder.DEFAULT;
-    }
-});
-private static final class MainHolder {
-    static final Scheduler DEFAULT = new HandlerScheduler(new Handler(Looper.getMainLooper()));
-}
-</code></pre><p>RxAndroidPlugins里面的非常简单，这里最终返回的就是HandlerScheduler，因此来看下它实现的createWorker和schedule方法：</p>
-<pre><code>// HandlerScheduler.java
-public Worker createWorker() { return new HandlerWorker(handler); }
-</code></pre><p>在HandlerWorker中实现schedule(task, delay, unit)：</p>
-<pre><code>// HandlerWorker.java
-public Disposable schedule(Runnable run, long delay, TimeUnit unit) {
-    ...
-    ScheduledRunnable scheduled = new ScheduledRunnable(handler, run);
-    Message message = Message.obtain(handler, scheduled);
-    message.obj = this; // Used as token for batch disposal of this worker&apos;s runnables.
-    handler.sendMessageDelayed(message, unit.toMillis(delay));
-    ....
-    return scheduled;
-}
-</code></pre><p>这里将handler（由上面创建DEFAULT Scheduler时可知，该handler为UI线程的handler）和run又再次封装为ScheduledRunnable，然后通过handler发送到主线程处理，因此便保证了订阅操作（source.subscribe(parent)）执行在主线程。</p>
-<p>同时，由上面可知，rx流由subscribe开始触发，然后执行source.subscribe(observer)，然而source可能也是上游操作后的产物（如map），因此便会触发上游内部的subscribe，直到源头，即<strong>rx流由subscribe开始触发，然后逆向向上寻找直到源头，才开始真正的执行</strong>。因此，若是有多个subscribeOn，最终的subscribe也是被放到最上面的subscribeOn（即第一个）指定的线程中执行，<strong>这便是指定多个subscribeOn只有第一个生效的原因</strong>。</p>
-<p>总结：<strong>其实就是将订阅操作放到Runnable中执行，并结合handler机制将Runnable发送到主线程，对于其他线程（不同的线程模式会创建不同的Scheduler，并持有对应的线程池）则是将Runnable交给指定线程池处理。这便保证了在指定线程获取/处理数据源（observable）。</strong></p>
-<h3 id="observeOn"><a href="#observeOn" class="headerlink" title="observeOn"></a>observeOn</h3><pre><code>// Observable.java
-public final Observable&lt;T&gt; observeOn(Scheduler scheduler) {
-    return observeOn(scheduler, false, bufferSize());
-}
-public final Observable&lt;T&gt; observeOn(Scheduler scheduler, boolean delayError, int bufferSize) {
-    ObjectHelper.requireNonNull(scheduler, &quot;scheduler is null&quot;);
-    ObjectHelper.verifyPositive(bufferSize, &quot;bufferSize&quot;);
-    return RxJavaPlugins.onAssembly(new ObservableObserveOn&lt;T&gt;(this, scheduler, delayError, bufferSize));
-}
-</code></pre><p>observeOn的线程切换则是在ObservableObserveOn中处理的：</p>
-<pre><code>// ObservableObserveOn.java
-protected void subscribeActual(Observer&lt;? super T&gt; observer) {
-    if (scheduler instanceof TrampolineScheduler) {
-         source.subscribe(observer);
-    } else {
-        Scheduler.Worker w = scheduler.createWorker();
-        source.subscribe(new ObserveOnObserver&lt;T&gt;(observer, w, delayError, bufferSize));
-    }
-}
-</code></pre><p>这里也是根据指定线程类型创建Worker（可参考上面subscribeOn原理），并将observer和w一同放到ObserveOnObserver中：</p>
-<pre><code>// ObserveOnObserver.java
-public void onNext(T t) {
-    ....
-    schedule();
-}
-void schedule() {
-    if (getAndIncrement() == 0) {
-        worker.schedule(this);
-    }
-}
-public void run() {
-    if (outputFused) {
-        drainFused();
-    } else {
-         drainNormal();
-    }
-}
-void drainNormal() {
-    ...
-    for (;;) {
-        ...
-        for (;;) {
-            ...
-            a.onNext(v);
-        }
-        ...
-    }
-}
-</code></pre><p>可以看到，onNext执行的是schedule，而schedule则是将该对象直接放到指定线程的Worker中，然后在run中去执行对应的事件处理方法（onNext等），因此便实现了将下游的observer放到指定线程执行的目的，当然，这里只是将其直接下游的observer放到指定线程而已，对于其下游的下游则不一定。<strong>也就是说，observeOn可以有多个，每个都是对其直接下游做线程切换，若是下游不再切换，则所有下游都在该指定线程中执行。</strong></p>
-<p>总结:<strong>observeOn其实就是将下游的observer放到指定线程里面去执行。</strong></p>
-<h2 id="3、数据变换"><a href="#3、数据变换" class="headerlink" title="3、数据变换"></a>3、数据变换</h2><p>在事件从源头流到最终观察者的过程中，我们可以对事件进行操作转换，这里以map和flatMap为例进行解析。</p>
-<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><pre><code>// Observable.java
-public final &lt;R&gt; Observable&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper) {
-    ObjectHelper.requireNonNull(mapper, &quot;mapper is null&quot;);
-    return RxJavaPlugins.onAssembly(new ObservableMap&lt;T, R&gt;(this, mapper));
-}
-</code></pre><p>执行map操作时其实是<strong>将上游的observable和我们自己实现的mapper封住成一个ObservableMap</strong>，所以具体实现就是在ObservableMap的subscribeActual中：</p>
-<pre><code>// ObservableMap.java
-public void subscribeActual(Observer&lt;? super U&gt; t) {
-    source.subscribe(new MapObserver&lt;T, U&gt;(t, function));
-}
-</code></pre><p>看到这句是不是很熟悉，从上面的订阅原理可知，到这里其实真正执行的便是MapObserver中的onNext等方法了，而其onNext里便是先执行map转换，再将转换结果交给下游的observer执行：</p>
-<pre><code>// MapObserver.java
-@Override
-public void onNext(T t) {
-    if (done) { // error or complete
-        return;
-    }
-    if (sourceMode != NONE) {
-        actual.onNext(null);
-        return;
-    }
-    U v;
-    try {
-    v = ObjectHelper.requireNonNull(mapper.apply(t), &quot;The mapper function returned a null value.&quot;);
-    } catch (Throwable ex) {
-        fail(ex);
-    return;
-    }
-    actual.onNext(v);
-}
-</code></pre><h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h3><p>我们调用的flatMap最终执行的是该重载方法：</p>
-<pre><code>// Observable.java
-public final &lt;R&gt; Observable&lt;R&gt; flatMap(Function&lt;? super T, ? extends ObservableSource&lt;? extends R&gt;&gt; mapper, boolean delayErrors, int maxConcurrency, int bufferSize) {
-     ...
-     return RxJavaPlugins.onAssembly(new ObservableFlatMap&lt;T, R&gt;(this, mapper, delayErrors, maxConcurrency, bufferSize));
-}
-</code></pre><p>因此看下ObservableFlatMap：</p>
-<pre><code>// ObservableFlatMap.java
-public ObservableFlatMap(ObservableSource&lt;T&gt; source, Function&lt;? super T, ? extends ObservableSource&lt;? extends U&gt;&gt; mapper, boolean delayErrors, int maxConcurrency, int bufferSize) {
-    super(source);
-    this.mapper = mapper;
-    this.delayErrors = delayErrors;
-    this.maxConcurrency = maxConcurrency;
-    this.bufferSize = bufferSize;
-}
-@Override
-public void subscribeActual(Observer&lt;? super U&gt; t) {
-    if (ObservableScalarXMap.tryScalarXMapSubscribe(source, t, mapper)) {
-    return;
-    }
-    source.subscribe(new MergeObserver&lt;T, U&gt;(t, mapper, delayErrors, maxConcurrency, bufferSize));
-}
-</code></pre><p>所以实际的操作是在MergeObserver，这里我们就看下onNext就好了：</p>
-<pre><code>// MergeObserver.java
-public void onNext(T t) {
-    // safeguard against misbehaving sources
-    if (done) {
-        return;
-    }
-    ObservableSource&lt;? extends U&gt; p;
-    try {
-        p = ObjectHelper.requireNonNull(mapper.apply(t), &quot;The mapper returned a null ObservableSource&quot;);
-    } catch (Throwable e) {
-        Exceptions.throwIfFatal(e);
-        s.dispose();
-        onError(e);
-        return;
-    }
-    if (maxConcurrency != Integer.MAX_VALUE) {
-        synchronized (this) {
-            if (wip == maxConcurrency) {
-                sources.offer(p);
-                return;
-            }
-            wip++;
-        }
-    }
-    subscribeInner(p);
-}
-</code></pre><p>可以看到，这里是想<strong>将上游传进来的对象通过我们自己实现的mapper进行转换，然后再执行subscribeInner(p)</strong>（maxConcurrency默认就是Integer.MAX_VALUE），因此看下subscribeInner(p)：</p>
-<pre><code>// MergeObserver.java
-void subscribeInner(ObservableSource&lt;? extends U&gt; p) {
-    for (;;) {
-        if (p instanceof Callable) {
-            if (tryEmitScalar(((Callable&lt;? extends U&gt;)p)) &amp;&amp; maxConcurrency != Integer.MAX_VALUE) {
-                boolean empty = false;
-                synchronized (this) {
-                    p = sources.poll();
-                    if (p == null) {
-                        wip--;
-                        empty = true;
-                    }
-                }
-                if (empty) {
-                    drain();
-                    break;
-                }
-            } else {
-                break;
-            }
-        } else {
-            InnerObserver&lt;T, U&gt; inner = new InnerObserver&lt;T, U&gt;(this, uniqueId++);
-            if (addInner(inner)) {
-                p.subscribe(inner);
-            }
-            break;
-        }
-    }
-}
-</code></pre><p>这里是个无线循环，根据是否为Callable类型执行不同的逻辑，一般Observable.just为Callable，而from类型的则不是。这里看下from的逻辑，毕竟Callable类型又没指定maxConcurrency的话，是直接break，所以没什么好看的。而非Callable类型的，可以看到这里又封装成了InnerObserver，而for循环并没有什么用。</p>
-<p>总结：<strong>在执行操作符方法(如map、flatMap等)时，会生成对应的Observable对象，在该对象中实现具体业务逻辑，对上游流下来的数据进行操作，再将处理后的结果交给下游的的订阅者继续处理。</strong></p>
-<h2 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h2><p>RxJava2事件流的产生由subscribe方法调用subscribeActual(observer)触发，而subscribeActual由Observable子类实现，每个子类里的实现逻辑不同，可能会先执行自己的操作（如map或flatMap等 ），但最终都会调用source.subscribe，source即为该节点的上游数据源，因此需要上游操作执行完才能拿到source，最终便形成逐级逆向向上获取数据源（Observable或Flowable），即形成了从最开始的源头发射数据一路向下经过各个节点的操作后交给最终观察者的链式模型。</p>
-<p>而对于线程切换，subscribeOn即是将订阅操作（observer）放到Runnable中执行，并将Runnable放到指定线程里操作；observeOn则是将下游的observer放到指定线程里面去执行。</p>
-<h2 id="5、参考资料"><a href="#5、参考资料" class="headerlink" title="5、参考资料"></a>5、参考资料</h2><p><a href="https://blog.csdn.net/reakingf/article/details/84845705" target="_blank" rel="noopener">https://blog.csdn.net/reakingf/article/details/84845705</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2555,7 +2214,7 @@ void subscribeInner(ObservableSource&lt;? extends U&gt; p) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">69</span>
+                  <span class="site-state-item-count">70</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2577,7 +2236,7 @@ void subscribeInner(ObservableSource&lt;? extends U&gt; p) {
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
