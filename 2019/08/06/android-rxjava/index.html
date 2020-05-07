@@ -88,7 +88,7 @@
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="RxJava是一个在Java VM上使用可观测的序列来组成异步的、基于事件的程序的库(a library for composing asynchronous and event-based programs using observable sequences for the Java VM)。 RxJava能帮助我们在实现异步执行的前提下保持代码的清晰。它的原理就是创建一个Observable">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-04-03T07:23:40.151Z">
+<meta property="og:updated_time" content="2020-05-07T07:43:13.139Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RxJava2操作符汇总">
 <meta name="twitter:description" content="RxJava是一个在Java VM上使用可观测的序列来组成异步的、基于事件的程序的库(a library for composing asynchronous and event-based programs using observable sequences for the Java VM)。 RxJava能帮助我们在实现异步执行的前提下保持代码的清晰。它的原理就是创建一个Observable">
@@ -456,7 +456,7 @@
 </tbody>
 </table>
 <h3 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h3><ul>
-<li>每次掉用过onError或onComplete其中一个方法后，就会掉用dispose()方法</li>
+<li>每次掉用过onError或onComplete其中一个方法后，就会掉用dispose()方法解除订阅</li>
 <li>CompositeDisposable可以容纳多个disposable，每当我们得到一个Disposable时就调用CompositeDisposable.add()将它添加到容器中, 在退出的时候, 调用CompositeDisposable.clear() 即可快速解除所有添加的Disposable类.</li>
 </ul>
 <h2 id="2、创建操作符"><a href="#2、创建操作符" class="headerlink" title="2、创建操作符"></a>2、创建操作符</h2><h3 id="create"><a href="#create" class="headerlink" title="create()"></a>create()</h3><pre><code>public static &lt;T&gt; Observable&lt;T&gt; create(ObservableOnSubscribe&lt;T&gt; source)

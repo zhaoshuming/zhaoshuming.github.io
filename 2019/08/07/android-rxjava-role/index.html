@@ -90,7 +90,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/08/07/android-rxjava-role/rxjava-flowable.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/08/07/android-rxjava-role/rxjava-single.jpg">
-<meta property="og:updated_time" content="2020-04-03T07:23:30.543Z">
+<meta property="og:updated_time" content="2020-05-07T10:05:11.696Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RxJava2五种被观察者及背压">
 <meta name="twitter:description" content="RxJava五种被观察者为Flowable, Observable，Single, Completable, Maybe。 五种被观察者可通过toFlowable, toObservable，toSingle, toCompletable, toMaybe相互转换。 1、Flowable1.1、Flowable简介Flowable类，用于实现Reactive-Streams模式，并提供工厂方法，中">
@@ -832,15 +832,8 @@ W/System.err:     at io.reactivex.internal.operators.flowable.FlowableCreate$NoO
      */
     public void subscribe(Subscriber&lt;? super T&gt; s);
 }
-</code></pre><p>Observable实现了ObservableSource接口，ObservableSource源码如下</p>
-<p>public interface ObservableSource<t> {</t></p>
-<pre><code>/**
- * Subscribes the given Observer to this ObservableSource instance.
- * @param observer the Observer, not null
- * @throws NullPointerException if {@code observer} is null
- */
-void subscribe(Observer&lt;? super T&gt; observer);
-</code></pre><p>}<br>对比ObservableSource和Publisher，都有一个同名的接口subscribe()</p>
+</code></pre><p>Observable实现了ObservableSource接口，ObservableSource源码如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public interface ObservableSource&lt;T&gt; &#123;</span><br><span class="line"> </span><br><span class="line">    /**</span><br><span class="line">     * Subscribes the given Observer to this ObservableSource instance.</span><br><span class="line">     * @param observer the Observer, not null</span><br><span class="line">     * @throws NullPointerException if &#123;@code observer&#125; is null</span><br><span class="line">     */</span><br><span class="line">    void subscribe(Observer&lt;? super T&gt; observer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对比ObservableSource和Publisher，都有一个同名的接口subscribe()</p>
 <h3 id="2-4、形象理解ObservableSource和Publisher有何异同"><a href="#2-4、形象理解ObservableSource和Publisher有何异同" class="headerlink" title="2.4、形象理解ObservableSource和Publisher有何异同"></a>2.4、形象理解ObservableSource和Publisher有何异同</h3><p>ObservableSource：可观察源</p>
 <p>Publisher：发布者</p>
 <p>subscribe：订阅</p>

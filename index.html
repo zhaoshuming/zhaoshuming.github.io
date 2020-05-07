@@ -428,7 +428,40 @@
 <p>从概念上讲，async 和 launch 是类似的，区别在于 launch 会返回一个 Job 对象，不会携带任何结果值。而 async 则是返回一个 Deferred - 一个轻量级、非阻塞的 future，代表了之后将会提供结果值的承诺（promise），因此可以使用 .await() 来获得其最终的结果，当然 Deferred 也是一个 Job，如果需要也是可以取消的。</p>
 <p>launch + async (execute task)<br>父协程（The parent coroutine）使用 uiContext 通过 launch 启动。<br>子协程（The child coroutine）使用 CommonPool context 通过 async 启动。</p>
 <p>async + async<br>当通过 async 来启动父协程时，将会忽略掉任何异常。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a></p>
+<h2 id="委托by"><a href="#委托by" class="headerlink" title="委托by"></a>委托by</h2><p>委托模式是软件设计模式中的一项基本技巧。在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理。Kotlin 直接支持委托模式，更加优雅，简洁。Kotlin 通过关键字 by 实现委托。</p>
+<h3 id="类委托"><a href="#类委托" class="headerlink" title="类委托"></a>类委托</h3><p>类的委托即一个类中定义的方法实际是调用另一个类的对象的方法来实现的。</p>
+<p>以下实例中派生类 Derived 继承了接口 Base 所有方法，并且委托一个传入的 Base 类的对象来执行这些方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// 创建接口</span><br><span class="line">interface Base &#123;   </span><br><span class="line">    fun print()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 实现此接口的被委托的类</span><br><span class="line">class BaseImpl(val x: Int) : Base &#123;</span><br><span class="line">    override fun print() &#123; print(x) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 通过关键字 by 建立委托类</span><br><span class="line">class Derived(b: Base) : Base by b</span><br><span class="line"></span><br><span class="line">fun main(args: Array&lt;String&gt;) &#123;</span><br><span class="line">    val b = BaseImpl(10)</span><br><span class="line">    Derived(b).print() // 输出 10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在 Derived 声明中，by 子句表示，将 b 保存在 Derived 的对象实例内部，而且编译器将会生成继承自 Base 接口的所有方法, 并将调用转发给 b。</p>
+<h3 id="属性委托"><a href="#属性委托" class="headerlink" title="属性委托"></a>属性委托</h3><p>属性委托指的是一个类的某个属性值不是在类中直接进行定义，而是将其托付给一个代理类，从而实现对该类的属性统一管理。</p>
+<p>属性委托语法格式：</p>
+<blockquote>
+<p>val/var &lt;属性名&gt;: &lt;类型&gt; by &lt;表达式&gt;</p>
+</blockquote>
+<ul>
+<li>var/val：属性类型(可变/只读)</li>
+<li>属性名：属性名称</li>
+<li>类型：属性的数据类型</li>
+<li>表达式：委托代理类</li>
+</ul>
+<p>by 关键字之后的表达式就是委托, 属性的 get() 方法(以及set() 方法)将被委托给这个对象的 getValue() 和 setValue() 方法。<strong>属性委托不必实现任何接口, 但必须提供 getValue() 函数(对于 var属性,还需要 setValue() 函数)。</strong></p>
+<p>该类需要包含 getValue() 方法和 setValue() 方法，且参数 thisRef 为进行委托的类的对象，prop 为进行委托的属性的对象。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">import kotlin.reflect.KProperty</span><br><span class="line">// 定义包含属性委托的类</span><br><span class="line">class Example &#123;</span><br><span class="line">    var p: String by Delegate()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 委托的类</span><br><span class="line">class Delegate &#123;</span><br><span class="line">    operator fun getValue(thisRef: Any?, property: KProperty&lt;*&gt;): String &#123;</span><br><span class="line">        return &quot;$thisRef, 这里委托了 $&#123;property.name&#125; 属性&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    operator fun setValue(thisRef: Any?, property: KProperty&lt;*&gt;, value: String) &#123;</span><br><span class="line">        println(&quot;$thisRef 的 $&#123;property.name&#125; 属性赋值为 $value&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">fun main(args: Array&lt;String&gt;) &#123;</span><br><span class="line">    val e = Example()</span><br><span class="line">    println(e.p)     // 访问该属性，调用 getValue() 函数</span><br><span class="line"></span><br><span class="line">    e.p = &quot;Runoob&quot;   // 调用 setValue() 函数</span><br><span class="line">    println(e.p)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出结果为：</span><br><span class="line">Example@433c675d, 这里委托了 p 属性</span><br><span class="line">Example@433c675d 的 p 属性赋值为 Runoob</span><br><span class="line">Example@433c675d, 这里委托了 p 属性</span><br></pre></td></tr></table></figure></p>
+<h3 id="延迟属性-Lazy"><a href="#延迟属性-Lazy" class="headerlink" title="延迟属性 Lazy"></a>延迟属性 Lazy</h3><p>lazy() 是一个函数, 接受一个 Lambda 表达式作为参数, 返回一个 Lazy <t> 实例的函数，返回的实例可以作为实现延迟属性的委托： <strong>第一次调用 get() 会执行已传递给 lazy() 的 lamda 表达式并记录结果， 后续调用 get() 只是返回记录的结果</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">val lazyValue: String by lazy &#123;</span><br><span class="line">    println(&quot;computed!&quot;)     // 第一次调用输出，第二次调用不执行</span><br><span class="line">    &quot;Hello&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun main(args: Array&lt;String&gt;) &#123;</span><br><span class="line">    println(lazyValue)   // 第一次执行，执行两次输出表达式</span><br><span class="line">    println(lazyValue)   // 第二次执行，只输出返回值</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行输出结果：</span><br><span class="line">computed!</span><br><span class="line">Hello</span><br><span class="line">Hello</span><br></pre></td></tr></table></figure></t></p>
+<p>你可以将局部变量声明为委托属性。 例如，你可以使一个局部变量惰性初始化：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fun example(computeFoo: () -&gt; Foo) &#123;</span><br><span class="line">    val memoizedFoo by lazy(computeFoo)</span><br><span class="line"></span><br><span class="line">    if (someCondition &amp;&amp; memoizedFoo.isValid()) &#123;</span><br><span class="line">        memoizedFoo.doSomething()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>memoizedFoo 变量只会在第一次访问时计算。 如果 someCondition 失败，那么该变量根本不会计算。</p>
+<h3 id="提供委托provideDelegate"><a href="#提供委托provideDelegate" class="headerlink" title="提供委托provideDelegate"></a>提供委托provideDelegate</h3><p>通过定义 provideDelegate 操作符，<strong>可以扩展创建属性实现所委托对象的逻辑</strong>。 如果 by 右侧所使用的对象将 provideDelegate 定义为成员或扩展函数，那么会调用该函数来 创建属性委托实例。</p>
+<p>provideDelegate 的一个可能的使用场景是在创建属性时（而不仅在其 getter 或 setter 中）检查属性一致性。</p>
+<p>例如，如果要在绑定之前检查属性名称，可以这样写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class ResourceLoader&lt;T&gt;(id: ResourceID&lt;T&gt;) &#123;</span><br><span class="line">    operator fun provideDelegate(</span><br><span class="line">            thisRef: MyUI,</span><br><span class="line">            prop: KProperty&lt;*&gt;</span><br><span class="line">    ): ReadOnlyProperty&lt;MyUI, T&gt; &#123;</span><br><span class="line">        checkProperty(thisRef, prop.name)</span><br><span class="line">        // 创建委托</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private fun checkProperty(thisRef: MyUI, name: String) &#123; …… &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun &lt;T&gt; bindResource(id: ResourceID&lt;T&gt;): ResourceLoader&lt;T&gt; &#123; …… &#125;</span><br><span class="line"></span><br><span class="line">class MyUI &#123;</span><br><span class="line">    val image by bindResource(ResourceID.image_id)</span><br><span class="line">    val text by bindResource(ResourceID.text_id)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>provideDelegate 的参数与 getValue 相同：</p>
+<blockquote>
+<p>thisRef —— 必须与 属性所有者 类型（对于扩展属性——指被扩展的类型）相同或者是它的超类型<br>property —— 必须是类型 KProperty&lt;*&gt; 或其超类型。</p>
+</blockquote>
+<p>在创建 MyUI 实例期间，为每个属性调用 provideDelegate 方法，并立即执行必要的验证。</p>
+<p>如果没有这种拦截属性与其委托之间的绑定的能力，为了实现相同的功能， 你必须显式传递属性名，这不是很方便：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// 检查属性名称而不使用“provideDelegate”功能</span><br><span class="line">class MyUI &#123;</span><br><span class="line">    val image by bindResource(ResourceID.image_id, &quot;image&quot;)</span><br><span class="line">    val text by bindResource(ResourceID.text_id, &quot;text&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fun &lt;T&gt; MyUI.bindResource(</span><br><span class="line">        id: ResourceID&lt;T&gt;,</span><br><span class="line">        propertyName: String</span><br><span class="line">): ReadOnlyProperty&lt;MyUI, T&gt; &#123;</span><br><span class="line">   checkProperty(this, propertyName)</span><br><span class="line">   // 创建委托</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在生成的代码中，会调用 provideDelegate 方法来初始化辅助的 prop$delegate 属性。 比较对于属性声明 val prop: Type by MyDelegate() 生成的代码与 上面（当 provideDelegate 方法不存在时）生成的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class C &#123;</span><br><span class="line">    var prop: Type by MyDelegate()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 这段代码是当“provideDelegate”功能可用时</span><br><span class="line">// 由编译器生成的代码：</span><br><span class="line">class C &#123;</span><br><span class="line">    // 调用“provideDelegate”来创建额外的“delegate”属性</span><br><span class="line">    private val prop$delegate = MyDelegate().provideDelegate(this, this::prop)</span><br><span class="line">    val prop: Type</span><br><span class="line">        get() = prop$delegate.getValue(this, this::prop)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>请注意，provideDelegate 方法只影响辅助属性的创建，并不会影响为 getter 或 setter 生成的代码。</p>
+<h2 id="双冒号"><a href="#双冒号" class="headerlink" title="双冒号 ::"></a>双冒号 ::</h2><p>Kotlin 中 双冒号操作符 表示把一个方法当做一个参数，传递到另一个方法中进行使用，通俗的来讲就是引用一个方法。</p>
+<p>一般情况，我们调用当前类的方法 this 都是可省略的。为了防止作用域混淆 ，:: 调用的函数如果是类的成员函数或者是扩展函数，必须使用限定符,比如this。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a><br><a href="https://www.runoob.com/kotlin/kotlin-delegated.html" target="_blank" rel="noopener">https://www.runoob.com/kotlin/kotlin-delegated.html</a></p>
 
           
         
@@ -580,7 +613,95 @@
 </ul>
 <h2 id="JetPack的组成"><a href="#JetPack的组成" class="headerlink" title="JetPack的组成"></a>JetPack的组成</h2><p><img src="/2020/04/09/android-jetpack/jetpack-composition.png" alt></p>
 <p>WorkManager很强大，需要的地方可以替代以前的方案。LifeCycles也不错，扩展其他类具有关联生命周期的。还有Room数据库的框架，简单了很多。LiveData和ViewModel的结合基本上就是RxJava和RxAndroid的结合的功能了。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://developer.android.google.cn/jetpack?hl=zh_cn" target="_blank" rel="noopener">https://developer.android.google.cn/jetpack?hl=zh_cn</a></p>
+<h2 id="Navigation"><a href="#Navigation" class="headerlink" title="Navigation"></a>Navigation</h2><p>Navigation是一个可简化Android导航的库和插件</p>
+<p>Navigation是用来<strong>管理Fragment的切换</strong>，并且可以通过可视化的方式，看见App的交互流程。这完美的契合了Jake Wharton大神<strong>单Activity</strong>的建议。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>处理Fragment的切换（上文已说过）</li>
+<li>默认情况下正确处理Fragment的前进和后退</li>
+<li>为过渡和动画提供标准化的资源</li>
+<li>实现和处理深层连接</li>
+<li>可以绑定Toolbar、BottomNavigationView和ActionBar等</li>
+<li>SafeArgs（Gradle插件） 数据传递时提供类型安全性</li>
+<li>ViewModel支持</li>
+</ul>
+<h3 id="三要素"><a href="#三要素" class="headerlink" title="三要素"></a>三要素</h3><ol>
+<li><p>Navigation Graph(New XML resource)： 这是一个新的资源文件，用户在可视化界面可以看出他能够到达的Destination(用户能够到达的屏幕界面)，以及流程关系。</p>
+</li>
+<li><p>NavHostFragment(Layout XML view)： 当前Fragment的容器</p>
+</li>
+<li><p>NavController(Kotlin/Java object)： 导航的控制者</p>
+</li>
+</ol>
+<p>可能我这么解释还是有点抽象，做一个不是那么恰当的比喻，我们可以将Navigation Graph看作一个地图，NavHostFragment看作一个车，以及把NavController看作车中的方向盘，Navigation Graph中可以看出各个地点（Destination）和通往各个地点的路径，NavHostFragment可以到达地图中的各个目的地，但是决定到什么目的地还是方向盘NavController，虽然它取决于开车人（用户）。</p>
+<h3 id="重要属性"><a href="#重要属性" class="headerlink" title="重要属性"></a>重要属性</h3><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>app:startDestination</td>
+<td>navigation标签: 默认的起始位置</td>
+</tr>
+<tr>
+<td>app:destination</td>
+<td>action标签: 跳转完成到达的fragment的Id</td>
+</tr>
+<tr>
+<td>app:popUpTo</td>
+<td>action标签: 将fragment从栈中弹出，直到某个Id的fragment</td>
+</tr>
+<tr>
+<td>app:argType</td>
+<td>argument标签: 标签的类型</td>
+</tr>
+<tr>
+<td>android:defaultValue</td>
+<td>argument标签: 默认值</td>
+</tr>
+<tr>
+<td>app:navGraph</td>
+<td>fragment标签: 存放的是第二步建好导航的资源文件，也就是确定了Navigation Graph</td>
+</tr>
+<tr>
+<td>app:defaultNavHost=”true”</td>
+<td>fragment标签: 与系统的返回按钮相关联</td>
+</tr>
+</tbody>
+</table>
+<p>导航示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">btnLogin.setOnClickListener &#123;</span><br><span class="line">            // 设置动画参数</span><br><span class="line">            val navOption = navOptions &#123;</span><br><span class="line">                anim &#123;</span><br><span class="line">                    enter = R.anim.slide_in_right</span><br><span class="line">                    exit = R.anim.slide_out_left</span><br><span class="line">                    popEnter = R.anim.slide_in_left</span><br><span class="line">                    popExit = R.anim.slide_out_right</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            // 参数设置</span><br><span class="line">            val bundle = Bundle()</span><br><span class="line">            bundle.putString(&quot;name&quot;,&quot;TeaOf&quot;)</span><br><span class="line">            findNavController().navigate(R.id.login, bundle,navOption)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果不用Safe Args，action可以由Navigation.createNavigateOnClickListener(R.id.next_action, null)方式生成</p>
+<h2 id="LiveData"><a href="#LiveData" class="headerlink" title="LiveData"></a>LiveData</h2><p><img src="/2020/04/09/android-jetpack/livedata.png" alt></p>
+<p>LiveData有个内部类LifecycleBoundObserver，它实现了GenericLifecycleObserver，而GenericLifecycleObserver继承了LifecycleObserver接口。当组件（Fragment、Activity）生命周期变化时会通过onStateChanged()方法回调过来。</p>
+<p>LiveData主要涉及到的时序有三个：<br>在Fragment/Activity中通过LiveData.observer()添加观察者（observer()方法中的第二个参数）。<br>根据Fragment/Activity生命周期发生变化时，移除观察者或者通知观察者更新数据。<br>当调用LiveData的setValue()、postValue()方法后，通知观察者更新数据(setValue必须发生在主线程,如果当前线程是子线程可以使用postValue)。</p>
+<p>在LiveData.observe()方法中添加了组件（实现了LifecycleOwner接口的Fragment和Activity）生命周期观察者。而这个观察者就是LifecycleBoundObserver对象.</p>
+<p><strong>应用及知识点</strong>：</p>
+<ol>
+<li><p>使用ViewModel在同一个Activity中的Fragment之间共享数据：想要利用ViewModel实现Fragment之间数据共享，前提是Fragment中的FragmentActivity得相同。</p>
+</li>
+<li><p>map是你将你的函数用于你传参的livedata的数据通过函数体中的逻辑改变，然后将结果传到下游。而switchmap，转换跟map差不多，只不过传到下游的是<strong>livedata类型</strong>。</p>
+</li>
+<li><p>MediatorLiveData 是 LiveData 的子类，允许您合并多个 LiveData 源。只要任何原始的 LiveData 源对象发生更改，就会触发 MediatorLiveData 对象的观察者。</p>
+</li>
+<li><p>使用LiveData共享数据：定义一个类然后继承LiveData，并使用单例模式即可。示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 登录信息</span><br><span class="line">data class LoginInfo constructor(val account:String, val pwd:String, val email:String)</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 自定义单例LiveData</span><br><span class="line"> */</span><br><span class="line">class LoginLiveData:LiveData&lt;LoginInfo&gt;() &#123;</span><br><span class="line"></span><br><span class="line">    companion object &#123;</span><br><span class="line">        private lateinit var sInstance: LoginLiveData</span><br><span class="line"></span><br><span class="line">        @MainThread</span><br><span class="line">        fun get(): LoginLiveData &#123;</span><br><span class="line">            sInstance = if (::sInstance.isInitialized) sInstance else LoginLiveData()</span><br><span class="line">            return sInstance</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意：您可以使用 observeForever(Observer) 方法来注册未关联 LifecycleOwner 对象的观察者。在这种情况下，观察者会被视为始终处于活跃状态，因此它始终会收到关于修改的通知。您可以通过调用 removeObserver(Observer) 方法来移除这些观察者。</p>
+<h2 id="ViewModel"><a href="#ViewModel" class="headerlink" title="ViewModel"></a>ViewModel</h2><p>ViewModel类是被设计用来以可感知生命周期的方式存储和管理 UI 相关数据，ViewModel中数据会一直存活即使 activity configuration发生变化，比如横竖屏切换的时候。</p>
+<p>由于 ViewModel 生命周期可能长与 activity 生命周期，所以为了避免内存泄漏 Google 禁止在 ViewModel 中持有 Context 或 activity 或 view 的引用。</p>
+<p><img src="/2020/04/09/android-jetpack/viewmodel-lifecycle.webp" alt title="ViewModel生命周期"></p>
+<p>viewmodel初始化：</p>
+<blockquote>
+<p>ViewModelProviders.of(activity，factory).get(MyViewModel.class)</p>
+</blockquote>
+<p>1、初始化了<strong>ViewModelProvider内部维护了 用于创建 VM 的 Factory，和用户存放 VM 的ViewModelStore</strong>；<br>2、初始化了 用来生成 ViewModel 的 Factory（默认为DefaultFactory）；<br>3、通过ViewModelStores的静态方法实例化了 HolderFragment，并实例化了ViewModelStore<br>4、然后是ViewModelProvider的 get 方法<br>注：ViewModelProviders已废弃，可直接调用ViewModelProvider初始化</p>
+<p><img src="/2020/04/09/android-jetpack/viewmodel-init.png" alt title="ViewModel初始化"></p>
+<h2 id="Room"><a href="#Room" class="headerlink" title="Room"></a>Room</h2><p><img src="/2020/04/09/android-jetpack/room.webp" alt></p>
+<h2 id="Data-Binding"><a href="#Data-Binding" class="headerlink" title="Data Binding"></a>Data Binding</h2><p><img src="/2020/04/09/android-jetpack/data-binding.webp" alt></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://developer.android.google.cn/jetpack?hl=zh_cn" target="_blank" rel="noopener">https://developer.android.google.cn/jetpack?hl=zh_cn</a><br><a href="https://www.jianshu.com/p/66b93df4b7a6" target="_blank" rel="noopener">https://www.jianshu.com/p/66b93df4b7a6</a><br><a href="https://github.com/googlecodelabs/android-navigation" target="_blank" rel="noopener">android-navigation demo</a><br><a href="https://www.jianshu.com/p/35d143e84d42" target="_blank" rel="noopener">深入了解架构组件之ViewModel</a></p>
 
           
         
