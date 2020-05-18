@@ -424,10 +424,28 @@
 <p>@kotlin.internal.InlineOnly<br>@SinceKotlin(“1.1”)<br>public inline fun <t> T.also(block: (T) -&gt; Unit): T { block(this); return this }</t></p>
 </blockquote>
 <p>适用于let函数的任何场景，also函数和let很像，只是唯一的不同点就是<strong>let函数最后的返回值是最后一行的返回值，而also函数的返回值是返回当前的这个对象</strong>。一般可用于多个扩展函数链式调用</p>
-<h2 id="协程coroutine"><a href="#协程coroutine" class="headerlink" title="协程coroutine"></a>协程coroutine</h2><p>我们可以使用 <strong>launch</strong> 或 <strong>async</strong> 来启动一个新的 coroutine。</p>
+<h2 id="协程Coroutine"><a href="#协程Coroutine" class="headerlink" title="协程Coroutine"></a>协程Coroutine</h2><p>协程就像非常轻量级的线程，<strong>是运行在单线程中的并发程序</strong>。正如一个进程可以拥有多个线程一样，一个线程也可以拥有多个协程。</p>
+<p>线程是由系统调度的，线程切换或线程阻塞的开销都比较大（涉及到同步锁；涉及到线程阻塞状态和可运行状态之间的切换；涉及到线程上下文的切换）。而<strong>协程依赖于线程，但协程挂起时不需要阻塞线程，几乎是无代价的，协程不是被操作系统内核所管理，而完全是由程序所控制（也就是在用户态执行）</strong>。因此，协程的开销远远小于线程的开销。</p>
+<p><img src="/2020/04/15/android-kotlin/coroutines.jpeg" alt></p>
+<blockquote>
+<p>对于多线程应用，CPU通过切片的方式来切换线程间的执行，线程切换时需要耗时（保存状态，下次继续）。协程，则只使用一个线程，在一个线程中规定某个代码块执行顺序。协程能保留上一次调用时的状态，不需要像线程一样用回调函数，所以性能上会有提升。<strong>缺点是本质是个单线程，不能利用到单个CPU的多个核。</strong></p>
+</blockquote>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>我们可以使用 <strong>launch</strong> 或 <strong>async</strong> 来启动一个新的 coroutine。</p>
 <p>从概念上讲，async 和 launch 是类似的，区别在于 launch 会返回一个 Job 对象，不会携带任何结果值。而 async 则是返回一个 Deferred - 一个轻量级、非阻塞的 future，代表了之后将会提供结果值的承诺（promise），因此可以使用 .await() 来获得其最终的结果，当然 Deferred 也是一个 Job，如果需要也是可以取消的。</p>
 <p>launch + async (execute task)<br>父协程（The parent coroutine）使用 uiContext 通过 launch 启动。<br>子协程（The child coroutine）使用 CommonPool context 通过 async 启动。</p>
 <p>async + async<br>当通过 async 来启动父协程时，将会忽略掉任何异常。</p>
+<h3 id="创建协程"><a href="#创建协程" class="headerlink" title="创建协程"></a>创建协程</h3><p>kotlin 中 GlobalScope 类提供了几个构造函数：</p>
+<ul>
+<li>launch - 创建协程</li>
+<li>async - 创建带返回值的协程，返回的是 Deferred 类</li>
+<li>withContext - 不创建新的协程，在指定协程上运行代码块</li>
+<li>runBlocking - 不是 GlobalScope 的 API，可以独立使用，区别是 runBlocking 里面的 delay 会阻塞线程，而 launch 创建的不会</li>
+</ul>
+<p>kotlin 在 1.3 之后要求协程必须由 CoroutineScope 创建，CoroutineScope 不阻塞当前线程，在后台创建一个新协程，也可以指定协程调度器。比如 CoroutineScope.launch{} 可以看成 new Coroutine</p>
+<h3 id="suspend-关键字"><a href="#suspend-关键字" class="headerlink" title="suspend 关键字"></a>suspend 关键字</h3><p>协程天然亲近方法，协程表现为标记、切换方法、代码段，协程里使用 suspend 关键字修饰方法，既该方法可以被协程挂起，没用suspend修饰的方法不能参与协程任务，suspend修饰的方法只能在协程中只能与另一个suspend修饰的方法交流</p>
+<p>suspend 表示挂起的意思，用来修饰方法的，一个协程内有多个 suspend 修饰的方法顺序书写时，代码也是顺序运行的，为什么，suspend 函数会将整个协程挂起，而不仅仅是这个 suspend 函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">suspend fun requestToken(): Token &#123; ... &#125;   // 挂起函数</span><br><span class="line">suspend fun createPost(token: Token, item: Item): Post &#123; ... &#125;  // 挂起函数</span><br><span class="line"></span><br><span class="line">fun postItem(item: Item) &#123;</span><br><span class="line">    GlobalScope.launch &#123; // 创建一个新协程</span><br><span class="line">        val token = requestToken()</span><br><span class="line">        val post = createPost(token, item)</span><br><span class="line">        processPost(post)</span><br><span class="line">        // 需要异常处理，直接加上 try/catch 语句即可</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="relay、yield-区别"><a href="#relay、yield-区别" class="headerlink" title="relay、yield 区别"></a>relay、yield 区别</h3><p>relay 和 yield 方法是协程内部的操作，可以挂起协程，区别是 relay 是挂起协程并经过执行时间恢复协程，当线程空闲时就会运行协程；yield 是挂起协程，让协程放弃本次 cpu 执行机会让给别的协程，当线程空闲时再次运行协程。我们只要使用 kotlin 提供的协程上下文类型，线程池是有多个线程的，再次执行的机会很快就会有的。</p>
+<p>除了 main 类型，协程在挂起后都会封装成任务放到协程默认线程池的任务队列里去，有延迟时间的在时间过后会放到队列里去，没有延迟时间的直接放到队列里去</p>
 <h2 id="委托by"><a href="#委托by" class="headerlink" title="委托by"></a>委托by</h2><p>委托模式是软件设计模式中的一项基本技巧。在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理。Kotlin 直接支持委托模式，更加优雅，简洁。Kotlin 通过关键字 by 实现委托。</p>
 <h3 id="类委托"><a href="#类委托" class="headerlink" title="类委托"></a>类委托</h3><p>类的委托即一个类中定义的方法实际是调用另一个类的对象的方法来实现的。</p>
 <p>以下实例中派生类 Derived 继承了接口 Base 所有方法，并且委托一个传入的 Base 类的对象来执行这些方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// 创建接口</span><br><span class="line">interface Base &#123;   </span><br><span class="line">    fun print()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 实现此接口的被委托的类</span><br><span class="line">class BaseImpl(val x: Int) : Base &#123;</span><br><span class="line">    override fun print() &#123; print(x) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 通过关键字 by 建立委托类</span><br><span class="line">class Derived(b: Base) : Base by b</span><br><span class="line"></span><br><span class="line">fun main(args: Array&lt;String&gt;) &#123;</span><br><span class="line">    val b = BaseImpl(10)</span><br><span class="line">    Derived(b).print() // 输出 10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -461,7 +479,7 @@
 <p>请注意，provideDelegate 方法只影响辅助属性的创建，并不会影响为 getter 或 setter 生成的代码。</p>
 <h2 id="双冒号"><a href="#双冒号" class="headerlink" title="双冒号 ::"></a>双冒号 ::</h2><p>Kotlin 中 双冒号操作符 表示把一个方法当做一个参数，传递到另一个方法中进行使用，通俗的来讲就是引用一个方法。</p>
 <p>一般情况，我们调用当前类的方法 this 都是可省略的。为了防止作用域混淆 ，:: 调用的函数如果是类的成员函数或者是扩展函数，必须使用限定符,比如this。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a><br><a href="https://www.runoob.com/kotlin/kotlin-delegated.html" target="_blank" rel="noopener">https://www.runoob.com/kotlin/kotlin-delegated.html</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a><br><a href="https://www.runoob.com/kotlin/kotlin-delegated.html" target="_blank" rel="noopener">https://www.runoob.com/kotlin/kotlin-delegated.html</a><br><a href="https://www.jianshu.com/p/76d2f47b900d" target="_blank" rel="noopener">https://www.jianshu.com/p/76d2f47b900d</a></p>
 
           
         
@@ -697,11 +715,43 @@
 <blockquote>
 <p>ViewModelProviders.of(activity，factory).get(MyViewModel.class)</p>
 </blockquote>
-<p>1、初始化了<strong>ViewModelProvider内部维护了 用于创建 VM 的 Factory，和用户存放 VM 的ViewModelStore</strong>；<br>2、初始化了 用来生成 ViewModel 的 Factory（默认为DefaultFactory）；<br>3、通过ViewModelStores的静态方法实例化了 HolderFragment，并实例化了ViewModelStore<br>4、然后是ViewModelProvider的 get 方法<br>注：ViewModelProviders已废弃，可直接调用ViewModelProvider初始化</p>
+<p>1、初始化了<strong>ViewModelProvider内部维护了 用于创建 VM 的 Factory，和用户存放 VM 的ViewModelStore</strong>；<br>2、初始化了 用来生成 ViewModel 的 Factory（默认为DefaultFactory）；<br>3、通过ViewModelStores的静态方法实例化了 HolderFragment，并实例化了ViewModelStore<br>4、然后是ViewModelProvider的 get 方法</p>
 <p><img src="/2020/04/09/android-jetpack/viewmodel-init.png" alt title="ViewModel初始化"></p>
 <h2 id="Room"><a href="#Room" class="headerlink" title="Room"></a>Room</h2><p><img src="/2020/04/09/android-jetpack/room.webp" alt></p>
 <h2 id="Data-Binding"><a href="#Data-Binding" class="headerlink" title="Data Binding"></a>Data Binding</h2><p><img src="/2020/04/09/android-jetpack/data-binding.webp" alt></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://developer.android.google.cn/jetpack?hl=zh_cn" target="_blank" rel="noopener">https://developer.android.google.cn/jetpack?hl=zh_cn</a><br><a href="https://www.jianshu.com/p/66b93df4b7a6" target="_blank" rel="noopener">https://www.jianshu.com/p/66b93df4b7a6</a><br><a href="https://github.com/googlecodelabs/android-navigation" target="_blank" rel="noopener">android-navigation demo</a><br><a href="https://www.jianshu.com/p/35d143e84d42" target="_blank" rel="noopener">深入了解架构组件之ViewModel</a></p>
+<h2 id="相关应用架构"><a href="#相关应用架构" class="headerlink" title="相关应用架构"></a>相关应用架构</h2><p><img src="/2020/04/09/android-jetpack/jetpack-architecture.png" alt></p>
+<blockquote>
+<p>注意：任何应用编写方式都不可能是每种情况的最佳选择。话虽如此，但推荐的这个架构是个不错的起点，适合大多数情况和工作流。如果您已经有编写 Android 应用的好方法（遵循常见的架构原则），则无需更改。</p>
+</blockquote>
+<h3 id="常见的架构原则"><a href="#常见的架构原则" class="headerlink" title="常见的架构原则"></a>常见的架构原则</h3><p>如果您不应使用应用组件存储应用数据和状态，那么您应该如何设计应用呢？</p>
+<p><strong>分离关注点</strong></p>
+<p>要遵循的最重要的原则是分离关注点。一种常见的错误是在一个 Activity 或 Fragment 中编写所有代码。这些基于界面的类应仅包含处理界面和操作系统交互的逻辑。您应尽可能使这些类保持精简，这样可以避免许多与生命周期相关的问题。</p>
+<p>请注意，您并非拥有 Activity 和 Fragment 的实现；它们只是表示 Android 操作系统与应用之间关系的粘合类。操作系统可能会根据用户互动或因内存不足等系统条件随时销毁它们。为了提供令人满意的用户体验和更易于管理的应用维护体验，您最好尽量减少对它们的依赖。</p>
+<p><strong>通过模型驱动界面</strong></p>
+<p>另一个重要原则是您应该通过模型驱动界面（最好是持久性模型）。模型是负责处理应用数据的组件。它们独立于应用中的 View 对象和应用组件，因此不受应用的生命周期以及相关的关注点的影响。</p>
+<p>持久性是理想之选，原因如下：</p>
+<ul>
+<li>如果 Android 操作系统销毁应用以释放资源，用户不会丢失数据。</li>
+<li>当网络连接不稳定或不可用时，应用会继续工作。</li>
+</ul>
+<p>应用所基于的模型类<strong>应明确定义数据管理职责</strong>，这样将使应用更可测试且更一致。</p>
+<h3 id="最佳做法"><a href="#最佳做法" class="headerlink" title="最佳做法"></a>最佳做法</h3><p>编程是一个创造性的领域，构建 Android 应用也不例外。无论是在多个 Activity 或 Fragment 之间传递数据，检索远程数据并将其保留在本地以在离线模式下使用，还是复杂应用遇到的任何其他常见情况，解决问题的方法都会有很多种。</p>
+<p>虽然以下建议不是强制性的，但根据我们的经验，从长远来看，遵循这些建议会使您的代码库更强大、可测试性更高且更易维护：</p>
+<p><strong>避免将应用的入口点（如 Activity、Service 和广播接收器）指定为数据源。</strong></p>
+<p>相反，您应只将其与其他组件协调，以检索与该入口点相关的数据子集。每个应用组件存在的时间都很短暂，具体取决于用户与其设备的交互情况以及系统当前的整体运行状况。</p>
+<p><strong>在应用的各个模块之间设定明确定义的职责界限。</strong></p>
+<p>例如，请勿在代码库中将从网络加载数据的代码散布到多个类或软件包中。同样，也不要将不相关的职责（如数据缓存和数据绑定）定义到同一个类中。</p>
+<p><strong>尽量少公开每个模块中的代码。</strong></p>
+<p>请勿试图创建“就是那一个”快捷方式来呈现一个模块的内部实现细节。短期内，您可能会省点时间，但随着代码库的不断发展，您可能会反复陷入技术上的麻烦。</p>
+<p><strong>考虑如何使每个模块可独立测试。</strong></p>
+<p>例如，如果使用明确定义的 API 从网络获取数据，将会更容易测试在本地数据库中保留该数据的模块。如果您将这两个模块的逻辑混放在一处，或将网络代码分散在整个代码库中，那么即便能够进行测试，难度也会大很多。</p>
+<p><strong>专注于应用的独特核心，以使其从其他应用中脱颖而出。</strong></p>
+<p>不要一次又一次地编写相同的样板代码，这是在做无用功。相反，您应将时间和精力集中放在能让应用与众不同的方面上，并让 Android 架构组件以及建议的其他库处理重复的样板。</p>
+<p><strong>保留尽可能多的相关数据和最新数据。</strong></p>
+<p>这样，即使用户的设备处于离线模式，他们也可以使用您应用的功能。请注意，并非所有用户都能享受到稳定的高速连接。</p>
+<p><strong>将一个数据源指定为单一可信来源。</strong></p>
+<p>每当应用需要访问这部分数据时，这部分数据都应一律源于此单一可信来源。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://developer.android.google.cn/jetpack?hl=zh_cn" target="_blank" rel="noopener">https://developer.android.google.cn/jetpack?hl=zh_cn</a><br><a href="https://www.jianshu.com/p/66b93df4b7a6" target="_blank" rel="noopener">https://www.jianshu.com/p/66b93df4b7a6</a><br><a href="https://github.com/googlecodelabs/android-navigation" target="_blank" rel="noopener">android-navigation demo</a><br><a href="https://www.jianshu.com/p/35d143e84d42" target="_blank" rel="noopener">深入了解架构组件之ViewModel</a><br><a href="https://developer.android.google.cn/jetpack/docs/guide?hl=zh_cn#recommended-app-arch" target="_blank" rel="noopener">应用架构指南</a></p>
 
           
         
