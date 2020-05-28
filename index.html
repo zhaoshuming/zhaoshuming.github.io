@@ -425,15 +425,20 @@
 </blockquote>
 <p>适用于let函数的任何场景，also函数和let很像，只是唯一的不同点就是<strong>let函数最后的返回值是最后一行的返回值，而also函数的返回值是返回当前的这个对象</strong>。一般可用于多个扩展函数链式调用</p>
 <h2 id="协程Coroutine"><a href="#协程Coroutine" class="headerlink" title="协程Coroutine"></a>协程Coroutine</h2><p>协程就像非常轻量级的线程，<strong>是运行在单线程中的并发程序</strong>。正如一个进程可以拥有多个线程一样，一个线程也可以拥有多个协程。</p>
-<p>线程是由系统调度的，线程切换或线程阻塞的开销都比较大（涉及到同步锁；涉及到线程阻塞状态和可运行状态之间的切换；涉及到线程上下文的切换）。而<strong>协程依赖于线程，但协程挂起时不需要阻塞线程，几乎是无代价的，协程不是被操作系统内核所管理，而完全是由程序所控制（也就是在用户态执行）</strong>。因此，协程的开销远远小于线程的开销。</p>
+<p>线程是由系统调度的，线程切换或线程阻塞的开销都比较大（涉及到同步锁；涉及到线程阻塞状态和可运行状态之间的切换；涉及到线程的创建及上下文的切换）。而<strong>协程依赖于线程，但协程挂起时不需要阻塞线程，几乎是无代价的，协程不是被操作系统内核所管理，而完全是由程序所控制（也就是在用户态执行）</strong>。因此，协程的开销远远小于线程的开销。</p>
 <p><img src="/2020/04/15/android-kotlin/coroutines.jpeg" alt></p>
 <blockquote>
 <p>对于多线程应用，CPU通过切片的方式来切换线程间的执行，线程切换时需要耗时（保存状态，下次继续）。协程，则只使用一个线程，在一个线程中规定某个代码块执行顺序。协程能保留上一次调用时的状态，不需要像线程一样用回调函数，所以性能上会有提升。<strong>缺点是本质是个单线程，不能利用到单个CPU的多个核。</strong></p>
 </blockquote>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>我们可以使用 <strong>launch</strong> 或 <strong>async</strong> 来启动一个新的 coroutine。</p>
-<p>从概念上讲，async 和 launch 是类似的，区别在于 launch 会返回一个 Job 对象，不会携带任何结果值。而 async 则是返回一个 Deferred - 一个轻量级、非阻塞的 future，代表了之后将会提供结果值的承诺（promise），因此可以使用 .await() 来获得其最终的结果，当然 Deferred 也是一个 Job，如果需要也是可以取消的。</p>
-<p>launch + async (execute task)<br>父协程（The parent coroutine）使用 uiContext 通过 launch 启动。<br>子协程（The child coroutine）使用 CommonPool context 通过 async 启动。</p>
-<p>async + async<br>当通过 async 来启动父协程时，将会忽略掉任何异常。</p>
+<h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><ul>
+<li><p>因为在同一个线程里，协程之间的切换不涉及线程上下文的切换和线程状态的改变，不存在资源、数据并发，所以不用加锁，只需要判断状态就OK，所以执行效率比多线程高很多</p>
+</li>
+<li><p>协程是非阻塞式的(也有阻塞API)，一个协程在进入阻塞后不会阻塞当前线程，当前线程会去执行其他协程任务</p>
+</li>
+</ul>
+<p>协程的切换，是通过yield API 让协程在空闲时（比如等待io，网络数据未到达）放弃执行权，然后在合适的时机再通过resume API 唤醒协程继续运行。协程一旦开始运行就不会结束，直到遇到yield交出执行权。Yield、resume 这一对 API 可以非常便捷的实现异步，这可是目前所有高级语法孜孜不倦追求的</p>
+<h3 id="suspend-关键字"><a href="#suspend-关键字" class="headerlink" title="suspend 关键字"></a>suspend 关键字</h3><p>协程天然亲近方法，协程表现为标记、切换方法、代码段，协程里使用 suspend 关键字修饰方法，既该方法可以被协程挂起，<strong>没用suspend修饰的方法不能参与协程任务</strong>，suspend修饰的方法只能在协程中只能与另一个suspend修饰的方法交流</p>
+<p>一个协程内有多个 suspend 修饰的方法顺序书写时，代码也是顺序运行的，为什么，suspend 函数会将整个协程挂起，而不仅仅是这个 suspend 函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">suspend fun requestToken(): Token &#123; ... &#125;   // 挂起函数</span><br><span class="line">suspend fun createPost(token: Token, item: Item): Post &#123; ... &#125;  // 挂起函数</span><br><span class="line"></span><br><span class="line">fun postItem(item: Item) &#123;</span><br><span class="line">    GlobalScope.launch &#123; // 创建一个新协程</span><br><span class="line">        val token = requestToken()</span><br><span class="line">        val post = createPost(token, item)</span><br><span class="line">        processPost(post)</span><br><span class="line">        // 需要异常处理，直接加上 try/catch 语句即可</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h3 id="创建协程"><a href="#创建协程" class="headerlink" title="创建协程"></a>创建协程</h3><p>kotlin 中 GlobalScope 类提供了几个构造函数：</p>
 <ul>
 <li>launch - 创建协程</li>
@@ -442,8 +447,6 @@
 <li>runBlocking - 不是 GlobalScope 的 API，可以独立使用，区别是 runBlocking 里面的 delay 会阻塞线程，而 launch 创建的不会</li>
 </ul>
 <p>kotlin 在 1.3 之后要求协程必须由 CoroutineScope 创建，CoroutineScope 不阻塞当前线程，在后台创建一个新协程，也可以指定协程调度器。比如 CoroutineScope.launch{} 可以看成 new Coroutine</p>
-<h3 id="suspend-关键字"><a href="#suspend-关键字" class="headerlink" title="suspend 关键字"></a>suspend 关键字</h3><p>协程天然亲近方法，协程表现为标记、切换方法、代码段，协程里使用 suspend 关键字修饰方法，既该方法可以被协程挂起，没用suspend修饰的方法不能参与协程任务，suspend修饰的方法只能在协程中只能与另一个suspend修饰的方法交流</p>
-<p>suspend 表示挂起的意思，用来修饰方法的，一个协程内有多个 suspend 修饰的方法顺序书写时，代码也是顺序运行的，为什么，suspend 函数会将整个协程挂起，而不仅仅是这个 suspend 函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">suspend fun requestToken(): Token &#123; ... &#125;   // 挂起函数</span><br><span class="line">suspend fun createPost(token: Token, item: Item): Post &#123; ... &#125;  // 挂起函数</span><br><span class="line"></span><br><span class="line">fun postItem(item: Item) &#123;</span><br><span class="line">    GlobalScope.launch &#123; // 创建一个新协程</span><br><span class="line">        val token = requestToken()</span><br><span class="line">        val post = createPost(token, item)</span><br><span class="line">        processPost(post)</span><br><span class="line">        // 需要异常处理，直接加上 try/catch 语句即可</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h3 id="relay、yield-区别"><a href="#relay、yield-区别" class="headerlink" title="relay、yield 区别"></a>relay、yield 区别</h3><p>relay 和 yield 方法是协程内部的操作，可以挂起协程，区别是 relay 是挂起协程并经过执行时间恢复协程，当线程空闲时就会运行协程；yield 是挂起协程，让协程放弃本次 cpu 执行机会让给别的协程，当线程空闲时再次运行协程。我们只要使用 kotlin 提供的协程上下文类型，线程池是有多个线程的，再次执行的机会很快就会有的。</p>
 <p>除了 main 类型，协程在挂起后都会封装成任务放到协程默认线程池的任务队列里去，有延迟时间的在时间过后会放到队列里去，没有延迟时间的直接放到队列里去</p>
 <h2 id="委托by"><a href="#委托by" class="headerlink" title="委托by"></a>委托by</h2><p>委托模式是软件设计模式中的一项基本技巧。在委托模式中，有两个对象参与处理同一个请求，接受请求的对象将请求委托给另一个对象来处理。Kotlin 直接支持委托模式，更加优雅，简洁。Kotlin 通过关键字 by 实现委托。</p>
@@ -479,7 +482,7 @@
 <p>请注意，provideDelegate 方法只影响辅助属性的创建，并不会影响为 getter 或 setter 生成的代码。</p>
 <h2 id="双冒号"><a href="#双冒号" class="headerlink" title="双冒号 ::"></a>双冒号 ::</h2><p>Kotlin 中 双冒号操作符 表示把一个方法当做一个参数，传递到另一个方法中进行使用，通俗的来讲就是引用一个方法。</p>
 <p>一般情况，我们调用当前类的方法 this 都是可省略的。为了防止作用域混淆 ，:: 调用的函数如果是类的成员函数或者是扩展函数，必须使用限定符,比如this。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a><br><a href="https://www.runoob.com/kotlin/kotlin-delegated.html" target="_blank" rel="noopener">https://www.runoob.com/kotlin/kotlin-delegated.html</a><br><a href="https://www.jianshu.com/p/76d2f47b900d" target="_blank" rel="noopener">https://www.jianshu.com/p/76d2f47b900d</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/Zachary_46/article/details/80446851" target="_blank" rel="noopener">https://blog.csdn.net/Zachary_46/article/details/80446851</a><br><a href="https://www.runoob.com/kotlin/kotlin-delegated.html" target="_blank" rel="noopener">https://www.runoob.com/kotlin/kotlin-delegated.html</a><br><a href="https://www.jianshu.com/p/76d2f47b900d" target="_blank" rel="noopener">Coroutine 协程</a></p>
 
           
         
@@ -1098,7 +1101,7 @@
 <h3 id="五、插件独立性"><a href="#五、插件独立性" class="headerlink" title="五、插件独立性"></a>五、插件独立性</h3><p>Atlas和宿主的依赖还是挺多，毕竟官方也强调是组件化，不是插件化。<strong>而VirtualAPK，它可以是一个独立的app，但插件里面也定义和宿主的关联，就是说这个插件apk并不能给其他宿主用，只能给插件里面声明的那个宿主使用。RePlugin呢，就比较独立了，里面不用声明和宿主的联系，所以你生成一个插件后，这个插件可以给其他宿主调用。</strong></p>
 <h3 id="六、宿主和插件的公共库"><a href="#六、宿主和插件的公共库" class="headerlink" title="六、宿主和插件的公共库"></a>六、宿主和插件的公共库</h3><p>如果宿主和插件都用到一些公共依赖库，比如http库，图片加载库，这个时候怎么处理？Atlas处理就简单了，毕竟是组件化，和宿主的项目都是在一起。可以在项目里面定义一个middleLibrary，这个库里面依赖一些公共的库或者资源，然后宿主和插件都依赖他就行了<strong>。VirtualAPK呢，由于插件里面要声明和宿主的关联，所以他会自动检测，如果插件中依赖的库，在宿主里面也有的话，他会自动去掉一个，不会重复。RePlugin是比较独立的，没有和宿主太多联系，所以目前大家的做法是宿主compile，插件 provided的形式，而共用资源的话，RePlugin是不提倡的了。</strong></p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>如果你的app需要热更新和插件的功能，推荐使用Atlas；如果你的app仅用到插件，在需要的时候才下载加载的话，你可以选择VirtualAPK和RePlugin；如果你的插件希望其他宿主也能用的话，那就只能RePlugin了，RePlugin就像一个应用市场，你的宿主仅仅是一个壳，然后把需要的插件下载加载使用就行，更新的话也无需更新宿主，直接更新插件就行。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ceded2da7847" target="_blank" rel="noopener">https://www.jianshu.com/p/ceded2da7847</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ceded2da7847" target="_blank" rel="noopener">https://www.jianshu.com/p/ceded2da7847</a><br><a href="https://mp.weixin.qq.com/s/Uwr6Rimc7Gpnq4wMFZSAag?utm_source=androidweekly&amp;utm_medium=website" target="_blank" rel="noopener">《Android插件化技术——原理篇》</a></p>
 
           
         

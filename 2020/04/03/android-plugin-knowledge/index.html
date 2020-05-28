@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2020/04/03/android-plugin-knowledge/plugin_history.jpg">
 <meta property="og:image" content="http://yoursite.com/2020/04/03/android-plugin-knowledge/plugin_generate.jpg">
-<meta property="og:updated_time" content="2020-04-08T03:12:13.287Z">
+<meta property="og:updated_time" content="2020-05-27T10:29:35.427Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android插件化方案">
 <meta name="twitter:description" content="插件化技术涉及得非常广泛，其中最核心的就是Android的类加载机制和反射机制。下图载自腾讯bugly：  插件化发展历史插件化技术最初源于免安装运行apk的想法，这个免安装的apk可以理解为插件。支持插件化的app可以在运行时加载和运行插件，这样便可以将app中一些不常用的功能模块做成插件，一方面减小了安装包的大小，另一方面可以实现app功能的动态扩展。想要实现插件化，主要是解决下面三个问题：">
@@ -410,7 +410,7 @@
 <h3 id="五、插件独立性"><a href="#五、插件独立性" class="headerlink" title="五、插件独立性"></a>五、插件独立性</h3><p>Atlas和宿主的依赖还是挺多，毕竟官方也强调是组件化，不是插件化。<strong>而VirtualAPK，它可以是一个独立的app，但插件里面也定义和宿主的关联，就是说这个插件apk并不能给其他宿主用，只能给插件里面声明的那个宿主使用。RePlugin呢，就比较独立了，里面不用声明和宿主的联系，所以你生成一个插件后，这个插件可以给其他宿主调用。</strong></p>
 <h3 id="六、宿主和插件的公共库"><a href="#六、宿主和插件的公共库" class="headerlink" title="六、宿主和插件的公共库"></a>六、宿主和插件的公共库</h3><p>如果宿主和插件都用到一些公共依赖库，比如http库，图片加载库，这个时候怎么处理？Atlas处理就简单了，毕竟是组件化，和宿主的项目都是在一起。可以在项目里面定义一个middleLibrary，这个库里面依赖一些公共的库或者资源，然后宿主和插件都依赖他就行了<strong>。VirtualAPK呢，由于插件里面要声明和宿主的关联，所以他会自动检测，如果插件中依赖的库，在宿主里面也有的话，他会自动去掉一个，不会重复。RePlugin是比较独立的，没有和宿主太多联系，所以目前大家的做法是宿主compile，插件 provided的形式，而共用资源的话，RePlugin是不提倡的了。</strong></p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>如果你的app需要热更新和插件的功能，推荐使用Atlas；如果你的app仅用到插件，在需要的时候才下载加载的话，你可以选择VirtualAPK和RePlugin；如果你的插件希望其他宿主也能用的话，那就只能RePlugin了，RePlugin就像一个应用市场，你的宿主仅仅是一个壳，然后把需要的插件下载加载使用就行，更新的话也无需更新宿主，直接更新插件就行。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ceded2da7847" target="_blank" rel="noopener">https://www.jianshu.com/p/ceded2da7847</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ceded2da7847" target="_blank" rel="noopener">https://www.jianshu.com/p/ceded2da7847</a><br><a href="https://mp.weixin.qq.com/s/Uwr6Rimc7Gpnq4wMFZSAag?utm_source=androidweekly&amp;utm_medium=website" target="_blank" rel="noopener">《Android插件化技术——原理篇》</a></p>
 
       
     </div>
