@@ -293,6 +293,472 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/16/android-ndk-knowledge/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/16/android-ndk-knowledge/" itemprop="url">NDK之CMake</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-16T09:42:27+08:00">
+                2019-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android-NDK/" itemprop="url" rel="index">
+                    <span itemprop="name">Android NDK</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>JNI（Java Native Interface），是方便Java调用C、C++等Native代码所封装的一层接口，相当于一座桥梁。通过JNI可以操作一些Java无法完成的与系统相关的特性，尤其在图像和视频处理中大量用到。</p>
+<p>NDK（native development kit）提供了一系列的工具，帮助开发者快速开发C（或C++）的动态库，并能自动将so和java应用一起打包成apk。NDK集成了<strong>交叉编译器</strong>，并提供了相应的mk文件隔离CPU、平台、ABI等差异，开发人员只需要简单修改mk文件（指出“哪些文件需要编译”、“编译特性要求”等），就可以创建出so，该动态库可以兼容各个平台。</p>
+<h2 id="2、CMake"><a href="#2、CMake" class="headerlink" title="2、CMake"></a>2、CMake</h2><p>CMake是一个跨平台的安装(编译)工具，通过编写CMakeLists.txt，可以生成对应的makefile或project文件，再调用底层的编译。AS 2.2之后工具中增加了对CMake的支持，官方也推荐用CMake+CMakeLists.txt的方式，代替ndk-build+Android.mk+Application.mk的方式去构建JNI项目.</p>
+<h3 id="创建使用CMake构建的项目"><a href="#创建使用CMake构建的项目" class="headerlink" title="创建使用CMake构建的项目"></a>创建使用CMake构建的项目</h3><p>开始前AS要先在SDK Manager中安装SDK Tools-&gt;CMake，只要勾选Include C++ Support。其中会提示配置C++支持的功能.</p>
+<p>一般默认就可以了，各个选项的具体含义:</p>
+<blockquote>
+<p>C++ Standard：指定编译库的环境。<br>Exception Support:当前项目支持C++异常处理<br>Runtime Type Information Support：除异常处理外，还支持动态转类型(dynamic casting) 、模块集成、以及对象I/O</p>
+</blockquote>
+<h3 id="工程的目录结构"><a href="#工程的目录结构" class="headerlink" title="工程的目录结构"></a>工程的目录结构</h3><p>创建好的工程主Module下直接就有.externalNativeBuild，多出一个CMakeLists.txt，相当于以前的配置文件。并且在src/main目录下多了一个cpp文件夹，里面存放的是C++文件，相当于以前的jni文件夹。这个是工程创建后AS生成的示例JNI方法，返回了一个字符串。后面开发JNI就可以按照这个目录结构。</p>
+<p>相应的，build.gradle下也增加了一些配置:</p>
+<pre><code>android {
+    ...
+    defaultConfig {
+        ...
+        externalNativeBuild {
+            cmake {
+                cppFlags &quot;-std=c++14 -frtti -fexceptions&quot;
+                abiFilters &quot;x86&quot;, &quot;arm64-v8a&quot;, &quot;armeabi-v7a&quot;
+            }
+        }
+    }
+    buildTypes {
+        ...
+    }
+    externalNativeBuild {
+        cmake {
+            path &quot;CMakeLists.txt&quot;
+        }
+    }
+}
+</code></pre><p>defaultConfig中的externalNativeBuild各项属性和前面创建项目时的选项配置有关，外部的externalNativeBuild则定义了CMakeLists.txt的存放路径。<br>如果只是在自己的项目中使用，CMake的方式在打包APK的时候会自动将cpp文件编译成so文件拷贝进去。如果要提供给外部使用时，Make Project，之后在libs目录下就可以看到生成的对应配置的相关CPU平台的.so文件。</p>
+<h3 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h3><p>CMakeLists.txt可以自定义命令、查找文件、头文件包含、设置变量，具体可见 官方文档。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"># 编译本地库时我们需要的最小的cmake版本</span><br><span class="line">cmake_minimum_required(VERSION 3.4.1)</span><br><span class="line"></span><br><span class="line">#设置生成的so动态库最后输出的路径，一定要在add_library之前设置，否则不会生效</span><br><span class="line">set(CMAKE_LIBRARY_OUTPUT_DIRECTORY $&#123;PROJECT_SOURCE_DIR&#125;/libs/$&#123;ANDROID_ABI&#125;)</span><br><span class="line"></span><br><span class="line"># 相当于Android.mk。如果是多次使用add_library，则会生成多个so库；</span><br><span class="line"># 如果想将多个本地文件编译到一个so库中，只要最后一个参数添加多个C/C++文件的相对路径就可以</span><br><span class="line">add_library( # Sets the name of the library.设置编译生成本地库的名字</span><br><span class="line">             native-lib</span><br><span class="line"></span><br><span class="line">             # Sets the library as a shared library.库的类型</span><br><span class="line">             SHARED</span><br><span class="line"></span><br><span class="line">             # Provides a relative path to your source file(s).编译文件的路径</span><br><span class="line">             src/main/cpp/native-lib.cpp )</span><br><span class="line"></span><br><span class="line"># 添加一些我们在编译我们的本地库的时候需要依赖的一些库，这里是用来打log的库。可以写多个find_library</span><br><span class="line">find_library( # Sets the name of the path variable.</span><br><span class="line">              log-lib</span><br><span class="line"></span><br><span class="line">              # Specifies the name of the NDK library that</span><br><span class="line">              # you want CMake to locate.</span><br><span class="line">              log )</span><br><span class="line"></span><br><span class="line"># 关联自己生成的库和一些第三方库或者系统库</span><br><span class="line">target_link_libraries( # Specifies the target library.</span><br><span class="line">                       native-lib</span><br><span class="line"></span><br><span class="line">                       # Links the target library to the log library</span><br><span class="line">                       # included in the NDK.</span><br><span class="line">                       $&#123;log-lib&#125; )</span><br><span class="line"></span><br><span class="line">#设置头文件搜索路径（和此txt同个路径的头文件无需设置），可选</span><br><span class="line">#INCLUDE_DIRECTORIES($&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/common)</span><br><span class="line"></span><br><span class="line">#指定用到的系统库或者NDK库或者第三方库的搜索路径，可选。</span><br><span class="line">#LINK_DIRECTORIES(/usr/local/lib)</span><br><span class="line"></span><br><span class="line">#添加子目录,将会调用子目录中的CMakeLists.txt</span><br><span class="line">ADD_SUBDIRECTORY(one)</span><br><span class="line">ADD_SUBDIRECTORY(two)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>cmake_minimum_required(VERSION 3.4.1)：指定CMake的最小版本</li>
+<li>add_library：创建一个静态或者动态库，并提供其关联的源文件路径，开发者可以定义多个库，CMake会自动去构建它们。Gradle可以自动将它们打包进APK中。<br>第一个参数——native-lib：是库的名称<br>第二个参数——SHARED：是库的类别，是动态的还是静态的<br>第三个参数——src/main/cpp/native-lib.cpp：是库的源文件的路径</li>
+<li>find_library：找到一个预编译的库，并作为一个变量保存起来。由于CMake在搜索库路径的时候会包含系统库，并且CMake会检查它自己之前编译的库的名字，所以开发者需要保证开发者自行添加的库的名字的独特性。<br>第一个参数——log-lib：设置路径变量的名称<br>第一个参数—— log：指定NDK库的名子，这样CMake就可以找到这个库</li>
+<li>target_link_libraries：指定CMake链接到目标库。开发者可以链接多个库，比如开发者可以在此定义库的构建脚本，并且预编译第三方库或者系统库。<br>第一个参数——native-lib：指定的目标库<br>第一个参数——${log-lib}：将目标库链接到NDK中的日志库，</li>
+</ul>
+<p>如果想要配置so库的目标CPU平台，可以在build.gradle中设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        ndk&#123;</span><br><span class="line">            abiFilters &quot;x86&quot;,&quot;armeabi&quot;,&quot;armeabi-v7a&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="set-target-properties"><a href="#set-target-properties" class="headerlink" title="set_target_properties"></a>set_target_properties</h4><p>设置目标的一些属性来改变它们构建的方式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(target1 target2 ...</span><br><span class="line">                      PROPERTIES prop1 value1</span><br><span class="line">                      prop2 value2 ...)</span><br></pre></td></tr></table></figure></p>
+<p>使用示例为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(cocos2d</span><br><span class="line">    PROPERTIES</span><br><span class="line">    ARCHIVE_OUTPUT_DIRECTORY &quot;$&#123;CMAKE_BINARY_DIR&#125;/lib&quot;</span><br><span class="line">    LIBRARY_OUTPUT_DIRECTORY &quot;$&#123;CMAKE_BINARY_DIR&#125;/lib&quot;</span><br><span class="line">    VERSION &quot;$&#123;COCOS2D_X_VERSION&#125;&quot;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>为一个目标设置属性。该命令的语法是列出所有你想要变更的文件，然后提供你想要设置的值。你能够使用任何你想要的属性/值对，并且在随后的代码中调用GET_TARGET_PROPERTY命令取出属性的值。</p>
+<p>大家在用cmake时，应该经常会用到第三方so库，导入第三方so库中需要使用到set_target_properties,例如这样写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">set_target_properties(</span><br><span class="line"></span><br><span class="line">Thirdlib</span><br><span class="line"></span><br><span class="line">PROPERTIES IMPORTED_LOCATION</span><br><span class="line"></span><br><span class="line">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/jniLibs/libThirdlib.so</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>CMAKE_CURRENT_SOURCE_DIR 这个变量是系统自定义的，表示CMakeLists.txt文件的绝对路径</p>
+<h3 id="包含其他-CMake-项目"><a href="#包含其他-CMake-项目" class="headerlink" title="包含其他 CMake 项目"></a>包含其他 CMake 项目</h3><p>如果想要编译多个 CMake 项目并在 Android 项目中包含它们的输出，您可以使用一个 CMakeLists.txt 文件（即您关联到 Gradle 的那个文件）作为顶级 CMake 编译脚本，并添加其他 CMake 项目作为此编译脚本的依赖项。以下顶级 CMake 编译脚本使用 add_subdirectory() 命令将另一个 CMakeLists.txt 文件指定为编译依赖项，然后关联其输出，就像处理任何其他预编译库一样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># Sets lib_src_DIR to the path of the target CMake project.</span><br><span class="line">set( lib_src_DIR ../gmath )</span><br><span class="line"></span><br><span class="line"># Sets lib_build_DIR to the path of the desired output directory.</span><br><span class="line">set( lib_build_DIR ../gmath/outputs )</span><br><span class="line">file(MAKE_DIRECTORY $&#123;lib_build_DIR&#125;)</span><br><span class="line"></span><br><span class="line"># Adds the CMakeLists.txt file located in the specified directory</span><br><span class="line"># as a build dependency.</span><br><span class="line">add_subdirectory( # Specifies the directory of the CMakeLists.txt file.</span><br><span class="line">                  $&#123;lib_src_DIR&#125;</span><br><span class="line"></span><br><span class="line">                  # Specifies the directory for the build outputs.</span><br><span class="line">                  $&#123;lib_build_DIR&#125; )</span><br><span class="line"></span><br><span class="line"># Adds the output of the additional CMake build as a prebuilt static</span><br><span class="line"># library and names it lib_gmath.</span><br><span class="line">add_library( lib_gmath STATIC IMPORTED )</span><br><span class="line">set_target_properties( lib_gmath PROPERTIES IMPORTED_LOCATION</span><br><span class="line">                       $&#123;lib_build_DIR&#125;/$&#123;ANDROID_ABI&#125;/lib_gmath.a )</span><br><span class="line">include_directories( $&#123;lib_src_DIR&#125;/include )</span><br><span class="line"></span><br><span class="line"># Links the top-level CMake build output against lib_gmath.</span><br><span class="line">target_link_libraries( native-lib ... lib_gmath )</span><br></pre></td></tr></table></figure></p>
+<h2 id="3、Android-mk"><a href="#3、Android-mk" class="headerlink" title="3、Android.mk"></a>3、Android.mk</h2><p>Android.mk内容示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LOCAL_PATH := $(call my-dir)</span><br><span class="line"></span><br><span class="line">include $(CLEAR_VARS)</span><br><span class="line"></span><br><span class="line">LOCAL_MODULE    := ndkdemotest-jni</span><br><span class="line"></span><br><span class="line">LOCAL_SRC_FILES := ndkdemotest.c</span><br><span class="line"></span><br><span class="line">include $(BUILD_SHARED_LIBRARY)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>LOCAL_PATH := $(call my-dir)：每个Android.mk文件必须以定义开始。它用于在开发tree中查找源文件。宏my-dir则由Build System 提供。返回包含Android.mk目录路径。</p>
+</li>
+<li><p>include $(CLEAR_VARS) ：CLEAR_VARS变量由Build System提供。并指向一个指定的GNU Makefile，由它负责清理很多LOCAL_xxx。例如LOCAL_MODULE，LOCAL_SRC_FILES，LOCAL_STATIC_LIBRARIES等等。但不是清理LOCAL_PATH。这个清理是必须的，因为所有的编译控制文件由同一个GNU Make解析和执行，其变量是全局的。所以清理后才能便面相互影响。</p>
+</li>
+<li><p>LOCAL_MODULE := ndkdemotest-jni：LOCAL_MODULE模块必须定义，以表示Android.mk中的每一个模块。名字必须唯一且不包含空格。Build System 会自动添加适当的前缀和后缀。例如，demo，要生成动态库，则生成libdemo.so。但请注意：如果模块名字被定义为libabd，则生成libabc.so。不再添加前缀。</p>
+</li>
+<li><p>LOCAL_SRC_FILES := ndkdemotest.c：这行代码表示将要打包的C/C++源码。不必列出头文件，build System 会自动帮我们找出依赖文件。缺省的C++ 源码的扩展名为.cpp。</p>
+</li>
+<li><p>include $(BUILD_SHARED_LIBRARY)：BUILD_SHARED_LIBRARY是Build System提供的一个变量，指向一个GUN Makefile Script。它负责收集自从上次调用include $(CLEAR_VARS)后的所有LOCAL_xxxxinx。并决定编译什么类型：<br>1）BUILD_STATIC_LIBRARY：编译为静态库<br>2）BUILD_SHARED_LIBRARY：编译为动态库<br>3）BUILD_EXECUTABLE：编译为Native C 可执行程序<br>4）BUILD_PREBUILT：该模块已经预先编译</p>
+</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/wzhseu/article/details/79683045" target="_blank" rel="noopener">https://blog.csdn.net/wzhseu/article/details/79683045</a><br><a href="https://www.cnblogs.com/alphagl/p/6280061.html" target="_blank" rel="noopener">CMake学习</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/12/android-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/12/android-note/" itemprop="url">Android小知识点笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-12T09:22:55+08:00">
+                2019-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="匿名内部类"><a href="#匿名内部类" class="headerlink" title="匿名内部类"></a>匿名内部类</h2><p>外部类创建匿名内部类后，有可能匿名内部类还在使用，而外部类实例（或者创建内部类的方法）已经被回收了。如果此时匿名内部类用到了外部类的成员变量，那么就会出现匿名内部类要去访问一个不存在的变量的这种荒唐情况，为了延长局部变量的生命周期，于是匿名内部类使用的局部变量会被复制一份，从而使得局部变量的生命周期看起来变长了。但是这样又会引出另一个问题：<strong>数据一致性的问题！为了保证局部变量和 内部类中复制品 的数据一致性，于是要求内部类使用的局部变量是final的</strong>。</p>
+<h2 id="λ表达式"><a href="#λ表达式" class="headerlink" title="λ表达式"></a>λ表达式</h2><p>λ表达式有三部分组成：参数列表，箭头（-&gt;），以及一个表达式或语句块。<strong>λ表达式可以被当做是一个Object（注意措辞），λ表达式的目标类型是“函数接口（functional interface）”</strong>。    </p>
+<p><strong>λ表达式主要用于替换以前广泛使用的内部匿名类，各种回调，比如事件响应器、传入Thread类的Runnable等。</strong>Java8有一个短期目标和一个长期目标。<strong>短期目标是：配合“集合类批处理操作”的内部迭代和并行处理；长期目标是将Java向函数式编程语言这个方向引导</strong>（并不是要完全变成一门函数式编程语言，只是让它有更多的函数式编程语言的特性）。</p>
+<p>Java8为集合类引入了另一个重要概念：流（stream）。一个流通常以一个集合类实例为其数据源，然后在其上定义各种操作。流的API设计使用了管道（pipelines）模式。对流的一次操作会返回另一个流。你可能会觉得List 被迭代了好多次，map，filter，distinct都分别是一次循环，效率会不好。实际并非如此。这些返回另一个Stream的方法都是“懒（lazy）”的，而最后返回最终结果的方法则是“急（eager）”的。在遇到eager方法之前，lazy的方法不会执行。</p>
+<p><strong>内部类总是持有一个其外部类对象的引用。而λ表达式呢，除非在它内部用到了其外部类（包围类）对象的方法或者成员，否则它就不持有这个对象的引用。</strong>在Java8以前，如果要在内部类访问外部对象的一个本地变量，那么这个变量必须声明为final才行。在Java8中，这种限制被去掉了，代之以一个新的概念，“effectively final”。它的意思是你可以声明为final，也可以不声明final但是按照final来用，也就是一次赋值永不改变。</p>
+<p><strong>任何一个λ表达式都可以代表某个函数接口的唯一方法的匿名描述符。我们也可以使用某个类的某个具体方法来代表这个描述符，叫做方法引用。</strong></p>
+<h2 id="String-amp-StringBuffer-amp-StringBuilder"><a href="#String-amp-StringBuffer-amp-StringBuilder" class="headerlink" title="String &amp; StringBuffer &amp; StringBuilder"></a>String &amp; StringBuffer &amp; StringBuilder</h2><p>1、长度是否可变<br>String 是被 final 修饰的，他的长度是不可变的，就算调用 String 的concat 方法，那也是把字符串拼接起来并重新创建一个对象，把拼接后的 String 的值赋给新创建的对象<br>StringBuffer 和 StringBuilder 类的对象能够被多次的修改，并且不产生新的未使用对象，StringBuffer 与 StringBuilder 中的方法和功能完全是等价的。调用StringBuffer 的 append 方法，来改变 StringBuffer 的长度，并且，相比较于 StringBuffer，String 一旦发生长度变化，是非常耗费内存的！</p>
+<p>2、执行效率<br>三者在执行速度方面的比较：StringBuilder &gt; StringBuffer &gt; String</p>
+<p>3、应用场景<br>如果要操作少量的数据用 = String<br>单线程操作字符串缓冲区 下操作大量数据 = StringBuilder<br>多线程操作字符串缓冲区 下操作大量数据 = StringBuffer</p>
+<p>StringBuffer 中的方法大都采用了 synchronized 关键字进行修饰，因此是线程安全的，而 StringBuilder 没有这个修饰，可以被认为是线程不安全的。</p>
+<h2 id="Java中Vector和ArrayList的区别"><a href="#Java中Vector和ArrayList的区别" class="headerlink" title="Java中Vector和ArrayList的区别"></a>Java中Vector和ArrayList的区别</h2><p>首先看这两类都实现List接口，而List接口一共有三个实现类，分别是ArrayList、Vector和LinkedList。List用于存放多个元素，能够维护元素的次序，并且允许元素的重复。3个具体实现类的相关区别如下：</p>
+<ol>
+<li>ArrayList是最常用的List实现类，内部是通过数组实现的，它允许对元素进行快速随机访问。数组的缺点是每个元素之间不能有间隔，当数组大小不满足时需要增加存储能力，就要讲已经有数组的数据复制到新的存储空间中。当从ArrayList的中间位置插入或者删除元素时，需要对数组进行复制、移动、代价比较高。因此，它适合随机查找和遍历，不适合插入和删除。</li>
+<li>Vector与ArrayList一样，<strong>也是通过数组实现的，不同的是它支持线程的同步</strong>，即某一时刻只有一个线程能够写Vector，避免多线程同时写而引起的不一致性，但实现同步需要很高的花费，因此，访问它比访问ArrayList慢。</li>
+<li><strong>LinkedList是用链表结构存储数据的，很适合数据的动态插入和删除，随机访问和遍历速度比较慢</strong>。另外，他还提供了List接口中没有定义的方法，专门用于操作表头和表尾元素，可以当作堆栈、队列和双向队列使用。</li>
+</ol>
+<h2 id="View绘制与事件"><a href="#View绘制与事件" class="headerlink" title="View绘制与事件"></a>View绘制与事件</h2><p><img src="/2019/08/12/android-note/view.webp" alt title="UI 管理系统的层级"></p>
+<h3 id="绘制"><a href="#绘制" class="headerlink" title="绘制"></a>绘制</h3><p>onMeasure()、onLayout()：<br>measure是测量的意思，那么onMeasure()方法顾名思义就是用于测量视图的大小的。<strong>View系统的绘制流程会从ViewRoot的performTraversals()方法中开始</strong>，在其内部调用View的measure()方法。<br><strong>getMeasureWidth()方法在measure()过程结束后就可以获取到了，而getWidth()方法要在layout()过程结束后才能获取到。</strong>另外，getMeasureWidth()方法中的值是通过setMeasuredDimension()方法来进行设置的，而getWidth()方法中的值则是通过视图右边的坐标减去左边的坐标计算出来的。</p>
+<p>onDraw()步骤:<br>1.第一步是从第9行代码开始的，这一步的作用是对视图的背景进行绘制<br>2.第三步是在第34行执行的，这一步的作用是对视图的内容进行绘制<br>3.第四步的作用是对当前视图的所有子视图进行绘制<br>4.第六步的作用是对视图的滚动条进行绘制。其实不管是Button也好，TextView也好，任何一个视图都是有滚动条的，只是一般情况下我们都没有让它显示出来而已。<br>部分源代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public void draw(Canvas canvas) &#123;</span><br><span class="line">	if (ViewDebug.TRACE_HIERARCHY) &#123;</span><br><span class="line">	    ViewDebug.trace(this, ViewDebug.HierarchyTraceType.DRAW);</span><br><span class="line">	&#125;</span><br><span class="line">	final int privateFlags = mPrivateFlags;</span><br><span class="line">	final boolean dirtyOpaque = (privateFlags &amp; DIRTY_MASK) == DIRTY_OPAQUE &amp;&amp;</span><br><span class="line">	        (mAttachInfo == null || !mAttachInfo.mIgnoreDirtyState);</span><br><span class="line">	mPrivateFlags = (privateFlags &amp; ~DIRTY_MASK) | DRAWN;</span><br><span class="line">	// Step 1, draw the background, if needed</span><br><span class="line">	int saveCount;</span><br><span class="line">	if (!dirtyOpaque) &#123;</span><br><span class="line">	    final Drawable background = mBGDrawable;</span><br><span class="line">	    if (background != null) &#123;</span><br><span class="line">	        final int scrollX = mScrollX;</span><br><span class="line">	        final int scrollY = mScrollY;</span><br><span class="line">	        if (mBackgroundSizeChanged) &#123;</span><br><span class="line">	            background.setBounds(0, 0,  mRight - mLeft, mBottom - mTop);</span><br><span class="line">	            mBackgroundSizeChanged = false;</span><br><span class="line">	        &#125;</span><br><span class="line">	        if ((scrollX | scrollY) == 0) &#123;</span><br><span class="line">	            background.draw(canvas);</span><br><span class="line">	        &#125; else &#123;</span><br><span class="line">	            canvas.translate(scrollX, scrollY);</span><br><span class="line">	            background.draw(canvas);</span><br><span class="line">	            canvas.translate(-scrollX, -scrollY);</span><br><span class="line">	        &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line">	final int viewFlags = mViewFlags;</span><br><span class="line">	boolean horizontalEdges = (viewFlags &amp; FADING_EDGE_HORIZONTAL) != 0;</span><br><span class="line">	boolean verticalEdges = (viewFlags &amp; FADING_EDGE_VERTICAL) != 0;</span><br><span class="line">	if (!verticalEdges &amp;&amp; !horizontalEdges) &#123;</span><br><span class="line">	    // Step 3, draw the content</span><br><span class="line">	    if (!dirtyOpaque) onDraw(canvas);</span><br><span class="line">	    // Step 4, draw the children</span><br><span class="line">	    dispatchDraw(canvas);</span><br><span class="line">	    // Step 6, draw decorations (scrollbars)</span><br><span class="line">	    onDrawScrollBars(canvas);</span><br><span class="line">	    // we&apos;re done...</span><br><span class="line">	    return;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h3><p>调用视图的setVisibility()、setEnabled()、setSelected()等方法时都会导致视图重绘，而如果我们想要手动地强制让视图进行重绘，可以调用invalidate()方法来实现。当然了，setVisibility()、setEnabled()、setSelected()等方法的内部其实也是通过调用invalidate()方法来实现的。</p>
+<p>invalidate()方法中，当ViewParent不等于空的时候就会一直循环下去。在这个while循环当中会不断地获取当前布局的父布局，并调用它的invalidateChildInParent()方法，<strong>在ViewGroup的invalidateChildInParent()方法中主要是来计算需要重绘的矩形区域</strong>，当循环到最外层的根布局后，就会调用ViewRoot的invalidateChildInParent()方法了, 最终会调用到performTraversals()方法。<br>invalidate()方法虽然最终会调用到performTraversals()方法中，但这时measure和layout流程是不会重新执行的，因为视图没有强制重新测量的标志位，而且大小也没有发生过变化，所以这时只有draw流程可以得到执行。而如果你希望视图的绘制流程可以完完整整地重新走一遍，就不能使用invalidate()方法，而应该调用requestLayout()了。</p>
+<p>参考：<a href="https://blog.csdn.net/guolin_blog/article/details/17045157" target="_blank" rel="noopener">https://blog.csdn.net/guolin_blog/article/details/17045157</a></p>
+<h3 id="事件传递"><a href="#事件传递" class="headerlink" title="事件传递"></a>事件传递</h3><p>Android中触摸事件传递过程中最重要的是dispatchTouchEvent()、onInterceptTouchEvent()和onTouchEvent()方法。这里记录一下他们的处理过程，以供记忆：<br>1.dispatchTouchEvent是处理触摸事件分发,事件(多数情况)是从Activity的dispatchTouchEvent开始的。执行super.dispatchTouchEvent(ev)，事件向下分发。dispatchTouchEvent()返回true，后续事件（ACTION_MOVE、ACTION_UP）会再传递，如果返回false，dispatchTouchEvent()就接收不到ACTION_UP、ACTION_MOVE。<br>2.onInterceptTouchEvent是ViewGroup提供的方法，默认返回false，返回true表示拦截。<br>3.onTouchEvent是View中提供的方法，ViewGroup也有这个方法，view中不提供onInterceptTouchEvent。view中默认返回true，表示消费了这个事件。</p>
+<p>事件传递流程如下：<br>1.ACTION_DOWN首先会传递到onInterceptTouchEvent()方法<br>2.如果该ViewGroup的onInterceptTouchEvent()在接收到down事件处理完成之后return false，那么后续的move, up等事件将继续会先传递给该ViewGroup，之后才和down事件一样传递给最终的目标view的onTouchEvent()处理。<br>3.如果该ViewGroup的onInterceptTouchEvent()在接收到down事件处理完成之后return true，那么后续的move, up等事件将不再传递给onInterceptTouchEvent()，而是和down事件一样传递给该ViewGroup的onTouchEvent()处理，注意，目标view将接收不到任何事件。<br>4.如果最终需要处理事件的view的onTouchEvent()返回了false，那么该事件将被传递至其上一层次的view的onTouchEvent()处理。<br>5.如果最终需要处理事件的view的onTouchEvent()返回了true，那么后续事件将可以继续传递给该view的onTouchEvent()处理。</p>
+<p><img src="/2019/08/12/android-note/view-touchevent.jpg" alt><br>当触摸事件ACTION_DOWN发生之后，先调用Activity中的dispatchTouchEvent函数进行处理，紧接着ACTION_DOWN事件传递给ViewGroup中的dispatchTouchEvent函数，接着viewGroup中的dispatchTouchEvent中的ACTION_DOWN事件传递到调用ViewGroup中的onInterceptTouchEvent函数，此函数负责拦截ACTION_DOWN事件。由于viewGroup下还包含子View，所以默认返回值为false，即不拦截此ACTION_DOWN事件。如果返回false，则ACTION_DOWN事件继续传递给其子view。由于子view不是viewGroup的控件，所以ACTION_DOWN事件接着传递到onTouchEvent进行处理事件。此时消息的传递基本上结束。从上可以分析，motionEvent事件的传递是采用隧道方式传递。隧道方式，即从根元素依次往下传递直到最内层子元素或在中间某一元素中由于某一条件停止传递。</p>
+<p>参考：<a href="https://blog.csdn.net/qiushuiqifei/article/details/9918527" target="_blank" rel="noopener">https://blog.csdn.net/qiushuiqifei/article/details/9918527</a></p>
+<h2 id="Android属性动画优化"><a href="#Android属性动画优化" class="headerlink" title="Android属性动画优化"></a>Android属性动画优化</h2><p>android的三种动画：</p>
+<ul>
+<li>View Animation（视图动画，平移、缩放、透明等）</li>
+<li>Drawable Animation（帧动画）</li>
+<li>Property Animation（属性动画）</li>
+</ul>
+<p>现在项目的动画问题最主要出在动画部分临时变量多，GC触发频繁，内存泄漏。属性动画优化思路：</p>
+<ol>
+<li>硬件加速<br>在开始动画时调用View.setLayerType(View.LAYER_TYPE_HARDWARE, null)<br>运行动画<br>动画结束时调用View.setLayerType(View.LAYER_TYPE_NONE, null).</li>
+<li>减少临时变量,使用PropertyValuesHolder(可以用在多属性动画同时工作管理) ,一个view同时发生多种属性效果时，建议这种写法。</li>
+<li>使用Keyframe<br>Keyframe是PropertyValuesHolder的成员，用来管理每一个关键帧的出现时间。一个view的单个属性先后发生一系列变化时，建议使用Keyframe达到效果。<br>总的来说就是：ObjectAnimator把属性值的更新委托给PropertyValuesHolder执行，PropertyValuesHolder再把关键帧的时序性计算委托给Keyframe。<br>最后，不同的view再用不同的ObjectAnimator管理。</li>
+<li>内存泄漏: animator.setRepeatCount(ValueAnimator.INFINITE)及时cancel（）</li>
+<li>动画卡顿，可以考虑使用自定义控件实现，如果一个自定义不行，那就是两个</li>
+</ol>
+<h2 id="ART和Dalvik"><a href="#ART和Dalvik" class="headerlink" title="ART和Dalvik"></a>ART和Dalvik</h2><p>Android4.4版本以前是Dalvik虚拟机，4.4版本开始引入ART虚拟机（Android Runtime）。在4.4版本上，两种运行时环境共存，可以相互切换，但是在5.0版本以后，Dalvik虚拟机则被彻底的丢弃，全部采用ART。</p>
+<h3 id="ART"><a href="#ART" class="headerlink" title="ART"></a>ART</h3><p>ART 是一种执行效率更高且更省电的运行机制，执行的是本地机器码，这些本地机器码是从dex字节码转换而来。<strong>ART采用的是AOT（Ahead-Of-Time）编译</strong>，应用在第一次安装的时候，字节码就会预先编译成机器码存储在本地。在App运行时，ART模式就较Dalvik模式少了解释字节码的过程，所以App的运行效率会有所提高，占用内存也会相应减少。</p>
+<h3 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h3><p>Dalvik 虚拟机采用的是JIT（Just-In-Time）编译模式，意思为即时编译，我们知道apk被安装到手机中时，对应目录会有dex或odex和apk文件，apk文件存储的是资源文件，而dex或odex（经过优化后的dex文件内部存储class文件）内部存储class文件，每次运行app时虚拟机会将dex文件解释翻译成机器码，这样才算是本地可执行代码，之后被系统运行。</p>
+<p>Dalvik虚拟机可以看做是一个Java VM，他负责解释dex文件为机器码，如果我们不做处理的话，每次执行代码，都需要Dalvik将dex代码翻译为微处理器指令，然后交给系统处理，这样效率不高。为了解决这个问题，<strong>Google在2.2版本添加了JIT编译器，当App运行时，每当遇到一个新类，JIT编译器就会对这个类进行编译，经过编译后的代码，会被优化成相当精简的原生型指令码（即native code），这样在下次执行到相同逻辑的时候，速度就会更快。</strong>JIT代表运行时编译策略，也可以理解成一种运行时编译器，是为了加快Dalvik虚拟机解释dex速度提出的一种技术方案，来缓存频繁使用的本地机器码。</p>
+<h3 id="两者的区别"><a href="#两者的区别" class="headerlink" title="两者的区别"></a>两者的区别</h3><p><strong>Dalvik每次都要编译再运行，Art只会安装时启动编译</strong><br>Art占用空间比Dalvik大（原生代码占用的存储空间更大），就是用<strong>“空间换时间”</strong><br>Art减少编译，减少了CPU使用频率，使用明显改善电池续航<br>Art应用启动更快、运行更快、体验更流畅、触感反馈更及时</p>
+<h2 id="UncaughtExceptionHandler"><a href="#UncaughtExceptionHandler" class="headerlink" title="UncaughtExceptionHandler"></a>UncaughtExceptionHandler</h2><p>如果给一个线程设置了UncaughtExceptionHandler 这个接口：<br>1、这个线程中，所有未处理或者说未捕获的异常都将会由这个接口处理，也就说被这个接口给try…catch了。<br>2、在这个线程中抛出异常时，java虚拟机将会忽略，也就是说，java虚拟机不会让程序崩溃了。<br>3、如果没有设置，那么最终会调用getDefaultUncaughtExceptionHandler 获取默认的UncaughtExceptionHandler 来处理异常。</p>
+<h2 id="aar"><a href="#aar" class="headerlink" title="@aar"></a>@aar</h2><p>@aar的方式关闭传递依赖</p>
+<pre><code>// 只下载该库，其他所依赖的所有库不下载
+compile &apos;io.reactivex.rxjava2:rxandroid:2.0.1@aar&apos;
+// 在使用@aar的前提下还能下载其他依赖库，则需要添加transitive=true的条件
+compile (&quot;io.reactivex.rxjava2:rxandroid::2.0.1@aar&quot;) {
+    transitive=true
+}
+</code></pre><h2 id="Groovy"><a href="#Groovy" class="headerlink" title="Groovy"></a>Groovy</h2><p>Groovy语言=<strong>Java语言的扩展+众多脚本语言的语法。运行在JVM虚拟机上。Gradle项目构框架使用groovy语言实现。</strong> 基于Gradle框架为我们实现了一些项目构件框架。</p>
+<p>Groovy是一门jvm语言，它最终是要编译成class文件然后在jvm上执行，所以<strong>Java语言的特性Groovy都支持，我们完全可以混写Java和Groovy。</strong></p>
+<p>在Groovy中，数据类型有：<br>1) Java中的基本数据类型<br>2) Java中的对象<br>3) Closure（闭包）<br>4) 加强的List、Map等集合类型<br>5) 加强的File、Stream等IO类型</p>
+<p>类型可以显示声明，也可以用 def 来声明，用 def 声明的类型Groovy将会进行类型推断。</p>
+<h2 id="gradle插件"><a href="#gradle插件" class="headerlink" title="gradle插件"></a>gradle插件</h2><p>插件会扩展项目的功能，帮助我们在项目的构建的过程中做很多事情：</p>
+<ul>
+<li>可以添加任务到项目中，帮助完成诸如 测试、编译、打包等事情。</li>
+<li>可以添加依赖配置到项目中，通过它们来配置我们在构建过程中的依赖。</li>
+<li>可以向项目中现有的对象类型添加新的扩展属性、方法等，可以使用它们来配置优化构建。例如：android{}这个配置块就是Android Gradle插件为Project对象添加的一个扩展。</li>
+<li>可以对项目进行一些约定，比如应用Java插件后，可以约定src/main/java目录下是我们的源代码的存放地址，在编译的时候也是编译这个目录下的Java源代码文件。</li>
+</ul>
+<p>这就是插件，我们只需要按照它约定的方式，使用它提供的任务、方法或者扩展，就可以对我们的项目进行构建。</p>
+<p>因为是基于groovy开发，所有代码文件要以.groovy结尾</p>
+<p>1.定义插件入口： implements Plugin<project></project></p>
+<p>2.XXXTask必须要继承DefautTask,并使用@TaskAction来定义Task的入口函数。</p>
+<p>3.gradle配置示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">//bulid.gradle</span><br><span class="line">buildscript &#123;</span><br><span class="line">    </span><br><span class="line">    repositories &#123;</span><br><span class="line">        google()</span><br><span class="line">        jcenter()</span><br><span class="line">        maven &#123;</span><br><span class="line">            url &apos;file:///Users/xinyu/work/maven-lib/&apos;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath &apos;com.android.tools.build:gradle:3.1.2&apos;</span><br><span class="line">        classpath &apos;com.zxy.plugin:plugin:1.0.0&apos;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//plugin gradle</span><br><span class="line">apply plugin: &apos;groovy&apos;</span><br><span class="line">apply plugin: &apos;maven&apos;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    // gradle sdk</span><br><span class="line">    compile gradleApi()</span><br><span class="line">    // groovy sdk</span><br><span class="line">    compile localGroovy()</span><br><span class="line">    // 可以引用其它库</span><br><span class="line">    compile fileTree(dir: &apos;libs&apos;2 include: [&apos;*.jar&apos;])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">uploadArchives &#123;</span><br><span class="line">    repositories &#123;</span><br><span class="line">        mavenDeployer &#123;</span><br><span class="line">            //本地的Maven地址</span><br><span class="line">            repository(url: &apos;file:///Users/xinyu/work/maven-lib/&apos;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group=&apos;com.zxy.plugin&apos;</span><br><span class="line">version=&apos;1.0.0&apos;</span><br></pre></td></tr></table></figure></p>
+<p>参考资料：<a href="https://www.jianshu.com/p/eda0bfd692e6" target="_blank" rel="noopener">https://www.jianshu.com/p/eda0bfd692e6</a></p>
+<h2 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h2><p>AOP（Aspect Oriented Programming 面向切面编程）则是针对业务处理过程中的切面进行提取，它所面对的是处理过程中的某个步骤或阶段，以获得逻辑过程中各部分之间低耦合性的隔离效果。</p>
+<p><strong>将日志记录，性能统计，安全控制，事务处理，异常处理等代码从业务逻辑代码中划分出来，通过对这些行为的分离，我们希望可以将它们独立到非指导业务逻辑的方法中，进而改变这些行为的时候不影响业务逻辑的代码。能将同一个关注点聚焦到同一个方法中解决。</strong></p>
+<h3 id="AspectJ"><a href="#AspectJ" class="headerlink" title="AspectJ"></a>AspectJ</h3><p>由于AndroidStudio默认是没有ajc编译器的，所以在Android中使用@AspectJ来编写（包括SpringAOP也是如此）。它在代码的编译期间扫描目标程序，根据切点（PointCut）匹配,将开发者编写的Aspect程序编织（Weave）到目标程序的.class文件中，对目标程序作了重构（重构单位是JoinPoint），目的就是建立目标程序与Aspect程序的连接（获得执行的对象、方法、参数等上下文信息），从而达到AOP的目的。</p>
+<p>AspectJ是通过对目标工程的.class文件进行代码注入的方式将通知(Advise)插入到目标代码中：<br>第一步：根据pointCut切点规则匹配的joinPoint；<br>第二步：将Advise插入到目标JoinPoint中。<br>这样在程序运行时被重构的连接点将会回调Advise方法，就实现了AspectJ代码与目标代码之间的连接。<br><img src="/2019/08/12/android-note/aspectj.png" alt></p>
+<h3 id="Gradle-Transform"><a href="#Gradle-Transform" class="headerlink" title="Gradle Transform"></a>Gradle Transform</h3><p>Gradle Transform是Android官方提供给开发者在项目构建阶段即由class到dex转换期间修改class文件的一套api。目前比较经典的应用是字节码插桩、代码注入技术。Gradle Transform更多的是提供一种可以让开发者参与项目构建的机制，而诸如修改字节码等更加具体的细节则需要开发者去实现。</p>
+<h3 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h3><p>代理Hook:如果我们自己创建代理对象，然后把原始对象替换为我们的代理对象，那么就可以在这个代理对象为所欲为了；修改参数，替换返回值，我们称之为Hook。</p>
+<p>hook，又叫钩子，通常是指对一些方法进行拦截。这样当这些方法被调用时，也能够执行我们自己的代码，这也是面向切面编程的思想（AOP）。</p>
+<p>JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。</p>
+<p>大致思路：<br>1.找到需要Hook方法的系统类<br>2.利用代理模式来代理系统类的运行拦截我们需要拦截的方法<br>3.使用反射的方法把这个系统类替换成你的代理类</p>
+<p>案例可参考：<br><a href="https://blog.csdn.net/yulong0809/article/details/56842027" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/56842027</a></p>
+<h2 id="应用的启动过程"><a href="#应用的启动过程" class="headerlink" title="应用的启动过程"></a>应用的启动过程</h2><p>1.首先我们要启动的Activity会去ActivityManagerService中去校检是否合法</p>
+<p>2.通过回调ActivityThread中内部类ApplicationThread的scheduleLaunchActivity去发送一个消息到ActivityThread中的内部类H中，H继承于Handler</p>
+<p>3.然后会通过反射创建Activity对象及Application对象，并回调响应生命周期方法</p>
+<p>这里说一点ActivityManagerService和我们应用间沟通几乎都是ActivityThread，ApplicationThread，H这几个类之间来回调用，而且不只是Activity，我们Android的四大组件几乎都用了这种模式</p>
+<p>参考：<br><a href="https://blog.csdn.net/yulong0809/article/details/58589715" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/58589715</a></p>
+<h2 id="Watchdog"><a href="#Watchdog" class="headerlink" title="Watchdog"></a>Watchdog</h2><p>能通过关闭FinalizerWatchdogDaemon来减少TimeoutException的触发。需要注意的是，此种方法并不是去解决问题，而是为了避免上报异常采取的一种 hack 方案，并没有真正的解决引起 finialize() 超时的问题。</p>
+<pre><code>// Android P 以后不能反射FinalizerWatchdogDaemon
+if (Build.VERSION.SDK_INT &gt;= 28) {
+    Log.w(TAG, &quot;stopWatchDog, do not support after Android P, just return&quot;);
+    return;
+}
+
+try {
+    final Class clazz = Class.forName(&quot;java.lang.Daemons$FinalizerWatchdogDaemon&quot;);
+    final Field field = clazz.getDeclaredField(&quot;INSTANCE&quot;);
+    field.setAccessible(true);
+    final Object watchdog = field.get(null);
+    try {
+        final Field thread = clazz.getSuperclass().getDeclaredField(&quot;thread&quot;);
+        thread.setAccessible(true);
+        thread.set(watchdog, null);
+    } catch (final Throwable t) {
+        Log.e(TAG, &quot;stopWatchDog, set null occur error:&quot; + t);
+
+        t.printStackTrace();
+        try {
+            // 直接调用stop方法，在Android 6.0之前会有线程安全问题
+            final Method method = clazz.getSuperclass().getDeclaredMethod(&quot;stop&quot;);
+            method.setAccessible(true);
+            method.invoke(watchdog);
+        } catch (final Throwable e) {
+            Log.e(TAG, &quot;stopWatchDog, stop occur error:&quot; + t);
+            t.printStackTrace();
+        }
+    }
+} catch (final Throwable t) {
+    Log.e(TAG, &quot;stopWatchDog, get object occur error:&quot; + t);
+    t.printStackTrace();
+}
+</code></pre><h2 id="NFC"><a href="#NFC" class="headerlink" title="NFC"></a>NFC</h2><p>Near Field Communication (NFC) 为<strong>一短距离无线通信技术，通常有效通讯距离为4厘米以内。NFC工作频率为13.65 兆赫兹，通信速率为106 kbit/秒到 848kbit/秒</strong>。</p>
+<p>NFC支持如下3种工作模式：<br>读卡器模式（Reader/writer mode）、<br>仿真卡模式(Card Emulation Mode)、<br>点对点模式（P2P mode）。</p>
+<p>Android SDK API主要支持NFC论坛标准（Forum Standard），这种标准被称为NDEF（NFC Data Exchange Format，NFC数据交换格式），类似传感器。</p>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>线程池使用的好处：<br>1：对多个线程进行统一地管理，避免资源竞争中出现的问题。<br>2：（重点）：对线程进行复用，线程在执行完任务后不会立刻销毁，而会等待另外的任务，这样就不会频繁地创建、销毁线程和调用GC。<br>3：JAVA提供了一套完整的ExecutorService线程池创建的api，可创建多种功能不一的线程池，使用起来很方便。</p>
+<p>创建线程池，主要是利用ThreadPoolExecutor这个类，而这个类有几种构造方法，其中参数最多的一种构造方法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                             int maximumPoolSize,</span><br><span class="line">                             long keepAliveTime,</span><br><span class="line">                             TimeUnit unit,</span><br><span class="line">                             BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                             ThreadFactory threadFactory) &#123;</span><br><span class="line">       ...</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>corePoolSize: 该线程池中核心线程的数量。<br>maximumPoolSize：该线程池中最大线程数量。(区别于corePoolSize)<br>keepAliveTime:从字面上就可以理解，是非核心线程空闲时要等待下一个任务到来的时间，当任务很多，每个任务执行时间很短的情况下调大该值有助于提高线程利用率。注意：当allowCoreThreadTimeOut属性设为true时，该属性也可用于核心线程。<br>unit:上面时间属性的单位<br>workQueue:任务队列<br>threadFactory:线程工厂，可用于设置线程名字等等，一般无须设置该参数。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/android-rxjava-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -5931,464 +6397,11 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/29/java-constant-pool/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/29/java-constant-pool/" itemprop="url">Java常量池</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-29T10:32:54+08:00">
-                2019-05-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">Java知识点</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>常量池是为了避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享。</p>
-<h3 id="Jvm虚拟内存分布"><a href="#Jvm虚拟内存分布" class="headerlink" title="Jvm虚拟内存分布"></a>Jvm虚拟内存分布</h3><p><img src="/2019/05/29/java-constant-pool/java_memory.png" alt><br> <strong>程序计数器</strong>是jvm执行程序的流水线，存放一些跳转指令。</p>
-<p> <strong>本地方法栈</strong>是jvm调用操作系统方法所使用的栈。</p>
-<p> <strong>虚拟机栈</strong>是jvm执行java代码所使用的栈。</p>
-<p> <strong>方法区</strong>存放了一些常量、静态变量、类信息等，可以理解成class文件在内存中的存放位置。</p>
-<p> <strong>虚拟机堆</strong>是jvm执行java代码所使用的堆。</p>
-<h3 id="Java常量池分类"><a href="#Java常量池分类" class="headerlink" title="Java常量池分类"></a>Java常量池分类</h3><p>Java中的常量池，实际上分为两种形态：<strong>静态常量池和运行时常量池</strong>。</p>
-<p>所谓<strong>静态常量池，即*.class文件中的常量池</strong>，class文件中的常量池不仅仅包含字符串(数字)字面量，还包含类、方法的信息，占用class文件绝大部分空间。这种常量池主要用于存放两大类常量：<strong>字面量(Literal)和符号引用量(Symbolic References)</strong>，字面量相当于Java语言层面常量的概念，如文本字符串，声明为final的常量值等，符号引用则属于编译原理方面的概念，包括了如下三种类型的常量：</p>
-<blockquote>
-<p><strong>类和接口的全限定名<br>字段名称和描述符<br>方法名称和描述符</strong></p>
-</blockquote>
-<p>而<strong>运行时常量池</strong>，则是jvm虚拟机在完成类装载操作后，将class文件中的常量池载入到内存中，并保存在方法区中，我们常说的常量池，就是指方法区中的运行时常量池。</p>
-<p>运行时常量池相对于CLass文件常量池的另外一个重要特征是具备<strong>动态性</strong>，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入CLass文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中，这种特性被开发人员利用比较多的就是String类的intern()方法。String的intern()方法会查找在常量池中是否存在一份equal相等的字符串,如果有则返回该字符串的引用,如果没有则添加自己的字符串进入常量池。</p>
-<h3 id="常量池的好处"><a href="#常量池的好处" class="headerlink" title="常量池的好处"></a>常量池的好处</h3><p>常量池是为了<strong>避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享</strong>。<br>例如字符串常量池，在编译阶段就把所有的字符串文字放到一个常量池中。<br>（1）节省内存空间：常量池中所有相同的字符串常量被合并，只占用一个空间。<br>（2）节省运行时间：比较字符串时，==比equals()快。对于两个引用变量，只用==判断引用是否相等，也就可以判断实际值是否相等。</p>
-<p>享元模式（Flyweight Pattern）主要用于减少创建对象的数量，以减少内存占用和提高性能。这种类型的设计模式属于结构型模式，减少对象数量从而改善应用所需的对象结构的方式。实现方式一般是通过HashMap完成。java常量池的设计初中也是为了减少内存占用，同时保证访问安全。继承Number的包装类常量池存储使用数组，String使用继承自HashTable的StringTable</p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>接下来我们引用一些网络上流行的常量池例子，然后借以讲解。</p>
-<pre><code> 1 String s1 = &quot;Hello&quot;;
- 2 String s2 = &quot;Hello&quot;;
- 3 String s3 = &quot;Hel&quot; + &quot;lo&quot;;
- 4 String s4 = &quot;Hel&quot; + new String(&quot;lo&quot;);
- 5 String s5 = new String(&quot;Hello&quot;);
- 6 String s6 = s5.intern();
- 7 String s7 = &quot;H&quot;;
- 8 String s8 = &quot;ello&quot;;
- 9 String s9 = s7 + s8;
-10           
-11 System.out.println(s1 == s2);  // true
-12 System.out.println(s1 == s3);  // true
-13 System.out.println(s1 == s4);  // false
-14 System.out.println(s1 == s9);  // false
-15 System.out.println(s4 == s5);  // false
-16 System.out.println(s1 == s6);  // true
-</code></pre><p> 首先说明一点，在java 中，直接使用==操作符，比较的是两个字符串的引用地址，并不是比较内容，比较内容请用String.equals()。</p>
-<p> s1 == s2这个非常好理解，s1、s2在赋值时，均使用的字符串字面量，说白话点，就是直接把字符串写死，在编译期间，这种字面量会直接放入class文件的常量池中，从而实现复用，载入运行时常量池后，s1、s2指向的是同一个内存地址，所以相等。</p>
-<p> s1 == s3这个地方有个坑，s3虽然是动态拼接出来的字符串，但是所有参与拼接的部分都是已知的字面量，在编译期间，这种拼接会被优化，编译器直接帮你拼好，因此String s3 = “Hel” + “lo”;在class文件中被优化成String s3 = “Hello”，所以s1 == s3成立。只有使用引号包含文本的方式创建的String对象之间使用“+”连接产生的新对象才会被加入字符串池中。</p>
-<p> s1 == s4当然不相等，s4虽然也是拼接出来的，但new String(“lo”)这部分不是已知字面量，是一个不可预料的部分，编译器不会优化，必须等到运行时才可以确定结果，结合字符串不变定理，鬼知道s4被分配到哪去了，所以地址肯定不同。对于所有包含new方式新建对象（包括null）的“+”连接表达式，它所产生的新对象都不会被加入字符串池中。</p>
-<p>配上一张简图理清思路：</p>
-<p><img src="/2019/05/29/java-constant-pool/constant_1.jpg" alt><br>s1 == s9也不相等，道理差不多，虽然s7、s8在赋值的时候使用的字符串字面量，但是拼接成s9的时候，s7、s8作为两个变量，都是不可预料的，编译器毕竟是编译器，不可能当解释器用，不能在编译期被确定，所以不做优化，只能等到运行时，在堆中创建s7、s8拼接成的新字符串，在堆中地址不确定，不可能与方法区常量池中的s1地址相同。</p>
-<p><img src="/2019/05/29/java-constant-pool/constant_2.png" alt><br> s4 == s5已经不用解释了，绝对不相等，二者都在堆中，但地址不同。<br> s1 == s6这两个相等完全归功于intern方法，s5在堆中，内容为Hello ，intern方法会尝试将Hello字符串添加到常量池中，并返回其在常量池中的地址，因为常量池中已经有了Hello字符串，所以intern方法直接返回地址；而s1在编译期就已经指向常量池了，因此s1和s6指向同一地址，相等。</p>
-<p>特例1</p>
-<pre><code>public static final String A = &quot;ab&quot;; // 常量A
-public static final String B = &quot;cd&quot;; // 常量B
-public static void main(String[] args) {
-     String s = A + B;  // 将两个常量用+连接对s进行初始化 
-     String t = &quot;abcd&quot;;   
-    if (s == t) {   
-         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
-     } else {   
-         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
-     }   
- } 
-s等于t，它们是同一个对象
-</code></pre><p>A和B都是常量，值是固定的，因此s的值也是固定的，它在类被编译时就已经确定了。也就是说：String s=A+B; 等同于：String s=”ab”+”cd”;</p>
-<p>特例2</p>
-<pre><code>public static final String A; // 常量A
-public static final String B;    // 常量B
-static {   
-     A = &quot;ab&quot;;   
-     B = &quot;cd&quot;;   
- }   
- public static void main(String[] args) {   
-    // 将两个常量用+连接对s进行初始化   
-     String s = A + B;   
-     String t = &quot;abcd&quot;;   
-    if (s == t) {   
-         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
-     } else {   
-         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
-     }   
- } 
-s不等于t，它们不是同一个对象
-</code></pre><p>A和B虽然被定义为常量，但是它们都没有马上被赋值。在运算出s的值之前，他们何时被赋值，以及被赋予什么样的值，都是个变数。因此A和B在被赋值之前，性质类似于一个变量。那么s就不能在编译期被确定，而只能在运行时被创建了。</p>
-<p>至此，我们可以得出三个非常重要的结论：</p>
-<blockquote>
-<p><strong>必须要关注编译期的行为，才能更好的理解常量池。<br>运行时常量池中的常量，基本来源于各个class文件中的常量池。<br>程序运行时，除非手动向常量池中添加常量(比如调用intern方法)，否则jvm不会自动添加常量到常量池。</strong></p>
-</blockquote>
-<p>以上所讲仅涉及字符串常量池，实际上还有整型常量池、浮点型常量池(java中基本类型的包装类的大部分都实现了常量池技术，即Byte,Short,Integer,Long,Character,Boolean；两种浮点数类型的包装类Float,Double并没有实现常量池技术) 等等，但都大同小异，只不过数值类型的常量池不可以手动添加常量，程序启动时常量池中的常量就已经确定了，比如整型常量池中的常量范围：-128~127，（Byte,Short,Integer,Long,Character,Boolean）<strong>这5种包装类默认创建了数值[-128，127]的相应类型的缓存数据，但是超出此范围仍然会去创建新的对象</strong>。</p>
-<p>例如在自动装箱时，把int变成Integer的时候，是有规则的，当你的int的值在-128-IntegerCache.high(127) 时，返回的不是一个新new出来的Integer对象，而是一个已经缓存在堆 中的Integer对象，（我们可以这样理解，系统已经把-128到127之 间的Integer缓存到一个Integer数组中去了，如果你要把一个int变成一个Integer对象，首先去缓存中找，找到的话直接返回引用给你就 行了，不必再新new一个），如果不在-128-IntegerCache.high(127) 时会返回一个新new出来的Integer对象。  </p>
-<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>说了这么多理论，接下来让我们触摸一下真正的常量池。</p>
-<p>前文提到过，class文件中存在一个静态常量池，这个常量池是由编译器生成的，用来存储java源文件中的字面量(本文仅仅关注字面量)，假设我们有如下java代码：</p>
-<pre><code>1 String s = &quot;hi&quot;;
-</code></pre><p>为了方便起见，就这么简单，没错！将代码编译成class文件后，用winhex打开二进制格式的class文件。如图：<br><img src="/2019/05/29/java-constant-pool/class.png" alt><br>简单讲解一下class文件的结构，开头的4个字节是class文件魔数，用来标识这是一个class文件，说白话点就是文件头，既：CA FE BA BE。</p>
-<p>紧接着4个字节是java的版本号，这里的版本号是34，因为笔者是用jdk8编译的，版本号的高低和jdk版本的高低相对应，高版本可以兼容低版本，但低版本无法执行高版本。所以，如果哪天读者想知道别人的class文件是用什么jdk版本编译的，就可以看这4个字节。</p>
-<p>接下来就是常量池入口，入口处用2个字节标识常量池常量数量，本例中数值为00 1A，翻译成十进制是26，也就是有25个常量，其中第0个常量是特殊值，所以只有25个常量。</p>
-<p>常量池中存放了各种类型的常量，他们都有自己的类型，并且都有自己的存储规范，本文只关注字符串常量，字符串常量以01开头(1个字节)，接着用2个字节记录字符串长度，然后就是字符串实际内容。本例中为：01 00 02 68 69。</p>
-<p>接下来再说说运行时常量池，由于运行时常量池在方法区中，我们可以通过jvm参数：-XX:PermSize、-XX:MaxPermSize来设置方法区大小，从而间接限制常量池大小。</p>
-<p>假设jvm启动参数为：-XX:PermSize＝2M -XX:MaxPermSize＝2M，然后运行如下代码：</p>
-<pre><code>1 //保持引用，防止自动垃圾回收
-2 List&lt;String&gt; list = new ArrayList&lt;String&gt;();
-3         
-4 int i = 0;
-5         
-6 while(true){
-7     //通过intern方法向常量池中手动添加常量
-8     list.add(String.valueOf(i++).intern());
-9 }
-</code></pre><p>程序立刻会抛出：Exception in thread “main” java.lang.outOfMemoryError: PermGen space异常。PermGen space正是方法区，足以说明常量池在方法区中。</p>
-<p>在jdk8中，移除了方法区，转而用Metaspace区域替代，所以我们需要使用新的jvm参数：-XX:MaxMetaspaceSize=2M，依然运行如上代码，抛出：java.lang.OutOfMemoryError: Metaspace异常。同理说明运行时常量池是划分在Metaspace区域中。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.cnblogs.com/syp172654682/p/8082625.html" target="_blank" rel="noopener">https://www.cnblogs.com/syp172654682/p/8082625.html</a><br><a href="https://www.jianshu.com/p/aaa80665542d" target="_blank" rel="noopener">https://www.jianshu.com/p/aaa80665542d</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/28/java-annotation/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/28/java-annotation/" itemprop="url">Java注解（Annotation）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-28T18:11:29+08:00">
-                2019-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">Java知识点</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。</p>
-<p>注解<strong>本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类</strong>。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。</p>
-<h3 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h3><p>java.lang.annotation 提供了四种元注解，专门注解其他的注解（在自定义注解的时候，需要使用到元注解）：</p>
-<ul>
-<li><p>@Documented – 注解是否将包含在JavaDoc中</p>
-</li>
-<li><p>@Retention – 什么时候使用该注解</p>
-</li>
-<li><p>@Target – 注解用于什么地方</p>
-</li>
-<li><p>@Inherited – 是否允许子类继承该注解</p>
-</li>
-</ul>
-<p>1）@Retention —— 定义该注解的生命周期</p>
-<ul>
-<li><p>RetentionPolicy.SOURCE : 在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。@Override, @SuppressWarnings都属于这类注解。</p>
-</li>
-<li><p>RetentionPolicy.CLASS : 在类加载的时候丢弃。在字节码文件的处理中有用。注解默认使用这种方式</p>
-</li>
-<li><p>RetentionPolicy.RUNTIME : 始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。我们自定义的注解通常使用这种方式。</p>
-</li>
-</ul>
-<p>2）Target —— 表示该注解用于什么地方。默认值为任何元素，表示该注解用于什么地方。可用的ElementType 参数包括</p>
-<ul>
-<li><p>ElementType.CONSTRUCTOR: 用于描述构造器</p>
-</li>
-<li><p>ElementType.FIELD: 成员变量、对象、属性（包括enum实例）</p>
-</li>
-<li><p>ElementType.LOCAL_VARIABLE: 用于描述局部变量</p>
-</li>
-<li><p>ElementType.METHOD: 用于描述方法</p>
-</li>
-<li><p>ElementType.PACKAGE: 用于描述包</p>
-</li>
-<li><p>ElementType.PARAMETER: 用于描述参数</p>
-</li>
-<li><p>ElementType.TYPE: 用于描述类、接口(包括注解类型) 或enum声明</p>
-</li>
-</ul>
-<p>3) @Documented —— 一个简单的Annotations 标记注解，没有成员，表示是否将注解信息添加在java 文档中。</p>
-<p>4) @Inherited —— 定义该注释和子类的关系<br>@Inherited 元注解是一个标记注解，@Inherited 阐述了某个被标注的类型是被继承的。如果一个使用了@Inherited 修饰的annotation 类型被用于一个class，则这个annotation 将被用于该class 的子类。</p>
-<p>注意：Inherited annotation类型是被标注过的class的子类所继承。类并不从它所实现的接口继承annotation，方法并不从它所重载的方法继承annotation。</p>
-<p>当Inherited annotation类型标注的annotation的Retention是RetentionPolicy.RUNTIME，则反射API增强了这种继承性。如果我们使用java.lang.reflect去查询一个Inherited annotation类型的annotation时，反射代码检查将展开工作：检查class和其父类，直到发现指定的annotation类型被发现，或者到达类继承结构的顶层。</p>
-<h3 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h3><p>自定义注解类编写的一些规则:</p>
-<ol>
-<li><p>Annotation 型定义为<strong>@interface</strong>, 所有的Annotation 会自动继承java.lang.Annotation这一接口,并且不能再去继承别的类或是接口.</p>
-</li>
-<li><p>参数成员只能用public 或默认(default) 这两个访问权修饰</p>
-</li>
-<li><p>参数成员只能用基本类型byte、short、char、int、long、float、double、boolean八种基本数据类型和String、Enum、Class、annotations等数据类型，以及这一些类型的数组.</p>
-</li>
-<li><p>要获取类方法和字段的注解信息，必须通过Java的反射技术来获取 Annotation 对象，因为你除此之外没有别的获取注解对象的方法</p>
-</li>
-<li><p>注解也可以没有定义成员,不过这样注解就没啥用了</p>
-</li>
-</ol>
-<p>PS:自定义注解需要使用到元注解</p>
-<h3 id="注解实现"><a href="#注解实现" class="headerlink" title="注解实现"></a>注解实现</h3><p>创建注解处理器，利用反射对注解加以处理。AnnotatedElement 接口是所有程序元素（Class、Method和Constructor）的父接口。所以程序通过反射获取了某个类的AnnotatedElement对象之后，程序就可以调用该对象的如下四个个方法来访问Annotation信息：</p>
-<p>方法1：<t extends annotation> T getAnnotation(Class<t> annotationClass):返回改程序元素上存在的、指定类型的注解，如果该类型注解不存在，则返回null。</t></t></p>
-<p>方法2：Annotation[] getAnnotations():返回该程序元素上存在的所有注解。</p>
-<p>方法3：boolean is AnnotationPresent(Class annotationClass):判断该程序元素上是否包含指定类型的注解，存在则返回true，否则返回false.</p>
-<p>方法4：Annotation[] getDeclaredAnnotations()：返回直接存在于此元素上的所有注释。与此接口中的其他方法不同，该方法将忽略继承的注释。（如果没有注释直接存在于此元素上，则返回长度为零的一个数组。）该方法的调用者可以随意修改返回的数组；这不会对其他调用者返回的数组产生任何影响。</p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>FruitName.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果名称注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitName &#123;</span><br><span class="line">    String value() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>FruitColor.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果颜色注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitColor &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 颜色枚举</span><br><span class="line">     */</span><br><span class="line">    public enum Color&#123; BLUE,RED,GREEN&#125;;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 颜色属性</span><br><span class="line">     */</span><br><span class="line">    Color fruitColor() default Color.GREEN;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>FruitProvider.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果供应者注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitProvider &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 供应商编号</span><br><span class="line">     */</span><br><span class="line">    public int id() default -1;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 供应商名称</span><br><span class="line">     */</span><br><span class="line">    public String name() default &quot;&quot;;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 供应商地址</span><br><span class="line">     */</span><br><span class="line">    public String address() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>FruitInfoUtil.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 注解处理器</span><br><span class="line"> */</span><br><span class="line">public class FruitInfoUtil &#123;</span><br><span class="line">    public static void getFruitInfo(Class&lt;?&gt; clazz)&#123;</span><br><span class="line">        </span><br><span class="line">        String strFruitName=&quot; 水果名称：&quot;;</span><br><span class="line">        String strFruitColor=&quot; 水果颜色：&quot;;</span><br><span class="line">        String strFruitProvicer=&quot;供应商信息：&quot;;</span><br><span class="line">        </span><br><span class="line">        Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">        </span><br><span class="line">        for(Field field :fields)&#123;</span><br><span class="line">            if(field.isAnnotationPresent(FruitName.class))&#123;</span><br><span class="line">                FruitName fruitName = (FruitName) field.getAnnotation(FruitName.class);</span><br><span class="line">                strFruitName=strFruitName+fruitName.value();</span><br><span class="line">                System.out.println(strFruitName);</span><br><span class="line">            &#125;</span><br><span class="line">            else if(field.isAnnotationPresent(FruitColor.class))&#123;</span><br><span class="line">                FruitColor fruitColor= (FruitColor) field.getAnnotation(FruitColor.class);</span><br><span class="line">                strFruitColor=strFruitColor+fruitColor.fruitColor().toString();</span><br><span class="line">                System.out.println(strFruitColor);</span><br><span class="line">            &#125;</span><br><span class="line">            else if(field.isAnnotationPresent(FruitProvider.class))&#123;</span><br><span class="line">                FruitProvider fruitProvider= (FruitProvider) field.getAnnotation(FruitProvider.class);</span><br><span class="line">                strFruitProvicer=&quot; 供应商编号：&quot;+fruitProvider.id()+&quot; 供应商名称：&quot;+fruitProvider.name()+&quot; 供应商地址：&quot;+fruitProvider.address();</span><br><span class="line">                System.out.println(strFruitProvicer);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Apple.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">import test.FruitColor.Color;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 注解使用</span><br><span class="line"> */</span><br><span class="line">public class Apple &#123;</span><br><span class="line">    </span><br><span class="line">    @FruitName(&quot;Apple&quot;)</span><br><span class="line">    private String appleName;</span><br><span class="line">    </span><br><span class="line">    @FruitColor(fruitColor=Color.RED)</span><br><span class="line">    private String appleColor;</span><br><span class="line">    </span><br><span class="line">    @FruitProvider(id=1,name=&quot;陕西红富士集团&quot;,address=&quot;陕西省西安市延安路89号红富士大厦&quot;)</span><br><span class="line">    private String appleProvider;</span><br><span class="line">    </span><br><span class="line">    public void setAppleColor(String appleColor) &#123;</span><br><span class="line">        this.appleColor = appleColor;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleColor() &#123;</span><br><span class="line">        return appleColor;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void setAppleName(String appleName) &#123;</span><br><span class="line">        this.appleName = appleName;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleName() &#123;</span><br><span class="line">        return appleName;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void setAppleProvider(String appleProvider) &#123;</span><br><span class="line">        this.appleProvider = appleProvider;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleProvider() &#123;</span><br><span class="line">        return appleProvider;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void displayName()&#123;</span><br><span class="line">        System.out.println(&quot;水果的名字是：苹果&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>FruitRun.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 输出结果</span><br><span class="line"> */</span><br><span class="line">public class FruitRun &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FruitInfoUtil.getFruitInfo(Apple.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>运行结果是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">水果名称：Apple</span><br><span class="line">水果颜色：RED</span><br><span class="line">供应商编号：1 供应商名称：陕西红富士集团 供应商地址：陕西省西安市延安路89号红富士大厦</span><br></pre></td></tr></table></figure></p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/lylwo317/article/details/52163304" target="_blank" rel="noopener">Java注解（Annotation）原理详解</a><br><a href="https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html" target="_blank" rel="noopener">https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -6436,7 +6449,7 @@ s不等于t，它们不是同一个对象
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-count">72</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -6447,7 +6460,7 @@ s不等于t，它们不是同一个对象
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

@@ -293,6 +293,459 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/29/java-constant-pool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/29/java-constant-pool/" itemprop="url">Java常量池</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-29T10:32:54+08:00">
+                2019-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Java知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>常量池是为了避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享。</p>
+<h3 id="Jvm虚拟内存分布"><a href="#Jvm虚拟内存分布" class="headerlink" title="Jvm虚拟内存分布"></a>Jvm虚拟内存分布</h3><p><img src="/2019/05/29/java-constant-pool/java_memory.png" alt><br> <strong>程序计数器</strong>是jvm执行程序的流水线，存放一些跳转指令。</p>
+<p> <strong>本地方法栈</strong>是jvm调用操作系统方法所使用的栈。</p>
+<p> <strong>虚拟机栈</strong>是jvm执行java代码所使用的栈。</p>
+<p> <strong>方法区</strong>存放了一些常量、静态变量、类信息等，可以理解成class文件在内存中的存放位置。</p>
+<p> <strong>虚拟机堆</strong>是jvm执行java代码所使用的堆。</p>
+<h3 id="Java常量池分类"><a href="#Java常量池分类" class="headerlink" title="Java常量池分类"></a>Java常量池分类</h3><p>Java中的常量池，实际上分为两种形态：<strong>静态常量池和运行时常量池</strong>。</p>
+<p>所谓<strong>静态常量池，即*.class文件中的常量池</strong>，class文件中的常量池不仅仅包含字符串(数字)字面量，还包含类、方法的信息，占用class文件绝大部分空间。这种常量池主要用于存放两大类常量：<strong>字面量(Literal)和符号引用量(Symbolic References)</strong>，字面量相当于Java语言层面常量的概念，如文本字符串，声明为final的常量值等，符号引用则属于编译原理方面的概念，包括了如下三种类型的常量：</p>
+<blockquote>
+<p><strong>类和接口的全限定名<br>字段名称和描述符<br>方法名称和描述符</strong></p>
+</blockquote>
+<p>而<strong>运行时常量池</strong>，则是jvm虚拟机在完成类装载操作后，将class文件中的常量池载入到内存中，并保存在方法区中，我们常说的常量池，就是指方法区中的运行时常量池。</p>
+<p>运行时常量池相对于CLass文件常量池的另外一个重要特征是具备<strong>动态性</strong>，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入CLass文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中，这种特性被开发人员利用比较多的就是String类的intern()方法。String的intern()方法会查找在常量池中是否存在一份equal相等的字符串,如果有则返回该字符串的引用,如果没有则添加自己的字符串进入常量池。</p>
+<h3 id="常量池的好处"><a href="#常量池的好处" class="headerlink" title="常量池的好处"></a>常量池的好处</h3><p>常量池是为了<strong>避免频繁的创建和销毁对象而影响系统性能，实现了对象的共享</strong>。<br>例如字符串常量池，在编译阶段就把所有的字符串文字放到一个常量池中。<br>（1）节省内存空间：常量池中所有相同的字符串常量被合并，只占用一个空间。<br>（2）节省运行时间：比较字符串时，==比equals()快。对于两个引用变量，只用==判断引用是否相等，也就可以判断实际值是否相等。</p>
+<p>享元模式（Flyweight Pattern）主要用于减少创建对象的数量，以减少内存占用和提高性能。这种类型的设计模式属于结构型模式，减少对象数量从而改善应用所需的对象结构的方式。实现方式一般是通过HashMap完成。java常量池的设计初中也是为了减少内存占用，同时保证访问安全。继承Number的包装类常量池存储使用数组，String使用继承自HashTable的StringTable</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>接下来我们引用一些网络上流行的常量池例子，然后借以讲解。</p>
+<pre><code> 1 String s1 = &quot;Hello&quot;;
+ 2 String s2 = &quot;Hello&quot;;
+ 3 String s3 = &quot;Hel&quot; + &quot;lo&quot;;
+ 4 String s4 = &quot;Hel&quot; + new String(&quot;lo&quot;);
+ 5 String s5 = new String(&quot;Hello&quot;);
+ 6 String s6 = s5.intern();
+ 7 String s7 = &quot;H&quot;;
+ 8 String s8 = &quot;ello&quot;;
+ 9 String s9 = s7 + s8;
+10           
+11 System.out.println(s1 == s2);  // true
+12 System.out.println(s1 == s3);  // true
+13 System.out.println(s1 == s4);  // false
+14 System.out.println(s1 == s9);  // false
+15 System.out.println(s4 == s5);  // false
+16 System.out.println(s1 == s6);  // true
+</code></pre><p> 首先说明一点，在java 中，直接使用==操作符，比较的是两个字符串的引用地址，并不是比较内容，比较内容请用String.equals()。</p>
+<p> s1 == s2这个非常好理解，s1、s2在赋值时，均使用的字符串字面量，说白话点，就是直接把字符串写死，在编译期间，这种字面量会直接放入class文件的常量池中，从而实现复用，载入运行时常量池后，s1、s2指向的是同一个内存地址，所以相等。</p>
+<p> s1 == s3这个地方有个坑，s3虽然是动态拼接出来的字符串，但是所有参与拼接的部分都是已知的字面量，在编译期间，这种拼接会被优化，编译器直接帮你拼好，因此String s3 = “Hel” + “lo”;在class文件中被优化成String s3 = “Hello”，所以s1 == s3成立。只有使用引号包含文本的方式创建的String对象之间使用“+”连接产生的新对象才会被加入字符串池中。</p>
+<p> s1 == s4当然不相等，s4虽然也是拼接出来的，但new String(“lo”)这部分不是已知字面量，是一个不可预料的部分，编译器不会优化，必须等到运行时才可以确定结果，结合字符串不变定理，鬼知道s4被分配到哪去了，所以地址肯定不同。对于所有包含new方式新建对象（包括null）的“+”连接表达式，它所产生的新对象都不会被加入字符串池中。</p>
+<p>配上一张简图理清思路：</p>
+<p><img src="/2019/05/29/java-constant-pool/constant_1.jpg" alt><br>s1 == s9也不相等，道理差不多，虽然s7、s8在赋值的时候使用的字符串字面量，但是拼接成s9的时候，s7、s8作为两个变量，都是不可预料的，编译器毕竟是编译器，不可能当解释器用，不能在编译期被确定，所以不做优化，只能等到运行时，在堆中创建s7、s8拼接成的新字符串，在堆中地址不确定，不可能与方法区常量池中的s1地址相同。</p>
+<p><img src="/2019/05/29/java-constant-pool/constant_2.png" alt><br> s4 == s5已经不用解释了，绝对不相等，二者都在堆中，但地址不同。<br> s1 == s6这两个相等完全归功于intern方法，s5在堆中，内容为Hello ，intern方法会尝试将Hello字符串添加到常量池中，并返回其在常量池中的地址，因为常量池中已经有了Hello字符串，所以intern方法直接返回地址；而s1在编译期就已经指向常量池了，因此s1和s6指向同一地址，相等。</p>
+<p>特例1</p>
+<pre><code>public static final String A = &quot;ab&quot;; // 常量A
+public static final String B = &quot;cd&quot;; // 常量B
+public static void main(String[] args) {
+     String s = A + B;  // 将两个常量用+连接对s进行初始化 
+     String t = &quot;abcd&quot;;   
+    if (s == t) {   
+         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
+     } else {   
+         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
+     }   
+ } 
+s等于t，它们是同一个对象
+</code></pre><p>A和B都是常量，值是固定的，因此s的值也是固定的，它在类被编译时就已经确定了。也就是说：String s=A+B; 等同于：String s=”ab”+”cd”;</p>
+<p>特例2</p>
+<pre><code>public static final String A; // 常量A
+public static final String B;    // 常量B
+static {   
+     A = &quot;ab&quot;;   
+     B = &quot;cd&quot;;   
+ }   
+ public static void main(String[] args) {   
+    // 将两个常量用+连接对s进行初始化   
+     String s = A + B;   
+     String t = &quot;abcd&quot;;   
+    if (s == t) {   
+         System.out.println(&quot;s等于t，它们是同一个对象&quot;);   
+     } else {   
+         System.out.println(&quot;s不等于t，它们不是同一个对象&quot;);   
+     }   
+ } 
+s不等于t，它们不是同一个对象
+</code></pre><p>A和B虽然被定义为常量，但是它们都没有马上被赋值。在运算出s的值之前，他们何时被赋值，以及被赋予什么样的值，都是个变数。因此A和B在被赋值之前，性质类似于一个变量。那么s就不能在编译期被确定，而只能在运行时被创建了。</p>
+<p>至此，我们可以得出三个非常重要的结论：</p>
+<blockquote>
+<p><strong>必须要关注编译期的行为，才能更好的理解常量池。<br>运行时常量池中的常量，基本来源于各个class文件中的常量池。<br>程序运行时，除非手动向常量池中添加常量(比如调用intern方法)，否则jvm不会自动添加常量到常量池。</strong></p>
+</blockquote>
+<p>以上所讲仅涉及字符串常量池，实际上还有整型常量池、浮点型常量池(java中基本类型的包装类的大部分都实现了常量池技术，即Byte,Short,Integer,Long,Character,Boolean；两种浮点数类型的包装类Float,Double并没有实现常量池技术) 等等，但都大同小异，只不过数值类型的常量池不可以手动添加常量，程序启动时常量池中的常量就已经确定了，比如整型常量池中的常量范围：-128~127，（Byte,Short,Integer,Long,Character,Boolean）<strong>这5种包装类默认创建了数值[-128，127]的相应类型的缓存数据，但是超出此范围仍然会去创建新的对象</strong>。</p>
+<p>例如在自动装箱时，把int变成Integer的时候，是有规则的，当你的int的值在-128-IntegerCache.high(127) 时，返回的不是一个新new出来的Integer对象，而是一个已经缓存在堆 中的Integer对象，（我们可以这样理解，系统已经把-128到127之 间的Integer缓存到一个Integer数组中去了，如果你要把一个int变成一个Integer对象，首先去缓存中找，找到的话直接返回引用给你就 行了，不必再新new一个），如果不在-128-IntegerCache.high(127) 时会返回一个新new出来的Integer对象。  </p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>说了这么多理论，接下来让我们触摸一下真正的常量池。</p>
+<p>前文提到过，class文件中存在一个静态常量池，这个常量池是由编译器生成的，用来存储java源文件中的字面量(本文仅仅关注字面量)，假设我们有如下java代码：</p>
+<pre><code>1 String s = &quot;hi&quot;;
+</code></pre><p>为了方便起见，就这么简单，没错！将代码编译成class文件后，用winhex打开二进制格式的class文件。如图：<br><img src="/2019/05/29/java-constant-pool/class.png" alt><br>简单讲解一下class文件的结构，开头的4个字节是class文件魔数，用来标识这是一个class文件，说白话点就是文件头，既：CA FE BA BE。</p>
+<p>紧接着4个字节是java的版本号，这里的版本号是34，因为笔者是用jdk8编译的，版本号的高低和jdk版本的高低相对应，高版本可以兼容低版本，但低版本无法执行高版本。所以，如果哪天读者想知道别人的class文件是用什么jdk版本编译的，就可以看这4个字节。</p>
+<p>接下来就是常量池入口，入口处用2个字节标识常量池常量数量，本例中数值为00 1A，翻译成十进制是26，也就是有25个常量，其中第0个常量是特殊值，所以只有25个常量。</p>
+<p>常量池中存放了各种类型的常量，他们都有自己的类型，并且都有自己的存储规范，本文只关注字符串常量，字符串常量以01开头(1个字节)，接着用2个字节记录字符串长度，然后就是字符串实际内容。本例中为：01 00 02 68 69。</p>
+<p>接下来再说说运行时常量池，由于运行时常量池在方法区中，我们可以通过jvm参数：-XX:PermSize、-XX:MaxPermSize来设置方法区大小，从而间接限制常量池大小。</p>
+<p>假设jvm启动参数为：-XX:PermSize＝2M -XX:MaxPermSize＝2M，然后运行如下代码：</p>
+<pre><code>1 //保持引用，防止自动垃圾回收
+2 List&lt;String&gt; list = new ArrayList&lt;String&gt;();
+3         
+4 int i = 0;
+5         
+6 while(true){
+7     //通过intern方法向常量池中手动添加常量
+8     list.add(String.valueOf(i++).intern());
+9 }
+</code></pre><p>程序立刻会抛出：Exception in thread “main” java.lang.outOfMemoryError: PermGen space异常。PermGen space正是方法区，足以说明常量池在方法区中。</p>
+<p>在jdk8中，移除了方法区，转而用Metaspace区域替代，所以我们需要使用新的jvm参数：-XX:MaxMetaspaceSize=2M，依然运行如上代码，抛出：java.lang.OutOfMemoryError: Metaspace异常。同理说明运行时常量池是划分在Metaspace区域中。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.cnblogs.com/syp172654682/p/8082625.html" target="_blank" rel="noopener">https://www.cnblogs.com/syp172654682/p/8082625.html</a><br><a href="https://www.jianshu.com/p/aaa80665542d" target="_blank" rel="noopener">https://www.jianshu.com/p/aaa80665542d</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/28/java-annotation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/28/java-annotation/" itemprop="url">Java注解（Annotation）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-28T18:11:29+08:00">
+                2019-05-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Java知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Java注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 java.lang.annotation 包中。</p>
+<p>注解<strong>本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类</strong>。通过代理对象调用自定义注解（接口）的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。</p>
+<h3 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h3><p>java.lang.annotation 提供了四种元注解，专门注解其他的注解（在自定义注解的时候，需要使用到元注解）：</p>
+<ul>
+<li><p>@Documented – 注解是否将包含在JavaDoc中</p>
+</li>
+<li><p>@Retention – 什么时候使用该注解</p>
+</li>
+<li><p>@Target – 注解用于什么地方</p>
+</li>
+<li><p>@Inherited – 是否允许子类继承该注解</p>
+</li>
+</ul>
+<p>1）@Retention —— 定义该注解的生命周期</p>
+<ul>
+<li><p>RetentionPolicy.SOURCE : 在编译阶段丢弃。这些注解在编译结束之后就不再有任何意义，所以它们不会写入字节码。@Override, @SuppressWarnings都属于这类注解。</p>
+</li>
+<li><p>RetentionPolicy.CLASS : 在类加载的时候丢弃。在字节码文件的处理中有用。注解默认使用这种方式</p>
+</li>
+<li><p>RetentionPolicy.RUNTIME : 始终不会丢弃，运行期也保留该注解，因此可以使用反射机制读取该注解的信息。我们自定义的注解通常使用这种方式。</p>
+</li>
+</ul>
+<p>2）Target —— 表示该注解用于什么地方。默认值为任何元素，表示该注解用于什么地方。可用的ElementType 参数包括</p>
+<ul>
+<li><p>ElementType.CONSTRUCTOR: 用于描述构造器</p>
+</li>
+<li><p>ElementType.FIELD: 成员变量、对象、属性（包括enum实例）</p>
+</li>
+<li><p>ElementType.LOCAL_VARIABLE: 用于描述局部变量</p>
+</li>
+<li><p>ElementType.METHOD: 用于描述方法</p>
+</li>
+<li><p>ElementType.PACKAGE: 用于描述包</p>
+</li>
+<li><p>ElementType.PARAMETER: 用于描述参数</p>
+</li>
+<li><p>ElementType.TYPE: 用于描述类、接口(包括注解类型) 或enum声明</p>
+</li>
+</ul>
+<p>3) @Documented —— 一个简单的Annotations 标记注解，没有成员，表示是否将注解信息添加在java 文档中。</p>
+<p>4) @Inherited —— 定义该注释和子类的关系<br>@Inherited 元注解是一个标记注解，@Inherited 阐述了某个被标注的类型是被继承的。如果一个使用了@Inherited 修饰的annotation 类型被用于一个class，则这个annotation 将被用于该class 的子类。</p>
+<p>注意：Inherited annotation类型是被标注过的class的子类所继承。类并不从它所实现的接口继承annotation，方法并不从它所重载的方法继承annotation。</p>
+<p>当Inherited annotation类型标注的annotation的Retention是RetentionPolicy.RUNTIME，则反射API增强了这种继承性。如果我们使用java.lang.reflect去查询一个Inherited annotation类型的annotation时，反射代码检查将展开工作：检查class和其父类，直到发现指定的annotation类型被发现，或者到达类继承结构的顶层。</p>
+<h3 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h3><p>自定义注解类编写的一些规则:</p>
+<ol>
+<li><p>Annotation 型定义为<strong>@interface</strong>, 所有的Annotation 会自动继承java.lang.Annotation这一接口,并且不能再去继承别的类或是接口.</p>
+</li>
+<li><p>参数成员只能用public 或默认(default) 这两个访问权修饰</p>
+</li>
+<li><p>参数成员只能用基本类型byte、short、char、int、long、float、double、boolean八种基本数据类型和String、Enum、Class、annotations等数据类型，以及这一些类型的数组.</p>
+</li>
+<li><p>要获取类方法和字段的注解信息，必须通过Java的反射技术来获取 Annotation 对象，因为你除此之外没有别的获取注解对象的方法</p>
+</li>
+<li><p>注解也可以没有定义成员,不过这样注解就没啥用了</p>
+</li>
+</ol>
+<p>PS:自定义注解需要使用到元注解</p>
+<h3 id="注解实现"><a href="#注解实现" class="headerlink" title="注解实现"></a>注解实现</h3><p>创建注解处理器，利用反射对注解加以处理。AnnotatedElement 接口是所有程序元素（Class、Method和Constructor）的父接口。所以程序通过反射获取了某个类的AnnotatedElement对象之后，程序就可以调用该对象的如下四个个方法来访问Annotation信息：</p>
+<p>方法1：<t extends annotation> T getAnnotation(Class<t> annotationClass):返回改程序元素上存在的、指定类型的注解，如果该类型注解不存在，则返回null。</t></t></p>
+<p>方法2：Annotation[] getAnnotations():返回该程序元素上存在的所有注解。</p>
+<p>方法3：boolean is AnnotationPresent(Class annotationClass):判断该程序元素上是否包含指定类型的注解，存在则返回true，否则返回false.</p>
+<p>方法4：Annotation[] getDeclaredAnnotations()：返回直接存在于此元素上的所有注释。与此接口中的其他方法不同，该方法将忽略继承的注释。（如果没有注释直接存在于此元素上，则返回长度为零的一个数组。）该方法的调用者可以随意修改返回的数组；这不会对其他调用者返回的数组产生任何影响。</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>FruitName.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果名称注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitName &#123;</span><br><span class="line">    String value() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>FruitColor.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果颜色注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitColor &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 颜色枚举</span><br><span class="line">     */</span><br><span class="line">    public enum Color&#123; BLUE,RED,GREEN&#125;;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 颜色属性</span><br><span class="line">     */</span><br><span class="line">    Color fruitColor() default Color.GREEN;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>FruitProvider.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import static java.lang.annotation.ElementType.FIELD;</span><br><span class="line">import static java.lang.annotation.RetentionPolicy.RUNTIME;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 水果供应者注解</span><br><span class="line"> */</span><br><span class="line">@Target(FIELD)</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">public @interface FruitProvider &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 供应商编号</span><br><span class="line">     */</span><br><span class="line">    public int id() default -1;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 供应商名称</span><br><span class="line">     */</span><br><span class="line">    public String name() default &quot;&quot;;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 供应商地址</span><br><span class="line">     */</span><br><span class="line">    public String address() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>FruitInfoUtil.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 注解处理器</span><br><span class="line"> */</span><br><span class="line">public class FruitInfoUtil &#123;</span><br><span class="line">    public static void getFruitInfo(Class&lt;?&gt; clazz)&#123;</span><br><span class="line">        </span><br><span class="line">        String strFruitName=&quot; 水果名称：&quot;;</span><br><span class="line">        String strFruitColor=&quot; 水果颜色：&quot;;</span><br><span class="line">        String strFruitProvicer=&quot;供应商信息：&quot;;</span><br><span class="line">        </span><br><span class="line">        Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">        </span><br><span class="line">        for(Field field :fields)&#123;</span><br><span class="line">            if(field.isAnnotationPresent(FruitName.class))&#123;</span><br><span class="line">                FruitName fruitName = (FruitName) field.getAnnotation(FruitName.class);</span><br><span class="line">                strFruitName=strFruitName+fruitName.value();</span><br><span class="line">                System.out.println(strFruitName);</span><br><span class="line">            &#125;</span><br><span class="line">            else if(field.isAnnotationPresent(FruitColor.class))&#123;</span><br><span class="line">                FruitColor fruitColor= (FruitColor) field.getAnnotation(FruitColor.class);</span><br><span class="line">                strFruitColor=strFruitColor+fruitColor.fruitColor().toString();</span><br><span class="line">                System.out.println(strFruitColor);</span><br><span class="line">            &#125;</span><br><span class="line">            else if(field.isAnnotationPresent(FruitProvider.class))&#123;</span><br><span class="line">                FruitProvider fruitProvider= (FruitProvider) field.getAnnotation(FruitProvider.class);</span><br><span class="line">                strFruitProvicer=&quot; 供应商编号：&quot;+fruitProvider.id()+&quot; 供应商名称：&quot;+fruitProvider.name()+&quot; 供应商地址：&quot;+fruitProvider.address();</span><br><span class="line">                System.out.println(strFruitProvicer);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Apple.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">import test.FruitColor.Color;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 注解使用</span><br><span class="line"> */</span><br><span class="line">public class Apple &#123;</span><br><span class="line">    </span><br><span class="line">    @FruitName(&quot;Apple&quot;)</span><br><span class="line">    private String appleName;</span><br><span class="line">    </span><br><span class="line">    @FruitColor(fruitColor=Color.RED)</span><br><span class="line">    private String appleColor;</span><br><span class="line">    </span><br><span class="line">    @FruitProvider(id=1,name=&quot;陕西红富士集团&quot;,address=&quot;陕西省西安市延安路89号红富士大厦&quot;)</span><br><span class="line">    private String appleProvider;</span><br><span class="line">    </span><br><span class="line">    public void setAppleColor(String appleColor) &#123;</span><br><span class="line">        this.appleColor = appleColor;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleColor() &#123;</span><br><span class="line">        return appleColor;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void setAppleName(String appleName) &#123;</span><br><span class="line">        this.appleName = appleName;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleName() &#123;</span><br><span class="line">        return appleName;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void setAppleProvider(String appleProvider) &#123;</span><br><span class="line">        this.appleProvider = appleProvider;</span><br><span class="line">    &#125;</span><br><span class="line">    public String getAppleProvider() &#123;</span><br><span class="line">        return appleProvider;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void displayName()&#123;</span><br><span class="line">        System.out.println(&quot;水果的名字是：苹果&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>FruitRun.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 输出结果</span><br><span class="line"> */</span><br><span class="line">public class FruitRun &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FruitInfoUtil.getFruitInfo(Apple.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行结果是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">水果名称：Apple</span><br><span class="line">水果颜色：RED</span><br><span class="line">供应商编号：1 供应商名称：陕西红富士集团 供应商地址：陕西省西安市延安路89号红富士大厦</span><br></pre></td></tr></table></figure></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.csdn.net/lylwo317/article/details/52163304" target="_blank" rel="noopener">Java注解（Annotation）原理详解</a><br><a href="https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html" target="_blank" rel="noopener">https://www.cnblogs.com/acm-bingzi/p/javaAnnotation.html</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/10/android-dex/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2047,1121 +2500,11 @@ public final native boolean compareAndSwapLong(Object o, long offset,long expect
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/java-rsa/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/29/java-rsa/" itemprop="url">Java中使用RSA/AES加解密</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-29T16:30:46+08:00">
-                2019-03-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/HTTP/" itemprop="url" rel="index">
-                    <span itemprop="name">HTTP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><strong>RSA加密明文最大长度245字节，解密要求密文最大长度为256字节，所以在加密和解密的过程中需要分块进行</strong>。(RSA密钥长度随着保密级别提高，增加很快)<br>RSA加密对明文的长度是有限制的，如果加密数据过大会抛出如下异常：</p>
-<pre><code>Exception in thread &quot;main&quot; javax.crypto.IllegalBlockSizeException: Data must not be longer than 117 bytes  
-at com.sun.crypto.provider.RSACipher.a(DashoA13*..)  
-at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)  
-at javax.crypto.Cipher.doFinal(DashoA13*..) 
-</code></pre><p>1.密钥长度<br>rsa算法初始化的时候一般要填入密钥长度,在96-2048bits间<br>(1)为啥下限是96bits(12bytes)?因为加密1byte的明文,需要至少1+11=12bytes的密钥(不懂?看下面的明文长度),低于下限96bits时,一个byte都加密不了,当然没意义啦<br>(2)为啥上限是2048(256bytes)?这是算法本身决定的。另RSA密钥长度随着保密级别提高，增加很快</p>
-<p>2.明文长度<br>明文长度(bytes) &lt;= 密钥长度(bytes)-11.这样的话,对于上限密钥长度1024bits能加密的明文上限就是117bytes了.<br>所以就出现了分片加密,网上很流行这个版本.很简单,如果明文长度大于那个最大明文长度了,我就分片吧,保证每片都别超过那个值就是了.<br>片数=(明文长度(bytes)/(密钥长度(bytes)-11))的整数部分+1,就是不满一片的按一片算</p>
-<p>3.密文长度<br>密文长度等于密钥长度.当然这是不分片情况下的.<br>分片后,密文长度=密钥长度*片数</p>
-<p>例如96bits的密钥,明文4bytes<br>每片明文长度=96/8-11=1byte,片数=4,密文长度=96/8*4=48bytes</p>
-<p>又例如128bits的密钥,明文8bytes<br>每片明文长度=128/8-11=5bytes,片数=8/5取整+1=2,密文长度=128/8*2=32</p>
-<p>注意,对于指定长度的明文,其密文长度与密钥长度非正比关系.如4bytes的明文,在最短密钥96bites是,密文长度48bytes,128bits米密钥时,密文长度为16bytes,1024bits密钥时,密文长度128bytes.<br>因为分片越多,密文长度显然会变大,所以有人说,那就一直用1024bits的密钥吧…拜托,现在的机器算1024bits的密钥还是要点时间滴,别以为你的cpu很牛逼…那么选个什么值比较合适呢?个人认为是600bits,因为我们对于一个字符串的加密,一般不是直接加密,而是将字符串hash 后,对hash值加密.现在的hash值一般都是4bytes,很少有8bytes,几十年内应该也不会超过64bytes.那就用64bytes算吧, 密钥长度就是(64+11)*8=600bits了.</p>
-<p>RSAUtils.java</p>
-<pre><code>package security;
-
-import java.io.ByteArrayOutputStream;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-
-/** *//**
- * RSA公钥/私钥/签名工具包
- * 
- * 罗纳德·李维斯特（Ron [R]ivest）、阿迪·萨莫尔（Adi [S]hamir）和伦纳德·阿德曼（Leonard [A]dleman）
- * 
- * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式&lt;br/&gt;
- * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，&lt;br/&gt;
- * 非对称加密算法可以用来对对称加密的密钥加密，这样保证密钥的安全也就保证了数据的安全
- * 
- * @author IceWee
- * @date 2012-4-26
- * @version 1.0
- */
-public class RSAUtils {
-
-    /** *//**
-     * 加密算法RSA
-     */
-    public static final String KEY_ALGORITHM = &quot;RSA&quot;;
-
-    /** *//**
-     * 签名算法
-     */
-    public static final String SIGNATURE_ALGORITHM = &quot;MD5withRSA&quot;;
-
-    /** *//**
-     * 获取公钥的key
-     */
-    private static final String PUBLIC_KEY = &quot;RSAPublicKey&quot;;
-
-    /** *//**
-     * 获取私钥的key
-     */
-    private static final String PRIVATE_KEY = &quot;RSAPrivateKey&quot;;
-
-    /** *//**
-     * RSA最大加密明文大小
-     */
-    private static final int MAX_ENCRYPT_BLOCK = 117;
-
-    /** *//**
-     * RSA最大解密密文大小
-     */
-    private static final int MAX_DECRYPT_BLOCK = 128;
-
-    /** *//**
-     * 生成密钥对(公钥和私钥)
-     * 
-     * @return
-     * @throws Exception
-     */
-    public static Map&lt;String, Object&gt; genKeyPair() throws Exception {
-        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
-        keyPairGen.initialize(1024);
-        KeyPair keyPair = keyPairGen.generateKeyPair();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        Map&lt;String, Object&gt; keyMap = new HashMap&lt;String, Object&gt;(2);
-        keyMap.put(PUBLIC_KEY, publicKey);
-        keyMap.put(PRIVATE_KEY, privateKey);
-        return keyMap;
-    }
-
-    /** *//**
-     * 用私钥对信息生成数字签名
-     * 
-     * @param data 已加密数据
-     * @param privateKey 私钥(BASE64编码)
-     * 
-     * @return
-     * @throws Exception
-     */
-    public static String sign(byte[] data, String privateKey) throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        PrivateKey privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
-        signature.initSign(privateK);
-        signature.update(data);
-        return Base64Utils.encode(signature.sign());
-    }
-
-    /** *//**
-     * 校验数字签名
-     * 
-     * @param data 已加密数据
-     * @param publicKey 公钥(BASE64编码)
-     * @param sign 数字签名
-     * 
-     * @return
-     * @throws Exception
-     * 
-     */
-    public static boolean verify(byte[] data, String publicKey, String sign)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        PublicKey publicK = keyFactory.generatePublic(keySpec);
-        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
-        signature.initVerify(publicK);
-        signature.update(data);
-        return signature.verify(Base64Utils.decode(sign));
-    }
-
-    /** *//**
-     * &lt;P&gt;
-     * 私钥解密
-     * &lt;/p&gt;
-     * 
-     * @param encryptedData 已加密数据
-     * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPrivateKey(byte[] encryptedData, String privateKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.DECRYPT_MODE, privateK);
-        int inputLen = encryptedData.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段解密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
-                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_DECRYPT_BLOCK;
-        }
-        byte[] decryptedData = out.toByteArray();
-        out.close();
-        return decryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 公钥解密
-     * &lt;/p&gt;
-     * 
-     * @param encryptedData 已加密数据
-     * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPublicKey(byte[] encryptedData, String publicKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key publicK = keyFactory.generatePublic(x509KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.DECRYPT_MODE, publicK);
-        int inputLen = encryptedData.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段解密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_DECRYPT_BLOCK) {
-                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_DECRYPT_BLOCK;
-        }
-        byte[] decryptedData = out.toByteArray();
-        out.close();
-        return decryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 公钥加密
-     * &lt;/p&gt;
-     * 
-     * @param data 源数据
-     * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] encryptByPublicKey(byte[] data, String publicKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(publicKey);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key publicK = keyFactory.generatePublic(x509KeySpec);
-        // 对数据加密
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.ENCRYPT_MODE, publicK);
-        int inputLen = data.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段加密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
-                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(data, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_ENCRYPT_BLOCK;
-        }
-        byte[] encryptedData = out.toByteArray();
-        out.close();
-        return encryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 私钥加密
-     * &lt;/p&gt;
-     * 
-     * @param data 源数据
-     * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
-     */
-    public static byte[] encryptByPrivateKey(byte[] data, String privateKey)
-            throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
-        cipher.init(Cipher.ENCRYPT_MODE, privateK);
-        int inputLen = data.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段加密
-        while (inputLen - offSet &gt; 0) {
-            if (inputLen - offSet &gt; MAX_ENCRYPT_BLOCK) {
-                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(data, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_ENCRYPT_BLOCK;
-        }
-        byte[] encryptedData = out.toByteArray();
-        out.close();
-        return encryptedData;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 获取私钥
-     * &lt;/p&gt;
-     * 
-     * @param keyMap 密钥对
-     * @return
-     * @throws Exception
-     */
-    public static String getPrivateKey(Map&lt;String, Object&gt; keyMap)
-            throws Exception {
-        Key key = (Key) keyMap.get(PRIVATE_KEY);
-        return Base64Utils.encode(key.getEncoded());
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 获取公钥
-     * &lt;/p&gt;
-     * 
-     * @param keyMap 密钥对
-     * @return
-     * @throws Exception
-     */
-    public static String getPublicKey(Map&lt;String, Object&gt; keyMap)
-            throws Exception {
-        Key key = (Key) keyMap.get(PUBLIC_KEY);
-        return Base64Utils.encode(key.getEncoded());
-    }
-
-}
-</code></pre><p>Base64Utils.java</p>
-<pre><code>package security;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import it.sauronsoftware.base64.Base64;
-
-/** *//**
- * &lt;p&gt;
- * BASE64编码解码工具包
- * &lt;/p&gt;
- * &lt;p&gt;
- * 依赖javabase64-1.3.1.jar
- * &lt;/p&gt;
- * 
- * @author IceWee
- * @date 2012-5-19
- * @version 1.0
- */
-public class Base64Utils {
-
-    /** *//**
-     * 文件读取缓冲区大小
-     */
-    private static final int CACHE_SIZE = 1024;
-
-    /** *//**
-     * &lt;p&gt;
-     * BASE64字符串解码为二进制数据
-     * &lt;/p&gt;
-     * 
-     * @param base64
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decode(String base64) throws Exception {
-        return Base64.decode(base64.getBytes());
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 二进制数据编码为BASE64字符串
-     * &lt;/p&gt;
-     * 
-     * @param bytes
-     * @return
-     * @throws Exception
-     */
-    public static String encode(byte[] bytes) throws Exception {
-        return new String(Base64.encode(bytes));
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 将文件编码为BASE64字符串
-     * &lt;/p&gt;
-     * &lt;p&gt;
-     * 大文件慎用，可能会导致内存溢出
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件绝对路径
-     * @return
-     * @throws Exception
-     */
-    public static String encodeFile(String filePath) throws Exception {
-        byte[] bytes = fileToByte(filePath);
-        return encode(bytes);
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * BASE64字符串转回文件
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件绝对路径
-     * @param base64 编码字符串
-     * @throws Exception
-     */
-    public static void decodeToFile(String filePath, String base64) throws Exception {
-        byte[] bytes = decode(base64);
-        byteArrayToFile(bytes, filePath);
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 文件转换为二进制数组
-     * &lt;/p&gt;
-     * 
-     * @param filePath 文件路径
-     * @return
-     * @throws Exception
-     */
-    public static byte[] fileToByte(String filePath) throws Exception {
-        byte[] data = new byte[0];
-        File file = new File(filePath);
-        if (file.exists()) {
-            FileInputStream in = new FileInputStream(file);
-            ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
-            byte[] cache = new byte[CACHE_SIZE];
-            int nRead = 0;
-            while ((nRead = in.read(cache)) != -1) {
-                out.write(cache, 0, nRead);
-                out.flush();
-            }
-            out.close();
-            in.close();
-            data = out.toByteArray();
-         }
-        return data;
-    }
-
-    /** *//**
-     * &lt;p&gt;
-     * 二进制数据写文件
-     * &lt;/p&gt;
-     * 
-     * @param bytes 二进制数据
-     * @param filePath 文件生成目录
-     */
-    public static void byteArrayToFile(byte[] bytes, String filePath) throws Exception {
-        InputStream in = new ByteArrayInputStream(bytes);   
-        File destFile = new File(filePath);
-        if (!destFile.getParentFile().exists()) {
-            destFile.getParentFile().mkdirs();
-        }
-        destFile.createNewFile();
-        OutputStream out = new FileOutputStream(destFile);
-        byte[] cache = new byte[CACHE_SIZE];
-        int nRead = 0;
-        while ((nRead = in.read(cache)) != -1) {   
-            out.write(cache, 0, nRead);
-            out.flush();
-        }
-        out.close();
-        in.close();
-    }
-
-
-}
-</code></pre><p>RSATester.java</p>
-<pre><code>package security;
-
-import java.util.Map;
-
-public class RSATester {
-
-    static String publicKey;
-    static String privateKey;
-
-    static {
-        try {
-            Map&lt;String, Object&gt; keyMap = RSAUtils.genKeyPair();
-            publicKey = RSAUtils.getPublicKey(keyMap);
-            privateKey = RSAUtils.getPrivateKey(keyMap);
-            System.err.println(&quot;公钥: \n\r&quot; + publicKey);
-            System.err.println(&quot;私钥： \n\r&quot; + privateKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        test();
-        testSign();
-    }
-
-    static void test() throws Exception {
-        System.err.println(&quot;公钥加密——私钥解密&quot;);
-        String source = &quot;这是一行没有任何意义的文字，你看完了等于没看，不是吗？&quot;;
-        System.out.println(&quot;\r加密前文字：\r\n&quot; + source);
-        byte[] data = source.getBytes();
-        byte[] encodedData = RSAUtils.encryptByPublicKey(data, publicKey);
-        System.out.println(&quot;加密后文字：\r\n&quot; + new String(encodedData));
-        byte[] decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey);
-        String target = new String(decodedData);
-        System.out.println(&quot;解密后文字: \r\n&quot; + target);
-    }
-
-    static void testSign() throws Exception {
-        System.err.println(&quot;私钥加密——公钥解密&quot;);
-        String source = &quot;这是一行测试RSA数字签名的无意义文字&quot;;
-        System.out.println(&quot;原文字：\r\n&quot; + source);
-        byte[] data = source.getBytes();
-        byte[] encodedData = RSAUtils.encryptByPrivateKey(data, privateKey);
-        System.out.println(&quot;加密后：\r\n&quot; + new String(encodedData));
-        byte[] decodedData = RSAUtils.decryptByPublicKey(encodedData, publicKey);
-        String target = new String(decodedData);
-        System.out.println(&quot;解密后: \r\n&quot; + target);
-        System.err.println(&quot;私钥签名——公钥验证签名&quot;);
-        String sign = RSAUtils.sign(encodedData, privateKey);
-        System.err.println(&quot;签名:\r&quot; + sign);
-        boolean status = RSAUtils.verify(encodedData, publicKey, sign);
-        System.err.println(&quot;验证结果:\r&quot; + status);
-    }
-
-}
-</code></pre><h4 id="AES对称加密和解密"><a href="#AES对称加密和解密" class="headerlink" title="AES对称加密和解密"></a>AES对称加密和解密</h4><pre><code>package demo.security;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Scanner;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-/*
- * AES对称加密和解密
- */
-public class SymmetricEncoder {
-  /*
-   * 加密
-   * 1.构造密钥生成器
-   * 2.根据ecnodeRules规则初始化密钥生成器
-   * 3.产生密钥
-   * 4.创建和初始化密码器
-   * 5.内容加密
-   * 6.返回字符串
-   */
-    public static String AESEncode(String encodeRules,String content){
-        try {
-            //1.构造密钥生成器，指定为AES算法,不区分大小写
-            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
-            //2.根据ecnodeRules规则初始化密钥生成器
-            //生成一个128位的随机源,根据传入的字节数组
-            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
-              //3.产生原始对称密钥
-            SecretKey original_key=keygen.generateKey();
-              //4.获得原始对称密钥的字节数组
-            byte [] raw=original_key.getEncoded();
-            //5.根据字节数组生成AES密钥
-            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
-              //6.根据指定算法AES自成密码器
-            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
-              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            //8.获取加密内容的字节数组(这里要设置为utf-8)不然内容中如果有中文和英文混合中文就会解密为乱码
-            byte [] byte_encode=content.getBytes(&quot;utf-8&quot;);
-            //9.根据密码器的初始化方式--加密：将数据加密
-            byte [] byte_AES=cipher.doFinal(byte_encode);
-          //10.将加密后的数据转换为字符串
-            //这里用Base64Encoder中会找不到包
-            //解决办法：
-            //在项目的Build path中先移除JRE System Library，再添加库JRE System Library，重新编译后就一切正常了。
-            String AES_encode=new String(new BASE64Encoder().encode(byte_AES));
-          //11.将字符串返回
-            return AES_encode;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        //如果有错就返加nulll
-        return null;         
-    }
-    /*
-     * 解密
-     * 解密过程：
-     * 1.同加密1-4步
-     * 2.将加密后的字符串反纺成byte[]数组
-     * 3.将加密内容解密
-     */
-    public static String AESDncode(String encodeRules,String content){
-        try {
-            //1.构造密钥生成器，指定为AES算法,不区分大小写
-            KeyGenerator keygen=KeyGenerator.getInstance(&quot;AES&quot;);
-            //2.根据ecnodeRules规则初始化密钥生成器
-            //生成一个128位的随机源,根据传入的字节数组
-            keygen.init(128, new SecureRandom(encodeRules.getBytes()));
-              //3.产生原始对称密钥
-            SecretKey original_key=keygen.generateKey();
-              //4.获得原始对称密钥的字节数组
-            byte [] raw=original_key.getEncoded();
-            //5.根据字节数组生成AES密钥
-            SecretKey key=new SecretKeySpec(raw, &quot;AES&quot;);
-              //6.根据指定算法AES自成密码器
-            Cipher cipher=Cipher.getInstance(&quot;AES&quot;);
-              //7.初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            //8.将加密并编码后的内容解码成字节数组
-            byte [] byte_content= new BASE64Decoder().decodeBuffer(content);
-            /*
-             * 解密
-             */
-            byte [] byte_decode=cipher.doFinal(byte_content);
-            String AES_decode=new String(byte_decode,&quot;utf-8&quot;);
-            return AES_decode;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-
-        //如果有错就返加nulll
-        return null;         
-    }
-
-    public static void main(String[] args) {
-        SymmetricEncoder se=new SymmetricEncoder();
-        Scanner scanner=new Scanner(System.in);
-        /*
-         * 加密
-         */
-        System.out.println(&quot;使用AES对称加密，请输入加密的规则&quot;);
-        String encodeRules=scanner.next();
-        System.out.println(&quot;请输入要加密的内容:&quot;);
-        String content = scanner.next();
-        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;加密后的密文是:&quot;+se.AESEncode(encodeRules, content));
-
-        /*
-         * 解密
-         */
-        System.out.println(&quot;使用AES对称解密，请输入加密的规则：(须与加密相同)&quot;);
-         encodeRules=scanner.next();
-        System.out.println(&quot;请输入要解密的内容（密文）:&quot;);
-         content = scanner.next();
-        System.out.println(&quot;根据输入的规则&quot;+encodeRules+&quot;解密后的明文是:&quot;+se.AESDncode(encodeRules, content));
-    }
-
-}
-</code></pre><p>测试结果：</p>
-<pre><code>使用AES对称加密，请输入加密的规则
-使用AES对称加密
-请输入要加密的内容:
-使用AES对称加密
-根据输入的规则使用AES对称加密加密后的密文是:Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
-使用AES对称解密，请输入加密的规则：(须与加密相同)
-使用AES对称加密
-请输入要解密的内容（密文）:
-Z0NwrNPHghgXHN0CqjLS58YCjhMcBfeR33RWs7Lw+AY=
-根据输入的规则使用AES对称加密解密后的明文是:使用AES对称加密
-</code></pre><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.cnblogs.com/jiafuwei/p/7054500.html" target="_blank" rel="noopener">java RSA加密解密实现（含分段加密）</a><br><a href="https://www.cnblogs.com/liunanjava/p/4297854.html" target="_blank" rel="noopener">AES对称加密和解密</a><br><a href="https://blog.csdn.net/huangxiaoguo1/article/details/78237359" target="_blank" rel="noopener">Android: AndroidKeyStore 非对称RSA加密解密</a><br><a href="https://www.cnblogs.com/zuge/p/5430362.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuge/p/5430362.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/android-dagger2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/22/android-dagger2/" itemprop="url">android dagger2使用心得</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T16:04:50+08:00">
-                2019-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
-                    <span itemprop="name">Android知识点</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Dagger 2 是 Java 和 Android 下的一个完全静态、编译时生成代码的依赖注入框架，由 Google 维护，早期的版本 Dagger 是由 Square 创建的。</p>
-<p>Dagger 2 是基于 Java Specification Request(JSR) 330标准。利用 JSR 注解在编译时生成代码，来注入实例完成依赖注入。</p>
-<h2 id="Dagger2-几个注解"><a href="#Dagger2-几个注解" class="headerlink" title="Dagger2 几个注解"></a>Dagger2 几个注解</h2><ul>
-<li><p><strong>@Inject</strong>    带有此注解的属性或构造方法将参与到依赖注入中，Dagger2会实例化有此注解的类。标注的成员属性不能是private</p>
-</li>
-<li><p><strong>@Module</strong>    带有此注解的类，用来提供依赖，里面定义一些用<strong>@Provides</strong>注解的以provide开头的方法，这些方法就是所提供的依赖，Dagger2会在该类中寻找实例化某个类所需要的依赖。</p>
-</li>
-<li><p><strong>@Component</strong>    用来将@Inject和@Module联系起来的桥梁，从@Module中获取依赖并将依赖注入给@Inject。只能标注接口或抽象类，声明的注入接口的参数类型必须和目标类一致。</p>
-</li>
-</ul>
-<p>约定俗成的是@Provides方法一般以provide为前缀，Moudle 类以Module为后缀，一个 Module 类中可以有多个@Provides方法。</p>
-<p><img src="/2019/03/22/android-dagger2/component.webp" alt></p>
-<h3 id="模块与模块之间的联系"><a href="#模块与模块之间的联系" class="headerlink" title="模块与模块之间的联系"></a>模块与模块之间的联系</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Module (includes = &#123;BModule.class&#125;)// includes 引入)</span><br><span class="line">public class AModule &#123;</span><br><span class="line">    @Provides</span><br><span class="line">    A providerA() &#123;</span><br><span class="line">        return new A();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="一个Component-应用多个-module"><a href="#一个Component-应用多个-module" class="headerlink" title="一个Component 应用多个 module"></a>一个Component 应用多个 module</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Component(modules = &#123;AModule.class,BModule.class&#125;)</span><br><span class="line">public interface MainComponent &#123;</span><br><span class="line">    void inject(MainActivity activity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="dependencies-依赖其他Component"><a href="#dependencies-依赖其他Component" class="headerlink" title="dependencies 依赖其他Component"></a>dependencies 依赖其他Component</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Component(modules = &#123;MainModule.class&#125;, dependencies = AppConponent.class)</span><br><span class="line">public interface MainConponent &#123;</span><br><span class="line">    void inject(MainActivity activity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Provider-注入"><a href="#Provider-注入" class="headerlink" title="Provider 注入"></a>Provider 注入</h2><p>有时候不仅仅是注入单个实例，我们需要多个实例，这时可以使用注入Provider<t>，每次调用它的 get() 方法都会调用到 @Inject 构造函数创建新实例或者 Module 的 provide 方法返回实例。</t></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class CarFactory &#123;</span><br><span class="line">    @Inject</span><br><span class="line">    Provider&lt;Car&gt; carProvider;</span><br><span class="line"></span><br><span class="line">    public List&lt;Car&gt; makeCar(int num) &#123;</span><br><span class="line">        ...</span><br><span class="line">        List&lt;Car&gt; carList = new ArrayList&lt;Car&gt;(num);</span><br><span class="line">        for (int i = 0; i &lt; num; i ++) &#123;</span><br><span class="line">            carList.add(carProvider.get());</span><br><span class="line">        &#125;</span><br><span class="line">        return carList;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Lazy-延迟注入"><a href="#Lazy-延迟注入" class="headerlink" title="Lazy 延迟注入"></a>Lazy 延迟注入</h2><p>有时我们想注入的依赖在使用时再完成初始化，加快加载速度，就可以使用注入Lazy<t>。只有在调用 Lazy<t> 的 get() 方法时才会初始化依赖实例注入依赖。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class Man &#123;</span><br><span class="line">    @Inject</span><br><span class="line">    Lazy&lt;Car&gt; lazyCar;</span><br><span class="line"></span><br><span class="line">    public void goWork() &#123;</span><br><span class="line">        ...</span><br><span class="line">        lazyCar.get().go(); // lazyCar.get() 返回 Car 实例</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></t></t></p>
-<h2 id="Qualifier（限定符-别名）"><a href="#Qualifier（限定符-别名）" class="headerlink" title="Qualifier（限定符-别名）"></a>Qualifier（限定符-别名）</h2><p>试想这样一种情况：沿用之前的 Man 和 Car 的例子，如果 CarModule 提供了两个生成 Car 实例的 provide 方法，Dagger 2 在注入 Car 实例到 Man 中时应该选择哪一个方法呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">public class CarModule &#123;</span><br><span class="line">    @Provides</span><br><span class="line">    static Car provideCar1() &#123;</span><br><span class="line">        return new Car1();</span><br><span class="line">    &#125;</span><br><span class="line">    @Provides</span><br><span class="line">    static Car provideCar2() &#123;</span><br><span class="line">        return new Car2();</span><br><span class="line">    &#125;</span><br><span class="line">    // Car1 和 Car2 是 Car 的两个子类</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这时 Dagger 2 不知道使用provideCar1还是provideCar2提供的实例，在编译时就会报错，这种情况也可以叫依赖迷失（网上看到的叫法）。而@Qualifier注解就是用来解决这个问题，使用注解来确定使用哪种 provide 方法。</p>
-<p>下面是自定义的@Named注解，你也可以用自定义的其他 Qualifier 注解：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Qualifier</span><br><span class="line">@Documented</span><br><span class="line">@Retention(RUNTIME)</span><br><span class="line">public @interface Named &#123;</span><br><span class="line">  String value() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在 provide 方法上加上@Named注解，用来区分<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">public class CarModule &#123;</span><br><span class="line">    @Provides</span><br><span class="line">    @Named(&quot;car1&quot;)</span><br><span class="line">    static Car provideCar1() &#123;</span><br><span class="line">        return new Car1();</span><br><span class="line">    &#125;</span><br><span class="line">    @Provides</span><br><span class="line">    @Named(&quot;car2&quot;)</span><br><span class="line">    static Car provideCar2() &#123;</span><br><span class="line">        return new Car2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>还需要在 Inject 注入的地方加上@Named注解，表明需要注入的是哪一种 Car：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class Man &#123;</span><br><span class="line">    @Inject</span><br><span class="line">    @Named(&quot;car1&quot;)</span><br><span class="line">    Car car;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样在依赖注入时，Dagger 2 就会使用provideCar1方法提供的实例，所以<strong>Qualifier（限定符）的作用相当于起了个区分的别名</strong>。</p>
-<h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><p>Scope 是用来确定注入的实例的生命周期的，如果没有使用 Scope 注解，Component 每次调用 Module 中的 provide 方法或 Inject 构造函数生成的工厂时都会创建一个新的实例，而使用 Scope 后可以复用之前的依赖实例。</p>
-<p>在Dagger 2中<br>1、@Singleton可以保持类的单例。<br>2、@ApplicationScope注解的Component类与Applicaiton对象的生命周期一致。<br>3、@ActivityScope注解的Component类与Activity的生命周期一致<br>scope可以给我们带来“<strong>局部单例</strong>”，生命周期取决于scope自己。</p>
-<p>在 Dagger 2 官方文档中我找到一句话，非常清楚地描述了@Scope的原理：<br>When a binding uses a scope annotation, that means that the component object holds a reference to the bound object until the component object itself is garbage-collected.<br>Scope 作用域的本质：Component 间接持有依赖实例的引用，把实例的作用域与 Component 绑定，它们不是同年同月同日生，但是同年同月死。</p>
-<h3 id="自定义-Scope"><a href="#自定义-Scope" class="headerlink" title="自定义@Scope"></a>自定义@Scope</h3><p>对于Android，我们通常会定义一个针对整个Activity的注解,通过仿照@Singleton</p>
-<pre><code>@Scope
-@Documented
-@Retention(RUNTIME)
-public @interface ActivityScope {}
-</code></pre><p>你可能会发现，这个自定义的@Scope和@Singleton代码完全一样，具有实现单例模式的功能。那干嘛还自定义@Scope，好处如下：</p>
-<blockquote>
-<p>更好的管理ApplicationComponent和Module之间的关系，Component和Component之间的依赖和继承关系。如果关系不匹配，在编译期间会报错，详细下面会介绍。<br>代码可读性，让程序猿更好的了解Module中创建的类实例的使用范围。</p>
-</blockquote>
-<h3 id="Singleton-Scope"><a href="#Singleton-Scope" class="headerlink" title="Singleton Scope"></a>Singleton Scope</h3><p>@Singleton顾名思义保证单例</p>
-<h3 id="Reusable-Scope"><a href="#Reusable-Scope" class="headerlink" title="Reusable Scope"></a>Reusable Scope</h3><p>只单纯缓存依赖的实例，可以复用之前的实例，不关心与之绑定是什么 Component，Reusable 作用域只需要标记目标类或 provide 方法，不用标记 Component。</p>
-<h3 id="Releasable-references（可释放引用）"><a href="#Releasable-references（可释放引用）" class="headerlink" title="Releasable references（可释放引用）"></a>Releasable references（可释放引用）</h3><p>使用 Scope 注解时，Component 会间接持有绑定的依赖实例的引用，也就是说实例在 Component 还存活时无法被回收。而在 Android 中，应该尽量减少内存占用，把没有使用的对象释放，这时可以用@CanReleaseReferences标记 Scope 注解。</p>
-<p>然后在 Application 中注入ReleasableReferenceManager对象，<strong>在内存不足时调用releaseStrongReferences()方法把 Component 间接持有的强引用变为弱引用</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class MyApplication extends Application &#123;</span><br><span class="line">    @Inject</span><br><span class="line">    @ForReleasableReferences(MyScope.class)</span><br><span class="line">    ReleasableReferenceManager myScopeReferences;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onLowMemory() &#123;</span><br><span class="line">        super.onLowMemory();</span><br><span class="line">        myScopeReferences.releaseStrongReferences();</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样在内存不足时，Component间接持有的实例为弱引用，如果没有其他对象使用的话就可以被回收。</p>
-<h3 id="使用-Scope的一些经验："><a href="#使用-Scope的一些经验：" class="headerlink" title="使用@Scope的一些经验："></a>使用@Scope的一些经验：</h3><p>1、<strong>@Component关联的@Module中的任何一个@Provides有@scope，则该整个@Component要加上这个scope</strong>。否则在暴露或者注入时（不暴露且不注入时，既不使用它构造对象时，不报错），会有如下错误:</p>
-<pre><code>Error:(13, 1) 错误: cn.xuexuan.newui.di.component.ActivityComponent (unscoped) may not reference scoped bindings:
-@Singleton @Provides android.app.Activity cn.xuexuan.newui.di.module.ActivityModule.getActivity()
-</code></pre><p>2、 <strong>@Component的dependencies与@Component自身的scope不能相同</strong>；<br> <strong>@Singleton的组件不能依赖其他scope的组件</strong>，但是其他scope的组件可以依赖@Singleton组件；<br> <strong>没有scope的不能依赖有scope的组件</strong>。<br>否则出现下面错误:</p>
-<pre><code>Error:(21, 1) 错误: com.android.example.devsummit.archdemo.di.component.MyTestComponent (unscoped) cannot depend on scoped components:
-@com.android.example.devsummit.archdemo.di.scope.ActivityScope com.android.example.devsummit.archdemo.di.component.MyTestComponentX
-</code></pre><p>3、<strong>一个component不能同时有多个scope(Subcomponent除外)</strong>，否则出现下面的错误</p>
-<pre><code>Error:Execution failed for task ‘:app:compileDebugJavaWithJavac’.
-java.lang.IllegalArgumentException: com.android.example.devsummit.archdemo.di.component.MyTestComponent was annotated with more than one @Scope annotation
-</code></pre><h2 id="BindsInstance"><a href="#BindsInstance" class="headerlink" title="@BindsInstance"></a>@BindsInstance</h2><p>Component 可以在<strong>创建 Component 的时候绑定依赖实例</strong>，用以注入。这就是@BindsInstance注解的作用，只能在 Component.Builder 中使用。</p>
-<pre><code>@Module
-public final class HomeActivityModule {
-    private final HomeActivity activity;
-
-    public HomeActivityModule(HomeActivity activity) {
-        this.activity = activity;
-    }
-
-    @Provides
-    @ActivityScope  // 自定义作用域
-    Activity provideActivity() {
-        return activity;
-    }
-}
-</code></pre><p>而使用@BindsInstance的话会更加简单:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@ActivityScope</span><br><span class="line">@Component</span><br><span class="line">public interface HomeActivityComponent &#123;</span><br><span class="line"></span><br><span class="line">    @Component.Builder</span><br><span class="line">    interface Builder &#123;</span><br><span class="line"></span><br><span class="line">        @BindsInstance</span><br><span class="line">        Builder activity(Activity activity);</span><br><span class="line"></span><br><span class="line">        HomeActivityComponent build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>注意在调用build()创建 Component 之前，所有@BindsInstance方法必须先调用。上面例子中 HomeActivityComponent 还可以注入 Activity 类型的依赖，但是不能注入 HomeActivity，因为 <strong>Dagger 2 是使用具体类型作为依据的</strong>（也就是只能使用@Inject Activity activity而不是@Inject HomeActivity activity）。</p>
-<p>如果@BindsInstance方法的参数可能为 null，需要再用@Nullable标记，同时标注 Inject 的地方也需要用@Nullable标记。这时 Builder 也可以不调用@BindsInstance方法，这样 Component 会默认设置 instance 为 null</p>
-<p>注意：<strong>dagger.android</strong> 扩展库可以极大地简化在 Android 项目中使用 Dagger 2 的过程，但是还是有些限制，<strong>SubComponent.Builder 不能自定义 @BindsInstance 方法，SubCompoennt 的 Module 不能有含参数的构造函数</strong>，否则AndroidInjection.inject(this)在创建 SubComponent 时无法成功。</p>
-<h2 id="Component-的组织关系"><a href="#Component-的组织关系" class="headerlink" title="Component 的组织关系"></a>Component 的组织关系</h2><p>Component 管理着依赖实例，根据依赖实例之间的关系就能确定 Component 的关系。这些关系可以用object graph描述，我称之为依赖关系图。在 Dagger 2 中 Component 的组织关系分为两种：</p>
-<ul>
-<li><p>依赖关系，一个 Component 依赖其他 Compoent 公开的依赖实例，用 Component 中的dependencies声明。</p>
-</li>
-<li><p>继承关系，一个 Component 继承（也可以叫扩展）某 Component 提供更多的依赖，SubComponent 就是继承关系的体现。</p>
-</li>
-</ul>
-<h3 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h3><p>示例代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@ManScope</span><br><span class="line">@Component(modules = CarModule.class)</span><br><span class="line">public interface ManComponent &#123;</span><br><span class="line">    void inject(Man man);</span><br><span class="line"></span><br><span class="line">    Car car();  //必须向外提供 car 依赖实例的接口，表明 Man 可以借 car 给别人</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@FriendScope</span><br><span class="line">@Component(dependencies = ManComponent.class)</span><br><span class="line">public interface FriendComponent &#123;</span><br><span class="line">    void inject(Friend friend);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ManComponent manComponent = DaggerManComponent.builder()</span><br><span class="line">    .build();</span><br><span class="line"></span><br><span class="line">FriendComponent friendComponent = DaggerFriendComponent.builder()</span><br><span class="line">    .manComponent(manComponent)</span><br><span class="line">    .build();</span><br><span class="line">friendComponent.inject(friend);</span><br></pre></td></tr></table></figure></p>
-<p>依赖关系就跟生活中的朋友关系相当，注意事项如下：</p>
-<ol>
-<li><p>被依赖的 Component 需要把暴露的依赖实例用显式的接口声明，如上面的Car car()，我们只能使用朋友愿意分享的东西。</p>
-</li>
-<li><p>依赖关系中的 Component 的 Scope 不能相同，因为它们的生命周期不同。</p>
-</li>
-</ol>
-<h3 id="继承关系"><a href="#继承关系" class="headerlink" title="继承关系"></a>继承关系</h3><p>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">@Module(subcomponents = SonComponent.class)</span><br><span class="line">public class CarModule &#123;</span><br><span class="line">    @Provides</span><br><span class="line">    @ManScope</span><br><span class="line">    static Car provideCar() &#123;</span><br><span class="line">        return new Car();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@ManScope</span><br><span class="line">@Component(modules = CarModule.class)</span><br><span class="line">public interface ManComponent &#123;</span><br><span class="line">    //void inject(Man man);   // 继承关系中不用显式地提供暴露依赖实例的接口</span><br><span class="line"></span><br><span class="line">    SonComponent.Builder sonComponent();    // 用来创建 Subcomponent</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@SonScope</span><br><span class="line">@SubComponent(modules = BikeModule.class)</span><br><span class="line">public interface SonComponent &#123;</span><br><span class="line">    void inject(Son son);</span><br><span class="line"></span><br><span class="line">    @Subcomponent.Builder</span><br><span class="line">    interface Builder &#123; // SubComponent 必须显式地声明 Subcomponent.Builder，parent Component 需要用 Builder 来创建 SubComponent</span><br><span class="line">        SonComponent build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ManComponent manComponent = DaggerManComponent.builder()</span><br><span class="line">    .build();</span><br><span class="line"></span><br><span class="line">SonComponent sonComponent = manComponent.sonComponent()</span><br><span class="line">    .build();</span><br><span class="line">sonComponent.inject(son);</span><br></pre></td></tr></table></figure></p>
-<p>在 parent Component 依赖的 Module 中的subcomponents加上 SubComponent 的 class，然后就可以在 parent Component 中请求 SubComponent.Builder。但却无法访问 SubComponent 中的依赖。</p>
-<p>继承关系和依赖关系最大的区别就是：继承关系中不用显式地提供依赖实例的接口，SubComponent 继承 parent Component 的所有依赖。</p>
-<h3 id="依赖关系-vs-继承关系"><a href="#依赖关系-vs-继承关系" class="headerlink" title="依赖关系 vs 继承关系"></a>依赖关系 vs 继承关系</h3><p>相同点：</p>
-<ul>
-<li><p>两者都能复用其他 Component 的依赖</p>
-</li>
-<li><p>有依赖关系和继承关系的 Component 不能有相同的 Scope</p>
-</li>
-</ul>
-<p>区别：</p>
-<ul>
-<li><p>依赖关系中被依赖的 Component 必须显式地提供公开依赖实例的接口，而 SubComponent 默认继承 parent Component 的依赖。</p>
-</li>
-<li><p>依赖关系会生成两个独立的 DaggerXXComponent 类，而 SubComponent 不会生成 独立的 DaggerXXComponent 类。</p>
-</li>
-</ul>
-<p>在 Android 开发中，Activity 是 App 运行中组件，Fragment 又是 Activity 一部分，这种组件化思想适合继承关系，所以在 Android 中一般使用 SubComponent。</p>
-<h3 id="重复的-Module"><a href="#重复的-Module" class="headerlink" title="重复的 Module"></a>重复的 Module</h3><p>当相同的 Module 注入到 parent Component 和它的 SubComponent 中时，则每个 Component 都将自动使用这个 Module 的同一实例。也就是如果在 SubComponent.Builder 中调用相同的 Module 或者在返回 SubComponent 的抽象工厂方法中以重复 Module 作为参数时，会出现错误。（前者在编译时不能检测出，是运行时错误）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Component(modules = &#123;RepeatedModule.class, ...&#125;)</span><br><span class="line">interface ComponentOne &#123;</span><br><span class="line">  ComponentTwo componentTwo(RepeatedModule repeatedModule); // 编译时报错</span><br><span class="line">  ComponentThree.Builder componentThreeBuilder();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Subcomponent(modules = &#123;RepeatedModule.class, ...&#125;)</span><br><span class="line">interface ComponentTwo &#123; ... &#125;</span><br><span class="line"></span><br><span class="line">@Subcomponent(modules = &#123;RepeatedModule.class, ...&#125;)</span><br><span class="line">interface ComponentThree &#123;</span><br><span class="line">  @Subcomponent.Builder</span><br><span class="line">  interface Builder &#123;</span><br><span class="line">    Builder repeatedModule(RepeatedModule repeatedModule);</span><br><span class="line">    ComponentThree build();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DaggerComponentOne.create().componentThreeBuilder()</span><br><span class="line">    .repeatedModule(new RepeatedModule()) // 运行时报错 UnsupportedOperationException!</span><br><span class="line">    .build();</span><br></pre></td></tr></table></figure></p>
-<h2 id="dagger-android-扩展库的使用"><a href="#dagger-android-扩展库的使用" class="headerlink" title="dagger.android 扩展库的使用"></a>dagger.android 扩展库的使用</h2><p>dagger.android 扩展库是为了简化 Dagger 2 在 Android 的使用。</p>
-<h3 id="引入-dagger-android-扩展库"><a href="#引入-dagger-android-扩展库" class="headerlink" title="引入 dagger.android 扩展库"></a>引入 dagger.android 扩展库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// dagger 2</span><br><span class="line">implementation &quot;com.google.dagger:dagger:$dagger_version&quot;</span><br><span class="line">kapt &quot;com.google.dagger:dagger-compiler:$dagger_version&quot;</span><br><span class="line"></span><br><span class="line">// dagger.android</span><br><span class="line">implementation &quot;com.google.dagger:dagger-android:$dagger_version&quot;</span><br><span class="line">implementation &quot;com.google.dagger:dagger-android-support:$dagger_version&quot;</span><br><span class="line">kapt &quot;com.google.dagger:dagger-android-processor:$dagger_version&quot;</span><br></pre></td></tr></table></figure>
-<p>从上面可以看出 dagger.android 扩展库有单独的注解处理器 dagger-android-processor。</p>
-<h3 id="注入-Activity-中的依赖"><a href="#注入-Activity-中的依赖" class="headerlink" title="注入 Activity 中的依赖"></a>注入 Activity 中的依赖</h3><p>以 SearchActivity 为例，说明 dagger.android 的使用：</p>
-<p>1.在 AppComponent 中安装 AndroidInjectionModule，确保包含四大组件和 Fragment 的注入器类型。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@Singleton</span><br><span class="line">@Component(modules = [AppModule::class, AndroidInjectionModule::class])</span><br><span class="line">interface AppComponent &#123; ... &#125;</span><br></pre></td></tr></table></figure></p>
-<p>2.Activity 对应的 SubComponent 实现 AndroidInjector<xxactivity> 接口，对应的 @Subcomponent.Builder 继承 AndroidInjector.Builder<xxactivity>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@ActivityScope</span><br><span class="line">@Subcomponent</span><br><span class="line">interface SearchActivitySubcomponent : AndroidInjector&lt;SearchActivity&gt; &#123;</span><br><span class="line">    @Subcomponent.Builder</span><br><span class="line">    abstract class Builder : AndroidInjector.Builder&lt;SearchActivity&gt;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></xxactivity></xxactivity></p>
-<p>3.在定义 SubComponent 后，添加一个 ActivityBindModule 用来绑定 subcomponent builder，并把该 module 安装到 AppComponent 中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Module(subcomponents = [SearchActivitySubcomponent::class])</span><br><span class="line">abstract class ActivityBindModule &#123;</span><br><span class="line">    @Binds</span><br><span class="line">    @IntoMap</span><br><span class="line">    @ActivityKey(SearchActivity::class)</span><br><span class="line">    abstract fun bindAndroidInjectorFactory(</span><br><span class="line">            builder: SearchActivitySubcomponent.Builder): AndroidInjector.Factory&lt;out Activity&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Singleton</span><br><span class="line">@Component(modules = [AppModule::class, AndroidInjectionModule::class, ActivityBindModule::class])</span><br><span class="line">interface AppComponent &#123; ... &#125;</span><br></pre></td></tr></table></figure></p>
-<p><strong>如果 SubComponent 和其 Builder 没有其他方法或没有继承其他类型，可以使用 @ContributesAndroidInjector 注解简化第二步和第三步</strong>，在一个抽象 Module 中添加一个使用 @ContributesAndroidInjector 注解标记的返回具体的 Activity 类型的抽象方法，还可以在 ContributesAndroidInjector 注解中标明 SubComponent 需要安装的 module。如果 SubComponent 需要作用域，只需要标记在该方法上即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">abstract class ActivityBindModule &#123;</span><br><span class="line">    @ActivityScope</span><br><span class="line">    @ContributesAndroidInjector</span><br><span class="line">    abstract fun searchActivityInjector(): SearchActivity</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Singleton</span><br><span class="line">@Component(modules = [AppModule::class, AndroidInjectionModule::class, ActivityBindModule::class])</span><br><span class="line">interface AppComponent &#123; ... &#125;</span><br></pre></td></tr></table></figure></p>
-<p>4.Application 类实现 <strong>HasActivityInjector</strong> 接口，并且注入一个 DispatchingAndroidInjector<activity> 类型的依赖作为 activityInjector() 方法的返回值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class GankApp : Application(), HasActivityInjector &#123;</span><br><span class="line"></span><br><span class="line">    @Inject</span><br><span class="line">    lateinit var dispatchingActivityInjector: DispatchingAndroidInjector&lt;Activity&gt;</span><br><span class="line"></span><br><span class="line">    override fun onCreate() &#123;</span><br><span class="line">        super.onCreate()</span><br><span class="line">        DaggerAppComponent.builder()</span><br><span class="line">                .appModule(AppModule(this))</span><br><span class="line">                .build()</span><br><span class="line">                .inject(this)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    override fun activityInjector() = dispatchingActivityInjector</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></activity></p>
-<p>5.最后在 onCreate)() 方法中，在 super.onCreate() 之前调用 AndroidInjection.inject(this)。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class SearchActivity : BaseActivity() &#123;</span><br><span class="line"></span><br><span class="line">    override fun onCreate(savedInstanceState: Bundle?) &#123;</span><br><span class="line">        AndroidInjection.inject(this)</span><br><span class="line">        super.onCreate(savedInstanceState)</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>使用 dagger.android 后 Activity 对应的 SubComponent 的定义简化如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">abstract class ActivityBindModule &#123;</span><br><span class="line">    @ActivityScope</span><br><span class="line">    @ContributesAndroidInjector(modules = [FragmentBindModule::class])</span><br><span class="line">    abstract fun mainActivityInjector(): MainActivity</span><br><span class="line"></span><br><span class="line">    @ActivityScope</span><br><span class="line">    @ContributesAndroidInjector</span><br><span class="line">    abstract fun pictureActivityInjector(): PictureActivity</span><br><span class="line"></span><br><span class="line">    @ActivityScope</span><br><span class="line">    @ContributesAndroidInjector</span><br><span class="line">    abstract fun searchActivityInjector(): SearchActivity</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>其中 <strong>@ContributesAndroidInjector</strong> 注解可以解决之前的两个问题，不需要手动创建每一个 SubComponent，也不用在 parent componenet 声明对应的返回对应的 SubComponent.Builder 的接口，以后添加 SubComponent 只需要添加一个 ContributesAndroidInjector 抽象方法。</p>
-<p>然后使用<strong>AndroidInjection.inject(this)</strong> 来简化注入依赖的过程，隐藏注入依赖的细节。</p>
-<p>注入 Fragment 和其他三大组件也是类似，只是 ContributesAndroidInjector 抽象方法的返回值变了，HasActivityInjector 接口换做 HasFragmentInjector 等接口。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>dagger.android 扩展库可以极大地简化在 Android 项目中使用 Dagger 2 的过程，但是还是有些限制，<strong>SubComponent.Builder 不能自定义 @BindsInstance 方法，SubCompoennt 的 Module 不能有含参数的构造函数</strong>，否则AndroidInjection.inject(this)在创建 SubComponent 时无法成功。</p>
-<p>在使用过 dagger.android 扩展库一段时间后，个人认为其设计非常优雅，简化了 SubComponent 的定义过程和依赖注入的过程，使得开发者可以专注于 Module 管理依赖对象，所以建议大家在 Android 项目中使用。</p>
-<h2 id="Binds"><a href="#Binds" class="headerlink" title="@Binds"></a>@Binds</h2><p>@Binds：可以理解为关联，首先它是跟@Provides使用地方是一样的，不同的在于<strong>@Provides 注解的方法都是有具体实现的，而@Binds修饰的只有方法定义，并没有具体的实现的，在方法定义中方法参数必须是 返回值的实现类</strong>。这样创建实体类的地方就不用在Modules 中实现了，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">public abstract class AppModule &#123;</span><br><span class="line"></span><br><span class="line">    @Binds</span><br><span class="line">    @Named(&quot;AppManager&quot;)</span><br><span class="line">    abstract IAppManager bindAppManager(AppManager appManager);</span><br><span class="line"></span><br><span class="line">    @Provides</span><br><span class="line">    static Retrofit provideRetrofit() &#123;</span><br><span class="line">        return new Retrofit.Builder().build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Component(modules = AppModule.class)</span><br><span class="line">public interface AppComponent &#123;</span><br><span class="line">    Application application();</span><br><span class="line"></span><br><span class="line">    Retrofit retrofit();</span><br><span class="line"></span><br><span class="line">    void inject(Application application);</span><br><span class="line"></span><br><span class="line">    @Component.Builder</span><br><span class="line">    interface Builder &#123;</span><br><span class="line"></span><br><span class="line">        @BindsInstance</span><br><span class="line">        Builder application(Application application);</span><br><span class="line"></span><br><span class="line">        AppComponent build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class AppManager implements IAppManager &#123;</span><br><span class="line"></span><br><span class="line">    @Inject</span><br><span class="line">    Application application;</span><br><span class="line"></span><br><span class="line">    @Inject</span><br><span class="line">    public AppManager() &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class MyApplication extends Application &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onCreate() &#123;</span><br><span class="line">        super.onCreate();</span><br><span class="line"></span><br><span class="line">        // 注入</span><br><span class="line">        DaggerAppComponent.builder().application(this).build().inject(this);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><strong>Module 中不一定要具体实现，可以用@Binds关联实体</strong>，这样在编译过程中会自动创建Fractory 以及实现的，AccountManagerDelegate中还可以使用该Module中 @Provides 提供的实体类</p>
-<p>这里使用 provideXXX() 方式提供接口实例，说明几点：</p>
-<ul>
-<li>方法中必须有参数且只能有一个，是接口的实现类</li>
-<li>实现类必须提供@Inject的构造或 Module中@Provides形式提供</li>
-<li>方法是抽象方法，不必写方法体</li>
-<li>使用@Binds代替@Provides</li>
-<li>由于方法是抽象的，所以类也要抽象或接口</li>
-</ul>
-<h2 id="IntoSet"><a href="#IntoSet" class="headerlink" title="@IntoSet"></a>@IntoSet</h2><p>使用注入形式初始化 Set 集合时，可以在 Module 中多次定义一系列返回值类型相同的方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">class AnimalModule &#123;</span><br><span class="line">    @IntoSet</span><br><span class="line">    @Provides</span><br><span class="line">    fun provideElephant() = Animal(&quot;大象&quot;)</span><br><span class="line"></span><br><span class="line">    @Provides</span><br><span class="line">    @IntoSet</span><br><span class="line">    fun provideMonkey() = Animal(&quot;猴子&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>Animal.kt 代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class Animal(var name: String)</span><br></pre></td></tr></table></figure></p>
-<p>上面的 provideElephant() 和 provideMonkey() 返回值类型都是 Animal，都使用了@IntoSet注释，多说一句，@Provides当然也要有，如果是接口用@Binds。<br>初始化并使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Inject</span><br><span class="line">lateinit var set: MutableSet&lt;Animal&gt;</span><br><span class="line"></span><br><span class="line">...//代码省略</span><br><span class="line"></span><br><span class="line">set.forEach &#123;</span><br><span class="line">    Log.i(&quot;Main&quot;, &quot;--- $&#123;it.name&#125; ---&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>kotlin 里面 MutableSet 代替 Java 中的 Set，上面代码运行可以输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">--- 大象 ---</span><br><span class="line">--- 猴子 ---</span><br></pre></td></tr></table></figure></p>
-<h2 id="IntoMap"><a href="#IntoMap" class="headerlink" title="@IntoMap"></a>@IntoMap</h2><p>与@IntoSet区别不大，Map 多了一个 key<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Provides</span><br><span class="line">@IntoMap</span><br><span class="line">@IntKey(0)</span><br><span class="line">fun provideFish() = Animal(&quot;鱼&quot;)</span><br><span class="line"></span><br><span class="line">@Provides</span><br><span class="line">@IntoMap</span><br><span class="line">@IntKey(1)</span><br><span class="line">fun provideHuman() = Animal(&quot;人&quot;)</span><br></pre></td></tr></table></figure></p>
-<p>@IntKey里面就是 Map 中的 key，providesXXX() 返回值是 key 对应的 value，如果 key 是 String 类型的，则使用@StringKey()输入 key，此外，还可以自定义 key：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Documented</span><br><span class="line">@Target(ElementType.METHOD)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@MapKey</span><br><span class="line">annotation class ZhuangBiKey(val f: Float)</span><br></pre></td></tr></table></figure></p>
-<p>初始化 map 并使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Inject</span><br><span class="line">lateinit var map: Map&lt;Int, Animal&gt;</span><br><span class="line"></span><br><span class="line">...//代码省略</span><br><span class="line"></span><br><span class="line">map.forEach &#123;</span><br><span class="line">            Log.i(&quot;Main&quot;, &quot;--- key:$&#123;it.key&#125;\nvalue:$&#123;it.value.name&#125; ---&quot;)</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/9703a931c7e7" target="_blank" rel="noopener">Dagger 2 完全解析</a><br><a href="https://blog.csdn.net/mq2553299/article/details/77485800" target="_blank" rel="noopener">打破Dagger2使用窘境：Dagger-Android详解</a>（<a href="https://github.com/qingmei2/Sample_dagger2）" target="_blank" rel="noopener">https://github.com/qingmei2/Sample_dagger2）</a><br><a href="https://github.com/AnyLifeZLB/MVP-Dagger2-Rxjava2" target="_blank" rel="noopener">dagger组件化</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3209,7 +2552,7 @@ public final class HomeActivityModule {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-count">72</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3220,7 +2563,7 @@ public final class HomeActivityModule {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

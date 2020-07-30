@@ -293,6 +293,356 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/28/design-pattern-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/28/design-pattern-summary/" itemprop="url">GoF 的 23 种设计模式总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-28T09:09:46+08:00">
+                2019-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>软件设计模式（Software Design Pattern），又称设计模式，是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结。它描述了在软件设计过程中的一些不断重复发生的问题，以及该问题的解决方案。也就是说，它是解决特定问题的一系列套路，是前辈们的代码设计经验的总结，具有一定的普遍性，可以反复使用。其目的是为了提高代码的可重用性、代码的可读性和代码的可靠性。</p>
+<p>1995 年，艾瑞克·伽马（ErichGamma）、理査德·海尔姆（Richard Helm）、拉尔夫·约翰森（Ralph Johnson）、约翰·威利斯迪斯（John Vlissides）等 4 位作者合作出版了《设计模式：可复用面向对象软件的基础》（Design Patterns: Elements of Reusable Object-Oriented Software）一书，在本教程中收录了 23 个设计模式，这是设计模式领域里程碑的事件，导致了软件设计模式的突破。这 4 位作者在软件开发领域里也以他们的“四人组”（Gang of Four，GoF）匿名著称。</p>
+<p>直到今天，狭义的设计模式还是 GoF 的 23 种经典设计模式。</p>
+<h2 id="意义"><a href="#意义" class="headerlink" title="意义"></a>意义</h2><p>设计模式的本质是面向对象设计原则的实际运用，是对类的封装性、继承性和多态性以及类的关联关系和组合关系的充分理解。正确使用设计模式具有以下优点：<br>1、可以提高程序员的思维能力、编程能力和设计能力。<br>2、使程序设计更加标准化、代码编制更加工程化，使软件开发效率大大提高，从而缩短软件的开发周期。<br>3、使设计的代码可重用性高、可读性强、可靠性高、灵活性好、可维护性强。</p>
+<p>当然，软件设计模式只是一个引导。在具体的软件幵发中，必须根据设计的应用系统的特点和要求来恰当选择。对于简单的程序开发，可能写一个简单的算法要比引入某种设计模式更加容易。但对大项目的开发或者框架设计，用设计模式来组织代码显然更好。</p>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>设计模式有两种分类方法，即根据模式的目的来分和根据模式的作用的范围来分。</p>
+<p>1、根据作用范围来分</p>
+<p>根据模式是主要用于类上还是主要用于对象上来分，这种方式可分为类模式和对象模式两种：</p>
+<ul>
+<li>类模式：用于处理类与子类之间的关系，这些关系通过继承来建立，是静态的，在编译时刻便确定下来了。GoF中的工厂方法、（类）适配器、模板方法、解释器属于该模式。</li>
+<li>对象模式：用于处理对象之间的关系，这些关系可以通过组合或聚合来实现，在运行时刻是可以变化的，更具动态性。GoF 中除了以上 4 种，其他的都是对象模式。</li>
+</ul>
+<p>2、根据目的来分</p>
+<p>根据模式是用来完成什么工作来划分，这种方式可分为创建型模式、结构型模式和行为型模式 3 种：</p>
+<ul>
+<li>创建型模式：用于描述“怎样创建对象”，它的主要特点是“将对象的创建与使用分离”。GoF 中提供了单例、原型、工厂方法、抽象工厂、建造者等 5 种创建型模式。</li>
+<li>结构型模式：用于描述如何将类或对象按某种布局组成更大的结构，GoF 中提供了代理、适配器、桥接、装饰、外观、享元、组合等 7 种结构型模式。</li>
+<li>行为型模式：用于描述类或对象之间怎样相互协作共同完成单个对象都无法单独完成的任务，以及怎样分配职责。GoF 中提供了模板方法、策略、命令、职责链、状态、观察者、中介者、迭代器、访问者、备忘录、解释器等 11 种行为型模式。</li>
+</ul>
+<h2 id="创建型模式"><a href="#创建型模式" class="headerlink" title="创建型模式"></a>创建型模式</h2><p>创建型模式的主要关注点是“<strong>怎样创建对象？</strong>”，它的主要特点是“<strong>将对象的创建与使用分离</strong>”。这样可以降低系统的耦合度，使用者不需要关注对象的创建细节，对象的创建由相关的工厂来完成。就像我们去商场购买商品时，不需要知道商品是怎么生产出来一样，因为它们由专门的厂商生产。</p>
+<p>创建型模式分为以下几种：</p>
+<ul>
+<li>单例（Singleton）模式：某个类只能生成一个实例，该类提供了一个全局访问点供外部获取该实例，其拓展是有限多例模式。</li>
+<li>原型（Prototype）模式：将一个对象作为原型，通过对其进行复制而克隆出多个和原型类似的新实例。</li>
+<li>工厂方法（FactoryMethod）模式：定义一个用于创建产品的接口，由子类决定生产什么产品。</li>
+<li>抽象工厂（AbstractFactory）模式：提供一个创建产品族的接口，其每个子类可以生产一系列相关的产品。</li>
+<li>建造者（Builder）模式：将一个复杂对象分解成多个相对简单的部分，然后根据不同需要分别创建它们，最后构建成该复杂对象。</li>
+</ul>
+<h2 id="结构型模式"><a href="#结构型模式" class="headerlink" title="结构型模式"></a>结构型模式</h2><p>结构型模式<strong>描述如何将类或对象按某种布局组成更大的结构</strong>。它分为类结构型模式和对象结构型模式，前者采用继承机制来组织接口和类，后者釆用组合或聚合来组合对象。</p>
+<p>由于组合关系或聚合关系比继承关系耦合度低，满足“合成复用原则”，所以对象结构型模式比类结构型模式具有更大的灵活性。</p>
+<p>结构型模式分为以下 7 种：</p>
+<ul>
+<li>代理（Proxy）模式：为某对象提供一种代理以控制对该对象的访问。即客户端通过代理间接地访问该对象，从而限制、增强或修改该对象的一些特性。</li>
+<li>适配器（Adapter）模式：将一个类的接口转换成客户希望的另外一个接口，使得原本由于接口不兼容而不能一起工作的那些类能一起工作。</li>
+<li>桥接（Bridge）模式：将抽象与实现分离，使它们可以独立变化。它是用组合关系代替继承关系来实现的，从而降低了抽象和实现这两个可变维度的耦合度。</li>
+<li>装饰（Decorator）模式：动态地给对象增加一些职责，即增加其额外的功能。</li>
+<li>外观（Facade）模式：为多个复杂的子系统提供一个一致的接口，使这些子系统更加容易被访问。</li>
+<li>享元（Flyweight）模式：运用共享技术来有效地支持大量细粒度对象的复用。</li>
+<li>组合（Composite）模式：将对象组合成树状层次结构，使用户对单个对象和组合对象具有一致的访问性。</li>
+</ul>
+<p>以上 7 种结构型模式，除了适配器模式分为类结构型模式和对象结构型模式两种，其他的全部属于对象结构型模式。</p>
+<h2 id="行为性模式"><a href="#行为性模式" class="headerlink" title="行为性模式"></a>行为性模式</h2><p>行为型模式用于描述程序在运行时复杂的流程控制，即<strong>描述多个类或对象之间怎样相互协作共同完成单个对象都无法单独完成的任务</strong>，它涉及算法与对象间职责的分配。</p>
+<p>行为型模式分为类行为模式和对象行为模式，前者采用继承机制来在类间分派行为，后者采用组合或聚合在对象间分配行为。由于组合关系或聚合关系比继承关系耦合度低，满足“合成复用原则”，所以对象行为模式比类行为模式具有更大的灵活性。</p>
+<p>行为型模式是 GoF 设计模式中最为庞大的一类，它包含以下 11 种模式：</p>
+<ul>
+<li>模板方法（Template Method）模式：定义一个操作中的算法骨架，将算法的一些步骤延迟到子类中，使得子类在可以不改变该算法结构的情况下重定义该算法的某些特定步骤。</li>
+<li>策略（Strategy）模式：定义了一系列算法，并将每个算法封装起来，使它们可以相互替换，且算法的改变不会影响使用算法的客户。</li>
+<li>命令（Command）模式：将一个请求封装为一个对象，使发出请求的责任和执行请求的责任分割开。</li>
+<li>职责链（Chain of Responsibility）模式：把请求从链中的一个对象传到下一个对象，直到请求被响应为止。通过这种方式去除对象之间的耦合。</li>
+<li>状态（State）模式：允许一个对象在其内部状态发生改变时改变其行为能力。</li>
+<li>观察者（Observer）模式：多个对象间存在一对多关系，当一个对象发生改变时，把这种改变通知给其他多个对象，从而影响其他对象的行为。</li>
+<li>中介者（Mediator）模式：定义一个中介对象来简化原有对象之间的交互关系，降低系统中对象间的耦合度，使原有对象之间不必相互了解。</li>
+<li>迭代器（Iterator）模式：提供一种方法来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。</li>
+<li>访问者（Visitor）模式：在不改变集合元素的前提下，为一个集合中的每个元素提供多种访问方式，即每个元素有多个访问者对象访问。</li>
+<li>备忘录（Memento）模式：在不破坏封装性的前提下，获取并保存一个对象的内部状态，以便以后恢复它。</li>
+<li>解释器（Interpreter）模式：提供如何定义语言的文法，以及对语言句子的解释方法，即解释器。</li>
+</ul>
+<p>以上 11 种行为型模式，除了模板方法模式和解释器模式是类行为型模式，其他的全部属于对象行为型模式。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/27/design-pattern-bridge/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/27/design-pattern-bridge/" itemprop="url">桥接模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-27T16:29:28+08:00">
+                2019-11-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>桥接（Bridge）模式的定义如下：将抽象与实现分离，使它们可以独立变化。它是<strong>用组合关系代替继承关系来实现，从而降低了抽象和实现这两个可变维度的耦合度</strong>。</p>
+<p>桥接模式的优点是：<br>1、由于抽象与实现分离，所以扩展能力强；<br>2、其实现细节对客户透明。</p>
+<p>缺点是：由于聚合关系建立在抽象层，要求开发者针对抽象化进行设计与编程，这增加了系统的理解与设计难度。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、当一个类存在两个独立变化的维度，且这两个维度都需要进行扩展时。<br>2、当一个系统不希望使用继承或因为多层次继承导致系统类的个数急剧增加时。<br>3、当一个系统需要在构件的抽象化角色和具体化角色之间增加更多的灵活性时。</p>
+<h2 id="结构与实现"><a href="#结构与实现" class="headerlink" title="结构与实现"></a>结构与实现</h2><p>可以将抽象化部分与实现化部分分开，取消二者的继承关系，改用组合关系。</p>
+<p><img src="/2019/11/27/design-pattern-bridge/bridge.jpg" alt></p>
+<p>桥接（Bridge）模式包含以下主要角色：<br>1、抽象化（Abstraction）角色：定义抽象类，并包含一个对实现化对象的引用。<br>2、扩展抽象化（Refined    Abstraction）角色：是抽象化角色的子类，实现父类中的业务方法，并通过组合关系调用实现化角色中的业务方法。<br>3、实现化（Implementor）角色：定义实现化角色的接口，供扩展抽象化角色调用。<br>4、具体实现化（Concrete Implementor）角色：给出实现化角色接口的具体实现。</p>
+<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">//实现化角色</span><br><span class="line">interface Implementor</span><br><span class="line">&#123;</span><br><span class="line">    public void OperationImpl();</span><br><span class="line">&#125;</span><br><span class="line">//具体实现化角色</span><br><span class="line">class ConcreteImplementorA implements Implementor</span><br><span class="line">&#123;</span><br><span class="line">    public void OperationImpl()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体实现化(Concrete Implementor)角色被访问&quot; );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象化角色</span><br><span class="line">abstract class Abstraction</span><br><span class="line">&#123;</span><br><span class="line">   protected Implementor imple;</span><br><span class="line">   protected Abstraction(Implementor imple)</span><br><span class="line">   &#123;</span><br><span class="line">       this.imple=imple;</span><br><span class="line">   &#125;</span><br><span class="line">   public abstract void Operation();   </span><br><span class="line">&#125;</span><br><span class="line">//扩展抽象化角色</span><br><span class="line">class RefinedAbstraction extends Abstraction</span><br><span class="line">&#123;</span><br><span class="line">   protected RefinedAbstraction(Implementor imple)</span><br><span class="line">   &#123;</span><br><span class="line">       super(imple);</span><br><span class="line">   &#125;</span><br><span class="line">   public void Operation()</span><br><span class="line">   &#123;</span><br><span class="line">       System.out.println(&quot;扩展抽象化(Refined Abstraction)角色被访问&quot; );</span><br><span class="line">       imple.OperationImpl();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class BridgeTest</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Implementor imple=new ConcreteImplementorA();</span><br><span class="line">        Abstraction abs=new RefinedAbstraction(imple);</span><br><span class="line">        abs.Operation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">扩展抽象化(Refined Abstraction)角色被访问</span><br><span class="line">具体实现化(Concrete Implementor)角色被访问</span><br></pre></td></tr></table></figure></p>
+<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>在软件开发中，有时桥接（Bridge）模式可与适配器模式联合使用。当桥接（Bridge）模式的实现化角色的接口与现有类的接口不一致时，可以在二者中间定义一个适配器将二者连接起来，其具体结构图如下：</p>
+<p><img src="/2019/11/27/design-pattern-bridge/bridge-adaptee.jpg" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/27/design-pattern-facade/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1511,316 +1861,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/design-mode-template/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/11/design-mode-template/" itemprop="url">模板方法模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T11:19:31+08:00">
-                2019-11-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>　　模板方法（Template Method）模式的定义如下：定义一个操作中的算法骨架，而将算法的一些步骤延迟到子类中，使得子类可以不改变该算法结构的情况下重定义该算法的某些特定步骤。它是一种类行为型模式。</p>
-<p>　　通俗点的理解就是 ：完成一件事情，有固定的数个步骤，但是每个步骤根据对象的不同，而实现细节不同；就可以在父类中定义一个完成该事情的总方法，按照完成事件需要的步骤去调用其每个步骤的实现方法。每个步骤的具体实现，由子类完成。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>模板方法模式需要注意抽象类与具体子类之间的协作。它用到了虚函数的多态性技术以及“不用调用我，让我来调用你”的反向控制技术。</p>
-<p><img src="/2019/11/11/design-mode-template/template.png" alt></p>
-<p>1、抽象类（Abstract Class）：负责给出一个算法的轮廓和骨架。它由一个模板方法和若干个基本方法构成。这些方法的定义如下。<br>① 模板方法：定义了算法的骨架，按某种顺序调用其包含的基本方法。<br>② 基本方法：是整个算法中的一个步骤，包含以下几种类型。<br>　 抽象方法：在抽象类中申明，由具体子类实现。<br>　 具体方法：在抽象类中已经实现，在具体子类中可以继承或重写它。<br>　 钩子方法：在抽象类中已经实现，包括用于判断的逻辑方法和需要子类重写的空方法两种。</p>
-<p>2、具体子类（Concrete Class）：实现抽象类中所定义的抽象方法和钩子方法，它们是一个顶级逻辑的一个组成步骤。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、算法的整体步骤很固定，但其中个别部分易变时，这时候可以使用模板方法模式，将容易变的部分抽象出来，供子类实现。<br>2、当多个子类存在公共的行为时，可以将其提取出来并集中到一个公共父类中以避免代码重复。首先，要识别现有代码中的不同之处，并且将不同之处分离为新的操作。最后，用一个调用这些新的操作的模板方法来替换这些不同的代码。<br>3、当需要控制子类的扩展时，模板方法只在特定点调用钩子操作，这样就只允许在这些点进行扩展。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>该模式的主要优点如下：<br>1、它<strong>封装了不变部分，扩展可变部分</strong>。它把认为是不变部分的算法封装到父类中实现，而把可变部分算法由子类继承实现，便于子类继续扩展。<br>2、它在父类中提取了公共的部分代码，便于代码复用。<br>3、部分方法是由子类实现的，因此子类可以通过扩展方式增加相应的功能，符合开闭原则。</p>
-<p>该模式的主要缺点如下：<br>1、对每个不同的实现都需要定义一个子类，这会导致类的个数增加，系统更加庞大，设计也更加抽象。<br>2、父类中的抽象方法由子类实现，子类执行的结果会影响父类的结果，这导致一种反向的控制结构，它提高了代码阅读的难度。</p>
-<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public class TemplateMethodPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        AbstractClass tm=new ConcreteClass();</span><br><span class="line">        tm.TemplateMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象类</span><br><span class="line">abstract class AbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void TemplateMethod() //模板方法</span><br><span class="line">    &#123;</span><br><span class="line">        SpecificMethod();</span><br><span class="line">        abstractMethod1();          </span><br><span class="line">         abstractMethod2();</span><br><span class="line">    &#125;  </span><br><span class="line">    public void SpecificMethod() //具体方法</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象类中的具体方法被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void abstractMethod1(); //抽象方法1</span><br><span class="line">    public abstract void abstractMethod2(); //抽象方法2</span><br><span class="line">&#125;</span><br><span class="line">//具体子类</span><br><span class="line">class ConcreteClass extends AbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void abstractMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法1的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void abstractMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法2的实现被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>在模板方法模式中，基本方法包含：抽象方法、具体方法和钩子方法，正确使用“钩子方法”可以使得子类控制父类的行为。如下面例子中，可以通过在具体子类中重写钩子方法 HookMethod1() 和 HookMethod2() 来改变抽象父类中的运行结果，其结构图如图 3 所示：</p>
-<p><img src="/2019/11/11/design-mode-template/template-hook.jpg" alt></p>
-<p>程序代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">public class HookTemplateMethod</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        HookAbstractClass tm=new HookConcreteClass();</span><br><span class="line">        tm.TemplateMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//含钩子方法的抽象类</span><br><span class="line">abstract class HookAbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void TemplateMethod() //模板方法</span><br><span class="line">    &#123;</span><br><span class="line">        abstractMethod1();</span><br><span class="line">        HookMethod1();</span><br><span class="line">        if(HookMethod2())</span><br><span class="line">        &#123;</span><br><span class="line">            SpecificMethod();   </span><br><span class="line">        &#125;</span><br><span class="line">         abstractMethod2();</span><br><span class="line">    &#125;  </span><br><span class="line">    public void SpecificMethod() //具体方法</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象类中的具体方法被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public void HookMethod1()&#123;&#125;  //钩子方法1</span><br><span class="line">    public boolean HookMethod2() //钩子方法2</span><br><span class="line">    &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    public abstract void abstractMethod1(); //抽象方法1</span><br><span class="line">    public abstract void abstractMethod2(); //抽象方法2</span><br><span class="line">&#125;</span><br><span class="line">//含钩子方法的具体子类</span><br><span class="line">class HookConcreteClass extends HookAbstractClass</span><br><span class="line">&#123;</span><br><span class="line">    public void abstractMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法1的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void abstractMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;抽象方法2的实现被调用...&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void HookMethod1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;钩子方法1被重写...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean HookMethod2()</span><br><span class="line">    &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">抽象方法1的实现被调用...</span><br><span class="line">钩子方法1被重写...</span><br><span class="line">抽象方法2的实现被调用...</span><br></pre></td></tr></table></figure></p>
-<p>如果钩子方法 HookMethod1() 和钩子方法 HookMethod2() 的代码改变，则程序的运行结果也会改变。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://c.biancheng.net/view/1376.html" target="_blank" rel="noopener">http://c.biancheng.net/view/1376.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/desigin-mode-iterator/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/11/desigin-mode-iterator/" itemprop="url">迭代器模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T11:02:56+08:00">
-                2019-11-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>迭代器（Iterator）模式的定义：提供一个对象来顺序访问聚合对象中的一系列数据，而不暴露聚合对象的内部表示。是一种对象行为型模式。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>迭代器模式是<strong>通过将聚合对象的遍历行为分离出来，抽象成迭代器类来实现</strong>的，其目的是在不暴露聚合对象的内部结构的情况下，让外部代码透明地访问聚合的内部数据。</p>
-<p><img src="/2019/11/11/desigin-mode-iterator/iterator.jpg" alt></p>
-<p>迭代器模式主要包含以下角色。<br>1、抽象聚合（Aggregate）角色：定义存储、添加、删除聚合对象以及创建迭代器对象的接口。<br>2、具体聚合（ConcreteAggregate）角色：实现抽象聚合类，返回一个具体迭代器的实例。<br>3、抽象迭代器（Iterator）角色：定义访问和遍历聚合元素的接口，通常包含 hasNext()、first()、next() 等方法。<br>4、具体迭代器（Concretelterator）角色：实现抽象迭代器接口中所定义的方法，完成对聚合对象的遍历，记录遍历的当前位置。</p>
-<h2 id="模式的应用场景"><a href="#模式的应用场景" class="headerlink" title="模式的应用场景"></a>模式的应用场景</h2><p>1、当需要为聚合对象提供多种遍历方式时。<br>2、当需要为遍历不同的聚合结构提供一个统一的接口时。<br>3、当访问一个聚合对象的内容而无须暴露其内部细节的表示时。</p>
-<p>由于聚合与迭代器的关系非常密切，所以大多数语言在实现聚合类时都提供了迭代器类，因此大数情况下使用语言中已有的聚合类的迭代器就已经够了。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>主要优点如下：<br>1、访问一个聚合对象的内容而无须暴露它的内部表示。<br>2、遍历任务交由迭代器完成，这简化了聚合类。<br>3、它支持以不同方式遍历一个聚合，甚至可以自定义迭代器的子类以支持新的遍历。<br>4、增加新的聚合类和迭代器类都很方便，无须修改原有代码。<br>5、封装性良好，为遍历不同的聚合结构提供一个统一的接口。</p>
-<p>其主要缺点是：增加了类的个数，这在一定程度上增加了系统的复杂性。</p>
-<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">//抽象聚合</span><br><span class="line">interface Aggregate</span><br><span class="line">&#123; </span><br><span class="line">    public void add(Object obj); </span><br><span class="line">    public void remove(Object obj); </span><br><span class="line">    public Iterator getIterator(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体聚合</span><br><span class="line">class ConcreteAggregate implements Aggregate</span><br><span class="line">&#123; </span><br><span class="line">    private List&lt;Object&gt; list=new ArrayList&lt;Object&gt;(); </span><br><span class="line"></span><br><span class="line">    public void add(Object obj)</span><br><span class="line">    &#123; </span><br><span class="line">        list.add(obj); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void remove(Object obj)</span><br><span class="line">    &#123; </span><br><span class="line">        list.remove(obj); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Iterator getIterator()</span><br><span class="line">    &#123; </span><br><span class="line">        return(new ConcreteIterator(list)); </span><br><span class="line">    &#125;     </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//抽象迭代器</span><br><span class="line">interface Iterator</span><br><span class="line">&#123;</span><br><span class="line">    Object first();</span><br><span class="line">    Object next();</span><br><span class="line">    boolean hasNext();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体迭代器</span><br><span class="line">class ConcreteIterator implements Iterator</span><br><span class="line">&#123; </span><br><span class="line">    private List&lt;Object&gt; list=null; </span><br><span class="line">    private int index=-1; </span><br><span class="line"></span><br><span class="line">    public ConcreteIterator(List&lt;Object&gt; list)</span><br><span class="line">    &#123; </span><br><span class="line">        this.list=list; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    public boolean hasNext()</span><br><span class="line">    &#123; </span><br><span class="line">        if(index&lt;list.size()-1)</span><br><span class="line">        &#123; </span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object first()</span><br><span class="line">    &#123;</span><br><span class="line">        index=0;</span><br><span class="line">        Object obj=list.get(index);;</span><br><span class="line">        return obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Object next()</span><br><span class="line">    &#123; </span><br><span class="line">        Object obj=null; </span><br><span class="line">        if(this.hasNext())</span><br><span class="line">        &#123; </span><br><span class="line">            obj=list.get(++index); </span><br><span class="line">        &#125; </span><br><span class="line">        return obj; </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Client</span><br><span class="line">public class IteratorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Aggregate ag=new ConcreteAggregate(); </span><br><span class="line">        ag.add(&quot;中山大学&quot;); </span><br><span class="line">        ag.add(&quot;华南理工&quot;); </span><br><span class="line">        ag.add(&quot;韶关学院&quot;);</span><br><span class="line">        System.out.print(&quot;聚合的内容有：&quot;);</span><br><span class="line">        Iterator it=ag.getIterator(); </span><br><span class="line">        while(it.hasNext())</span><br><span class="line">        &#123; </span><br><span class="line">            Object ob=it.next(); </span><br><span class="line">            System.out.print(ob.toString()+&quot;\t&quot;); </span><br><span class="line">        &#125;</span><br><span class="line">        Object ob=it.first();</span><br><span class="line">        System.out.println(&quot;\nFirst：&quot;+ob.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1868,7 +1913,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-count">72</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1879,7 +1924,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
