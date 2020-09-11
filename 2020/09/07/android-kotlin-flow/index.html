@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Flow 有点类似 RxJava 的 Observable。因为 Observable 也有 Cold 、Hot 之分。 使用Flow 能够返回多个异步计算的值，例如下面的 flow builder :12345678flow &amp;#123;    for (i in 1..5) &amp;#123;        delay(100)        emit(i)    &amp;#125;&amp;#125;.coll">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin Coroutines Flow">
+<meta property="og:url" content="http://yoursite.com/2020/09/07/android-kotlin-flow/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="Flow 有点类似 RxJava 的 Observable。因为 Observable 也有 Cold 、Hot 之分。 使用Flow 能够返回多个异步计算的值，例如下面的 flow builder :12345678flow &amp;#123;    for (i in 1..5) &amp;#123;        delay(100)        emit(i)    &amp;#125;&amp;#125;.coll">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2020/09/07/android-kotlin-flow/flow_vs_rxjava.webp">
+<meta property="og:updated_time" content="2020-09-11T08:02:03.015Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kotlin Coroutines Flow">
+<meta name="twitter:description" content="Flow 有点类似 RxJava 的 Observable。因为 Observable 也有 Cold 、Hot 之分。 使用Flow 能够返回多个异步计算的值，例如下面的 flow builder :12345678flow &amp;#123;    for (i in 1..5) &amp;#123;        delay(100)        emit(i)    &amp;#125;&amp;#125;.coll">
+<meta name="twitter:image" content="http://yoursite.com/2020/09/07/android-kotlin-flow/flow_vs_rxjava.webp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/09/07/android-kotlin-flow/">
+
+
+
+
+
+  <title>Kotlin Coroutines Flow | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/android-kotlin-flow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Kotlin Coroutines Flow</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-07T10:50:07+08:00">
+                2020-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Flow 有点类似 RxJava 的 Observable。因为 Observable 也有 Cold 、Hot 之分。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>Flow 能够返回多个异步计算的值，例如下面的 flow builder :<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flow &#123;</span><br><span class="line">    for (i in 1..5) &#123;</span><br><span class="line">        delay(100)</span><br><span class="line">        emit(i)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.collect&#123;</span><br><span class="line">    println(it)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中 Flow 接口，只有一个 collect 函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface Flow&lt;out T&gt; &#123;</span><br><span class="line">    @InternalCoroutinesApi</span><br><span class="line">    public suspend fun collect(collector: FlowCollector&lt;T&gt;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果熟悉 RxJava 的话，则可以理解为 collect() 对应subscribe()，而 emit() 对应onNext()。</p>
+<h3 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h3><p>除了刚刚展示的 flow builder 可以用于创建 flow，还有其他的几种方式：</p>
+<p>flowOf()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">flowOf(1,2,3,4,5)</span><br><span class="line">    .onEach &#123;</span><br><span class="line">        delay(100)</span><br><span class="line">    &#125;</span><br><span class="line">    .collect&#123;</span><br><span class="line">        println(it)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>asFlow()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">listOf(1, 2, 3, 4, 5).asFlow()</span><br><span class="line">    .onEach &#123;</span><br><span class="line">        delay(100)</span><br><span class="line">    &#125;.collect &#123;</span><br><span class="line">        println(it)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>channelFlow()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">channelFlow &#123;</span><br><span class="line">    for (i in 1..5) &#123;</span><br><span class="line">        delay(100)</span><br><span class="line">        send(i)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.collect&#123;</span><br><span class="line">    println(it)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后的 channelFlow builder 跟 flow builder 是有一定差异的。</p>
+<p>flow 是 <strong>Cold Stream</strong>。在没有切换线程的情况下，生产者和消费者是<strong>同步非阻塞</strong>的。<br>channel 是 <strong>Hot Stream</strong>。而 channelFlow 实现了生产者和消费者<strong>异步非阻塞</strong>模型。</p>
+<p>看下面的示例代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">//使用 flow builder 的情况，大致花费1秒</span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis &#123;</span><br><span class="line">        flow &#123;</span><br><span class="line">            for (i in 1..5) &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                emit(i)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.collect&#123;</span><br><span class="line">            delay(100)</span><br><span class="line">            println(it)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    print(&quot;cost $time&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//使用 channelFlow builder 的情况，大致花费700毫秒：</span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis&#123;</span><br><span class="line">        channelFlow &#123;</span><br><span class="line">            for (i in 1..5) &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                send(i)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.collect&#123;</span><br><span class="line">            delay(100)</span><br><span class="line">            println(it)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    print(&quot;cost $time&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//当然，flow 如果切换线程的话，花费的时间也是大致700毫秒，跟使用 channelFlow builder 效果差不多。</span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis&#123;</span><br><span class="line">        flow &#123;</span><br><span class="line">            for (i in 1..5) &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                emit(i)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.flowOn(Dispatchers.IO)</span><br><span class="line">            .collect &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                println(it)</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    print(&quot;cost $time&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="切换线程"><a href="#切换线程" class="headerlink" title="切换线程"></a>切换线程</h3><p>相比于 RxJava 需要使用 observeOn、subscribeOn 来切换线程，flow 会更加简单。<strong>只需使用 flowOn</strong>，下面的例子中，展示了 flow builder 和 map 操作符都会受到 flowOn 的影响。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">flow &#123;</span><br><span class="line">    for (i in 1..5) &#123;</span><br><span class="line">        delay(100)</span><br><span class="line">        emit(i)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.map &#123;</span><br><span class="line">    it * it</span><br><span class="line">&#125;.flowOn(Dispatchers.IO)</span><br><span class="line">.collect &#123;</span><br><span class="line">    println(it)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而 collect() 指定哪个线程，则需要看整个 flow 处于哪个 CoroutineScope 下。</p>
+<p>值得注意的地方，<strong>不要使用 withContext() 来切换 flow 的线程</strong>。</p>
+<h3 id="flow-取消"><a href="#flow-取消" class="headerlink" title="flow 取消"></a>flow 取消</h3><p>如果 flow 是在一个挂起函数内被挂起了，那么 flow 是可以被取消的，否则不能取消。</p>
+<h3 id="Terminal-flow-operators"><a href="#Terminal-flow-operators" class="headerlink" title="Terminal flow operators"></a>Terminal flow operators</h3><p>Flow 的 API 有点类似于 Java Stream 的 API。它也同样拥有 Intermediate Operations、Terminal Operations。</p>
+<p>Flow 的 Terminal 运算符可以是 <strong>suspend</strong> 函数，如 collect、single、reduce、toList 等；也可以是 <strong>launchIn</strong> 运算符，用于在指定 CoroutineScope 内使用 flow。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@ExperimentalCoroutinesApi // tentatively stable in 1.3.0</span><br><span class="line">public fun &lt;T&gt; Flow&lt;T&gt;.launchIn(scope: CoroutineScope): Job = scope.launch &#123;</span><br><span class="line">    collect() // tail-call</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>整理一下 Flow 的 Terminal 运算符</p>
+<ul>
+<li>collect</li>
+<li>single/first</li>
+<li>toList/toSet/toCollection</li>
+<li>count</li>
+<li>fold/reduce</li>
+<li>launchIn/produceIn/broadcastIn</li>
+</ul>
+<h2 id="Flow-VS-Sequences"><a href="#Flow-VS-Sequences" class="headerlink" title="Flow VS Sequences"></a>Flow VS Sequences</h2><p>每一个 Flow 其内部是按照顺序执行的，这一点跟 Sequences 很类似。</p>
+<p>Flow 跟 Sequences 之间的区别是<strong> Flow 不会阻塞主线程的运行</strong>，而 Sequences 会阻塞主线程的运行。</p>
+<h2 id="Flow-VS-RxJava"><a href="#Flow-VS-RxJava" class="headerlink" title="Flow VS RxJava"></a>Flow VS RxJava</h2><p>Kotlin 协程库的设计本身也参考了 RxJava ，下图展示了如何从 RxJava 迁移到 Kotlin 协程。(火和冰形象地表示了 Hot、Cold Stream)</p>
+<p><img src="/2020/09/07/android-kotlin-flow/flow_vs_rxjava.webp" alt></p>
+<h3 id="Cold-Stream"><a href="#Cold-Stream" class="headerlink" title="Cold Stream"></a>Cold Stream</h3><p>flow 的代码块只有调用 <strong>collect()</strong> 才开始运行，正如 RxJava 创建的 Observables 只有调用 subscribe() 才开始运行一样。</p>
+<h3 id="Hot-Stream"><a href="#Hot-Stream" class="headerlink" title="Hot Stream"></a>Hot Stream</h3><p>如图上所示，可以借助 Kotlin Channel 来实现 Hot Stream。</p>
+<h3 id="Completion"><a href="#Completion" class="headerlink" title="Completion"></a>Completion</h3><p>Flow 完成时（正常或出现异常时），如果需要执行一个操作，它可以通过两种方式完成：imperative、declarative。</p>
+<p><strong>1.imperative</strong></p>
+<p>通过使用 try … finally 实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        flow &#123;</span><br><span class="line">            for (i in 1..5) &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                emit(i)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.collect &#123; println(it) &#125;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        println(&quot;Done&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>2.declarative</strong></p>
+<p>通过 onCompletion() 函数实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">        for (i in 1..5) &#123;</span><br><span class="line">            delay(100)</span><br><span class="line">            emit(i)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.onCompletion &#123; println(&quot;Done&quot;) &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>3.onCompleted</strong> （借助扩展函数实现）</p>
+<p>借助扩展函数可以实现类似 RxJava 的 onCompleted() 功能，只有在<strong>正常结束时才会被调用</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fun &lt;T&gt; Flow&lt;T&gt;.onCompleted(action: () -&gt; Unit) = flow &#123;</span><br><span class="line"></span><br><span class="line">    collect &#123; value -&gt; emit(value) &#125;</span><br><span class="line"></span><br><span class="line">    action()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>它的使用类似于 onCompletion()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">        for (i in 1..5) &#123;</span><br><span class="line">            delay(100)</span><br><span class="line">            emit(i)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.onCompleted &#123; println(&quot;Completed...&quot;) &#125;</span><br><span class="line">        .collect&#123;println(it)&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>但是假如 Flow 异常结束时，是不会执行 onCompleted() 函数的。</p>
+<h3 id="Backpressure"><a href="#Backpressure" class="headerlink" title="Backpressure"></a>Backpressure</h3><p>Backpressure 是响应式编程的功能之一。RxJava2 Flowable 支持的 Backpressure 策略，包括：</p>
+<ul>
+<li>MISSING：创建的 Flowable 没有指定背压策略，不会对通过 OnNext 发射的数据做缓存或丢弃处理。</li>
+<li>ERROR：如果放入 Flowable 的异步缓存池中的数据超限了，则会抛出 MissingBackpressureException 异常。</li>
+<li>BUFFER：Flowable 的异步缓存池同 Observable 的一样，没有固定大小，可以无限制添加数据，不会抛出 MissingBackpressureException 异常，但会导致 OOM。</li>
+<li>DROP：如果 Flowable 的异步缓存池满了，会丢掉将要放入缓存池中的数据。</li>
+<li>LATEST：如果缓存池满了，会丢掉将要放入缓存池中的数据。这一点跟 DROP 策略一样，不同的是，不管缓存池的状态如何，LATEST 策略会将最后一条数据强行放入缓存池中。</li>
+</ul>
+<p>而 Flow 的 Backpressure 是通过 suspend 函数实现。</p>
+<p><strong>buffer()</strong> 对应 BUFFER 策略，<strong>conflate()</strong> 对应 LATEST 策略。示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">fun currTime() = System.currentTimeMillis()</span><br><span class="line"></span><br><span class="line">var start: Long = 0</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis &#123;</span><br><span class="line">        (1..5)</span><br><span class="line">            .asFlow()</span><br><span class="line">            .onStart &#123; start = currTime() &#125;</span><br><span class="line">            .onEach &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                println(&quot;Emit $it ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">            &#125;</span><br><span class="line">            .buffer()</span><br><span class="line">            .collect &#123;</span><br><span class="line">                println(&quot;Collect $it starts ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">                delay(500)</span><br><span class="line">                println(&quot;Collect $it ends ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    println(&quot;Cost $time ms&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">Emit 1 (104ms) </span><br><span class="line">Collect 1 starts (108ms) </span><br><span class="line">Emit 2 (207ms) </span><br><span class="line">Emit 3 (309ms) </span><br><span class="line">Emit 4 (411ms) </span><br><span class="line">Emit 5 (513ms) </span><br><span class="line">Collect 1 ends (613ms) </span><br><span class="line">Collect 2 starts (613ms) </span><br><span class="line">Collect 2 ends (1114ms) </span><br><span class="line">Collect 3 starts (1114ms) </span><br><span class="line">Collect 3 ends (1615ms) </span><br><span class="line">Collect 4 starts (1615ms) </span><br><span class="line">Collect 4 ends (2118ms) </span><br><span class="line">Collect 5 starts (2118ms) </span><br><span class="line">Collect 5 ends (2622ms) </span><br><span class="line">Collected in 2689 ms</span><br><span class="line"></span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis &#123;</span><br><span class="line">        (1..5)</span><br><span class="line">            .asFlow()</span><br><span class="line">            .onStart &#123; start = currTime() &#125;</span><br><span class="line">            .onEach &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                println(&quot;Emit $it ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">            &#125;</span><br><span class="line">            .conflate()</span><br><span class="line">            .collect &#123;</span><br><span class="line">                println(&quot;Collect $it starts ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">                delay(500)</span><br><span class="line">                println(&quot;Collect $it ends ($&#123;currTime() - start&#125;ms) &quot;)</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    println(&quot;Cost $time ms&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">Emit 1 (106ms) </span><br><span class="line">Collect 1 starts (110ms) </span><br><span class="line">Emit 2 (213ms) </span><br><span class="line">Emit 3 (314ms) </span><br><span class="line">Emit 4 (419ms) </span><br><span class="line">Emit 5 (520ms) </span><br><span class="line">Collect 1 ends (613ms) </span><br><span class="line">Collect 5 starts (613ms) </span><br><span class="line">Collect 5 ends (1113ms) </span><br><span class="line">Cost 1162 ms</span><br></pre></td></tr></table></figure></p>
+<h4 id="DROP-策略"><a href="#DROP-策略" class="headerlink" title="DROP 策略"></a>DROP 策略</h4><p>RxJava 的 contributor：David Karnok， 他写了一个<a href="https://github.com/akarnokd/kotlin-flow-extensions" target="_blank" rel="noopener">kotlin-flow-extensions</a>库，其中包括：FlowOnBackpressureDrop.kt，这个类支持 DROP 策略。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Drops items from the upstream when the downstream is not ready to receive them.</span><br><span class="line"> */</span><br><span class="line">@FlowPreview</span><br><span class="line">fun &lt;T&gt; Flow&lt;T&gt;.onBackpressurureDrop() : Flow&lt;T&gt; = FlowOnBackpressureDrop(this)</span><br></pre></td></tr></table></figure></p>
+<p>使用这个库的话，可以通过使用 Flow 的扩展函数 onBackpressurureDrop() 来支持 DROP 策略。</p>
+<h2 id="Flow-异常处理"><a href="#Flow-异常处理" class="headerlink" title="Flow 异常处理"></a>Flow 异常处理</h2><p>Flow 可以使用传统的 try…catch 来捕获异常：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">        emit(1)</span><br><span class="line">        try &#123;</span><br><span class="line">            throw RuntimeException()</span><br><span class="line">        &#125; catch (e: Exception) &#123;</span><br><span class="line">            e.stackTrace</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.onCompletion &#123; println(&quot;Done&quot;) &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>另外，也可以使用 catch 操作符来捕获异常。</p>
+<h3 id="catch-操作符"><a href="#catch-操作符" class="headerlink" title="catch 操作符"></a>catch 操作符</h3><p>上面讲述过 onCompletion 操作符。但是 onCompletion 不能捕获异常，只能用于判断是否有异常。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">        emit(1)</span><br><span class="line">        throw RuntimeException()</span><br><span class="line">    &#125;.onCompletion &#123; cause -&gt;</span><br><span class="line">        if (cause != null)</span><br><span class="line">            println(&quot;Flow completed exceptionally&quot;)</span><br><span class="line">        else</span><br><span class="line">            println(&quot;Done&quot;)</span><br><span class="line">    &#125;.collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1</span><br><span class="line">Flow completed exceptionally</span><br><span class="line">Exception in thread &quot;main&quot; java.lang.RuntimeException</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<p>catch 操作符可以<strong>捕获来自上游的异常</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">        emit(1)</span><br><span class="line">        throw RuntimeException()</span><br><span class="line">    &#125;</span><br><span class="line">    .onCompletion &#123; cause -&gt;</span><br><span class="line">        if (cause != null)</span><br><span class="line">            println(&quot;Flow completed exceptionally&quot;)</span><br><span class="line">        else</span><br><span class="line">            println(&quot;Done&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    .catch&#123; println(&quot;catch exception&quot;) &#125;</span><br><span class="line">    .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1</span><br><span class="line">Flow completed exceptionally</span><br><span class="line">catch exception</span><br></pre></td></tr></table></figure></p>
+<p>上面的代码如果把 onCompletion、catch 交换一下位置，则 <strong>catch 操作符捕获到异常后，不会影响到下游</strong>。因此，onCompletion 操作符不再打印”Flow completed exceptionally”</p>
+<p>catch 操作符用于<strong>实现异常透明化处理</strong>。例如在 catch 操作符内，可以使用 throw 再次抛出异常、可以使用 emit() 转换为发射值、可以用于打印或者其他业务逻辑的处理等等。</p>
+<p>但是，<strong>catch 只是中间操作符不能捕获下游的异常</strong>，类似 collect 内的异常。对于下游的异常，可以<strong>多次使用 catch</strong> 操作符来解决。</p>
+<p>对于 collect 内的异常，除了传统的 try…catch 之外，还可以借助 onEach 操作符。把业务逻辑放到 onEach 操作符内，在 onEach 之后是 catch 操作符，最后是 collect()。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking&lt;Unit&gt; &#123;</span><br><span class="line">    flow &#123;</span><br><span class="line">         ......</span><br><span class="line">    &#125;</span><br><span class="line">    .onEach &#123;</span><br><span class="line">          ......</span><br><span class="line">    &#125;</span><br><span class="line">   .catch &#123; ... &#125;</span><br><span class="line">   .collect()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="retry、retryWhen-操作符"><a href="#retry、retryWhen-操作符" class="headerlink" title="retry、retryWhen 操作符"></a>retry、retryWhen 操作符</h3><p>像 RxJava 一样，Flow 也有重试的操作符。</p>
+<p>如果上游遇到了异常，并使用了 retry 操作符，则 retry 会让 Flow 最多重试 retries 指定的次数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public fun &lt;T&gt; Flow&lt;T&gt;.retry(</span><br><span class="line">    retries: Long = Long.MAX_VALUE,</span><br><span class="line">    predicate: suspend (cause: Throwable) -&gt; Boolean = &#123; true &#125;</span><br><span class="line">): Flow&lt;T&gt; &#123;</span><br><span class="line">    require(retries &gt; 0) &#123; &quot;Expected positive amount of retries, but had $retries&quot; &#125;</span><br><span class="line">    return retryWhen &#123; cause, attempt -&gt; attempt &lt; retries &amp;&amp; predicate(cause) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>例如，下面打印了三次”Emitting 1”、”Emitting 2”，最后两次是通过 retry 操作符打印出来的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow().onEach &#123;</span><br><span class="line">        if (it == 3) throw RuntimeException(&quot;Error on $it&quot;)</span><br><span class="line">    &#125;.retry(2) &#123;</span><br><span class="line"></span><br><span class="line">        if (it is RuntimeException) &#123;</span><br><span class="line">            return@retry true</span><br><span class="line">        &#125;</span><br><span class="line">        false</span><br><span class="line">    &#125;</span><br><span class="line">    .onEach &#123; println(&quot;Emitting $it&quot;) &#125;</span><br><span class="line">    .catch &#123; it.printStackTrace() &#125;</span><br><span class="line">    .collect()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">Emitting 1</span><br><span class="line">Emitting 2</span><br><span class="line">Emitting 1</span><br><span class="line">Emitting 2</span><br><span class="line">Emitting 1</span><br><span class="line">Emitting 2</span><br><span class="line">java.lang.RuntimeException: Error on 3</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<p><strong>retry 操作符最终调用的是 retryWhen 操作符</strong>。下面的代码跟刚才的执行结果一致：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow().onEach &#123;</span><br><span class="line">        if (it == 3) throw RuntimeException(&quot;Error on $it&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    .onEach &#123; println(&quot;Emitting $it&quot;) &#125;</span><br><span class="line">    .retryWhen &#123; cause, attempt -&gt;</span><br><span class="line">        attempt &lt; 2</span><br><span class="line">    &#125;</span><br><span class="line">    .catch &#123; it.printStackTrace() &#125;</span><br><span class="line">    .collect()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>因为 retryWhen 操作符的参数是谓词，当谓词返回 true 时才会进行重试。谓词还接收一个 attempt 作为参数表示尝试的次数，该次数是从0开始的。</p>
+<h2 id="Flow-Lifecycle"><a href="#Flow-Lifecycle" class="headerlink" title="Flow Lifecycle"></a>Flow Lifecycle</h2><p>RxJava 的 do 操作符能够监听 Observables 的生命周期的各个阶段。</p>
+<p>Flow 并没有多那么丰富的操作符来监听其生命周期的各个阶段，<strong>目前只有 onStart、onCompletion 来监听 Flow 的创建和结束</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow().onEach &#123;</span><br><span class="line">        if (it == 3) throw RuntimeException(&quot;Error on $it&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    .onStart &#123; println(&quot;Starting flow&quot;) &#125;</span><br><span class="line">    .onEach &#123; println(&quot;On each $it&quot;) &#125;</span><br><span class="line">    .catch &#123; println(&quot;Exception : $&#123;it.message&#125;&quot;) &#125;</span><br><span class="line">    .onCompletion &#123; println(&quot;Flow completed&quot;) &#125;</span><br><span class="line">    .collect()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">Starting flow</span><br><span class="line">On each 1</span><br><span class="line">On each 2</span><br><span class="line">Flow completed</span><br><span class="line">Exception : Error on 3</span><br></pre></td></tr></table></figure></p>
+<h2 id="Flow-线程操作"><a href="#Flow-线程操作" class="headerlink" title="Flow 线程操作"></a>Flow 线程操作</h2><p>Flow 只需使用 flowOn 操作符，而不必像 RxJava 需要去深入理解 observeOn、subscribeOn 之间的区别。</p>
+<p>RxJava 的 observeOn 操作符，接收一个 Scheduler 参数，用来指定下游操作运行在特定的线程调度器 Scheduler 上。Flow 的 <strong>flowOn 操作符，接收一个 CoroutineContext 参数，影响的是上游的操作</strong>。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">val customerDispatcher = Executors.newFixedThreadPool(5).asCoroutineDispatcher()</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    flow &#123;</span><br><span class="line">        for (i in 1..5) &#123;</span><br><span class="line">            delay(100)</span><br><span class="line">            emit(i)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.map &#123;</span><br><span class="line">            it * it</span><br><span class="line">        &#125;.flowOn(Dispatchers.IO)</span><br><span class="line">        .map &#123;</span><br><span class="line">            it+1</span><br><span class="line">        &#125;</span><br><span class="line">        .flowOn(customerDispatcher)</span><br><span class="line">        .collect &#123;</span><br><span class="line">            println(&quot;$&#123;Thread.currentThread().name&#125;: $it&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>flow builder 和两个 map 操作符都会受到两个flowOn的影响，其中 flow builder 和 map 操作符都会受到第一个flowOn的影响并使用 Dispatchers.io 线程池，第二个 map 操作符会切换到指定的 customerDispatcher 线程池。</p>
+<h3 id="buffer-实现并发操作"><a href="#buffer-实现并发操作" class="headerlink" title="buffer 实现并发操作"></a>buffer 实现并发操作</h3><p>上面介绍了 buffer 操作符对应 RxJava Backpressure 中的 BUFFER 策略。</p>
+<p>事实上 buffer 操作符也可以并发地执行任务，它是除了使用 flowOn 操作符之外的另一种方式，只是不能显示地指定 Dispatchers。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line">    val time = measureTimeMillis &#123;</span><br><span class="line">        flow &#123;</span><br><span class="line">            for (i in 1..5) &#123;</span><br><span class="line">                delay(100)</span><br><span class="line">                emit(i)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        .buffer()</span><br><span class="line">        .collect &#123; value -&gt;</span><br><span class="line">            delay(300)</span><br><span class="line">            println(value)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    println(&quot;Collected in $time ms&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">Collected in 1676 ms</span><br></pre></td></tr></table></figure></p>
+<p>在上述例子中，所有的 delay 所花费的时间是2000ms。然而通过 buffer 操作符并发地执行 emit，再顺序地执行 collect 函数后，所花费的时间在 1700ms 左右。</p>
+<h3 id="flatMapMerge-实现并行操作"><a href="#flatMapMerge-实现并行操作" class="headerlink" title="flatMapMerge 实现并行操作"></a>flatMapMerge 实现并行操作</h3><p>在讲解并行操作之前，先来了解一下并发和并行的区别。</p>
+<ul>
+<li>并发(concurrency)：是指一个处理器同时处理多个任务。</li>
+<li>并行(parallelism)：是多个处理器或者是多核的处理器同时处理多个不同的任务。并行是同时发生的多个并发事件，具有并发的含义，而并发则不一定是并行。</li>
+</ul>
+<p>RxJava 可以借助 flatMap 操作符实现并行，亦可以使用 ParallelFlowable 类实现并行操作。Flow 也有相应的操作符 <strong>flatMapMerge</strong> 可以实现并行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val result = arrayListOf&lt;Int&gt;()</span><br><span class="line">    for (index in 1..100)&#123;</span><br><span class="line">        result.add(index)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    result.asFlow()</span><br><span class="line">        .flatMapMerge &#123;</span><br><span class="line">            flow &#123;</span><br><span class="line">                emit(it)</span><br><span class="line">            &#125;</span><br><span class="line">            .flowOn(Dispatchers.IO)</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123; println(&quot;$it&quot;) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Flow-其他的操作符"><a href="#Flow-其他的操作符" class="headerlink" title="Flow 其他的操作符"></a>Flow 其他的操作符</h2><h3 id="transform"><a href="#transform" class="headerlink" title="transform"></a>transform</h3><p>在使用 transform 操作符时，可以<strong>任意多次调用 emit</strong> ，这是 transform 跟 map 最大的区别：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .transform &#123;</span><br><span class="line">            emit(it * 2)</span><br><span class="line">            delay(100)</span><br><span class="line">            emit(it * 4)</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>transform 也<strong>可以使用 emit 发射任意值</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .transform &#123;</span><br><span class="line">            emit(it * 2)</span><br><span class="line">            delay(100)</span><br><span class="line">            emit(&quot;emit $it&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="take"><a href="#take" class="headerlink" title="take"></a>take</h3><p>take 操作符只取前几个 emit 发射的值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .take(2)</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="reduce"><a href="#reduce" class="headerlink" title="reduce"></a>reduce</h3><p>类似于 Kotlin 集合中的 reduce 函数，能够<strong>对集合进行计算操作</strong>。</p>
+<p>例如，对平方数列求和：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val sum = (1..5).asFlow()</span><br><span class="line">        .map &#123; it * it &#125;</span><br><span class="line">        .reduce &#123; a, b -&gt; a + b &#125;</span><br><span class="line"></span><br><span class="line">    println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>例如，计算阶乘：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val sum = (1..5).asFlow().reduce &#123; a, b -&gt; a * b &#125;</span><br><span class="line"></span><br><span class="line">    println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="fold"><a href="#fold" class="headerlink" title="fold"></a>fold</h3><p>也类似于 Kotlin 集合中的 fold 函数，<strong>fold 也需要设置初始值</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val sum = (1..5).asFlow()</span><br><span class="line">        .map &#123; it * it &#125;</span><br><span class="line">        .fold(0) &#123; a, b -&gt; a + b &#125;</span><br><span class="line"></span><br><span class="line">    println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在上述代码中，初始值为0就类似于使用 reduce 函数实现对平方数列求和。</p>
+<p>而对于计算阶乘：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val sum = (1..5).asFlow().fold(1) &#123; a, b -&gt; a * b &#125;</span><br><span class="line"></span><br><span class="line">    println(sum)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><p>zip 是<strong>可以将2个 flow 进行合并</strong>的操作符。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..5).asFlow()</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;,&quot;four&quot;,&quot;five&quot;)</span><br><span class="line">    flowA.zip(flowB) &#123; a, b -&gt; &quot;$a and $b&quot; &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1 and one</span><br><span class="line">2 and two</span><br><span class="line">3 and three</span><br><span class="line">4 and four</span><br><span class="line">5 and five</span><br></pre></td></tr></table></figure></p>
+<p>zip 操作符会把 flowA 中的一个 item 和 flowB 中对应的一个 item 进行合并。即使 flowB 中的每一个 item 都使用了 delay() 函数，在合并过程中也会等待 delay() 执行完后再进行合并。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..5).asFlow()</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;, &quot;four&quot;, &quot;five&quot;).onEach &#123; delay(100) &#125;</span><br><span class="line"></span><br><span class="line">    val time = measureTimeMillis &#123;</span><br><span class="line">        flowA.zip(flowB) &#123; a, b -&gt; &quot;$a and $b&quot; &#125;</span><br><span class="line">            .collect &#123; println(it) &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    println(&quot;Cost $time ms&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1 and one</span><br><span class="line">2 and two</span><br><span class="line">3 and three</span><br><span class="line">4 and four</span><br><span class="line">5 and five</span><br><span class="line">Cost 561 ms</span><br></pre></td></tr></table></figure></p>
+<p>如果 flowA 中 item 个数大于 flowB 中 item 个数，<strong>执行合并后新的 flow 的 item 个数 = 较小的 flow 的 item 个数</strong>。：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..6).asFlow()</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;,&quot;four&quot;,&quot;five&quot;)</span><br><span class="line">    flowA.zip(flowB) &#123; a, b -&gt; &quot;$a and $b&quot; &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1 and one</span><br><span class="line">2 and two</span><br><span class="line">3 and three</span><br><span class="line">4 and four</span><br><span class="line">5 and five</span><br></pre></td></tr></table></figure></p>
+<h3 id="combine"><a href="#combine" class="headerlink" title="combine"></a>combine</h3><p>combine 虽然也是合并，但是跟 zip 不太一样。</p>
+<p>使用 combine 合并时，<strong>每次从 flowA 发出新的 item ，会将其与 flowB 的最新的 item 合并</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..5).asFlow().onEach &#123; delay(100)  &#125;</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;,&quot;four&quot;,&quot;five&quot;).onEach &#123; delay(200)  &#125;</span><br><span class="line">    flowA.combine(flowB) &#123; a, b -&gt; &quot;$a and $b&quot; &#125;</span><br><span class="line">        .collect &#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1 and one</span><br><span class="line">2 and one</span><br><span class="line">3 and one</span><br><span class="line">3 and two</span><br><span class="line">4 and two</span><br><span class="line">5 and two</span><br><span class="line">5 and three</span><br><span class="line">5 and four</span><br><span class="line">5 and five</span><br></pre></td></tr></table></figure></p>
+<h3 id="flattenMerge"><a href="#flattenMerge" class="headerlink" title="flattenMerge"></a>flattenMerge</h3><p>其实，flattenMerge 不会组合多个 flow ，<strong>而是将它们作为单个流执行</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..5).asFlow()</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;,&quot;four&quot;,&quot;five&quot;)</span><br><span class="line"></span><br><span class="line">    flowOf(flowA,flowB)</span><br><span class="line">        .flattenConcat()</span><br><span class="line">        .collect&#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">one</span><br><span class="line">two</span><br><span class="line">three</span><br><span class="line">four</span><br><span class="line">five</span><br></pre></td></tr></table></figure></p>
+<p>为了能更清楚地看到 flowA、flowB 作为单个流的执行，对他们稍作改动。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    val flowA = (1..5).asFlow().onEach &#123; delay(100) &#125;</span><br><span class="line">    val flowB = flowOf(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;,&quot;four&quot;,&quot;five&quot;).onEach &#123; delay(200) &#125;</span><br><span class="line"></span><br><span class="line">    flowOf(flowA,flowB)</span><br><span class="line">        .flattenMerge(2)</span><br><span class="line">        .collect&#123; println(it) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1</span><br><span class="line">one</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">two</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">three</span><br><span class="line">four</span><br><span class="line">five</span><br></pre></td></tr></table></figure></p>
+<h3 id="flatMapConcat"><a href="#flatMapConcat" class="headerlink" title="flatMapConcat"></a>flatMapConcat</h3><p>flatMapConcat 由 map、flattenConcat 操作符实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@FlowPreview</span><br><span class="line">public fun &lt;T, R&gt; Flow&lt;T&gt;.flatMapConcat(transform: suspend (value: T) -&gt; Flow&lt;R&gt;): Flow&lt;R&gt; =</span><br><span class="line">    map(transform).flattenConcat()</span><br></pre></td></tr></table></figure></p>
+<p>在调用 flatMapConcat 后，collect 函数在收集新值之前会<strong>等待</strong> flatMapConcat 内部的 flow 完成。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">fun currTime() = System.currentTimeMillis()</span><br><span class="line"></span><br><span class="line">var start: Long = 0</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .onStart &#123; start = currTime() &#125;</span><br><span class="line">        .onEach &#123; delay(100) &#125;</span><br><span class="line">        .flatMapConcat &#123;</span><br><span class="line">            flow &#123;</span><br><span class="line">                emit(&quot;$it: First&quot;)</span><br><span class="line">                delay(500)</span><br><span class="line">                emit(&quot;$it: Second&quot;)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123;</span><br><span class="line">            println(&quot;$it at $&#123;System.currentTimeMillis() - start&#125; ms from start&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1: First at 114 ms from start</span><br><span class="line">1: Second at 619 ms from start</span><br><span class="line">2: First at 719 ms from start</span><br><span class="line">2: Second at 1224 ms from start</span><br><span class="line">3: First at 1330 ms from start</span><br><span class="line">3: Second at 1830 ms from start</span><br><span class="line">4: First at 1932 ms from start</span><br><span class="line">4: Second at 2433 ms from start</span><br><span class="line">5: First at 2538 ms from start</span><br><span class="line">5: Second at 3041 ms from start</span><br></pre></td></tr></table></figure></p>
+<h3 id="flatMapMerge"><a href="#flatMapMerge" class="headerlink" title="flatMapMerge"></a>flatMapMerge</h3><p>flatMapMerge 由 map、flattenMerge 操作符实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@FlowPreview</span><br><span class="line">public fun &lt;T, R&gt; Flow&lt;T&gt;.flatMapMerge(</span><br><span class="line">    concurrency: Int = DEFAULT_CONCURRENCY,</span><br><span class="line">    transform: suspend (value: T) -&gt; Flow&lt;R&gt;</span><br><span class="line">): Flow&lt;R&gt; = map(transform).flattenMerge(concurrency)</span><br></pre></td></tr></table></figure></p>
+<p>flatMapMerge 是顺序调用内部代码块，并且<strong>并行</strong>地执行 collect 函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">fun currTime() = System.currentTimeMillis()</span><br><span class="line"></span><br><span class="line">var start: Long = 0</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .onStart &#123; start = currTime() &#125;</span><br><span class="line">        .onEach &#123; delay(100) &#125;</span><br><span class="line">        .flatMapMerge &#123;</span><br><span class="line">            flow &#123;</span><br><span class="line">                emit(&quot;$it: First&quot;)</span><br><span class="line">                delay(500)</span><br><span class="line">                emit(&quot;$it: Second&quot;)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123;</span><br><span class="line">            println(&quot;$it at $&#123;System.currentTimeMillis() - start&#125; ms from start&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1: First at 116 ms from start</span><br><span class="line">2: First at 216 ms from start</span><br><span class="line">3: First at 319 ms from start</span><br><span class="line">4: First at 422 ms from start</span><br><span class="line">5: First at 525 ms from start</span><br><span class="line">1: Second at 618 ms from start</span><br><span class="line">2: Second at 719 ms from start</span><br><span class="line">3: Second at 822 ms from start</span><br><span class="line">4: Second at 924 ms from start</span><br><span class="line">5: Second at 1030 ms from start</span><br></pre></td></tr></table></figure></p>
+<p>flatMapMerge 操作符有一个参数 concurrency ，它默认使用DEFAULT_CONCURRENCY，如果想更直观地了解 flatMapMerge 的并行，可以对这个参数进行修改。例如改成2，就会发现不一样的执行结果。</p>
+<h3 id="flatMapLatest"><a href="#flatMapLatest" class="headerlink" title="flatMapLatest"></a>flatMapLatest</h3><p>当<strong>发射了新值之后，上个 flow 就会被取消</strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">fun currTime() = System.currentTimeMillis()</span><br><span class="line"></span><br><span class="line">var start: Long = 0</span><br><span class="line"></span><br><span class="line">fun main() = runBlocking &#123;</span><br><span class="line"></span><br><span class="line">    (1..5).asFlow()</span><br><span class="line">        .onStart &#123; start = currTime() &#125;</span><br><span class="line">        .onEach &#123; delay(100) &#125;</span><br><span class="line">        .flatMapLatest &#123;</span><br><span class="line">            flow &#123;</span><br><span class="line">                emit(&quot;$it: First&quot;)</span><br><span class="line">                delay(500)</span><br><span class="line">                emit(&quot;$it: Second&quot;)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        .collect &#123;</span><br><span class="line">            println(&quot;$it at $&#123;System.currentTimeMillis() - start&#125; ms from start&quot;)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">执行结果：</span><br><span class="line">1: First at 114 ms from start</span><br><span class="line">2: First at 220 ms from start</span><br><span class="line">3: First at 321 ms from start</span><br><span class="line">4: First at 422 ms from start</span><br><span class="line">5: First at 524 ms from start</span><br><span class="line">5: Second at 1024 ms from start</span><br></pre></td></tr></table></figure></p>
+<h2 id="互操作性"><a href="#互操作性" class="headerlink" title="互操作性"></a>互操作性</h2><p>Flow 仍然属于响应式范畴。开发者通过 kotlinx-coroutines-reactive 模块中 Flow.asPublisher() 和 Publisher.asFlow() ，可以方便地将 Flow 跟 Reactive Streams 进行互操作。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d672744ad3e0" target="_blank" rel="noopener">https://www.jianshu.com/p/d672744ad3e0</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/08/19/app-launch/" rel="next" title="Android Application启动流程">
+                <i class="fa fa-chevron-left"></i> Android Application启动流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建"><span class="nav-number">1.1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#切换线程"><span class="nav-number">1.2.</span> <span class="nav-text">切换线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flow-取消"><span class="nav-number">1.3.</span> <span class="nav-text">flow 取消</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Terminal-flow-operators"><span class="nav-number">1.4.</span> <span class="nav-text">Terminal flow operators</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-VS-Sequences"><span class="nav-number">2.</span> <span class="nav-text">Flow VS Sequences</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-VS-RxJava"><span class="nav-number">3.</span> <span class="nav-text">Flow VS RxJava</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cold-Stream"><span class="nav-number">3.1.</span> <span class="nav-text">Cold Stream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hot-Stream"><span class="nav-number">3.2.</span> <span class="nav-text">Hot Stream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Completion"><span class="nav-number">3.3.</span> <span class="nav-text">Completion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Backpressure"><span class="nav-number">3.4.</span> <span class="nav-text">Backpressure</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DROP-策略"><span class="nav-number">3.4.1.</span> <span class="nav-text">DROP 策略</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-异常处理"><span class="nav-number">4.</span> <span class="nav-text">Flow 异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#catch-操作符"><span class="nav-number">4.1.</span> <span class="nav-text">catch 操作符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#retry、retryWhen-操作符"><span class="nav-number">4.2.</span> <span class="nav-text">retry、retryWhen 操作符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-Lifecycle"><span class="nav-number">5.</span> <span class="nav-text">Flow Lifecycle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-线程操作"><span class="nav-number">6.</span> <span class="nav-text">Flow 线程操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer-实现并发操作"><span class="nav-number">6.1.</span> <span class="nav-text">buffer 实现并发操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMapMerge-实现并行操作"><span class="nav-number">6.2.</span> <span class="nav-text">flatMapMerge 实现并行操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-其他的操作符"><span class="nav-number">7.</span> <span class="nav-text">Flow 其他的操作符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#transform"><span class="nav-number">7.1.</span> <span class="nav-text">transform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#take"><span class="nav-number">7.2.</span> <span class="nav-text">take</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reduce"><span class="nav-number">7.3.</span> <span class="nav-text">reduce</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fold"><span class="nav-number">7.4.</span> <span class="nav-text">fold</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zip"><span class="nav-number">7.5.</span> <span class="nav-text">zip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#combine"><span class="nav-number">7.6.</span> <span class="nav-text">combine</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flattenMerge"><span class="nav-number">7.7.</span> <span class="nav-text">flattenMerge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMapConcat"><span class="nav-number">7.8.</span> <span class="nav-text">flatMapConcat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMapMerge"><span class="nav-number">7.9.</span> <span class="nav-text">flatMapMerge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMapLatest"><span class="nav-number">7.10.</span> <span class="nav-text">flatMapLatest</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#互操作性"><span class="nav-number">8.</span> <span class="nav-text">互操作性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

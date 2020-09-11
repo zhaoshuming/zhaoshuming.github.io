@@ -293,6 +293,310 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-mediator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/15/design-mode-mediator/" itemprop="url">中介者模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-15T15:37:33+08:00">
+                2019-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>中介者（Mediator）模式的定义：定义一个中介对象来封装一系列对象之间的交互，使原有对象之间的耦合松散，且可以独立地改变它们之间的交互。中介者模式又叫调停模式，它是迪米特法则的典型应用。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p><img src="/2019/11/15/design-mode-mediator/media.jpg" alt></p>
+<p>中介者模式包含以下主要角色:<br>1、抽象中介者（Mediator）角色：它是中介者的接口，提供了<strong>同事对象注册与转发同事对象信息</strong>的抽象方法。<br>2、具体中介者（ConcreteMediator）角色：实现中介者接口，定义一个 List 来管理同事对象，协调各个同事角色之间的交互关系，因此它依赖于同事角色。<br>3、抽象同事类（Colleague）角色：定义同事类的接口，<strong>保存中介者对象，提供同事对象交互的抽象方法</strong>，实现所有相互影响的同事类的公共功能。<br>4、具体同事类（Concrete Colleague）角色：是抽象同事类的实现者，当需要与其他同事对象交互时，由中介者对象负责后续的交互。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、当对象之间存在复杂的网状结构关系而导致依赖关系混乱且难以复用时。<br>2、当想创建一个运行于多个类之间的对象，又不想生成新的子类时。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>中介者模式是一种对象行为型模式，其主要优点如下：<br>1、降低了对象之间的耦合性，使得对象易于独立地被复用。<br>2、将对象间的一对多关联转变为一对一的关联，提高系统的灵活性，使得系统易于维护和扩展。</p>
+<p>其主要缺点是：当同事类太多时，中介者的职责将很大，它会变得复杂而庞大，以至于系统难以维护。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">//抽象中介者</span><br><span class="line">abstract class Mediator</span><br><span class="line">&#123;</span><br><span class="line">    public abstract void register(Colleague colleague);</span><br><span class="line">    public abstract void relay(Colleague cl); //转发</span><br><span class="line">&#125;</span><br><span class="line">//具体中介者</span><br><span class="line">class ConcreteMediator extends Mediator</span><br><span class="line">&#123;</span><br><span class="line">    private List&lt;Colleague&gt; colleagues=new ArrayList&lt;Colleague&gt;();</span><br><span class="line">    public void register(Colleague colleague)</span><br><span class="line">    &#123;</span><br><span class="line">        if(!colleagues.contains(colleague))</span><br><span class="line">        &#123;</span><br><span class="line">            colleagues.add(colleague);</span><br><span class="line">            colleague.setMedium(this);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public void relay(Colleague cl)</span><br><span class="line">    &#123;</span><br><span class="line">        for(Colleague ob:colleagues)</span><br><span class="line">        &#123;</span><br><span class="line">            if(!ob.equals(cl))</span><br><span class="line">            &#123;</span><br><span class="line">                ((Colleague)ob).receive();</span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象同事类</span><br><span class="line">abstract class Colleague</span><br><span class="line">&#123;</span><br><span class="line">    protected Mediator mediator;</span><br><span class="line">    public void setMedium(Mediator mediator)</span><br><span class="line">    &#123;</span><br><span class="line">        this.mediator=mediator;</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void receive();   </span><br><span class="line">    public abstract void send();</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class ConcreteColleague1 extends Colleague</span><br><span class="line">&#123;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类1收到请求。&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类1发出请求。&quot;);</span><br><span class="line">        mediator.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class ConcreteColleague2 extends Colleague</span><br><span class="line">&#123;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类2收到请求。&quot;);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体同事类2发出请求。&quot;);</span><br><span class="line">        mediator.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class MediatorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Mediator md=new ConcreteMediator();</span><br><span class="line">        Colleague c1,c2;</span><br><span class="line">        c1=new ConcreteColleague1();</span><br><span class="line">        c2=new ConcreteColleague2();</span><br><span class="line">        md.register(c1);</span><br><span class="line">        md.register(c2);</span><br><span class="line">        c1.send();</span><br><span class="line">        System.out.println(&quot;-------------&quot;);</span><br><span class="line">        c2.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体同事类1发出请求。</span><br><span class="line">具体同事类2收到请求。</span><br><span class="line">-------------</span><br><span class="line">具体同事类2发出请求。</span><br><span class="line">具体同事类1收到请求。</span><br></pre></td></tr></table></figure>
+<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>在实际开发中，通常采用以下两种方法来简化中介者模式，使开发变得更简单：<br>1、不定义中介者接口，把具体中介者对象实现成为单例。<br>2、同事对象不持有中介者，而是在需要时直接获取中介者对象并调用。</p>
+<p><img src="/2019/11/15/design-mode-mediator/mediator-singleton.jpg" alt title="简化中介者模式的结构图"></p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">//简单单例中介者</span><br><span class="line">class SimpleMediator</span><br><span class="line">&#123;</span><br><span class="line">    private static SimpleMediator smd=new SimpleMediator();   </span><br><span class="line">    private List&lt;SimpleColleague&gt; colleagues=new ArrayList&lt;SimpleColleague&gt;();   </span><br><span class="line">    private SimpleMediator()&#123;&#125;   </span><br><span class="line">    public static SimpleMediator getMedium()</span><br><span class="line">    &#123;    return(smd);   &#125;</span><br><span class="line">    public void register(SimpleColleague colleague)</span><br><span class="line">    &#123;</span><br><span class="line">        if(!colleagues.contains(colleague))</span><br><span class="line">        &#123;</span><br><span class="line">            colleagues.add(colleague);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public void relay(SimpleColleague scl)</span><br><span class="line">    &#123;       </span><br><span class="line">        for(SimpleColleague ob:colleagues)</span><br><span class="line">        &#123;</span><br><span class="line">            if(!ob.equals(scl))</span><br><span class="line">            &#123;</span><br><span class="line">                ((SimpleColleague)ob).receive();</span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象同事类</span><br><span class="line">interface SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    void receive();   </span><br><span class="line">    void send();</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class SimpleConcreteColleague1 implements SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    SimpleConcreteColleague1()&#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        smd.register(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;    System.out.println(&quot;具体同事类1：收到请求。&quot;);    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        System.out.println(&quot;具体同事类1：发出请求...&quot;);</span><br><span class="line">        smd.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体同事类</span><br><span class="line">class SimpleConcreteColleague2 implements SimpleColleague</span><br><span class="line">&#123;</span><br><span class="line">    SimpleConcreteColleague2()&#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        smd.register(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public void receive()</span><br><span class="line">    &#123;    System.out.println(&quot;具体同事类2：收到请求。&quot;);    &#125;   </span><br><span class="line">    public void send()</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleMediator smd=SimpleMediator.getMedium();</span><br><span class="line">        System.out.println(&quot;具体同事类2：发出请求...&quot;);</span><br><span class="line">        smd.relay(this); //请中介者转发</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class SimpleMediatorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        SimpleColleague c1,c2;</span><br><span class="line">        c1=new SimpleConcreteColleague1();</span><br><span class="line">        c2=new SimpleConcreteColleague2();</span><br><span class="line">        c1.send();</span><br><span class="line">        System.out.println(&quot;-----------------&quot;);</span><br><span class="line">        c2.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/design-mode-visitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/design-mode-visitor/" itemprop="url">访问者模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T14:55:40+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>访问者（Visitor）模式的定义：将作用于某种数据结构中的各元素的操作分离出来封装成独立的类，使其在不改变数据结构的前提下可以添加作用于这些元素的新的操作，为数据结构中的每个元素提供多种访问方式。它将<strong>对数据的操作与数据结构进行分离</strong>，是行为类模式中最复杂的一种模式。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>访问者模式实现的关键是如何将作用于元素的操作分离出来封装成独立的类：</p>
+<p><img src="/2019/11/11/design-mode-visitor/visitor.jpg" alt></p>
+<p>访问者模式包含以下主要角色：<br>1、抽象访问者（Visitor）角色：定义一个访问具体元素的接口，为每个具体元素类对应一个访问操作 visit() ，该操作中的参数类型标识了被访问的具体元素。<br>2、具体访问者（ConcreteVisitor）角色：实现抽象访问者角色中声明的各个访问操作，确定访问者访问一个元素时该做什么。<br>3、抽象元素（Element）角色：声明一个包含接受操作 accept() 的接口，被接受的访问者对象作为 accept() 方法的参数。<br>4、具体元素（ConcreteElement）角色：实现抽象元素角色提供的 accept() 操作，其方法体通常都是 visitor.visit(this) ，另外具体元素中可能还包含本身业务逻辑的相关操作。<br>5、对象结构（Object Structure）角色：是一个包含元素角色的容器，提供让访问者对象遍历容器中的所有元素的方法，通常由 List、Set、Map 等聚合类实现。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、对象结构相对稳定，但其操作算法经常变化的程序。<br>2、对象结构中的对象需要提供多种不同且不相关的操作，而且要避免让这些操作的变化影响对象的结构。<br>3、对象结构包含很多类型的对象，希望对这些对象实施一些依赖于其具体类型的操作。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>访问者（Visitor）模式是一种对象行为型模式，其主要优点如下：<br>1、扩展性好。能够在不修改对象结构中的元素的情况下，为对象结构中的元素添加新的功能。<br>2、复用性好。可以通过访问者来定义整个对象结构通用的功能，从而提高系统的复用程度。<br>3、灵活性好。访问者模式将数据结构与作用于结构上的操作解耦，使得操作集合可相对自由地演化而不影响系统的数据结构。<br>4、符合单一职责原则。访问者模式把相关的行为封装在一起，构成一个访问者，使每一个访问者的功能都比较单一。</p>
+<p>访问者（Visitor）模式的主要缺点如下：<br>1、增加新的元素类很困难。在访问者模式中，每增加一个新的元素类，都要在每一个具体访问者类中增加相应的具体操作，这违背了“开闭原则”。<br>2、破坏封装。访问者模式中具体元素对访问者公布细节，这破坏了对象的封装性。<br>3、违反了依赖倒置原则。访问者模式依赖了具体类，而没有依赖抽象类。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line">//抽象访问者</span><br><span class="line">interface Visitor</span><br><span class="line">&#123;</span><br><span class="line">    void visit(ConcreteElementA element);</span><br><span class="line">    void visit(ConcreteElementB element);</span><br><span class="line">&#125;</span><br><span class="line">//具体访问者A类</span><br><span class="line">class ConcreteVisitorA implements Visitor</span><br><span class="line">&#123;</span><br><span class="line">    public void visit(ConcreteElementA element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者A访问--&gt;&quot;+element.operationA());</span><br><span class="line">    &#125;</span><br><span class="line">    public void visit(ConcreteElementB element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者A访问--&gt;&quot;+element.operationB());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体访问者B类</span><br><span class="line">class ConcreteVisitorB implements Visitor</span><br><span class="line">&#123;</span><br><span class="line">    public void visit(ConcreteElementA element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者B访问--&gt;&quot;+element.operationA());</span><br><span class="line">    &#125;</span><br><span class="line">    public void visit(ConcreteElementB element)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体访问者B访问--&gt;&quot;+element.operationB());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象元素类</span><br><span class="line">interface Element</span><br><span class="line">&#123;</span><br><span class="line">    void accept(Visitor visitor);</span><br><span class="line">&#125;</span><br><span class="line">//具体元素A类</span><br><span class="line">class ConcreteElementA implements Element</span><br><span class="line">&#123;</span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        visitor.visit(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public String operationA()</span><br><span class="line">    &#123;</span><br><span class="line">        return &quot;具体元素A的操作。&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体元素B类</span><br><span class="line">class ConcreteElementB implements Element</span><br><span class="line">&#123;</span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        visitor.visit(this);</span><br><span class="line">    &#125;</span><br><span class="line">    public String operationB()</span><br><span class="line">    &#123;</span><br><span class="line">        return &quot;具体元素B的操作。&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//对象结构角色</span><br><span class="line">class ObjectStructure</span><br><span class="line">&#123;   </span><br><span class="line">    private List&lt;Element&gt; list=new ArrayList&lt;Element&gt;();   </span><br><span class="line">    public void accept(Visitor visitor)</span><br><span class="line">    &#123;</span><br><span class="line">        Iterator&lt;Element&gt; i=list.iterator();</span><br><span class="line">        while(i.hasNext())</span><br><span class="line">        &#123;</span><br><span class="line">            ((Element) i.next()).accept(visitor);</span><br><span class="line">        &#125;      </span><br><span class="line">    &#125;</span><br><span class="line">    public void add(Element element)</span><br><span class="line">    &#123;</span><br><span class="line">        list.add(element);</span><br><span class="line">    &#125;</span><br><span class="line">    public void remove(Element element)</span><br><span class="line">    &#123;</span><br><span class="line">        list.remove(element);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class VisitorPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        ObjectStructure os=new ObjectStructure();</span><br><span class="line">        os.add(new ConcreteElementA());</span><br><span class="line">        os.add(new ConcreteElementB());</span><br><span class="line">        Visitor visitor=new ConcreteVisitorA();</span><br><span class="line">        os.accept(visitor);</span><br><span class="line">        System.out.println(&quot;------------------------&quot;);</span><br><span class="line">        visitor=new ConcreteVisitorB();</span><br><span class="line">        os.accept(visitor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">具体访问者A访问--&gt;具体元素A的操作。</span><br><span class="line">具体访问者A访问--&gt;具体元素B的操作。</span><br><span class="line">------------------------</span><br><span class="line">具体访问者B访问--&gt;具体元素A的操作。</span><br><span class="line">具体访问者B访问--&gt;具体元素B的操作。</span><br></pre></td></tr></table></figure>
+<h2 id="模式的扩展"><a href="#模式的扩展" class="headerlink" title="模式的扩展"></a>模式的扩展</h2><p>访问者（Visitor）模式是使用频率较高的一种设计模式，它常常同以下两种设计模式联用。</p>
+<p>(1)与“迭代器模式”联用。因为访问者模式中的“对象结构”是一个包含元素角色的容器，当访问者遍历容器中的所有元素时，常常要用迭代器。如上例中的对象结构是用 List 实现的，它通过 List 对象的 Itemtor() 方法获取迭代器。如果对象结构中的聚合类没有提供迭代器，也可以用迭代器模式自定义一个。</p>
+<p>(2)访问者（Visitor）模式同“组合模式”联用。因为访问者（Visitor）模式中的“元素对象”可能是叶子对象或者是容器对象，如果元素对象包含容器对象，就必须用到组合模式，其结构图如图所示:</p>
+<p><img src="/2019/11/11/design-mode-visitor/visitor-group.jpg" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/design-mode-template/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1617,321 +1921,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/28/design-mode-state/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/28/design-mode-state/" itemprop="url">状态模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T10:37:09+08:00">
-                2019-10-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>状态模式定义：对象行为的变化是由于状态的变化引入，那么即当内部状态发生变化的时候，就会改变对象的行为，而这种改变视乎就改变了整个类。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>很多人在说状态模式的时候总拿策略模式来进行对比，可能他们的类图会有一点类似。最根本的差异在于策略模式是在求解同一个问题的多种解法，这些不同解法之间毫无关联；状态模式则不同，<strong>状态模式要求各个状态之间有所关联，以便实现状态转移</strong>。</p>
-<p><img src="/2019/10/28/design-mode-state/state.png" alt></p>
-<p>1、Context<br>  定义客户感兴趣的接口。维护一个ConcreteState子类的实例，这个实例定义当前状态。<br>2、State<br>  定义一个接口以封装与Context的一个特定状态相关的行为。<br>3、ConcreteStatesubclasses<br>   每一子类实现一个与Context的一个状态相关的行为。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、一个对象的行为取决于它的状态,并且它必须在运行时刻根据状态改变它的行为。<br>2、一个操作中含有庞大的多分支的条件语句，且这些分支依赖于该对象的状态。 这个状态通常用一个或多个枚举常量表示。通常,有多个操作包含这一相同的条件结构。State模式将每一个条件分支放入一个独立的类中。这使得你可以根据对象自身的情况<strong>将对象的状态作为一个对象</strong>，这一对象可以不依赖于其他对象而独立变化。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>优点：<br>1、降低程序的复杂度；<br>2、提高程序的可维护性；<br>3、状态机模式体现了开闭原则和单一职责原则。每个状态都是一个子类，增加状态就要增加子类；修改状态只要修改一个类就行了。</p>
-<p>缺点：<br>使用状态机子类会增多，也就是类膨胀，这点需要程序员在开发中自己衡量。</p>
-<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>定义State<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//定义和Context中的状态相对应的行为</span><br><span class="line"> public interface State &#123;</span><br><span class="line">     //获取天气情况</span><br><span class="line">     String getState();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
-<p>定义ConcreteStatesubclasses<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class Sunshine implements State&#123;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public String getState() &#123;</span><br><span class="line">         </span><br><span class="line">        return &quot;晴天&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br><span class="line">class Rain implements State&#123;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public String getState() &#123;</span><br><span class="line">         </span><br><span class="line">        return &quot;下雨&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>定义Context<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//定义当前的状态</span><br><span class="line"> public class Context &#123;</span><br><span class="line">  </span><br><span class="line">    private State state;</span><br><span class="line">  </span><br><span class="line">    public State getState() &#123;</span><br><span class="line">        return state;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setState(State state) &#123;</span><br><span class="line">        this.state = state;</span><br><span class="line">    &#125;</span><br><span class="line">    public String stateMessage()&#123;</span><br><span class="line">        return state.getState();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>调用类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class StateTest &#123;</span><br><span class="line">  </span><br><span class="line">     public static void main(String args[])&#123;</span><br><span class="line">         Context context=new Context();</span><br><span class="line">         context.setState(new Rain());</span><br><span class="line"> </span><br><span class="line">         System.out.println(context.stateMessage());</span><br><span class="line"> </span><br><span class="line">         context.setState(new Sunshine());</span><br><span class="line">         System.out.println(context.stateMessage());</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="和策略模式的区别和联系"><a href="#和策略模式的区别和联系" class="headerlink" title="和策略模式的区别和联系"></a>和策略模式的区别和联系</h2><p>区别：<br>状态模式将各个状态所对应的操作分离开来，即对于不同的状态，由不同的子类实现具体操作，不同状态的切换由子类实现，当发现传入参数不是自己这个状态所对应的参数，则自己给Context类切换状态；而策略模式是直接依赖注入到Context类的参数进行选择策略，不存在切换状态的操作联系。</p>
-<p>联系：<br>状态模式和策略模式都是为具有多种可能情形设计的模式，把不同的处理情形抽象为一个相同的接口，符合对扩展开放，对修改封闭的原则。还有就是，<strong>策略模式更具有一般性一些</strong>，在实践中，可以用策略模式来封装几乎任何类型的规则，只要在分析过程中听到需要在不同实践应用不同的业务规则，就可以考虑使用策略模式处理，在这点上策略模式是包含状态模式的功能的，策略模式是一个重要的设计模式。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/28/design-mode-strategy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/28/design-mode-strategy/" itemprop="url">策略模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T09:14:08+08:00">
-                2019-10-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>策略模式（Strategy Pattern），将各种算法封装到具体的类中，作为一个抽象策略类的子类，使得它们可以互换。客户端可以自行决定使用哪种算法。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>策略模式是<strong>对算法的包装</strong>，是把使用算法的责任和算法本身分割开来，委派给不同的对象管理。策略模式通常把一个系列的算法包装到一系列的策略类里面，作为一个抽象策略类的子类。用一句话来说，就是：“<strong>准备一组算法，并将每一个算法封装起来，使得它们可以互换</strong>”。下面就以一个示意性的实现讲解策略模式实例的结构。</p>
-<p><img src="/2019/10/28/design-mode-strategy/strategy.png" alt></p>
-<p>这个模式涉及到三个角色：<br>　　●　环境(Context)角色：持有一个Strategy的引用。<br>　　●　抽象策略(Strategy)角色：这是一个抽象角色，通常由一个接口或抽象类实现。此角色给出所有的具体策略类所需的接口。<br>　　●　具体策略(ConcreteStrategy)角色：包装了相关的算法或行为。</p>
-<h2 id="认识策略模式"><a href="#认识策略模式" class="headerlink" title="认识策略模式"></a>认识策略模式</h2><p>1、策略模式的重心<br>　　策略模式的重心不是如何实现算法，而是<strong>如何组织、调用这些算法</strong>，从而让程序结构更灵活，具有更好的维护性和扩展性。</p>
-<p>2、算法的平等性<br>　　策略模式一个很大的特点就是各个策略算法的平等性。对于一系列具体的策略算法，大家的地位是完全一样的，正因为这个平等性，才能实现算法之间可以相互替换。所有的策略算法在实现上也是相互独立的，相互之间是没有依赖的。<br>　　所以可以这样描述这一系列策略算法：<strong>策略算法是相同行为的不同实现</strong>。</p>
-<p>3、运行时策略的唯一性<br>　　运行期间，策略模式在每一个时刻只能使用一个具体的策略实现对象，虽然可以动态地在不同的策略实现中切换，但是同时只能使用一个。</p>
-<p>4、公有的行为<br>　　经常见到的是，所有的具体策略类都有一些公有的行为。这时候，就应当把这些公有的行为放到共同的抽象策略角色Strategy类里面。当然这时候抽象策略角色必须要用Java抽象类实现，而不能使用接口。<br>　　这其实也是典型的将代码向继承等级结构的上方集中的标准做法。</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p>　　（1）策略模式<strong>提供了管理相关的算法族的办法</strong>。策略类的等级结构定义了一个算法或行为族。恰当使用继承可以把公共的代码移到父类里面，从而避免代码重复。<br>　　（2）使用策略模式可以避免使用多重条件(if-else)语句。多重条件语句不易维护，它把采取哪一种算法或采取哪一种行为的逻辑与算法或行为的逻辑混合在一起，统统列在一个多重条件语句里面，比使用继承的办法还要原始和落后。<br>　　（3）策略模式提供了对“开闭原则”的完美支持，用户可以在不修改原有系统的基础上选择算法（策略），并且可以灵活地增加新的算法（策略）。</p>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>　　（1）客户端必须知道所有的策略类，并自行决定使用哪一个策略类。这就意味着客户端必须理解这些算法的区别，以便适时选择恰当的算法类。换言之，策略模式只适用于客户端知道算法或行为的情况。<br>　　（2）由于策略模式把每个具体的策略实现都单独封装成为类，如果备选的策略很多的话，那么对象的数目就会很可观。</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>环境角色类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Context &#123;</span><br><span class="line">    //持有一个具体策略的对象</span><br><span class="line">    private Strategy strategy;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 构造函数，传入一个具体策略对象</span><br><span class="line">     * @param strategy    具体策略对象</span><br><span class="line">     */</span><br><span class="line">    public Context(Strategy strategy)&#123;</span><br><span class="line">        this.strategy = strategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 策略方法</span><br><span class="line">     */</span><br><span class="line">    public void contextInterface()&#123;</span><br><span class="line">        </span><br><span class="line">        strategy.strategyInterface();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>抽象策略类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface Strategy &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 策略方法</span><br><span class="line">     */</span><br><span class="line">    public void strategyInterface();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>具体策略类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class ConcreteStrategyA implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class ConcreteStrategyB implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class ConcreteStrategyC implements Strategy &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void strategyInterface() &#123;</span><br><span class="line">        //相关的业务</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>客户端调用代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleClient &#123;</span><br><span class="line"></span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">	//选择并创建需要使用的策略对象</span><br><span class="line">    Strategy strategy = new ConcreteStrategyA();</span><br><span class="line">	//创建环境</span><br><span class="line">    Context context = new Context(strategy);</span><br><span class="line">	//执行</span><br><span class="line">    context.contextInterface();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>从上面的示例可以看出，策略模式仅仅封装算法，提供新的算法插入到已有系统中，以及老算法从系统中“退休”的方法，策略模式并不决定在何时使用何种算法。在什么情况下使用什么算法是由客户端决定的。</p>
-<h2 id="和工厂模式的区别"><a href="#和工厂模式的区别" class="headerlink" title="和工厂模式的区别"></a>和工厂模式的区别</h2><p>在模式结构上，两者很相似。</p>
-<p>差异：<br>1.用途不一样<br>工厂是<strong>创建型模式</strong>,它的作用就是创建对象；<br>策略是<strong>行为型模式</strong>,它的作用是让一个对象在许多行为中选择一种行为;</p>
-<p>2.关注点不一样<br>一个关注对象创建<br>一个关注行为的封装</p>
-<p>3.解决不同的问题<br>工厂模式是创建型的设计模式，它接受指令，创建出符合要求的实例；它主要解决的是资源的统一分发，将对象的创建完全独立出来，让对象的创建和具体的使用客户无关。主要应用在多数据库选择，类库文件加载等。<br>策略模式是为了解决的是策略的切换与扩展，更简洁的说是定义策略族，分别封装起来，让他们之间可以相互替换，策略模式让策略的变化独立于使用策略的客户。</p>
-<p>4.工厂相当于黑盒子，策略相当于白盒子；</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1984,7 +1973,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
