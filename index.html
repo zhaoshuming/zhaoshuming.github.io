@@ -293,6 +293,209 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/flutter-dynamic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/10/13/flutter-dynamic/" itemprop="url">Flutter动态化方案</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-10-13T14:16:29+08:00">
+                2020-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Flutter 跨端技术一经推出便在业内赢得了不错的口碑，它在“多端一致”和“渲染性能”上的优势让其他跨端方案很难比拟。虽然 Flutter 的成长曲线和未来前景看起来都很好，但不可否认的是，目前 Flutter 仍处在发展阶段，很多大型互联网企业都无法毫无顾虑地让全线 App 接入，而其中最主要的顾虑是包大小与动态化。</p>
+<p>动态化代表着更短的需求上线路径，代表着大大压缩了原始包的大小，从而获得更高的用户下载意向，也代表着更健全的线上质量维护体系。当明白这些意义后，我们也就不难理解，在 Flutter 的应用与适配趋近完善时，动态化自然就成为了一个无法避开的话题。RN 和 Weex 等成熟技术甚至让大家认为动态化是跨端技术的标配。</p>
+<h2 id="产物替换"><a href="#产物替换" class="headerlink" title="产物替换"></a>产物替换</h2><p>Flutter的动态化，对于Android而言，一个很清晰的思路就是动态替换flutter_assets的所有资源文件，因为Flutter加载代码和资源的工作目录即是应用沙盒目录下的app_flutter目录，我们把这个目录下的文件进行对应替换即可，而对于IOS，由于本身系统的限制，官方目前也没相应方案。</p>
+<p>Flutter 在 Release 模式下构建的是 AOT 编译产物，iOS 是 AOT Assembly，Android 默认 AOTBlob。同时 Flutter 也支持 JIT Release模式，可以动态加载 Kernel snapshot 或 App-JIT snapshot。如果在 AOT 上支持 JIT，就可以实现动态化能力。但问题在于，AOT 依赖的 Dart VM 和 JIT 并不一样，AOT 需要一个编译后的 “Dart VM”（更准确地说是 Precompiled Runtime），JIT 依赖的是 Dart VM（一个虚拟机，提供语言执行环境）；并且 JIT Release 并不支持 iOS 设备，构建的应用也不能在 AppStore 上发布。</p>
+<p>具体可参考：<a href="https://www.jianshu.com/p/d193ce2c72c7" target="_blank" rel="noopener">Android平台上的Dynamic Patch</a><br><a href="https://juejin.im/post/6844903984113647623#heading-2" target="_blank" rel="noopener">https://juejin.im/post/6844903984113647623#heading-2</a></p>
+<h2 id="类似React-Native-框架"><a href="#类似React-Native-框架" class="headerlink" title="类似React Native 框架"></a>类似React Native 框架</h2><p>我们先来看看React Native 的架构：</p>
+<p><img src="/2020/10/13/flutter-dynamic/rn.png" alt></p>
+<p>React Native 要转为android（ios） 的原生组件，再进行渲染。用React Native的设计思路，把XML DSL转为Flutter 的原子widget组件，让Flutter 来渲染。技术上说是可行的。</p>
+<p><strong>基于JS的高性能Flutter动态化框架：</strong></p>
+<p>MXFlutter （Matrix Flutter）核心思路是把 Flutter 的渲染逻辑中的三棵树中的第一棵，放到 JavaScript 中生成。用 JavaScript 完整实现了 Flutter 控件层封装，可以使用 JavaScript，用极其类似 Dart 的开发方式，开发Flutter应用，利用JavaScript版的轻量级Flutter Runtime，生成UI描述，传递给Dart层的UI引擎，UI引擎把UI描述生产真正的 Flutter 控件。一句话介绍MXFlutter，就是用JavaScript，以Flutter的写法开发Flutter。</p>
+<p><img src="/2020/10/13/flutter-dynamic/mxflutter.png" alt></p>
+<p>这套方案通过JSCore代替DartVM，使用JS来写Widget，从而实现了动态化。但至于MXFlutter所宣传单“高性能”，我觉得还是有待商榷，比起原生的Flutter，JS与Native、Dart间的通信增加了不小的额外开销。同时由于J2V8库的引入，对于包体积也会有不小的增加，但这的确是一条可行的动态化思路。</p>
+<p>具体可参考：<a href="https://github.com/mxflutter/mxflutter" target="_blank" rel="noopener">https://github.com/mxflutter/mxflutter</a></p>
+<h2 id="页面动态组件框架"><a href="#页面动态组件框架" class="headerlink" title="页面动态组件框架"></a>页面动态组件框架</h2><p>由粗粒度的Widget组件动态拼装出页面(此处DSL 的基本原理就是对AST抽象语法树内数据的一个描述，并附带一些其他操作)。Native端已经有很多成熟的框架，如天猫的Tangram，淘宝的DinamicX，它在性能、动态性，开发周期上取得较好平衡。关键它能满足大部分的动态性需求，能解决问题。</p>
+<p>在Flutter上使用粗力度的组件动态拼装来构建页面，需要一整套的前后端服务和工具。</p>
+<h3 id="语法树的选择"><a href="#语法树的选择" class="headerlink" title="语法树的选择"></a>语法树的选择</h3><p>Native端的Tangram ，DinamicX等框架他们有个共同点，都是Xml或者Html 做为DSL。但是Flutter 是React Style语法。他自己的语法已经能很好的表达页面。无需要自定义的Xml 语法，自定义的逻辑表达式。用Flutter 源码做为DSL 能大大减轻开发，测试过程，不需要额外的工具支持。所以<strong>选择了Flutter 源码作为DSL，来实现动态化</strong>。</p>
+<h3 id="如何解析DSL"><a href="#如何解析DSL" class="headerlink" title="如何解析DSL"></a>如何解析DSL</h3><p>Flutter源码做为DSL，那我们需要对源码进行很好的解析和分析。Flutter analyzer给了我们一些思路，Flutter analyzer是一个代码风格检测工具。它使用package:analyzer来解析dart 源码，拿到ASTNode。</p>
+<p>看下Flutter analyze 源码结构，它使用了dart sdk 里面的 package:analyzer<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dart-sdk:  </span><br><span class="line">     analysis_server: </span><br><span class="line">         analysis_server.dart</span><br><span class="line">         handleRequest(Request request) </span><br><span class="line">         </span><br><span class="line">     analyzer:</span><br><span class="line">         parseCompilationUnit（）</span><br><span class="line">         parseDartFile </span><br><span class="line">         parseDirectives</span><br></pre></td></tr></table></figure></p>
+<p>Flutter analyze 解析源码得到ASTNode过程。</p>
+<p><img src="/2020/10/13/flutter-dynamic/analyze.png" alt></p>
+<p>插件或者命令对analysis server发起请求，请求中带需要分析的文件path，和分析的类型，analysis_server经过使用 package:analyzer 获取 commilationUnit （ASTNode），再对astNode，经过computer分析，返回一个分析结果list。</p>
+<p>同样我们也可以把使用 package:analyzer 把源文件转换为commilationUnit （ASTNode)，ASTNode是一个抽象语法树，抽象语法树（abstract syntax tree或者缩写为AST）是源代码的抽象语法结构的树状表现形式.</p>
+<p>所有利用抽象语法树能很好的解析dart 源码。</p>
+<h3 id="解析渲染引擎"><a href="#解析渲染引擎" class="headerlink" title="解析渲染引擎"></a>解析渲染引擎</h3><p>下面重点介绍渲染模块</p>
+<p>架构图：</p>
+<p><img src="/2020/10/13/flutter-dynamic/arcti.png" alt></p>
+<h4 id="1-源码解析过程"><a href="#1-源码解析过程" class="headerlink" title="1.源码解析过程"></a>1.源码解析过程</h4><p>1.AST树的结构</p>
+<p>如下面这段Flutter组件源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import &apos;package:flutter/material.dart&apos;;</span><br><span class="line"></span><br><span class="line">class FollowedTopicCard extends StatelessWidget &#123;</span><br><span class="line">  @override</span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    return new Container(</span><br><span class="line">      padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0.0),</span><br><span class="line">      child: new InkWell(</span><br><span class="line">        child: new Center(</span><br><span class="line">          child: const Text(&apos;Plugin example app&apos;),</span><br><span class="line">        ),</span><br><span class="line">        onTap: () &#123;&#125;,</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>它的AST结构：</p>
+<p><img src="/2020/10/13/flutter-dynamic/ast.png" alt></p>
+<p>从AST结构看，他是有规律的.</p>
+<p>2.AST 到widget Node</p>
+<p>我们拿到了ASTNode，但ASTNode 和widget node tree 完全是两个不一样的概念，<br>需要递归ASTNode 转化为 widget node tree.</p>
+<p>widget Node 需要的元素</p>
+<p>用Name 来记录是什么类型的widget</p>
+<p>widget的arguments放在 map里面</p>
+<p>widget 的literals 放在list 里面</p>
+<p>widget 的children 放在lsit 里面</p>
+<p>widget 的触发事件 函数map里面</p>
+<p>widget node 加fromjson ，tojson 方法</p>
+<p>可以在递归astNode tree 时候，识别InstanceCreationExpression来创建一个widget node。</p>
+<h4 id="2-组件数据渲染"><a href="#2-组件数据渲染" class="headerlink" title="2.组件数据渲染"></a>2.组件数据渲染</h4><p>框架sdk 中注册支持的组件，组件包括：</p>
+<p>a.原子组件：Flutter sdk 中的 Flutter 的widget</p>
+<p>b.本地组件：本地写好到一个大颗粒的组件，卡片widget组件</p>
+<p>c.逻辑组件：本地包装了逻辑的widget组件</p>
+<p>d.动态组件：通过源码dsl动态渲染的widget</p>
+<p>具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> const Map&lt;String, CreateDynamicApi&gt; allWidget = &lt;String,  </span><br><span class="line"> CreateDynamicApi&gt;&#123;</span><br><span class="line">  &apos;Container&apos;: wrapContainer,</span><br><span class="line">     ………….</span><br><span class="line">&#125;</span><br><span class="line"> static Widget wrapContainer(Map&lt;String, dynamic&gt; pars) &#123;</span><br><span class="line">  return new Container(</span><br><span class="line">    padding: pars[&apos;padding&apos;],</span><br><span class="line">    color: pars[&apos;color&apos;],</span><br><span class="line">    child: pars[&apos;child&apos;],</span><br><span class="line">    decoration: pars[&apos;decoration&apos;],</span><br><span class="line">    width: pars[&apos;width&apos;],</span><br><span class="line">    height: pars[&apos;height&apos;],</span><br><span class="line">    alignment: pars[&apos;alignment&apos;]</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一般我们通过网络请求拿到的数据是一个map。<br>比如源码中写了这么一个 ‘${data.urls[1]}’<br>AST 解析时候，拿到这么一个string，或者AST 表达式，通过解析它 ，肯定能从map 中拿到对应的值。</p>
+<h4 id="3-逻辑和事件"><a href="#3-逻辑和事件" class="headerlink" title="3.逻辑和事件"></a>3.逻辑和事件</h4><p>a.支持逻辑</p>
+<p>Flutter 概念万物都是widget ，可以把表达式，逻辑封装成一个自定义widget。如果在源码里面写了if else，变量等，会加重sdk解析的过程。所以把逻辑封装到widget中。这些逻辑widget，当作组件当成框架组件。</p>
+<p>b.支持事件</p>
+<p>把页面跳转，弹框，等服务，注册在sdk里面。约定使用者仅限sdk 的服务。</p>
+<h4 id="4-规则和检测工具"><a href="#4-规则和检测工具" class="headerlink" title="4.规则和检测工具"></a>4.规则和检测工具</h4><p>a.检测规则</p>
+<p>需要对源码的格式制定规则。比如不支持 直接写if else ，需要使用逻辑wiget组件来代替if else 语句。如果不制定规则，那ast Node 到widget node 的解析过程会很复杂。理论上都可以解析，只要解析sdk 够强大。制定规则，可以减轻sdk的解析逻辑。</p>
+<p>b.工具检测</p>
+<p>用工具来检测源码是否符合制定的规则，以保证所有的源码都能解析出来。</p>
+<h3 id="性能和效果"><a href="#性能和效果" class="headerlink" title="性能和效果"></a>性能和效果</h3><p>帧率大于50fps，体验上看比weex相同功能的页面更加流畅，Samsung galaxy s8上，感觉不出组件是通过动态渲染的.</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>服务端请求到的数据，我们可以约定一种格式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class DataModel &#123;</span><br><span class="line"></span><br><span class="line">  Map&lt;dynamic, dynamic&gt;  data;</span><br><span class="line"></span><br><span class="line">  String type;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>每个page 都是由组件组成的，每个组件的数据都是 DataModel来渲染。<br>根据type 来找到对应的模版，模版+data，渲染出界面。</p>
+<h3 id="动态模版管理模块"><a href="#动态模版管理模块" class="headerlink" title="动态模版管理模块"></a>动态模版管理模块</h3><p>我们把Widget Node Tree 转换为一个组件Json模版，它需要一套管理平台，来支持版本控制，动态下载，升级，回滚，更新等。</p>
+<h3 id="框架的边界"><a href="#框架的边界" class="headerlink" title="框架的边界"></a>框架的边界</h3><p>该框架是通过组件的组装，组件布局动态变更，页面布局动态变更来实现动态化。所以它适合运营变化较快的首页，详情，订单，我的等页面。一些复杂的逻辑需要封装在组件里面，把组件内置到框架中，当作本地组件。框架侧重于动态组件的组装，而引擎对于源码复杂的逻辑表达式的解析是弱化的。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d193ce2c72c7" target="_blank" rel="noopener">Android平台上的Dynamic Patch</a><br><a href="https://juejin.im/post/6844903984113647623#heading-2" target="_blank" rel="noopener">https://juejin.im/post/6844903984113647623#heading-2</a><br><a href="https://zhuanlan.zhihu.com/p/108124916?utm_source=qq" target="_blank" rel="noopener">MXFlutter</a><br><a href="https://github.com/mxflutter/mxflutter" target="_blank" rel="noopener">https://github.com/mxflutter/mxflutter</a><br><a href="https://developer.aliyun.com/article/674859" target="_blank" rel="noopener">页面动态组件</a><br><a href="https://tech.meituan.com/2020/06/23/meituan-flutter-flap.html" target="_blank" rel="noopener">美团方案</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/07/android-kotlin-flow/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3021,294 +3224,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/03/android-ndk-jni-invoke/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/03/android-ndk-jni-invoke/" itemprop="url">JNI 的调用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-03T13:19:25+08:00">
-                2020-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android-NDK/" itemprop="url" rel="index">
-                    <span itemprop="name">Android NDK</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="注册native函数"><a href="#注册native函数" class="headerlink" title="注册native函数"></a>注册native函数</h2><p>JNI有两种注册native方法的途径：</p>
-<blockquote>
-<ul>
-<li>静态注册：<br>先由Java得到本地方法的声明，然后再通过JNI实现该声明方法</li>
-<li>动态注册：<br>先通过JNI重载JNI_OnLoad()实现本地方法，然后直接在Java中调用本地方法。</li>
-</ul>
-</blockquote>
-<h3 id="静态注册"><a href="#静态注册" class="headerlink" title="静态注册"></a>静态注册</h3><p>静态注册就是根据函数名来遍历Java和JNI函数之间的关联，而且要求JNI层函数的名字必须遵循特定的格式。具体的实现很简单，首先在Java代码中声明native函数，然后通过javah来生成native函数的具体形式，接下来在JNI代码中实现这些函数即可。</p>
-<p>示例如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class JniDemo1&#123;</span><br><span class="line">       static &#123;</span><br><span class="line">             System.loadLibrary(&quot;samplelib_jni&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        private native void nativeMethod();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>接来下通过javah来产生jni代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javah -d ./jni/ -classpath /Users/YOUR_NAME/Library/Android/sdk/platforms/android-21/android.jar:../../build/intermediates/classes/debug/ com.xxxpackagename.JniDemo1</span><br></pre></td></tr></table></figure></p>
-<p>然后就会得到一个JNI的.h文件，里面包含这几个native函数的声明，观察一下文件名以及函数名。JNI方法名的规范：</p>
-<blockquote>
-<p>返回值 + Java前缀+全路径类名+方法名+参数1JNIEnv+参数2jobject+其他参数</p>
-</blockquote>
-<p>注意事项：</p>
-<blockquote>
-<ul>
-<li>注意分隔符：<br>Java前缀与类名以及类名之间的包名和方法名之间使用”_”进行分割；</li>
-<li>注意静态：<br>如果在Java中声明的方法是”静态的”，则native方法也是static。否则不是。</li>
-</ul>
-</blockquote>
-<h3 id="动态注册"><a href="#动态注册" class="headerlink" title="动态注册"></a>动态注册</h3><p>动态注册，也就是通过RegisterNatives方法把C/C++中的方法映射到Java中的native方法，而无需遵循特定的方法命名格式。</p>
-<p>当我们使用System.loadLibarary()方法加载so库的时候，Java虚拟机就会找到这个<strong>JNI_OnLoad</strong>函数并调用该函数，<strong>这个函数的作用是告诉Dalvik虚拟机此C库使用的是哪一个JNI版本</strong>，如果你的库里面没有写明JNI_OnLoad()函数，VM会默认该库使用最老的JNI 1.1版本。由于最新版本的JNI做了很多扩充，也优化了一些内容，如果需要使用JNI新版本的功能，就必须在JNI_OnLoad()函数声明JNI的版本，同时也可以在该函数中做一些初始化的动作。该函数前面也有三个关键字分别是JNIEXPORT，JNICALL ，jint。其中JNIEXPORT和JNICALL是两个宏定义，用于指定该函数时JNI函数。jint是JNI定义的数据类型，因为Java层和C/C++的数据类型或者对象不能直接相互的引用或者使用，JNI层定义了自己的数据类型，用于衔接Java层和JNI层。与JNI_OnLoad()函数相对应的有JNI_OnUnload()函数，当虚拟机释放的该C库的时候，则会调用JNI_OnUnload()函数来进行善后清除工作。</p>
-<p>该函数会有两个参数，其中*jvm为Java虚拟机实例，JavaVM结构体定义一下函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DestroyJavaVM</span><br><span class="line">AttachCurrentThread</span><br><span class="line">DetachCurrentThread</span><br><span class="line">GetEnv</span><br></pre></td></tr></table></figure></p>
-<p>举例说明，首先是加载so库:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class JniDemo1&#123;</span><br><span class="line">       static &#123;</span><br><span class="line">             System.loadLibrary(&quot;samplelib_jni&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在jni中的实现，并且在这个函数里面去动态的注册native方法，完整的参考代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;jni.h&gt;</span><br><span class="line">#include &quot;Log4Android.h&quot;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">#ifdef __cplusplus</span><br><span class="line">extern &quot;C&quot; &#123;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">static const char *className = &quot;com/gebilaolitou/jnidemo/JNIDemo2&quot;;</span><br><span class="line"></span><br><span class="line">static void sayHello(JNIEnv *env, jobject, jlong handle) &#123;</span><br><span class="line">    LOGI(&quot;JNI&quot;, &quot;native: say hello ###&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static JNINativeMethod gJni_Methods_table[] = &#123;</span><br><span class="line">    &#123;&quot;sayHello&quot;, &quot;(J)V&quot;, (void*)sayHello&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">static int jniRegisterNativeMethods(JNIEnv* env, const char* className,</span><br><span class="line">    const JNINativeMethod* gMethods, int numMethods)</span><br><span class="line">&#123;</span><br><span class="line">    jclass clazz;</span><br><span class="line"></span><br><span class="line">    LOGI(&quot;JNI&quot;,&quot;Registering %s natives\n&quot;, className);</span><br><span class="line">    clazz = (env)-&gt;FindClass( className);</span><br><span class="line">    if (clazz == NULL) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;Native registration unable to find class &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int result = 0;</span><br><span class="line">    if ((env)-&gt;RegisterNatives(clazz, gJni_Methods_table, numMethods) &lt; 0) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;RegisterNatives failed for &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        result = -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    (env)-&gt;DeleteLocalRef(clazz);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">jint JNI_OnLoad(JavaVM* vm, void* reserved)&#123;</span><br><span class="line">    LOGI(&quot;JNI&quot;, &quot;enter jni_onload&quot;);</span><br><span class="line"></span><br><span class="line">    JNIEnv* env = NULL;</span><br><span class="line">    jint result = -1;</span><br><span class="line"></span><br><span class="line">    if (vm-&gt;GetEnv((void**) &amp;env, JNI_VERSION_1_4) != JNI_OK) &#123;</span><br><span class="line">        return result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    jniRegisterNativeMethods(env, className, gJni_Methods_table, sizeof(gJni_Methods_table) / sizeof(JNINativeMethod));</span><br><span class="line"></span><br><span class="line">    return JNI_VERSION_1_4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#ifdef __cplusplus</span><br><span class="line">&#125;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure></p>
-<p>我们一个个来说，首先看JNI_OnLoad函数的实现，里面代码很简单，主要就是两个代码块，一个是if语句，一个是jniRegisterNativeMethods函数的实现。那我们一个一个来分析。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (vm-&gt;GetEnv((void**) &amp;env, JNI_VERSION_1_4) != JNI_OK) &#123;</span><br><span class="line">    return result ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里调用了GetEnv函数时为了<strong>获取JNIEnv结构体指针</strong>，其实JNIEnv结构体指向了一个函数表，该函数表指向了对应的JNI函数，我们通过这些JNI函数实现JNI编程。</p>
-<p>然后就调用了jniRegisterNativeMethods函数来实现注册，这里面注意一个静态变量gJni_Methods_table。它其实代表了一个native方法的数组，如果你在一个Java类中有一个native方法，这里它的size就是1，如果是两个native方法，它的size就是2，大家看下这个gJni_Methods_table变量的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static JNINativeMethod gJni_Methods_table[] = &#123;</span><br><span class="line">    &#123;&quot;sayHello&quot;, &quot;(J)V&quot;, (void*)sayHello&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>我们看到他的类型是JNINativeMethod ，那我们就来研究下JNINativeMethod</p>
-<p>JNI允许我们提供一个<strong>函数映射表</strong>，注册给Java虚拟机，这样JVM就可以用函数映射表来调用相应的函数。这样就可以不必通过函数名来查找需要调用的函数了。Java与JNI通过JNINativeMethod的结构来建立联系，它被定义在jni.h中，其结构内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123; </span><br><span class="line">    const char* name; </span><br><span class="line">    const char* signature; </span><br><span class="line">    void* fnPtr; </span><br><span class="line">&#125; JNINativeMethod;</span><br></pre></td></tr></table></figure></p>
-<p>这里面有3个变量，那我们就依次来讲解下：<br>第一个变量name，代表的是Java中的函数名<br>第二个变量signature，代表的是Java中的参数和返回值<br>第三个变量fnPtr，代表的是的指向C函数的函数指针</p>
-<p>下面我们再来看下jniRegisterNativeMethods函数内部的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">static int jniRegisterNativeMethods(JNIEnv* env, const char* className,</span><br><span class="line">    const JNINativeMethod* gMethods, int numMethods)</span><br><span class="line">&#123;</span><br><span class="line">    jclass clazz;</span><br><span class="line"></span><br><span class="line">    LOGI(&quot;JNI&quot;,&quot;Registering %s natives\n&quot;, className);</span><br><span class="line">    clazz = (env)-&gt;FindClass( className);</span><br><span class="line">    if (clazz == NULL) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;Native registration unable to find class &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int result = 0;</span><br><span class="line">    if ((env)-&gt;RegisterNatives(clazz, gJni_Methods_table, numMethods) &lt; 0) &#123;</span><br><span class="line">        LOGE(&quot;JNI&quot;,&quot;RegisterNatives failed for &apos;%s&apos;\n&quot;, className);</span><br><span class="line">        result = -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    (env)-&gt;DeleteLocalRef(clazz);</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>首先通过clazz = (env)-&gt;FindClass( className);找到声明native方法的类<br>然后通过调用<strong>RegisterNatives</strong>函数将注册函数的Java类，以及注册函数的数组，以及个数注册在一起，这样就实现了绑定。</p>
-<p>上面在讲解JNINativeMethod结构体的时候，提到一个概念，就是”signature”即签名，我们下面就来讲解下。</p>
-<h2 id="JNI中的签名"><a href="#JNI中的签名" class="headerlink" title="JNI中的签名"></a>JNI中的签名</h2><p>Java是支持函数重载的。但如果JNI仅仅是根据函数名，是没有办法找到重载的函数的，所以为了解决这个问题，JNI就衍生了一个概念——“签名”，即<strong>参数类型和返回值类型的组合</strong>。如果拥有一个该函数的签名信息和这个函数的函数名，我们就可以顺序的找到对应的Java层中的函数了。</p>
-<h3 id="查看类中的方法的签名"><a href="#查看类中的方法的签名" class="headerlink" title="查看类中的方法的签名"></a>查看类中的方法的签名</h3><p>可以使用 java -p命令(建议使用该命令来对比签名)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">javap -s -p MainActivity.class</span><br><span class="line"></span><br><span class="line">Compiled from &quot;MainActivity.java&quot;</span><br><span class="line">public class com.example.hellojni.MainActivity extends android.app.Activity &#123;</span><br><span class="line">  static &#123;&#125;;</span><br><span class="line">    Signature: ()V</span><br><span class="line"></span><br><span class="line">  public com.example.hellojni.MainActivity();</span><br><span class="line">    Signature: ()V</span><br><span class="line"></span><br><span class="line">  protected void onCreate(android.os.Bundle);</span><br><span class="line">    Signature: (Landroid/os/Bundle;)V</span><br><span class="line"></span><br><span class="line">  public boolean onCreateOptionsMenu(android.view.Menu);</span><br><span class="line">    Signature: (Landroid/view/Menu;)Z</span><br><span class="line"></span><br><span class="line">  public native java.lang.String stringFromJNI(); //native 方法</span><br><span class="line">    Signature: ()Ljava/lang/String;  //签名</span><br><span class="line"></span><br><span class="line">  public native int max(int, int); //native 方法</span><br><span class="line">    Signature: (II)I    //签名</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>我们看到上面有()V ，(Landroid/os/Bundle;)V，(Landroid/view/Menu;)Z，(II)I我们一脸懵逼，这是什么鬼，所以我们要来研究下签名的格式</p>
-<h3 id="JNI定义的函数签名信息"><a href="#JNI定义的函数签名信息" class="headerlink" title="JNI定义的函数签名信息"></a>JNI定义的函数签名信息</h3><blockquote>
-<p>(参数1类型标示；参数2类型标示；参数3类型标示…)返回值类型标示</p>
-</blockquote>
-<p>当参数为引用类型的时候，参数类型的标示的根式为”L包名”，其中包名的.(点)要换成”/“，看我上面的例子就差不多，比如String就是Ljava/lang/String，Menu为Landroid/view/Menu。</p>
-<p>如果是基本类类型，其签名如下：</p>
-<table>
-<thead>
-<tr>
-<th>类型标示</th>
-<th>Java类型</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Z</td>
-<td>boolean</td>
-</tr>
-<tr>
-<td>B</td>
-<td>byte</td>
-</tr>
-<tr>
-<td>C</td>
-<td>char</td>
-</tr>
-<tr>
-<td>S</td>
-<td>short</td>
-</tr>
-<tr>
-<td>I</td>
-<td>int</td>
-</tr>
-<tr>
-<td>J</td>
-<td>long</td>
-</tr>
-<tr>
-<td>F</td>
-<td>float</td>
-</tr>
-<tr>
-<td>D</td>
-<td>double</td>
-</tr>
-</tbody>
-</table>
-<p>除了boolean和long，其他都是首字母大写。如果返回值是void，对应的签名是<strong>V</strong>。</p>
-<p>这里重点说1个特殊的类型，一个是数组及Array:</p>
-<table>
-<thead>
-<tr>
-<th>类型标示</th>
-<th>Java类型</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[签名</td>
-<td>数组</td>
-</tr>
-<tr>
-<td>[i</td>
-<td>int[]</td>
-</tr>
-<tr>
-<td>[Ljava/lang/Object</td>
-<td>String[]</td>
-</tr>
-</tbody>
-</table>
-<h2 id="Native调用Java代码"><a href="#Native调用Java代码" class="headerlink" title="Native调用Java代码"></a>Native调用Java代码</h2><p>上面讲解了如何从JNI中调用Java类中的方法，其实在jni.h中已经定义了一系列函数来实现这一目的，下面我们就以此举例说明：</p>
-<h3 id="获取Class对象"><a href="#获取Class对象" class="headerlink" title="获取Class对象"></a>获取Class对象</h3><p>为了能够在C/C++中调用Java中的类，jni.h的头文件专门定义了jclass类型表示Java中Class类。JNIEnv中有3个函数可以获取jclass。</p>
-<blockquote>
-<ul>
-<li>jclass FindClass(const char* clsName)：<br>通过类的名称来获取jclass。</li>
-<li>jclass GetObjectClass(jobject obj)：<br>通过对象实例来获取jclass，相当于Java中的getClass()函数</li>
-<li>jclass getSuperClass(jclass obj)：<br>通过jclass可以获取其父类的jclass对象</li>
-</ul>
-</blockquote>
-<p>通过类的名称获取jclass(类的全名，这时候包名不是用’”.”点号而是用”/“来区分的)。比如:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//获取Java中的String对象的class对象</span><br><span class="line">jclass jcl_string=env-&gt;FindClass(&quot;java/lang/String&quot;);</span><br></pre></td></tr></table></figure></p>
-<h3 id="获取属性方法"><a href="#获取属性方法" class="headerlink" title="获取属性方法"></a>获取属性方法</h3><p>为了在C/C++获取Java层的属性和方法，JNI在jni.h头文件中定义了jfieldID和jmethodID这两种类型来分别代表Java端的属性和方法。</p>
-<p>常见的调用Java层的方法如下，一般是使用JNIEnv来进行操作：</p>
-<blockquote>
-<p>GetFieldID/GetMethodID：获取某个属性/某个方法<br>GetStaticFieldID/GetStaticMethodID：获取某个静态属性/静态方法</p>
-</blockquote>
-<p>方法的具体实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jfieldID GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);</span><br><span class="line">jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz,const char *name, const char *sig);</span><br></pre></td></tr></table></figure></p>
-<p>他们都是4个入参，并且都一样。JNIEnv代表一个JNI环境接口，jclass上面也说了代表Java层中的”类”，name则代表方法名或者属性名，那最后一个char *sig代表签名。</p>
-<h3 id="构造一个对象"><a href="#构造一个对象" class="headerlink" title="构造一个对象"></a>构造一个对象</h3><p>常用的JNI中创建对象的方法如下：</p>
-<blockquote>
-<p>jobject NewObject(jclass clazz, jmethodID methodID, …)</p>
-</blockquote>
-<p>比如有我们知道Java类中可能有多个构造函数，当我们要指定调用某个构造函数的时候，会调用下面这个方法，即把指定的构造函数传入进去即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmethodID mid = (*env)-&gt;GetMethodID(env, cls, &quot;&lt;init&gt;&quot;, &quot;()V&quot;);</span><br><span class="line">obj = (*env)-&gt;NewObject(env, cls, mid);</span><br></pre></td></tr></table></figure></p>
-<p>现在我们来看下他上面的二个主要参数</p>
-<blockquote>
-<p>clazz：是需要创建的Java对象的Class对象<br>methodID：是传递一个方法ID，想一想Java对象创建的时候，需要执行什么操作？就是执行构造函数。</p>
-</blockquote>
-<p>有人会说这要走两行代码，有没有一行代码的，是有的，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobject NewObjectA(JNIEnv *env, jclass clazz, jmethodID methodID, jvalue *args);</span><br></pre></td></tr></table></figure></p>
-<p>这里多了一个参数，即jvalue *args，这里是args代表的是对应构造函数的所有参数的，我们可以应将传递给构造函数的所有参数放在jvalues类型的数组args中，该数组紧跟着放在methodID参数的后面。NewObject()收到数组中的这些参数后，将把它们传给所要调用的Java方法。</p>
-<p>上面说到，参数是个数组，如果参数不是数组怎么处理，jni.h同样也提供了一个方法，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);</span><br></pre></td></tr></table></figure></p>
-<p>这个方法和上面不同在于，这里将构造函数的所有参数放到在va_list类型的参数args中，该参数紧跟着放在methodID参数的后面。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
-<li>JNI获取类的成员变量的ID调用GetFieldID获取，通过Set[类型]Field修改变量值。</li>
-<li>JNI获取类的静态变量的ID调用GetStaticFieldID获取，通过SetStatic[类型]Field修改变量值。</li>
-<li>JNI获取类的方法的ID调用GetMethodID获取，通过Call[类型]Method调用方法。</li>
-<li>JNI获取类的静态方法的ID调用GetStaticMethodID获取，通过CallStatic[类型]Method调用方法。</li>
-<li>JNI获取类的构造方法的ID调用GetMethodID获取，通过NewObject构造，构造函数名为”<init>“。</init></li>
-</ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/b71aeb4ed13d" target="_blank" rel="noopener">https://www.jianshu.com/p/b71aeb4ed13d</a><br><a href="https://www.jianshu.com/p/0f34c097028a" target="_blank" rel="noopener">JNI学习Demo</a><br><a href="https://www.jianshu.com/p/83f3ec4f3ac1" target="_blank" rel="noopener">JNI访问Java变量和方法</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3361,7 +3276,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

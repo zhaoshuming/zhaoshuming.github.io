@@ -293,6 +293,162 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/15/design-mode-proxy/" itemprop="url">代理模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-15T16:59:59+08:00">
+                2019-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>代理模式的定义：由于某些原因需要给某对象提供一个代理以控制对该对象的访问。这时，访问对象不适合或者不能直接引用目标对象，代理对象作为访问对象和目标对象之间的中介。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>代理模式的结构比较简单，主要是通过定义一个继承抽象主题的代理来包含真实主题，从而实现对真实主题的访问：</p>
+<p><img src="/2019/11/15/design-mode-proxy/proxy.jpg" alt></p>
+<p>代理模式的主要角色如下:<br>1、抽象主题（Subject）类：通过接口或抽象类声明真实主题和代理对象实现的业务方法。<br>2、真实主题（Real Subject）类：实现了抽象主题中的具体业务，是代理对象所代表的真实对象，是最终要引用的对象。<br>3、代理（Proxy）类：提供了与真实主题相同的接口，其内部含有对真实主题的引用，它<strong>可以访问、控制或扩展真实主题</strong>的功能。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>代理模式的主要优点有：<br>1、代理模式在客户端与目标对象之间起到一个中介作用和保护目标对象的作用；<br>2、代理对象可以扩展目标对象的功能；<br>3、代理模式能将客户端与目标对象分离，在一定程度上降低了系统的耦合度；</p>
+<p>其主要缺点是：<br>1、在客户端和目标对象之间增加一个代理对象，会造成请求处理速度变慢；<br>2、增加了系统的复杂度；</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、远程代理，这种方式通常是为了隐藏目标对象存在于不同地址空间的事实，方便客户端访问。例如，用户申请某些网盘空间时，会在用户的文件系统中建立一个虚拟的硬盘，用户访问虚拟硬盘时实际访问的是网盘空间。<br>2、虚拟代理，这种方式通常用于要创建的目标对象开销很大时。例如，下载一幅很大的图像需要很长时间，因某种计算比较复杂而短时间无法完成，这时可以先用小比例的虚拟代理替换真实的对象，消除用户对服务器慢的感觉。<br>3、安全代理，这种方式通常用于控制不同种类客户对真实对象的访问权限。<br>4、智能指引，主要用于调用目标对象时，代理附加一些额外的处理功能。例如，增加计算真实对象的引用次数的功能，这样当该对象没有被引用时，就可以自动释放它。<br>5、延迟加载，指为了提高系统的性能，延迟对目标的加载。例如，Hibernate 中就存在属性的延迟加载和关联表的延时加载。</p>
+<h2 id="结构代码实现"><a href="#结构代码实现" class="headerlink" title="结构代码实现"></a>结构代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">//抽象主题</span><br><span class="line">interface Subject</span><br><span class="line">&#123;</span><br><span class="line">    void Request();</span><br><span class="line">&#125;</span><br><span class="line">//真实主题</span><br><span class="line">class RealSubject implements Subject</span><br><span class="line">&#123;</span><br><span class="line">    public void Request()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题方法...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//代理</span><br><span class="line">class Proxy implements Subject</span><br><span class="line">&#123;</span><br><span class="line">    private RealSubject realSubject;</span><br><span class="line">    public void Request()</span><br><span class="line">    &#123;</span><br><span class="line">        if (realSubject==null)</span><br><span class="line">        &#123;</span><br><span class="line">            realSubject=new RealSubject();</span><br><span class="line">        &#125;</span><br><span class="line">        preRequest();</span><br><span class="line">        realSubject.Request();</span><br><span class="line">        postRequest();</span><br><span class="line">    &#125;</span><br><span class="line">    public void preRequest()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题之前的预处理。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public void postRequest()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;访问真实主题之后的后续处理。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class ProxyPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Proxy proxy=new Proxy();</span><br><span class="line">        proxy.Request();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>在前面介绍的代理模式中，代理类中包含了对真实主题的引用，这种方式存在两个缺点：<br>1、真实主题与代理主题一一对应，增加真实主题也要增加代理。<br>2、设计代理以前真实主题必须事先存在，不太灵活。采用动态代理模式可以解决以上问题，如SpringAOP，结构图如下图所示：</p>
+<p><img src="/2019/11/15/design-mode-proxy/proxy-dynamic.jpg" alt title="动态代理模式结构图"></p>
+<h3 id="java中的动态代理"><a href="#java中的动态代理" class="headerlink" title="java中的动态代理"></a>java中的动态代理</h3><p>java动态代理机制中有两个重要的类和接口InvocationHandler（接口）和Proxy（类），这一个类Proxy和接口InvocationHandler是我们实现动态代理的核心：</p>
+<p>1.InvocationHandler接口是proxy代理实例的调用处理程序实现的一个接口，每一个proxy代理实例都有一个关联的调用处理程序；在代理实例调用方法时，方法调用被编码分派到调用处理程序的invoke方法。</p>
+<p>每一个动态代理类的调用处理程序都必须实现InvocationHandler接口，并且每个代理类的实例都关联到了实现该接口的动态代理类调用处理程序中，当我们通过动态代理对象调用一个方法时候，这个方法的调用就会被转发到实现InvocationHandler接口类的invoke方法来调用，看如下invoke方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">  * proxy:代理类代理的真实代理对象com.sun.proxy.$Proxy0</span><br><span class="line">  * method:我们所要调用某个对象真实的方法的Method对象</span><br><span class="line">  * args:指代代理对象方法传递的参数</span><br><span class="line">  */</span><br><span class="line">  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable;</span><br></pre></td></tr></table></figure></p>
+<p>2.Proxy类就是用来创建一个代理对象的类，它提供了很多方法，但是我们最常用的是newProxyInstance方法:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Object newProxyInstance(ClassLoader loader, </span><br><span class="line">                                            Class&lt;?&gt;[] interfaces, </span><br><span class="line">                                            InvocationHandler h)</span><br></pre></td></tr></table></figure></p>
+<p>这个方法的作用就是创建一个代理类对象，它接收三个参数，我们来看下几个参数的含义：<br>1）loader：一个classloader对象，定义了由哪个classloader对象对生成的代理类进行加载<br>2）interfaces：一个interface对象数组，表示我们将要给我们的代理对象提供一组什么样的接口，如果我们提供了这样一个接口对象数组，那么也就是声明了代理类实现了这些接口，代理类就可以调用接口中声明的所有方法。<br>3）h：一个InvocationHandler对象，表示的是当动态代理对象调用方法的时候会关联到哪一个InvocationHandler对象上，并最终由其调用。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-mediator/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1771,156 +1927,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/28/design-mode-cor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/28/design-mode-cor/" itemprop="url">责任链模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T11:11:25+08:00">
-                2019-10-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>　　责任链（Chain of Responsibility）是一种对象的行为模式：很多对象由每一个对象对其下家的引用而连接起来形成一条链，请求在这个链上传递，直到链上的某一个对象决定处理此请求；发出这个请求的客户端并不知道链上的哪一个对象最终处理这个请求，这使得系统可以在不影响客户端的情况下动态地重新组织和分配责任。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>在责任链模式中，<strong>客户只需要将请求发送到责任链上即可，无须关心请求的处理细节和请求的传递过程</strong>，所以责任链将请求的发送者和请求的处理者解耦了。</p>
-<p><img src="/2019/10/28/design-mode-cor/chain.jpg" alt></p>
-<p>职责链模式主要包含以下角色:<br>1.抽象处理者（Handler）角色：定义一个处理请求的接口，包含抽象处理方法和一个后继连接。<br>2.具体处理者（Concrete Handler）角色：实现抽象处理者的处理方法，判断能否处理本次请求，如果可以处理请求则处理，否则将该请求转给它的后继者。<br>3.客户类（Client）角色：创建处理链，并向链头的具体处理者对象提交请求，它不关心处理细节和请求的传递过程。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1.有多个对象可以处理一个请求，哪个对象处理该请求由运行时刻自动确定。<br>2.可动态指定一组对象处理请求，或添加新的处理者。<br>3.在不明确指定请求处理者的情况下，向多个处理者中的一个提交请求。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>责任链模式是一种对象行为型模式，其主要优点如下：<br>1.降低了对象之间的耦合度。该模式使得一个对象无须知道到底是哪一个对象处理其请求以及链的结构，发送者和接收者也无须拥有对方的明确信息。<br>2.增强了系统的可扩展性。可以根据需要增加新的请求处理类，满足开闭原则。<br>3.增强了给对象指派职责的灵活性。当工作流程发生变化，可以动态地改变链内的成员或者调动它们的次序，也可动态地新增或者删除责任。<br>4.责任链简化了对象之间的连接。每个对象只需保持一个指向其后继者的引用，不需保持其他所有处理者的引用，这避免了使用众多的 if 或者 if···else 语句。<br>5.责任分担。每个类只需要处理自己该处理的工作，不该处理的传递给下一个对象完成，明确各类的责任范围，符合类的单一职责原则。</p>
-<p>其主要缺点如下：<br>1.不能保证每个请求一定被处理。由于一个请求没有明确的接收者，所以不能保证它一定会被处理，该请求可能一直传到链的末端都得不到处理。<br>2.对比较长的职责链，请求的处理可能涉及多个处理对象，系统性能将受到一定影响。<br>3.职责链建立的合理性要靠客户端来保证，增加了客户端的复杂性，可能会由于职责链的错误设置而导致系统出错，如可能会造成循环调用。</p>
-<h2 id="纯与不纯"><a href="#纯与不纯" class="headerlink" title="纯与不纯"></a>纯与不纯</h2><p>职责链模式存在以下两种情况：<br>1.纯的职责链模式：一个请求必须被某一个处理者对象所接收，且一个具体处理者对某个请求的处理只能采用以下两种行为之一：自己处理（承担责任）；把责任推给下家处理。<br>2.不纯的职责链模式：允许出现某一个具体处理者对象在承担了请求的一部分责任后又将剩余的责任传给下家的情况，且一个请求可以最终不被任何接收端对象所接收。<br>纯的责任链模式的实际例子很难找到，一般看到的例子均是不纯的责任链模式的实现。</p>
-<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">public class ChainOfResponsibilityPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        //组装责任链 </span><br><span class="line">        Handler handler1=new ConcreteHandler1(); </span><br><span class="line">        Handler handler2=new ConcreteHandler2(); </span><br><span class="line">        handler1.setNext(handler2); </span><br><span class="line">        //提交请求 </span><br><span class="line">        handler1.handleRequest(&quot;two&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//抽象处理者角色</span><br><span class="line">abstract class Handler</span><br><span class="line">&#123;</span><br><span class="line">    private Handler next;</span><br><span class="line">    public void setNext(Handler next)</span><br><span class="line">    &#123;</span><br><span class="line">        this.next=next; </span><br><span class="line">    &#125;</span><br><span class="line">    public Handler getNext()</span><br><span class="line">    &#123; </span><br><span class="line">        return next; </span><br><span class="line">    &#125;   </span><br><span class="line">    //处理请求的方法</span><br><span class="line">    public abstract void handleRequest(String request);       </span><br><span class="line">&#125;</span><br><span class="line">//具体处理者角色1</span><br><span class="line">class ConcreteHandler1 extends Handler</span><br><span class="line">&#123;</span><br><span class="line">    public void handleRequest(String request)</span><br><span class="line">    &#123;</span><br><span class="line">        if(request.equals(&quot;one&quot;)) </span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(&quot;具体处理者1负责处理该请求！&quot;);       </span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            if(getNext()!=null) </span><br><span class="line">            &#123;</span><br><span class="line">                getNext().handleRequest(request);             </span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                System.out.println(&quot;没有人处理该请求！&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">//具体处理者角色2</span><br><span class="line">class ConcreteHandler2 extends Handler</span><br><span class="line">&#123;</span><br><span class="line">    public void handleRequest(String request)</span><br><span class="line">    &#123;</span><br><span class="line">        if(request.equals(&quot;two&quot;)) </span><br><span class="line">        &#123;</span><br><span class="line">            System.out.println(&quot;具体处理者2负责处理该请求！&quot;);       </span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            if(getNext()!=null) </span><br><span class="line">            &#123;</span><br><span class="line">                getNext().handleRequest(request);             </span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                System.out.println(&quot;没有人处理该请求！&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1973,7 +1979,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

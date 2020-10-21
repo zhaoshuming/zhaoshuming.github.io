@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="flutter,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Flutter 跨端技术一经推出便在业内赢得了不错的口碑，它在“多端一致”和“渲染性能”上的优势让其他跨端方案很难比拟。虽然 Flutter 的成长曲线和未来前景看起来都很好，但不可否认的是，目前 Flutter 仍处在发展阶段，很多大型互联网企业都无法毫无顾虑地让全线 App 接入，而其中最主要的顾虑是包大小与动态化。 动态化代表着更短的需求上线路径，代表着大大压缩了原始包的大小，从而获得更高的">
+<meta name="keywords" content="flutter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter动态化方案">
+<meta property="og:url" content="http://yoursite.com/2020/10/13/flutter-dynamic/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="Flutter 跨端技术一经推出便在业内赢得了不错的口碑，它在“多端一致”和“渲染性能”上的优势让其他跨端方案很难比拟。虽然 Flutter 的成长曲线和未来前景看起来都很好，但不可否认的是，目前 Flutter 仍处在发展阶段，很多大型互联网企业都无法毫无顾虑地让全线 App 接入，而其中最主要的顾虑是包大小与动态化。 动态化代表着更短的需求上线路径，代表着大大压缩了原始包的大小，从而获得更高的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/rn.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/mxflutter.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/analyze.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/arcti.png">
+<meta property="og:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/ast.png">
+<meta property="og:updated_time" content="2020-10-21T08:53:04.314Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter动态化方案">
+<meta name="twitter:description" content="Flutter 跨端技术一经推出便在业内赢得了不错的口碑，它在“多端一致”和“渲染性能”上的优势让其他跨端方案很难比拟。虽然 Flutter 的成长曲线和未来前景看起来都很好，但不可否认的是，目前 Flutter 仍处在发展阶段，很多大型互联网企业都无法毫无顾虑地让全线 App 接入，而其中最主要的顾虑是包大小与动态化。 动态化代表着更短的需求上线路径，代表着大大压缩了原始包的大小，从而获得更高的">
+<meta name="twitter:image" content="http://yoursite.com/2020/10/13/flutter-dynamic/rn.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/10/13/flutter-dynamic/">
+
+
+
+
+
+  <title>Flutter动态化方案 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/flutter-dynamic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Flutter动态化方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-10-13T14:16:29+08:00">
+                2020-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Flutter 跨端技术一经推出便在业内赢得了不错的口碑，它在“多端一致”和“渲染性能”上的优势让其他跨端方案很难比拟。虽然 Flutter 的成长曲线和未来前景看起来都很好，但不可否认的是，目前 Flutter 仍处在发展阶段，很多大型互联网企业都无法毫无顾虑地让全线 App 接入，而其中最主要的顾虑是包大小与动态化。</p>
+<p>动态化代表着更短的需求上线路径，代表着大大压缩了原始包的大小，从而获得更高的用户下载意向，也代表着更健全的线上质量维护体系。当明白这些意义后，我们也就不难理解，在 Flutter 的应用与适配趋近完善时，动态化自然就成为了一个无法避开的话题。RN 和 Weex 等成熟技术甚至让大家认为动态化是跨端技术的标配。</p>
+<h2 id="产物替换"><a href="#产物替换" class="headerlink" title="产物替换"></a>产物替换</h2><p>Flutter的动态化，对于Android而言，一个很清晰的思路就是动态替换flutter_assets的所有资源文件，因为Flutter加载代码和资源的工作目录即是应用沙盒目录下的app_flutter目录，我们把这个目录下的文件进行对应替换即可，而对于IOS，由于本身系统的限制，官方目前也没相应方案。</p>
+<p>Flutter 在 Release 模式下构建的是 AOT 编译产物，iOS 是 AOT Assembly，Android 默认 AOTBlob。同时 Flutter 也支持 JIT Release模式，可以动态加载 Kernel snapshot 或 App-JIT snapshot。如果在 AOT 上支持 JIT，就可以实现动态化能力。但问题在于，AOT 依赖的 Dart VM 和 JIT 并不一样，AOT 需要一个编译后的 “Dart VM”（更准确地说是 Precompiled Runtime），JIT 依赖的是 Dart VM（一个虚拟机，提供语言执行环境）；并且 JIT Release 并不支持 iOS 设备，构建的应用也不能在 AppStore 上发布。</p>
+<p>具体可参考：<a href="https://www.jianshu.com/p/d193ce2c72c7" target="_blank" rel="noopener">Android平台上的Dynamic Patch</a><br><a href="https://juejin.im/post/6844903984113647623#heading-2" target="_blank" rel="noopener">https://juejin.im/post/6844903984113647623#heading-2</a></p>
+<h2 id="类似React-Native-框架"><a href="#类似React-Native-框架" class="headerlink" title="类似React Native 框架"></a>类似React Native 框架</h2><p>我们先来看看React Native 的架构：</p>
+<p><img src="/2020/10/13/flutter-dynamic/rn.png" alt></p>
+<p>React Native 要转为android（ios） 的原生组件，再进行渲染。用React Native的设计思路，把XML DSL转为Flutter 的原子widget组件，让Flutter 来渲染。技术上说是可行的。</p>
+<p><strong>基于JS的高性能Flutter动态化框架：</strong></p>
+<p>MXFlutter （Matrix Flutter）核心思路是把 Flutter 的渲染逻辑中的三棵树中的第一棵，放到 JavaScript 中生成。用 JavaScript 完整实现了 Flutter 控件层封装，可以使用 JavaScript，用极其类似 Dart 的开发方式，开发Flutter应用，利用JavaScript版的轻量级Flutter Runtime，生成UI描述，传递给Dart层的UI引擎，UI引擎把UI描述生产真正的 Flutter 控件。一句话介绍MXFlutter，就是用JavaScript，以Flutter的写法开发Flutter。</p>
+<p><img src="/2020/10/13/flutter-dynamic/mxflutter.png" alt></p>
+<p>这套方案通过JSCore代替DartVM，使用JS来写Widget，从而实现了动态化。但至于MXFlutter所宣传单“高性能”，我觉得还是有待商榷，比起原生的Flutter，JS与Native、Dart间的通信增加了不小的额外开销。同时由于J2V8库的引入，对于包体积也会有不小的增加，但这的确是一条可行的动态化思路。</p>
+<p>具体可参考：<a href="https://github.com/mxflutter/mxflutter" target="_blank" rel="noopener">https://github.com/mxflutter/mxflutter</a></p>
+<h2 id="页面动态组件框架"><a href="#页面动态组件框架" class="headerlink" title="页面动态组件框架"></a>页面动态组件框架</h2><p>由粗粒度的Widget组件动态拼装出页面(此处DSL 的基本原理就是对AST抽象语法树内数据的一个描述，并附带一些其他操作)。Native端已经有很多成熟的框架，如天猫的Tangram，淘宝的DinamicX，它在性能、动态性，开发周期上取得较好平衡。关键它能满足大部分的动态性需求，能解决问题。</p>
+<p>在Flutter上使用粗力度的组件动态拼装来构建页面，需要一整套的前后端服务和工具。</p>
+<h3 id="语法树的选择"><a href="#语法树的选择" class="headerlink" title="语法树的选择"></a>语法树的选择</h3><p>Native端的Tangram ，DinamicX等框架他们有个共同点，都是Xml或者Html 做为DSL。但是Flutter 是React Style语法。他自己的语法已经能很好的表达页面。无需要自定义的Xml 语法，自定义的逻辑表达式。用Flutter 源码做为DSL 能大大减轻开发，测试过程，不需要额外的工具支持。所以<strong>选择了Flutter 源码作为DSL，来实现动态化</strong>。</p>
+<h3 id="如何解析DSL"><a href="#如何解析DSL" class="headerlink" title="如何解析DSL"></a>如何解析DSL</h3><p>Flutter源码做为DSL，那我们需要对源码进行很好的解析和分析。Flutter analyzer给了我们一些思路，Flutter analyzer是一个代码风格检测工具。它使用package:analyzer来解析dart 源码，拿到ASTNode。</p>
+<p>看下Flutter analyze 源码结构，它使用了dart sdk 里面的 package:analyzer<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dart-sdk:  </span><br><span class="line">     analysis_server: </span><br><span class="line">         analysis_server.dart</span><br><span class="line">         handleRequest(Request request) </span><br><span class="line">         </span><br><span class="line">     analyzer:</span><br><span class="line">         parseCompilationUnit（）</span><br><span class="line">         parseDartFile </span><br><span class="line">         parseDirectives</span><br></pre></td></tr></table></figure></p>
+<p>Flutter analyze 解析源码得到ASTNode过程。</p>
+<p><img src="/2020/10/13/flutter-dynamic/analyze.png" alt></p>
+<p>插件或者命令对analysis server发起请求，请求中带需要分析的文件path，和分析的类型，analysis_server经过使用 package:analyzer 获取 commilationUnit （ASTNode），再对astNode，经过computer分析，返回一个分析结果list。</p>
+<p>同样我们也可以把使用 package:analyzer 把源文件转换为commilationUnit （ASTNode)，ASTNode是一个抽象语法树，抽象语法树（abstract syntax tree或者缩写为AST）是源代码的抽象语法结构的树状表现形式.</p>
+<p>所有利用抽象语法树能很好的解析dart 源码。</p>
+<h3 id="解析渲染引擎"><a href="#解析渲染引擎" class="headerlink" title="解析渲染引擎"></a>解析渲染引擎</h3><p>下面重点介绍渲染模块</p>
+<p>架构图：</p>
+<p><img src="/2020/10/13/flutter-dynamic/arcti.png" alt></p>
+<h4 id="1-源码解析过程"><a href="#1-源码解析过程" class="headerlink" title="1.源码解析过程"></a>1.源码解析过程</h4><p>1.AST树的结构</p>
+<p>如下面这段Flutter组件源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import &apos;package:flutter/material.dart&apos;;</span><br><span class="line"></span><br><span class="line">class FollowedTopicCard extends StatelessWidget &#123;</span><br><span class="line">  @override</span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    return new Container(</span><br><span class="line">      padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0.0),</span><br><span class="line">      child: new InkWell(</span><br><span class="line">        child: new Center(</span><br><span class="line">          child: const Text(&apos;Plugin example app&apos;),</span><br><span class="line">        ),</span><br><span class="line">        onTap: () &#123;&#125;,</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>它的AST结构：</p>
+<p><img src="/2020/10/13/flutter-dynamic/ast.png" alt></p>
+<p>从AST结构看，他是有规律的.</p>
+<p>2.AST 到widget Node</p>
+<p>我们拿到了ASTNode，但ASTNode 和widget node tree 完全是两个不一样的概念，<br>需要递归ASTNode 转化为 widget node tree.</p>
+<p>widget Node 需要的元素</p>
+<p>用Name 来记录是什么类型的widget</p>
+<p>widget的arguments放在 map里面</p>
+<p>widget 的literals 放在list 里面</p>
+<p>widget 的children 放在lsit 里面</p>
+<p>widget 的触发事件 函数map里面</p>
+<p>widget node 加fromjson ，tojson 方法</p>
+<p>可以在递归astNode tree 时候，识别InstanceCreationExpression来创建一个widget node。</p>
+<h4 id="2-组件数据渲染"><a href="#2-组件数据渲染" class="headerlink" title="2.组件数据渲染"></a>2.组件数据渲染</h4><p>框架sdk 中注册支持的组件，组件包括：</p>
+<p>a.原子组件：Flutter sdk 中的 Flutter 的widget</p>
+<p>b.本地组件：本地写好到一个大颗粒的组件，卡片widget组件</p>
+<p>c.逻辑组件：本地包装了逻辑的widget组件</p>
+<p>d.动态组件：通过源码dsl动态渲染的widget</p>
+<p>具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> const Map&lt;String, CreateDynamicApi&gt; allWidget = &lt;String,  </span><br><span class="line"> CreateDynamicApi&gt;&#123;</span><br><span class="line">  &apos;Container&apos;: wrapContainer,</span><br><span class="line">     ………….</span><br><span class="line">&#125;</span><br><span class="line"> static Widget wrapContainer(Map&lt;String, dynamic&gt; pars) &#123;</span><br><span class="line">  return new Container(</span><br><span class="line">    padding: pars[&apos;padding&apos;],</span><br><span class="line">    color: pars[&apos;color&apos;],</span><br><span class="line">    child: pars[&apos;child&apos;],</span><br><span class="line">    decoration: pars[&apos;decoration&apos;],</span><br><span class="line">    width: pars[&apos;width&apos;],</span><br><span class="line">    height: pars[&apos;height&apos;],</span><br><span class="line">    alignment: pars[&apos;alignment&apos;]</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一般我们通过网络请求拿到的数据是一个map。<br>比如源码中写了这么一个 ‘${data.urls[1]}’<br>AST 解析时候，拿到这么一个string，或者AST 表达式，通过解析它 ，肯定能从map 中拿到对应的值。</p>
+<h4 id="3-逻辑和事件"><a href="#3-逻辑和事件" class="headerlink" title="3.逻辑和事件"></a>3.逻辑和事件</h4><p>a.支持逻辑</p>
+<p>Flutter 概念万物都是widget ，可以把表达式，逻辑封装成一个自定义widget。如果在源码里面写了if else，变量等，会加重sdk解析的过程。所以把逻辑封装到widget中。这些逻辑widget，当作组件当成框架组件。</p>
+<p>b.支持事件</p>
+<p>把页面跳转，弹框，等服务，注册在sdk里面。约定使用者仅限sdk 的服务。</p>
+<h4 id="4-规则和检测工具"><a href="#4-规则和检测工具" class="headerlink" title="4.规则和检测工具"></a>4.规则和检测工具</h4><p>a.检测规则</p>
+<p>需要对源码的格式制定规则。比如不支持 直接写if else ，需要使用逻辑wiget组件来代替if else 语句。如果不制定规则，那ast Node 到widget node 的解析过程会很复杂。理论上都可以解析，只要解析sdk 够强大。制定规则，可以减轻sdk的解析逻辑。</p>
+<p>b.工具检测</p>
+<p>用工具来检测源码是否符合制定的规则，以保证所有的源码都能解析出来。</p>
+<h3 id="性能和效果"><a href="#性能和效果" class="headerlink" title="性能和效果"></a>性能和效果</h3><p>帧率大于50fps，体验上看比weex相同功能的页面更加流畅，Samsung galaxy s8上，感觉不出组件是通过动态渲染的.</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>服务端请求到的数据，我们可以约定一种格式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class DataModel &#123;</span><br><span class="line"></span><br><span class="line">  Map&lt;dynamic, dynamic&gt;  data;</span><br><span class="line"></span><br><span class="line">  String type;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>每个page 都是由组件组成的，每个组件的数据都是 DataModel来渲染。<br>根据type 来找到对应的模版，模版+data，渲染出界面。</p>
+<h3 id="动态模版管理模块"><a href="#动态模版管理模块" class="headerlink" title="动态模版管理模块"></a>动态模版管理模块</h3><p>我们把Widget Node Tree 转换为一个组件Json模版，它需要一套管理平台，来支持版本控制，动态下载，升级，回滚，更新等。</p>
+<h3 id="框架的边界"><a href="#框架的边界" class="headerlink" title="框架的边界"></a>框架的边界</h3><p>该框架是通过组件的组装，组件布局动态变更，页面布局动态变更来实现动态化。所以它适合运营变化较快的首页，详情，订单，我的等页面。一些复杂的逻辑需要封装在组件里面，把组件内置到框架中，当作本地组件。框架侧重于动态组件的组装，而引擎对于源码复杂的逻辑表达式的解析是弱化的。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d193ce2c72c7" target="_blank" rel="noopener">Android平台上的Dynamic Patch</a><br><a href="https://juejin.im/post/6844903984113647623#heading-2" target="_blank" rel="noopener">https://juejin.im/post/6844903984113647623#heading-2</a><br><a href="https://zhuanlan.zhihu.com/p/108124916?utm_source=qq" target="_blank" rel="noopener">MXFlutter</a><br><a href="https://github.com/mxflutter/mxflutter" target="_blank" rel="noopener">https://github.com/mxflutter/mxflutter</a><br><a href="https://developer.aliyun.com/article/674859" target="_blank" rel="noopener">页面动态组件</a><br><a href="https://tech.meituan.com/2020/06/23/meituan-flutter-flap.html" target="_blank" rel="noopener">美团方案</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/flutter/" rel="tag"># flutter</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/07/android-kotlin-flow/" rel="next" title="Kotlin Coroutines Flow">
+                <i class="fa fa-chevron-left"></i> Kotlin Coroutines Flow
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#产物替换"><span class="nav-number">1.</span> <span class="nav-text">产物替换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类似React-Native-框架"><span class="nav-number">2.</span> <span class="nav-text">类似React Native 框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#页面动态组件框架"><span class="nav-number">3.</span> <span class="nav-text">页面动态组件框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#语法树的选择"><span class="nav-number">3.1.</span> <span class="nav-text">语法树的选择</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何解析DSL"><span class="nav-number">3.2.</span> <span class="nav-text">如何解析DSL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析渲染引擎"><span class="nav-number">3.3.</span> <span class="nav-text">解析渲染引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-源码解析过程"><span class="nav-number">3.3.1.</span> <span class="nav-text">1.源码解析过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-组件数据渲染"><span class="nav-number">3.3.2.</span> <span class="nav-text">2.组件数据渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-逻辑和事件"><span class="nav-number">3.3.3.</span> <span class="nav-text">3.逻辑和事件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-规则和检测工具"><span class="nav-number">3.3.4.</span> <span class="nav-text">4.规则和检测工具</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能和效果"><span class="nav-number">3.4.</span> <span class="nav-text">性能和效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据结构"><span class="nav-number">3.5.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态模版管理模块"><span class="nav-number">3.6.</span> <span class="nav-text">动态模版管理模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#框架的边界"><span class="nav-number">3.7.</span> <span class="nav-text">框架的边界</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
