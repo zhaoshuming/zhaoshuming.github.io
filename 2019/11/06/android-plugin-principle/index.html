@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/11/06/android-plugin-principle/proxy-activity.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/11/06/android-plugin-principle/hook-activity.jpg">
-<meta property="og:updated_time" content="2020-04-03T07:21:48.010Z">
+<meta property="og:updated_time" content="2020-11-06T02:19:46.803Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android插件化原理">
 <meta name="twitter:description" content="插件化技术，实际上要解决的就是两个问题：1、代码加载2、资源加载 代码加载类的加载可以使用Java的ClassLoader机制，但是对于Android来说，并不是说类加载进来就可以用了，很多组件都是有“生命”的；因此对于这些有血有肉的类，必须给它们注入活力，也就是所谓的组件生命周期管理； 另外，如何管理加载进来的类也是一个问题。假设多个插件依赖了相同的类，是抽取公共依赖进行管理还是插件单独依赖？这">
@@ -465,6 +465,7 @@
 <h2 id="资源加载"><a href="#资源加载" class="headerlink" title="资源加载"></a>资源加载</h2><p>资源加载方案大家使用的原理都差不多，<strong>都是用AssetManager的隐藏方法addAssetPath</strong>；但是，不同插件的资源如何管理？是公用一套资源还是插件独立资源？共用资源如何避免资源冲突？对于资源加载，有的方案共用一套资源并采用资源分段机制解决冲突（要么修改aapt要么添加编译插件）；有的方案选择独立资源，不同插件管理自己的资源。</p>
 <p>Android系统通过Resource对象加载资源，下面代码展示了该对象的生成过程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//创建AssetManager对象 </span><br><span class="line">AssetManager assets = new AssetManager();</span><br><span class="line"> //将apk路径添加到AssetManager中</span><br><span class="line">  if (assets.addAssetPath(resDir) == 0)&#123;              </span><br><span class="line">    return null;  </span><br><span class="line">&#125;</span><br><span class="line"> //创建Resource对象</span><br><span class="line">r = new Resources(assets, metrics, getConfiguration(), compInfo);</span><br></pre></td></tr></table></figure></p>
 <p>因此，只要将插件apk的路径加入到AssetManager中，便能够实现对插件资源的访问。具体实现时，由于AssetManager并不是一个public的类，需要通过反射去创建，并且部分Rom对创建的Resource类进行了修改，所以需要考虑不同Rom的兼容性。</p>
+<p>不同版本res加载方式有差异,可参考：<a href="https://zhuanlan.zhihu.com/p/34346219" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/34346219</a></p>
 <h3 id="资源路径的处理"><a href="#资源路径的处理" class="headerlink" title="资源路径的处理"></a>资源路径的处理</h3><p>和代码加载相似，插件和主工程的资源关系也有两种处理方式：<br>合并式：addAssetPath时加入所有插件和主工程的路径；<br>独立式：各个插件只添加自己apk路径</p>
 <table>
 <thead>
@@ -491,7 +492,7 @@
 <p>独立式时，各个插件的资源是互相隔离的，不过如果想要实现资源的共享，必须拿到对应的Resource对象。</p>
 <h3 id="解决资源冲突"><a href="#解决资源冲突" class="headerlink" title="解决资源冲突"></a>解决资源冲突</h3><p>合并式的资源处理方式，会引入资源冲突，原因在于不同插件中的资源id可能相同，所以解决方法就是使得不同的插件资源拥有不同的资源id。</p>
 <p>资源id是由8位16进制数表示，表示为0xPPTTNNNN。PP段用来区分包空间，默认只区分了应用资源和系统资源，TT段为资源类型，NNNN段在同一个APK中从0000递增。</p>
-<p>所以思路是修改资源ID的PP段，对于不同的插件使用不同的PP段，从而区分不同插件的资源。具体实现方式有两种：<br>1.修改aapt源码，编译期修改PP段。<br>2.修改resources.arsc文件，该文件列出了资源id到具体资源路径的映射。</p>
+<p>所以思路是<strong>修改资源ID的PP段，对于不同的插件使用不同的PP段</strong>，从而区分不同插件的资源。具体实现方式有两种：<br>1.修改aapt源码，编译期修改PP段。<br>2.修改resources.arsc文件，该文件列出了资源id到具体资源路径的映射。</p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>apk被安装之后，apk的文件代码以及资源会被系统存放在固定的目录比如/data/app/package_name/xxx.apk)中，系统在进行类加载的时候，会自动去这一个或者几个特定的路径来寻找这个类。</p>
 <p>但是要知道插件apk是不会被安装的，那么系统也就不会讲我们的代理及资源存在在这个目录下，换句话说系统并不知道我们插件apk中的任何信息，也就根本不可能加载我们插件中的类。我们之前分析过应用的启动过程，其实就是启动了我们的主Activity，然后在ActivityThread的performLaunchActivity方法中创建的Activity对象并回调了attch和onCreate方法。系统通过待启动的Activity的类名className，然后使用ClassLoader对象cl把这个类加载，最后使用反射创建了这个Activity类的实例对象。</p>
 <p>有两种实现方法：</p>
@@ -520,7 +521,7 @@
 7.然后我们查看BaseDexClassLoader发现他创建时创建了一个DexPathList类型的pathList对象，然后在findClass时调用了pathList.findClass的方法
 
 8.然后我们查看DexPathList类中的findClass发现他内部维护了一个Element[] dexElements的dex数组，findClass时是从数组中遍历查找的
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/yulong0809/article/details/59113935" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/59113935</a><br><a href="https://yq.aliyun.com/articles/361233?utm_content=m_40296" target="_blank" rel="noopener">深入理解Android插件化技术</a></p>
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/yulong0809/article/details/59113935" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/59113935</a><br><a href="https://yq.aliyun.com/articles/361233?utm_content=m_40296" target="_blank" rel="noopener">深入理解Android插件化技术</a><br><a href="https://zhuanlan.zhihu.com/p/34346219" target="_blank" rel="noopener">爱奇艺组件化探索之原理篇</a></p>
 
       
     </div>
@@ -636,7 +637,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

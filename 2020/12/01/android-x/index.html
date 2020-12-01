@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="AndroidX介绍按照官方文档说明 AndroidX 是对 android.support.xxx 包的整理后产物。由于之前的 support 包过于混乱，所以，Google 推出了AndroidX。 由于在后续版本中，会逐步放弃对 support 的升级和维护，所以，我们必须迁移到 AndroidX。  注意：我们建议在单独的分支中执行迁移。此外，还应设法避免在执行迁移时重构代码。  编译环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AndroidX 迁移">
+<meta property="og:url" content="http://yoursite.com/2020/12/01/android-x/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="AndroidX介绍按照官方文档说明 AndroidX 是对 android.support.xxx 包的整理后产物。由于之前的 support 包过于混乱，所以，Google 推出了AndroidX。 由于在后续版本中，会逐步放弃对 support 的升级和维护，所以，我们必须迁移到 AndroidX。  注意：我们建议在单独的分支中执行迁移。此外，还应设法避免在执行迁移时重构代码。  编译环境">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2020/12/01/android-x/third_lib_error.webp">
+<meta property="og:updated_time" content="2020-12-01T07:32:55.513Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AndroidX 迁移">
+<meta name="twitter:description" content="AndroidX介绍按照官方文档说明 AndroidX 是对 android.support.xxx 包的整理后产物。由于之前的 support 包过于混乱，所以，Google 推出了AndroidX。 由于在后续版本中，会逐步放弃对 support 的升级和维护，所以，我们必须迁移到 AndroidX。  注意：我们建议在单独的分支中执行迁移。此外，还应设法避免在执行迁移时重构代码。  编译环境">
+<meta name="twitter:image" content="http://yoursite.com/2020/12/01/android-x/third_lib_error.webp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/12/01/android-x/">
+
+
+
+
+
+  <title>AndroidX 迁移 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/01/android-x/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AndroidX 迁移</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-12-01T10:36:03+08:00">
+                2020-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="AndroidX介绍"><a href="#AndroidX介绍" class="headerlink" title="AndroidX介绍"></a>AndroidX介绍</h2><p>按照官方文档说明 AndroidX 是对 android.support.xxx 包的整理后产物。由于之前的 support 包过于混乱，所以，Google 推出了AndroidX。</p>
+<p>由于在后续版本中，会逐步放弃对 support 的升级和维护，所以，我们必须迁移到 AndroidX。</p>
+<blockquote>
+<p>注意：我们建议在单独的分支中执行迁移。此外，还应设法避免在执行迁移时重构代码。</p>
+</blockquote>
+<h2 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h2><p>AndroidStudio3.2及以上</p>
+<p>targetSdkVersion版本为28及以上</p>
+<p>gradle要3.2.0及以上</p>
+<h2 id="迁移步骤"><a href="#迁移步骤" class="headerlink" title="迁移步骤"></a>迁移步骤</h2><h3 id="1-修改gradle-properties"><a href="#1-修改gradle-properties" class="headerlink" title="1. 修改gradle.properties"></a>1. 修改gradle.properties</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">android.useAndroidX=true</span><br><span class="line">android.enableJetifier=true</span><br></pre></td></tr></table></figure>
+<p>android.useAndroidX=true 表示启用 androidx</p>
+<p>android.enableJetifier=true 表示将依赖包也迁移到androidx 。如果取值为false,表示不迁移依赖包到androidx，但在使用依赖包中的内容时可能会出现问题，如果项目中没有使用任何三方依赖，可以设置为false。</p>
+<h3 id="2-更新依赖"><a href="#2-更新依赖" class="headerlink" title="2. 更新依赖"></a>2. 更新依赖</h3><p>将app依赖的三方库尽量都升级到支持androidx的版本，这样可以避免在迁移中发生冲突。</p>
+<h3 id="3-在AS中执行Refactor-gt-Migrate-to-AndroidX"><a href="#3-在AS中执行Refactor-gt-Migrate-to-AndroidX" class="headerlink" title="3. 在AS中执行Refactor-&gt;Migrate to AndroidX"></a>3. 在AS中执行Refactor-&gt;Migrate to AndroidX</h3><p>在执行该操作时会提醒我们是否将当前项目打包备份。如果你提前已经做好了备份，可以忽略；如果没有备份，则先备份。</p>
+<p>当然一般情况，这一步执行完以后还有很多support库的引用没有更换为androidx。</p>
+<p>Activity/Fragment/XML（包括涉及到使用support包的工具类等），原来引用support包中的类，在Migrate后并不能完全对应，会有很多错误（方便还是有代价的，通往幸福的路总是充满坎坷），所以需要改成对应的androidX中的类引用。</p>
+<blockquote>
+<p>注：可以手动迁移，除了麻烦点并没有太大风险。</p>
+</blockquote>
+<h3 id="4-混淆更改"><a href="#4-混淆更改" class="headerlink" title="4. 混淆更改"></a>4. 混淆更改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># androidx</span><br><span class="line">-keep class com.google.android.material.** &#123;*;&#125;</span><br><span class="line">-keep class androidx.** &#123;*;&#125;</span><br><span class="line">-keep public class * extends androidx.**</span><br><span class="line">-keep interface androidx.** &#123;*;&#125;</span><br><span class="line">-keep @androidx.annotation.Keep class *</span><br><span class="line">-keepclassmembers class * &#123;</span><br><span class="line">    @androidx.annotation.Keep *;</span><br><span class="line">&#125;</span><br><span class="line">-dontwarn com.google.android.material.**</span><br><span class="line">-dontnote com.google.android.material.**</span><br><span class="line">-dontwarn androidx.**</span><br></pre></td></tr></table></figure>
+<h2 id="版本库统一管理"><a href="#版本库统一管理" class="headerlink" title="版本库统一管理"></a>版本库统一管理</h2><p>由于升级插件的原因，原来的使用gradle全局管理依赖会直接被替换，比如以前引用是这样的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation rootProject.ext.dependencies.libSupportAppcompatV7</span><br></pre></td></tr></table></figure></p>
+<p>被替换之后就是这样了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation &quot;androidx.appcompat:appcompat:1.0.0&quot;</span><br></pre></td></tr></table></figure></p>
+<p>为了我们方便管理我们需要手动更改一下，然后根据我们的需要在对应的引入文件替换。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//androidx</span><br><span class="line">libXAnnotation            : &quot;androidx.annotation:annotation:$&#123;ANDROIDX_LIB_VERSION&#125;&quot;,</span><br><span class="line">libXAppcompat             : &quot;androidx.appcompat:appcompat:$&#123;ANDROIDX_LIB_VERSION&#125;&quot;,</span><br><span class="line">libXRecyclerview          : &quot;androidx.recyclerview:recyclerview:$&#123;ANDROIDX_LIB_VERSION&#125;&quot;,</span><br><span class="line">libXCoreKtx               : &quot;androidx.core:core-ktx:$ANDROIDX_LIB_VERSION&quot;,</span><br><span class="line">libXFragmentKtx           : &quot;androidx.fragment:fragment-ktx:$ANDROIDX_LIB_VERSION&quot;,</span><br><span class="line">libXSwiperefreshlayout    : &quot;androidx.swiperefreshlayout:swiperefreshlayout:$ANDROIDX_LIB_VERSION&quot;,</span><br><span class="line">libXMaterial              : &quot;com.google.android.material:material:$&#123;ANDROIDX_LIB_VERSION&#125;&quot;,//替代com.android.support:design</span><br><span class="line"></span><br><span class="line">libXMultidex              : &apos;androidx.multidex:multidex:2.0.0&apos;,</span><br><span class="line">libConstraintLayout       : &apos;androidx.constraintlayout:constraintlayout:1.1.3&apos;,//暂时有需要用到</span><br><span class="line">libXCardView              : &apos;androidx.cardview:cardview:1.0.0&apos;,//替代com.android.support:cardview-v7</span><br></pre></td></tr></table></figure></p>
+<p>具体查看<a href="https://developer.android.google.cn/jetpack/androidx/migrate" target="_blank" rel="noopener">官方组建映射对照表</a>，更换之后编译解决报错即可，主要是一些三方依赖造成依赖冲突的问题，可以类似第一步强制指定版本号。</p>
+<h2 id="修改未自动迁移的三方库"><a href="#修改未自动迁移的三方库" class="headerlink" title="修改未自动迁移的三方库"></a>修改未自动迁移的三方库</h2><p>虽然我们从 gradle 中配置了迁移三方库的参数，但是，由于三方库的版本更新问题，也可能会迁移失败。在三方库迁移失败时，如果使用了数据绑定，通常会报如下错误：</p>
+<p><img src="/2020/12/01/android-x/third_lib_error.webp" alt></p>
+<p>碰到上述错误之后，我们可以按下列步骤处理：</p>
+<p>1、在 gradle 文件中，将可升级的三方库升级（通常情况下，可升级的三方库会有黄色提示）</p>
+<p>2、如果 gradle 中可升级的库都升级之后依旧报上述错误，那么，可以新建一个项目，然后将 gradle 中的依赖库逐个拷贝到新项目中，每拷贝一个编译一次，这样可以确认是哪个三方库有问题。（实际操作时可以使用二分法的方式进行，每次拷贝一半的依赖库，然后编译）。然后就可以有针对性的处理了</p>
+<h3 id="解决AndroidX与第三方库依赖冲突"><a href="#解决AndroidX与第三方库依赖冲突" class="headerlink" title="解决AndroidX与第三方库依赖冲突"></a>解决AndroidX与第三方库依赖冲突</h3><p>如果你的项目引用了AndroidX 但是现在起GitHub上很多的第三方库,引用的还是Android support依赖。这样就会产生类似于Error: Program type already present: androidx.legacy.app.ActionBarDrawerToggle$Delegate的错误提示。这个表示AndroidX 与 Android support冲突。</p>
+<p>解决方案:</p>
+<blockquote>
+<p>implementation(‘第三方库的依赖’) { exclude group: ‘com.android.support’ }</p>
+</blockquote>
+<h2 id="其它坑点"><a href="#其它坑点" class="headerlink" title="其它坑点"></a>其它坑点</h2><h3 id="1-注解处理器冲突"><a href="#1-注解处理器冲突" class="headerlink" title="1. 注解处理器冲突"></a>1. 注解处理器冲突</h3><p>运行报错发现是因为项目中有用到butterknife，使用的版本没有androidX支持，更新到最新的10.1.0。（Glide、Dagger之类的也会出现）</p>
+<h3 id="2-androidX严格检查引起的问题"><a href="#2-androidX严格检查引起的问题" class="headerlink" title="2. androidX严格检查引起的问题"></a>2. androidX严格检查引起的问题</h3><ul>
+<li><p>AndroidManifest.XML文件报错(注释检查)</p>
+</li>
+<li><p>修复 DataBinding 中的错误（重名id错误）</p>
+</li>
+<li><p>去除 attr.xml 中重复的属性名称（自定义控件中属性与系统已有属性重名）</p>
+</li>
+<li><p>包名不规范（包名以小写或者“_”的形式，不要用大写等）</p>
+</li>
+</ul>
+<h3 id="3-莫名问题的解决"><a href="#3-莫名问题的解决" class="headerlink" title="3. 莫名问题的解决"></a>3. 莫名问题的解决</h3><p>迁移过程中如果爆出一些 android 包本身或者其他莫名其妙的问题时，先去 xml 布局文件 或 .java 文件中找一下，是否有继续引用 xxx.support.xxx 的情况，如果有，记得替换成 androidx.xxx.xxx 包下的对应控件。（ xxx 泛指任意内容）</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://developer.android.google.cn/jetpack/androidx/migrate" target="_blank" rel="noopener">官方迁移指南</a></p>
+<p>2、<a href="https://www.jianshu.com/p/6ef3924387e7" target="_blank" rel="noopener">AndroidX终极迁移指南</a></p>
+<p>3、<a href="https://www.jianshu.com/p/7c13898d51fd" target="_blank" rel="noopener">androidx升级</a></p>
+<p>4、<a href="https://www.jianshu.com/p/41de8689615d" target="_blank" rel="noopener">你好,androidX！</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/13/flutter-dynamic/" rel="next" title="Flutter动态化方案">
+                <i class="fa fa-chevron-left"></i> Flutter动态化方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AndroidX介绍"><span class="nav-number">1.</span> <span class="nav-text">AndroidX介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译环境"><span class="nav-number">2.</span> <span class="nav-text">编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迁移步骤"><span class="nav-number">3.</span> <span class="nav-text">迁移步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-修改gradle-properties"><span class="nav-number">3.1.</span> <span class="nav-text">1. 修改gradle.properties</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-更新依赖"><span class="nav-number">3.2.</span> <span class="nav-text">2. 更新依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-在AS中执行Refactor-gt-Migrate-to-AndroidX"><span class="nav-number">3.3.</span> <span class="nav-text">3. 在AS中执行Refactor-&gt;Migrate to AndroidX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-混淆更改"><span class="nav-number">3.4.</span> <span class="nav-text">4. 混淆更改</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#版本库统一管理"><span class="nav-number">4.</span> <span class="nav-text">版本库统一管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改未自动迁移的三方库"><span class="nav-number">5.</span> <span class="nav-text">修改未自动迁移的三方库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解决AndroidX与第三方库依赖冲突"><span class="nav-number">5.1.</span> <span class="nav-text">解决AndroidX与第三方库依赖冲突</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它坑点"><span class="nav-number">6.</span> <span class="nav-text">其它坑点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-注解处理器冲突"><span class="nav-number">6.1.</span> <span class="nav-text">1. 注解处理器冲突</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-androidX严格检查引起的问题"><span class="nav-number">6.2.</span> <span class="nav-text">2. androidX严格检查引起的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-莫名问题的解决"><span class="nav-number">6.3.</span> <span class="nav-text">3. 莫名问题的解决</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

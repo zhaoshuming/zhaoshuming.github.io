@@ -293,6 +293,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/18/design-mode-composite/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/18/design-mode-composite/" itemprop="url">组合模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-18T09:52:22+08:00">
+                2019-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>组合（Composite）模式的定义：有时又叫作部分-整体模式，它是一种将对象组合成树状的层次结构的模式，用来表示“部分-整体”的关系，<strong>使用户对单个对象和组合对象具有一致的访问性</strong>。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、在需要表示一个对象整体与部分的层次结构的场合。<br>2、要求对用户隐藏组合对象与单个对象的不同，用户可以用统一的接口使用组合结构中的所有对象的场合。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>组合模式的主要优点有：<br>1、组合模式使得客户端代码可以一致地处理单个对象和组合对象，无须关心自己处理的是单个对象，还是组合对象，这简化了客户端代码；<br>2、更容易在组合体内加入新的对象，客户端不会因为加入了新的对象而更改源代码，满足“开闭原则”；</p>
+<p>其主要缺点是：<br>1、设计较复杂，客户端需要花更多时间理清类之间的层次关系；<br>2、不容易限制容器中的构件；<br>3、不容易用继承的方法来增加构件的新功能；</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>组合模式包含以下主要角色：<br>1、抽象构件（Component）角色：它的主要作用是为树叶构件和树枝构件声明公共接口，并实现它们的默认行为。在透明式的组合模式中抽象构件还声明访问和管理子类的接口；在安全式的组合模式中不声明访问和管理子类的接口，管理工作由树枝构件完成。<br>2、树叶构件（Leaf）角色：是组合中的叶节点对象，它没有子节点，用于实现抽象构件角色中 声明的公共接口。<br>3、树枝构件（Composite）角色：是组合中的分支节点对象，它有子节点。它实现了抽象构件角色中声明的接口，它的主要作用是存储和管理子部件，通常包含 Add()、Remove()、GetChild() 等方法。</p>
+<p>组合模式分为透明式的组合模式和安全式的组合模式。</p>
+<p>(1) 透明方式：在该方式中，由于抽象构件声明了所有子类中的全部方法，所以客户端无须区别树叶对象和树枝对象，对客户端来说是透明的。但其缺点是：树叶构件本来没有 Add()、Remove() 及 GetChild() 方法，却要实现它们（空实现或抛异常），这样会带来一些安全性问题。其结构图如下图：</p>
+<p><img src="/2019/11/18/design-mode-composite/composite-transparent.jpg" alt></p>
+<p>(2) 安全方式：在该方式中，将管理子构件的方法移到树枝构件中，抽象构件和树叶构件没有对子对象的管理方法，这样就避免了上一种方式的安全性问题，但由于叶子和分支有不同的接口，客户端在调用时要知道树叶对象和树枝对象的存在，所以失去了透明性。其结构图如下图：</p>
+<p><img src="/2019/11/18/design-mode-composite/composite-safe.jpg" alt></p>
+<p>下面给出透明式的组合模式的实现代码，与安全式的组合模式的实现代码类似，只要对其做简单修改就可以了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">//抽象构件</span><br><span class="line">interface Component</span><br><span class="line">&#123;</span><br><span class="line">    public void add(Component c);</span><br><span class="line">    public void remove(Component c);</span><br><span class="line">    public Component getChild(int i);</span><br><span class="line">    public void operation();</span><br><span class="line">&#125;</span><br><span class="line">//树叶构件</span><br><span class="line">class Leaf implements Component</span><br><span class="line">&#123;</span><br><span class="line">    private String name;</span><br><span class="line">    public Leaf(String name)</span><br><span class="line">    &#123;</span><br><span class="line">        this.name=name;</span><br><span class="line">    &#125;</span><br><span class="line">    public void add(Component c)&#123; &#125;           </span><br><span class="line">    public void remove(Component c)&#123; &#125;   </span><br><span class="line">    public Component getChild(int i)</span><br><span class="line">    &#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;   </span><br><span class="line">    public void operation()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;树叶&quot;+name+&quot;：被访问！&quot;); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//树枝构件</span><br><span class="line">class Composite implements Component</span><br><span class="line">&#123;</span><br><span class="line">    private ArrayList&lt;Component&gt; children=new ArrayList&lt;Component&gt;();   </span><br><span class="line">    public void add(Component c)</span><br><span class="line">    &#123;</span><br><span class="line">        children.add(c);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void remove(Component c)</span><br><span class="line">    &#123;</span><br><span class="line">        children.remove(c);</span><br><span class="line">    &#125;   </span><br><span class="line">    public Component getChild(int i)</span><br><span class="line">    &#123;</span><br><span class="line">        return children.get(i);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void operation()</span><br><span class="line">    &#123;</span><br><span class="line">        for(Object obj:children)</span><br><span class="line">        &#123;</span><br><span class="line">            ((Component)obj).operation();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br><span class="line">//Client</span><br><span class="line">public class CompositePattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Component c0=new Composite(); </span><br><span class="line">        Component c1=new Composite(); </span><br><span class="line">        Component leaf1=new Leaf(&quot;1&quot;); </span><br><span class="line">        Component leaf2=new Leaf(&quot;2&quot;); </span><br><span class="line">        Component leaf3=new Leaf(&quot;3&quot;);          </span><br><span class="line">        c0.add(leaf1); </span><br><span class="line">        c0.add(c1);</span><br><span class="line">        c1.add(leaf2); </span><br><span class="line">        c1.add(leaf3);          </span><br><span class="line">        c0.operation(); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序运行结果如下：</span><br><span class="line">树叶1：被访问！</span><br><span class="line">树叶2：被访问！</span><br><span class="line">树叶3：被访问！</span><br></pre></td></tr></table></figure></p>
+<h2 id="组合模式的扩展"><a href="#组合模式的扩展" class="headerlink" title="组合模式的扩展"></a>组合模式的扩展</h2><p>如果对前面介绍的组合模式中的树叶节点和树枝节点进行抽象，也就是说树叶节点和树枝节点还有子节点，这时组合模式就扩展成复杂的组合模式了，如 Java AWT/Swing 中的简单组件 JTextComponent 有子类 JTextField、JTextArea，容器组件 Container 也有子类 Window、Panel。复杂的组合模式的结构图如图所示:</p>
+<p><img src="/2019/11/18/design-mode-composite/composite-complex.jpg" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/15/design-mode-proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1228,6 +1382,7 @@
 <h2 id="资源加载"><a href="#资源加载" class="headerlink" title="资源加载"></a>资源加载</h2><p>资源加载方案大家使用的原理都差不多，<strong>都是用AssetManager的隐藏方法addAssetPath</strong>；但是，不同插件的资源如何管理？是公用一套资源还是插件独立资源？共用资源如何避免资源冲突？对于资源加载，有的方案共用一套资源并采用资源分段机制解决冲突（要么修改aapt要么添加编译插件）；有的方案选择独立资源，不同插件管理自己的资源。</p>
 <p>Android系统通过Resource对象加载资源，下面代码展示了该对象的生成过程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//创建AssetManager对象 </span><br><span class="line">AssetManager assets = new AssetManager();</span><br><span class="line"> //将apk路径添加到AssetManager中</span><br><span class="line">  if (assets.addAssetPath(resDir) == 0)&#123;              </span><br><span class="line">    return null;  </span><br><span class="line">&#125;</span><br><span class="line"> //创建Resource对象</span><br><span class="line">r = new Resources(assets, metrics, getConfiguration(), compInfo);</span><br></pre></td></tr></table></figure></p>
 <p>因此，只要将插件apk的路径加入到AssetManager中，便能够实现对插件资源的访问。具体实现时，由于AssetManager并不是一个public的类，需要通过反射去创建，并且部分Rom对创建的Resource类进行了修改，所以需要考虑不同Rom的兼容性。</p>
+<p>不同版本res加载方式有差异,可参考：<a href="https://zhuanlan.zhihu.com/p/34346219" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/34346219</a></p>
 <h3 id="资源路径的处理"><a href="#资源路径的处理" class="headerlink" title="资源路径的处理"></a>资源路径的处理</h3><p>和代码加载相似，插件和主工程的资源关系也有两种处理方式：<br>合并式：addAssetPath时加入所有插件和主工程的路径；<br>独立式：各个插件只添加自己apk路径</p>
 <table>
 <thead>
@@ -1254,7 +1409,7 @@
 <p>独立式时，各个插件的资源是互相隔离的，不过如果想要实现资源的共享，必须拿到对应的Resource对象。</p>
 <h3 id="解决资源冲突"><a href="#解决资源冲突" class="headerlink" title="解决资源冲突"></a>解决资源冲突</h3><p>合并式的资源处理方式，会引入资源冲突，原因在于不同插件中的资源id可能相同，所以解决方法就是使得不同的插件资源拥有不同的资源id。</p>
 <p>资源id是由8位16进制数表示，表示为0xPPTTNNNN。PP段用来区分包空间，默认只区分了应用资源和系统资源，TT段为资源类型，NNNN段在同一个APK中从0000递增。</p>
-<p>所以思路是修改资源ID的PP段，对于不同的插件使用不同的PP段，从而区分不同插件的资源。具体实现方式有两种：<br>1.修改aapt源码，编译期修改PP段。<br>2.修改resources.arsc文件，该文件列出了资源id到具体资源路径的映射。</p>
+<p>所以思路是<strong>修改资源ID的PP段，对于不同的插件使用不同的PP段</strong>，从而区分不同插件的资源。具体实现方式有两种：<br>1.修改aapt源码，编译期修改PP段。<br>2.修改resources.arsc文件，该文件列出了资源id到具体资源路径的映射。</p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>apk被安装之后，apk的文件代码以及资源会被系统存放在固定的目录比如/data/app/package_name/xxx.apk)中，系统在进行类加载的时候，会自动去这一个或者几个特定的路径来寻找这个类。</p>
 <p>但是要知道插件apk是不会被安装的，那么系统也就不会讲我们的代理及资源存在在这个目录下，换句话说系统并不知道我们插件apk中的任何信息，也就根本不可能加载我们插件中的类。我们之前分析过应用的启动过程，其实就是启动了我们的主Activity，然后在ActivityThread的performLaunchActivity方法中创建的Activity对象并回调了attch和onCreate方法。系统通过待启动的Activity的类名className，然后使用ClassLoader对象cl把这个类加载，最后使用反射创建了这个Activity类的实例对象。</p>
 <p>有两种实现方法：</p>
@@ -1283,7 +1438,7 @@
 7.然后我们查看BaseDexClassLoader发现他创建时创建了一个DexPathList类型的pathList对象，然后在findClass时调用了pathList.findClass的方法
 
 8.然后我们查看DexPathList类中的findClass发现他内部维护了一个Element[] dexElements的dex数组，findClass时是从数组中遍历查找的
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/yulong0809/article/details/59113935" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/59113935</a><br><a href="https://yq.aliyun.com/articles/361233?utm_content=m_40296" target="_blank" rel="noopener">深入理解Android插件化技术</a></p>
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/yulong0809/article/details/59113935" target="_blank" rel="noopener">https://blog.csdn.net/yulong0809/article/details/59113935</a><br><a href="https://yq.aliyun.com/articles/361233?utm_content=m_40296" target="_blank" rel="noopener">深入理解Android插件化技术</a><br><a href="https://zhuanlan.zhihu.com/p/34346219" target="_blank" rel="noopener">爱奇艺组件化探索之原理篇</a></p>
 
           
         
@@ -1780,153 +1935,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/30/design-mode-interpreter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/30/design-mode-interpreter/" itemprop="url">解释器模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-30T10:58:48+08:00">
-                2019-10-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>　　解释器（Interpreter）模式的定义：给分析对象定义一个语言，并定义该语言的文法表示，再设计一个解析器来解释语言中的句子。提供了评估语言的语法或表达式的方式，它属于行为型模式。这种模式实现了一个表达式接口，该接口解释一个特定的上下文。这种模式被用在 SQL 解析、符号处理引擎等。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>解释器模式包含以下主要角色：<br>1、抽象表达式（Abstract Expression）角色：定义解释器的接口，约定解释器的解释操作，主要包含解释方法 interpret()。<br>2、终结符表达式（Terminal    Expression）角色：是抽象表达式的子类，用来实现文法中与终结符相关的操作，文法中的每一个终结符都有一个具体终结表达式与之相对应。<br>3、非终结符表达式（Nonterminal Expression）角色：也是抽象表达式的子类，用来实现文法中与非终结符相关的操作，文法中的每条规则都对应于一个非终结符表达式。<br>4、环境（Context）角色：通常包含各个解释器需要的数据或是公共的功能，一般用来传递被所有解释器共享的数据，后面的解释器可以从这里获取这些值。<br>5、客户端（Client）：主要任务是将需要分析的句子或表达式转换成使用解释器对象描述的<strong>抽象语法树</strong>，然后调用解释器的解释方法，当然也可以通过环境角色间接访问解释器的解释方法。</p>
-<p><img src="/2019/10/30/design-mode-interpreter/interpreter.jpg" alt title="解释器模式结构图"></p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、当语言的文法较为简单，且执行效率不是关键问题时。<br>2、当问题重复出现，且可以用一种简单的语言来进行表达时。<br>3、当一个语言需要解释执行，并且语言中的句子可以表示为一个抽象语法树的时候，如 XML 文档解释。</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>解释器模式是一种类行为型模式，其主要优点如下：<br>1、扩展性好。由于在解释器模式中使用类来表示语言的文法规则，因此可以通过继承等机制来改变或扩展文法。<br>2、容易实现。在语法树中的每个表达式节点类都是相似的，所以实现其文法较为容易。</p>
-<p>解释器模式的主要缺点如下：<br>1、执行效率较低。解释器模式中通常使用大量的循环和递归调用，当要解释的句子较复杂时，其运行速度很慢，且代码的调试过程也比较麻烦。<br>2、会引起类膨胀。解释器模式中的每条规则至少需要定义一个类，当包含的文法规则很多时，类的个数将急剧增加，导致系统难以管理与维护。<br>3、可应用的场景比较少。在软件开发中，需要定义语言文法的应用实例非常少，所以这种模式很少被使用到。</p>
-<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">public interface Expression &#123;</span><br><span class="line">   public boolean interpret(String context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class TerminalExpression implements Expression &#123;</span><br><span class="line">   </span><br><span class="line">   private String data;</span><br><span class="line"> </span><br><span class="line">   public TerminalExpression(String data)&#123;</span><br><span class="line">      this.data = data; </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public boolean interpret(String context) &#123;</span><br><span class="line">      if(context.contains(data))&#123;</span><br><span class="line">         return true;</span><br><span class="line">      &#125;</span><br><span class="line">      return false;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;	</span><br><span class="line"></span><br><span class="line">public class OrExpression implements Expression &#123;</span><br><span class="line">    </span><br><span class="line">   private Expression expr1 = null;</span><br><span class="line">   private Expression expr2 = null;</span><br><span class="line"> </span><br><span class="line">   public OrExpression(Expression expr1, Expression expr2) &#123; </span><br><span class="line">      this.expr1 = expr1;</span><br><span class="line">      this.expr2 = expr2;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public boolean interpret(String context) &#123;      </span><br><span class="line">      return expr1.interpret(context) || expr2.interpret(context);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class AndExpression implements Expression &#123;</span><br><span class="line">    </span><br><span class="line">   private Expression expr1 = null;</span><br><span class="line">   private Expression expr2 = null;</span><br><span class="line"> </span><br><span class="line">   public AndExpression(Expression expr1, Expression expr2) &#123; </span><br><span class="line">      this.expr1 = expr1;</span><br><span class="line">      this.expr2 = expr2;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public boolean interpret(String context) &#123;      </span><br><span class="line">      return expr1.interpret(context) &amp;&amp; expr2.interpret(context);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class InterpreterPatternDemo &#123;</span><br><span class="line"> </span><br><span class="line">   //规则：Robert 和 John 是男性</span><br><span class="line">   public static Expression getMaleExpression()&#123;</span><br><span class="line">      Expression robert = new TerminalExpression(&quot;Robert&quot;);</span><br><span class="line">      Expression john = new TerminalExpression(&quot;John&quot;);</span><br><span class="line">      return new OrExpression(robert, john);    </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   //规则：Julie 是一个已婚的女性</span><br><span class="line">   public static Expression getMarriedWomanExpression()&#123;</span><br><span class="line">      Expression julie = new TerminalExpression(&quot;Julie&quot;);</span><br><span class="line">      Expression married = new TerminalExpression(&quot;Married&quot;);</span><br><span class="line">      return new AndExpression(julie, married);    </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">      Expression isMale = getMaleExpression();</span><br><span class="line">      Expression isMarriedWoman = getMarriedWomanExpression();</span><br><span class="line"> </span><br><span class="line">      System.out.println(&quot;John is male? &quot; + isMale.interpret(&quot;John&quot;));</span><br><span class="line">      System.out.println(&quot;Julie is a married women? &quot; </span><br><span class="line">      + isMarriedWoman.interpret(&quot;Married Julie&quot;));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1979,7 +1987,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

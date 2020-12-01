@@ -80,21 +80,22 @@
 
 
 
-<meta name="description" content="λ表达式Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。 lambda 表达式的语法格式如下：  (parameters) -&amp;gt; expression或(parameters) -&amp;gt;{ statements; }  以下是lambda表达式的重要特征:  可选类型声明：不需要声明参数">
+<meta name="description" content="FP函数式编程函数式编程（functional programming），是一种编程范式，它将计算机运算视为函数运算 ，并且避免使用程序状态以及不可变对象。 即一种把程序看作数学方程式的编程风格，并避免可变状态和副作用。 FP核心思想强调：  声明式代码 —— 程序员应该关心是什么，让编译器和运行环境去关心怎样做。  明确性 —— 代码应该尽可能的明显。尤其是要隔离副作用避免意外。要明确定义数据流">
 <meta name="keywords" content="note">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android小知识点笔记">
 <meta property="og:url" content="http://yoursite.com/2019/08/12/android-note/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="λ表达式Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。 lambda 表达式的语法格式如下：  (parameters) -&amp;gt; expression或(parameters) -&amp;gt;{ statements; }  以下是lambda表达式的重要特征:  可选类型声明：不需要声明参数">
+<meta property="og:description" content="FP函数式编程函数式编程（functional programming），是一种编程范式，它将计算机运算视为函数运算 ，并且避免使用程序状态以及不可变对象。 即一种把程序看作数学方程式的编程风格，并避免可变状态和副作用。 FP核心思想强调：  声明式代码 —— 程序员应该关心是什么，让编译器和运行环境去关心怎样做。  明确性 —— 代码应该尽可能的明显。尤其是要隔离副作用避免意外。要明确定义数据流">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/08/12/android-note/view.webp">
 <meta property="og:image" content="http://yoursite.com/2019/08/12/android-note/view-touchevent.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/08/12/android-note/dexopt_dex2oat.webp">
 <meta property="og:image" content="http://yoursite.com/2019/08/12/android-note/aspectj.png">
-<meta property="og:updated_time" content="2020-08-11T07:28:53.065Z">
+<meta property="og:updated_time" content="2020-11-30T06:05:56.412Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android小知识点笔记">
-<meta name="twitter:description" content="λ表达式Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。 lambda 表达式的语法格式如下：  (parameters) -&amp;gt; expression或(parameters) -&amp;gt;{ statements; }  以下是lambda表达式的重要特征:  可选类型声明：不需要声明参数">
+<meta name="twitter:description" content="FP函数式编程函数式编程（functional programming），是一种编程范式，它将计算机运算视为函数运算 ，并且避免使用程序状态以及不可变对象。 即一种把程序看作数学方程式的编程风格，并避免可变状态和副作用。 FP核心思想强调：  声明式代码 —— 程序员应该关心是什么，让编译器和运行环境去关心怎样做。  明确性 —— 代码应该尽可能的明显。尤其是要隔离副作用避免意外。要明确定义数据流">
 <meta name="twitter:image" content="http://yoursite.com/2019/08/12/android-note/view.webp">
 
 
@@ -390,7 +391,24 @@
       
 
       
-        <h2 id="λ表达式"><a href="#λ表达式" class="headerlink" title="λ表达式"></a>λ表达式</h2><p>Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。</p>
+        <h2 id="FP函数式编程"><a href="#FP函数式编程" class="headerlink" title="FP函数式编程"></a>FP函数式编程</h2><p>函数式编程（functional programming），是一种编程范式，它将计算机运算视为<strong>函数运算</strong> ，并且避免使用程序状态以及不可变对象。</p>
+<p>即一种把程序看作数学方程式的编程风格，并<strong>避免可变状态和副作用</strong>。</p>
+<p>FP核心思想强调：</p>
+<ol>
+<li><p>声明式代码 —— 程序员应该关心是什么，让编译器和运行环境去关心怎样做。</p>
+</li>
+<li><p>明确性 —— 代码应该尽可能的明显。尤其是要隔离副作用避免意外。要明确定义数据流和错误处理，要避免 GOTO 语句和异常，因为它们会将应用置于意外的状态。</p>
+</li>
+<li><p>并发 —— 因为纯函数的概念，大多数函数式代码默认都是并行的。由于CPU运行速度没有像以前那样逐年加快（(详见 摩尔定律)）， 普遍看来这个特点导致函数式编程渐受欢迎。以及我们也必须利用多核架构的优点，让代码尽量的可并行。</p>
+</li>
+<li><p>高阶函数 —— 和其他的基本语言元素一样，函数是一等公民。你可以像使用 string 和 int 一样的去传递函数。</p>
+</li>
+<li><p>不变性 —— 变量一经初始化将不能修改。一经创建，永不改变。如果需要改变，需要创建新的。这是明确性和避免副作用之外的另一方面。如果你知道一个变量不能改变，当你使用时会对它的状态更有信心。</p>
+</li>
+</ol>
+<p><strong>声明式、明确性和可并发的代码</strong>，难道不是更易推导以及从设计上就避免了意外吗？<strong>不可变性和纯粹性</strong>是帮助我们写出安全的并发代码的强力组合。</p>
+<p>参考链接：<a href="https://blog.csdn.net/u010144805/article/details/81416355" target="_blank" rel="noopener">https://blog.csdn.net/u010144805/article/details/81416355</a></p>
+<h2 id="λ表达式"><a href="#λ表达式" class="headerlink" title="λ表达式"></a>λ表达式</h2><p>Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。</p>
 <p>lambda 表达式的语法格式如下：</p>
 <blockquote>
 <p>(parameters) -&gt; expression<br>或<br>(parameters) -&gt;{ statements; }</p>
@@ -402,7 +420,7 @@
 <li>可选的大括号：如果主体包含了一个语句，就不需要使用大括号。</li>
 <li>可选的返回关键字：如果主体只有一个表达式返回值则编译器会自动返回值，大括号需要指定明表达式返回了一个数值。</li>
 </ul>
-<p><strong>λ表达式主要用于替换以前广泛使用的内部匿名类，各种回调，比如事件响应器、传入Thread类的Runnable等。</strong>Java8有一个短期目标和一个长期目标。<strong>短期目标是：配合“集合类批处理操作”的内部迭代和并行处理；长期目标是将Java向函数式编程语言这个方向引导</strong>（并不是要完全变成一门函数式编程语言，只是让它有更多的函数式编程语言的特性）。</p>
+<p><strong>λ表达式主要用于精简广泛使用的内部匿名类，各种回调</strong>，比如事件响应器、传入Thread类的Runnable等。Java8有一个短期目标和一个长期目标。<strong>短期目标是：配合“集合类批处理操作”的内部迭代和并行处理；长期目标是将Java向函数式编程语言这个方向引导</strong>（并不是要完全变成一门函数式编程语言，只是让它有更多的函数式编程语言的特性）。</p>
 <p>Java8为集合类引入了另一个重要概念：流（stream）。一个流通常以一个集合类实例为其数据源，然后在其上定义各种操作。流的API设计使用了管道（pipelines）模式。对流的一次操作会返回另一个流。你可能会觉得List 被迭代了好多次，map，filter，distinct都分别是一次循环，效率会不好。实际并非如此。这些返回另一个Stream的方法都是“懒（lazy）”的，而最后返回最终结果的方法则是“急（eager）”的。在遇到eager方法之前，lazy的方法不会执行。</p>
 <p><strong>内部类总是持有一个其外部类对象的引用。而λ表达式呢，除非在它内部用到了其外部类（包围类）对象的方法或者成员，否则它就不持有这个对象的引用。</strong>在Java8以前，如果要在内部类访问外部对象的一个本地变量，那么这个变量必须声明为final才行。在Java8中，这种限制被去掉了，代之以一个新的概念，“effectively final”。它的意思是你可以声明为final，也可以不声明final但是按照final来用，也就是一次赋值永不改变。</p>
 <p><strong>任何一个λ表达式都可以代表某个函数接口的唯一方法的匿名描述符。我们也可以使用某个类的某个具体方法来代表这个描述符，叫做方法引用。</strong></p>
@@ -442,10 +460,33 @@
 <li>动画卡顿，可以考虑使用自定义控件实现，如果一个自定义不行，那就是两个</li>
 </ol>
 <h2 id="ART和Dalvik"><a href="#ART和Dalvik" class="headerlink" title="ART和Dalvik"></a>ART和Dalvik</h2><p>Android4.4版本以前是Dalvik虚拟机，4.4版本开始引入ART虚拟机（Android Runtime）。在4.4版本上，两种运行时环境共存，可以相互切换，但是在5.0版本以后，Dalvik虚拟机则被彻底的丢弃，全部采用ART。</p>
+<p>JIT，Just-in-time，即时编译，边运行边编译；AOT，Ahead Of Time，提前编译，指运行前编译。区别：这两种编译方式的主要<strong>区别在于是否在“运行时”进行编译</strong></p>
 <h3 id="ART"><a href="#ART" class="headerlink" title="ART"></a>ART</h3><p>ART 是一种执行效率更高且更省电的运行机制，执行的是本地机器码，这些本地机器码是从dex字节码转换而来。<strong>ART采用的是AOT（Ahead-Of-Time）编译</strong>，应用在第一次安装的时候，字节码就会预先编译成机器码存储在本地。在App运行时，ART模式就较Dalvik模式少了解释字节码的过程，所以App的运行效率会有所提高，占用内存也会相应减少。</p>
-<h3 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h3><p>Dalvik 虚拟机采用的是JIT（Just-In-Time）编译模式，意思为即时编译，我们知道apk被安装到手机中时，对应目录会有dex或odex和apk文件，apk文件存储的是资源文件，而dex或odex（经过优化后的dex文件内部存储class文件）内部存储class文件，每次运行app时虚拟机会将dex文件解释翻译成机器码，这样才算是本地可执行代码，之后被系统运行。</p>
+<h3 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h3><p>Dalvik 虚拟机采用的是JIT（Just-In-Time）编译模式，意思为即时编译，我们知道apk被安装到手机中时，对应目录会有dex或odex和apk文件，apk文件存储的是资源文件，而dex或odex（经过优化后的dex文件内部存储class文件:加快软件的启动速度，odex可预先提取、应用保护）内部存储class文件，每次运行app时虚拟机会将dex文件解释翻译成机器码，这样才算是本地可执行代码，之后被系统运行。</p>
 <p>Dalvik虚拟机可以看做是一个Java VM，他负责解释dex文件为机器码，如果我们不做处理的话，每次执行代码，都需要Dalvik将dex代码翻译为微处理器指令，然后交给系统处理，这样效率不高。为了解决这个问题，<strong>Google在2.2版本添加了JIT编译器，当App运行时，每当遇到一个新类，JIT编译器就会对这个类进行编译，经过编译后的代码，会被优化成相当精简的原生型指令码（即native code），这样在下次执行到相同逻辑的时候，速度就会更快。</strong>JIT代表运行时编译策略，也可以理解成一种运行时编译器，是为了加快Dalvik虚拟机解释dex速度提出的一种技术方案，来缓存频繁使用的本地机器码。</p>
 <h3 id="两者的区别"><a href="#两者的区别" class="headerlink" title="两者的区别"></a>两者的区别</h3><p><strong>Dalvik每次都要编译再运行，Art只会安装时启动编译</strong><br>Art占用空间比Dalvik大（原生代码占用的存储空间更大），就是用<strong>“空间换时间”</strong><br>Art减少编译，减少了CPU使用频率，使用明显改善电池续航<br>Art应用启动更快、运行更快、体验更流畅、触感反馈更及时</p>
+<h3 id="dexopt-与-dex2oat-的区别"><a href="#dexopt-与-dex2oat-的区别" class="headerlink" title="dexopt 与 dex2oat 的区别"></a>dexopt 与 dex2oat 的区别</h3><p><img src="/2019/08/12/android-note/dexopt_dex2oat.webp" alt></p>
+<p>通过上图可以很明显的看出 dexopt 与 dex2oat 的区别，前者针对 Dalvik 虚拟机，后者针对 Art 虚拟机。</p>
+<ul>
+<li><p>dexopt 是对 dex 文件 进行 verification 和 optimization 的操作，其对 dex 文件的优化结果变成了 odex 文件，这个文件和 dex 文件很像，只是使用了一些优化操作码（譬如优化调用虚拟指令等）。</p>
+</li>
+<li><p>dex2oat 是对 dex 文件的 AOT 提前编译操作，其需要一个 dex 文件，然后对其进行编译，结果是一个本地可执行的 ELF 文件，可以直接被本地处理器执行。</p>
+</li>
+</ul>
+<p>除此之外在上图还可以看到 Dalvik 虚拟机中有使用 JIT 编译器，也就是说其也能将程序运行的热点 java 字节码编译成本地 code 执行，所以其与 Art 虚拟机还是有区别的。<strong>Art 虚拟机的 dex2oat 是提前编译所有 dex 字节码</strong>，而 Dalvik 虚拟机只编译使用启发式检测中最频繁执行的热点字节码。</p>
+<h2 id="CLASS-ISPREVERIFIED"><a href="#CLASS-ISPREVERIFIED" class="headerlink" title="CLASS_ISPREVERIFIED"></a>CLASS_ISPREVERIFIED</h2><ol>
+<li>在apk安装的时候，虚拟机会将dex优化成odex后才拿去执行。在这个过程中会对所有class一个校验。</li>
+<li>校验方式：<strong>假设A该类在它的static方法，private方法，构造函数，override方法中直接引用到B类。如果A类和B类在同一个dex中，那么A类就会被打上CLASS_ISPREVERIFIED标记</strong></li>
+<li>被打上这个标记的类不能引用其他dex中的类，否则就会报错</li>
+<li>在我们的Demo中，MainActivity和Cat本身是在同一个dex中的，所以MainActivity被打上了CLASS_ISPREVERIFIED。而我们修复bug的时候却引用了另外一个dex的Cat.class，所以这里就报错了</li>
+<li>而普通分包方案则不会出现这个错误，因为引用和被引用的两个类一开始就不在同一个dex中，所以校验的时候并不会被打上CLASS_ISPREVERIFIED</li>
+<li>补充一下第二条：A类如果还引用了一个C类，而C类在其他dex中，那么A类并不会被打上标记。换句话说，<strong>只要在static方法，构造方法，private方法，override方法中直接引用了其他dex中的类，那么这个类就不会被打上CLASS_ISPREVERIFIED标记</strong>。</li>
+</ol>
+<p>方案：<br>根据上面的第六条，我们只要让所有类都引用其他dex中的某个类就可以了。在所有类的构造函数中插入这行代码(AOP):</p>
+<blockquote>
+<p>System.out.println(AntilazyLoad.class); </p>
+</blockquote>
+<p>这样当安装apk的时候，classes.dex内的类都会引用一个在不相同dex中的AntilazyLoad类，这样就防止了类被打上CLASS_ISPREVERIFIED的标志了，只要没被打上这个标志的类都可以进行打补丁操作</p>
 <h2 id="UncaughtExceptionHandler"><a href="#UncaughtExceptionHandler" class="headerlink" title="UncaughtExceptionHandler"></a>UncaughtExceptionHandler</h2><p>如果给一个线程设置了UncaughtExceptionHandler 这个接口：<br>1、这个线程中，所有未处理或者说未捕获的异常都将会由这个接口处理，也就说被这个接口给try…catch了。<br>2、在这个线程中抛出异常时，java虚拟机将会忽略，也就是说，java虚拟机不会让程序崩溃了。<br>3、如果没有设置，那么最终会调用getDefaultUncaughtExceptionHandler 获取默认的UncaughtExceptionHandler 来处理异常。</p>
 <h2 id="aar"><a href="#aar" class="headerlink" title="@aar"></a>@aar</h2><p>@aar的方式关闭传递依赖</p>
 <pre><code>// 只下载该库，其他所依赖的所有库不下载
@@ -647,7 +688,7 @@ try {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -702,7 +743,7 @@ try {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#λ表达式"><span class="nav-number">1.</span> <span class="nav-text">λ表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内部类"><span class="nav-number">2.</span> <span class="nav-text">匿名内部类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-amp-StringBuffer-amp-StringBuilder"><span class="nav-number">3.</span> <span class="nav-text">String &amp; StringBuffer &amp; StringBuilder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java中Vector和ArrayList的区别"><span class="nav-number">4.</span> <span class="nav-text">Java中Vector和ArrayList的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View绘制与事件"><span class="nav-number">5.</span> <span class="nav-text">View绘制与事件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制"><span class="nav-number">5.1.</span> <span class="nav-text">绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重绘"><span class="nav-number">5.2.</span> <span class="nav-text">重绘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件传递"><span class="nav-number">5.3.</span> <span class="nav-text">事件传递</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android属性动画优化"><span class="nav-number">6.</span> <span class="nav-text">Android属性动画优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ART和Dalvik"><span class="nav-number">7.</span> <span class="nav-text">ART和Dalvik</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ART"><span class="nav-number">7.1.</span> <span class="nav-text">ART</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dalvik"><span class="nav-number">7.2.</span> <span class="nav-text">Dalvik</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两者的区别"><span class="nav-number">7.3.</span> <span class="nav-text">两者的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UncaughtExceptionHandler"><span class="nav-number">8.</span> <span class="nav-text">UncaughtExceptionHandler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#aar"><span class="nav-number">9.</span> <span class="nav-text">@aar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Groovy"><span class="nav-number">10.</span> <span class="nav-text">Groovy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gradle插件"><span class="nav-number">11.</span> <span class="nav-text">gradle插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP"><span class="nav-number">12.</span> <span class="nav-text">AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AspectJ"><span class="nav-number">12.1.</span> <span class="nav-text">AspectJ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradle-Transform"><span class="nav-number">12.2.</span> <span class="nav-text">Gradle Transform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hook"><span class="nav-number">12.3.</span> <span class="nav-text">Hook</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用的启动过程"><span class="nav-number">13.</span> <span class="nav-text">应用的启动过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Watchdog"><span class="nav-number">14.</span> <span class="nav-text">Watchdog</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NFC"><span class="nav-number">15.</span> <span class="nav-text">NFC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">16.</span> <span class="nav-text">线程池</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#FP函数式编程"><span class="nav-number">1.</span> <span class="nav-text">FP函数式编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#λ表达式"><span class="nav-number">2.</span> <span class="nav-text">λ表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内部类"><span class="nav-number">3.</span> <span class="nav-text">匿名内部类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-amp-StringBuffer-amp-StringBuilder"><span class="nav-number">4.</span> <span class="nav-text">String &amp; StringBuffer &amp; StringBuilder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java中Vector和ArrayList的区别"><span class="nav-number">5.</span> <span class="nav-text">Java中Vector和ArrayList的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View绘制与事件"><span class="nav-number">6.</span> <span class="nav-text">View绘制与事件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制"><span class="nav-number">6.1.</span> <span class="nav-text">绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重绘"><span class="nav-number">6.2.</span> <span class="nav-text">重绘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件传递"><span class="nav-number">6.3.</span> <span class="nav-text">事件传递</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android属性动画优化"><span class="nav-number">7.</span> <span class="nav-text">Android属性动画优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ART和Dalvik"><span class="nav-number">8.</span> <span class="nav-text">ART和Dalvik</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ART"><span class="nav-number">8.1.</span> <span class="nav-text">ART</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dalvik"><span class="nav-number">8.2.</span> <span class="nav-text">Dalvik</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两者的区别"><span class="nav-number">8.3.</span> <span class="nav-text">两者的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dexopt-与-dex2oat-的区别"><span class="nav-number">8.4.</span> <span class="nav-text">dexopt 与 dex2oat 的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CLASS-ISPREVERIFIED"><span class="nav-number">9.</span> <span class="nav-text">CLASS_ISPREVERIFIED</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UncaughtExceptionHandler"><span class="nav-number">10.</span> <span class="nav-text">UncaughtExceptionHandler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#aar"><span class="nav-number">11.</span> <span class="nav-text">@aar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Groovy"><span class="nav-number">12.</span> <span class="nav-text">Groovy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gradle插件"><span class="nav-number">13.</span> <span class="nav-text">gradle插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP"><span class="nav-number">14.</span> <span class="nav-text">AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AspectJ"><span class="nav-number">14.1.</span> <span class="nav-text">AspectJ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradle-Transform"><span class="nav-number">14.2.</span> <span class="nav-text">Gradle Transform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hook"><span class="nav-number">14.3.</span> <span class="nav-text">Hook</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用的启动过程"><span class="nav-number">15.</span> <span class="nav-text">应用的启动过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Watchdog"><span class="nav-number">16.</span> <span class="nav-text">Watchdog</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NFC"><span class="nav-number">17.</span> <span class="nav-text">NFC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">18.</span> <span class="nav-text">线程池</span></a></li></ol></div>
             
 
           </div>
