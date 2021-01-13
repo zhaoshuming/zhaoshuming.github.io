@@ -293,6 +293,167 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/17/design-mode-singleton/" itemprop="url">单例模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T16:17:38+08:00">
+                2019-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。）</p>
+<p>主要优点：<br>1、提供了对唯一实例的受控访问。<br>2、由于在系统内存中只存在一个对象，因此可以节约系统资源，对于一些需要频繁创建和销毁的对象单例模式无疑可以提高系统的性能。<br>3、允许可变数目的实例。</p>
+<p>主要缺点：<br>1、由于单例模式中没有抽象层，因此单例类的扩展有很大的困难。<br>2、单例类的职责过重，在一定程度上违背了“单一职责原则”。<br>3、滥用单例将带来一些负面问题，如为了节省资源将数据库连接池对象设计为的单例类，可能会导致共享连接池对象的程序过多而出现连接池溢出；如果实例化的对象长时间不被利用，系统会认为是垃圾而被回收，这将导致对象状态的丢失。</p>
+<p>以下列出单例模式的几种写法及单例模式的漏洞解决方案：</p>
+<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><p>类初始化时创建对象，不管需不需要实例对象，都会创建。不存在线程安全问题，因为实例是在类创建和初始化时创建，是由类加载器完成的，类加载器是线程安全的。</p>
+<p>缺点，无法延时加载,没有使用就已经加载了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static final Singleton mInstance = new Singleton();</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>优化了恶汉式无法延迟加载的问题。<br>缺点：存在同步问题，多线程并发的时候会失效，getInstance不同步。比如：一个线程在创建mInstance时，还未创建完成，另一个线程访问mInstance此时还是为空，又创建了一次。</p>
+<p>对懒汉式的优化，主要是在线程安全方面，使用synchronized关键字或同步代码块修饰，使得同时只能有一个线程访问。但存在性能缺陷的，因为使用了synchronized关键字。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static Singleton mInstance;</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123;</span><br><span class="line">            mInstance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="DCL双重检查锁"><a href="#DCL双重检查锁" class="headerlink" title="DCL双重检查锁"></a>DCL双重检查锁</h2><p>DCL双重检查锁，是对第二种方法性能缺陷的优化。</p>
+<p>DCL双重检查锁仅在真正创建mInstance实例的时候加上了synchronized关键字。而且使用volatile关键字修饰，是为了禁止编译器对volatile变量重排序，并且保证volatile变量的读操作发生在写操作之后。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static volatile Singleton mInstance =null; //volatile关键字是为了禁止编译器对 volatile关键字修饰的变量进行重排序，并保证volatile变量的读操作发生在写操作之后</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123; //第一次检查</span><br><span class="line">            synchronized (Singleton.class)&#123; //同步代码块</span><br><span class="line">                if(mInstance == null)&#123; //第二次检查</span><br><span class="line">                    mInstance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h2><p>利用static final关键字的同步机制，初始化后就无法修改保证了线程安全。使用静态内部类的方式保证了延迟加载，不使用不会被加载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123; //完成了懒汉式的延迟加载，同时static保证了线程安全。</span><br><span class="line"> </span><br><span class="line">    private  Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getIntance()&#123;</span><br><span class="line">        return SingletonHolder.mIntance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    private static class SingletonHolder&#123; //私有的，初始化的时候，没有调用getIntance方法则不会加载</span><br><span class="line">        private static final Singleton mIntance = new Singleton();  //static,final是jvm提供的同步机制，初始化后就无法修改了</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="枚举（推荐用法）"><a href="#枚举（推荐用法）" class="headerlink" title="枚举（推荐用法）"></a>枚举（推荐用法）</h2><p>1.简洁<br>2.线程安全<br>3.可以防止反射注入,反序列化它也不会重新生成新的实例</p>
+<p>所有的枚举类型隐性地继承自java.lang.Enum 。枚举实质上还是类！而每个枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final 修饰的。可以直接通过枚举类型名使用它们。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line"></span><br><span class="line">  INSTANCE;</span><br><span class="line"></span><br><span class="line">  public void doSomething()&#123;</span><br><span class="line">     System.out.println(&quot;do sth.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="单例模式存在的漏洞"><a href="#单例模式存在的漏洞" class="headerlink" title="单例模式存在的漏洞"></a>单例模式存在的漏洞</h2><p>1、 通过反射获取单例对象</p>
+<p>我们观察反射获取单例的代码，发现它还是调用了私有的构造方法获取对象【声明为私有的构造方法就是为了不让类外直接new对象】。如果只让私有的构造器只能调用一次就可以避免反射。</p>
+<p>2、 反序列化获得单例模式对象</p>
+<p>传统的单例模式的另外一个问题是一旦你实现了serializable接口，他们就不再是单例的了，因为readObject()方法总是返回一个 新的实例对象，就像java中的构造器一样。如果定义了readResolve()则直接返回此方法指定的对象，而不需要再创建新的对象！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 序列化必须实现Serializable接口，否则序列化时会报错</span><br><span class="line"> */</span><br><span class="line">public class Singleton implements Serializable&#123;</span><br><span class="line">     </span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"> </span><br><span class="line">    private static Singleton sl;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    private Singleton() &#123;</span><br><span class="line">        //如果sl不为空即这不是第一次调用该构造器</span><br><span class="line">        if(sl != null)</span><br><span class="line">            throw new RuntimeException();</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    public static Singleton getInstance() &#123;</span><br><span class="line">        if(sl == null) &#123;</span><br><span class="line">            sl = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return sl;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    /**</span><br><span class="line">     * 反序列化时，如果定义了readResolve()则直接返回此方法指定的对象，而不需要在创建新的对象！</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    private Object readResolve() &#123; </span><br><span class="line">        return getInstance(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d9d9dcf23359" target="_blank" rel="noopener">为什么说枚举是最好的Java单例实现方法？</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1472,6 +1633,53 @@ https://baike.baidu.com/item/%E9%83%8E%E5%B9%B3/58857#3
 </blockquote>
 <p>这样当安装apk的时候，classes.dex内的类都会引用一个在不相同dex中的AntilazyLoad类，这样就防止了类被打上CLASS_ISPREVERIFIED的标志了，只要没被打上这个标志的类都可以进行打补丁操作</p>
 <h2 id="UncaughtExceptionHandler"><a href="#UncaughtExceptionHandler" class="headerlink" title="UncaughtExceptionHandler"></a>UncaughtExceptionHandler</h2><p>如果给一个线程设置了UncaughtExceptionHandler 这个接口：<br>1、这个线程中，所有未处理或者说未捕获的异常都将会由这个接口处理，也就说被这个接口给try…catch了。<br>2、在这个线程中抛出异常时，java虚拟机将会忽略，也就是说，java虚拟机不会让程序崩溃了。<br>3、如果没有设置，那么最终会调用getDefaultUncaughtExceptionHandler 获取默认的UncaughtExceptionHandler 来处理异常。</p>
+<p>注意:<br>1、即使我们用这种方式捕获到了异常，保证程序不会闪退，如果是子线程出现了异常，那么还好，并不会影响UI线程的正常流程，但是如果是UI线程中出现了异常，那么程序就不会继续往下走，处于没有响应的状态，所以，我们处理异常的时候，应该给用户一个有好的提示，让程序优雅地退出。<br>2、Thread.setDefaultUncaughtExceptionHandler(handler)方法，如果多次调用的话，会以最后一次调用时，传递的handler为准，之前设置的handler都没用。所以，这也是如果用了第三方的统计模块后，可能会出现失灵的情况。（这种情况其实也好解决，就是只设置一个handler，以这handler为主，然后在这个handler的uncaughtException 方法中，调用其他的handler的uncaughtException 方法，保证都会收到异常信息）</p>
+<p>参考资料：<br><a href="https://blog.csdn.net/bai981002/article/details/78717069" target="_blank" rel="noopener">https://blog.csdn.net/bai981002/article/details/78717069</a></p>
+<h2 id="ANR"><a href="#ANR" class="headerlink" title="ANR"></a>ANR</h2><p>ANR问题发生时，系统会收集ANR相关的日志信息，CPU使用情况，trace日志也就是各线程执行情况等信息，生成一个traces.txt的文件并且放在/data/anr/路径下。</p>
+<h3 id="ANR的发生原因，总结出三个典型场景"><a href="#ANR的发生原因，总结出三个典型场景" class="headerlink" title="ANR的发生原因，总结出三个典型场景"></a>ANR的发生原因，总结出三个典型场景</h3><p>1、主线程被其他线程锁(占比57%)：调用了thread的sleep()、wait()等方法，导致的主线程等待超时。</p>
+<p>2、系统资源被占用(占比14%)：其他进程系统资源(CPU/RAM/IO)占用率高，导致该进程无法抢占到足够的系统资源。</p>
+<p>3、主线程耗时工作导致线程卡死(占比9%)：例如大量的数据库读写，耗时的网络情况，高强度的硬件计算等。</p>
+<h3 id="解决ANR问题方法总体思路"><a href="#解决ANR问题方法总体思路" class="headerlink" title="解决ANR问题方法总体思路"></a>解决ANR问题方法总体思路</h3><p>1、导出ANR日志信息，根据日志信息，判断确认发生ANR的包名类名，进程号，发生时间，导致ANR原因类型等。</p>
+<p>2、关注系统资源信息，包括ANR发生前后的CPU，内存，IO等系统资源的使用情况。</p>
+<p>3、查看主线程状态，<strong>关注主线程是否存在耗时、死锁、等锁等问题</strong>，判断该ANR是App导致还是系统导致的。</p>
+<p>4、结合应用日志，代码或源码等，<strong>分析ANR问题发生前，应用是否有异常</strong>，其中具体问题具体分析。</p>
+<h3 id="掉帧检测方案Looper"><a href="#掉帧检测方案Looper" class="headerlink" title="掉帧检测方案Looper"></a>掉帧检测方案Looper</h3><p>Android使用消息机制进行UI更新，UI线程有个Looper，在其loop方法中会不断取出message，调用其绑定的Handler在UI线程执行。如果在handler的dispatchMesaage方法里有耗时操作，就会发生卡顿。</p>
+<p>Looper源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">public static void loop() &#123;</span><br><span class="line">        final Looper me = myLooper();</span><br><span class="line">        if (me == null) &#123;</span><br><span class="line">            throw new RuntimeException(&quot;No Looper; Looper.prepare() wasn&apos;t called on this thread.&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        final MessageQueue queue = me.mQueue;</span><br><span class="line"></span><br><span class="line">        // Make sure the identity of this thread is that of the local process,</span><br><span class="line">        // and keep track of what that identity token actually is.</span><br><span class="line">        Binder.clearCallingIdentity();</span><br><span class="line">        final long ident = Binder.clearCallingIdentity();</span><br><span class="line"></span><br><span class="line">        for (;;) &#123;</span><br><span class="line">            Message msg = queue.next(); // might block</span><br><span class="line">            if (msg == null) &#123;</span><br><span class="line">                // No message indicates that the message queue is quitting.</span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // This must be in a local variable, in case a UI event sets the logger</span><br><span class="line">            //处理消息前，打印开始日志</span><br><span class="line">            Printer logging = me.mLogging;</span><br><span class="line">            if (logging != null) &#123;</span><br><span class="line">                logging.println(&quot;&gt;&gt;&gt;&gt;&gt; Dispatching to &quot; + msg.target + &quot; &quot; +</span><br><span class="line">                        msg.callback + &quot;: &quot; + msg.what);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            msg.target.dispatchMessage(msg);</span><br><span class="line"></span><br><span class="line">            //处理完消息后，打印结束日志</span><br><span class="line">            if (logging != null) &#123;</span><br><span class="line">                logging.println(&quot;&lt;&lt;&lt;&lt;&lt; Finished to &quot; + msg.target + &quot; &quot; + msg.callback);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // Make sure that during the course of dispatching the</span><br><span class="line">            // identity of the thread wasn&apos;t corrupted.</span><br><span class="line">            final long newIdent = Binder.clearCallingIdentity();</span><br><span class="line">            if (ident != newIdent) &#123;</span><br><span class="line">                Log.wtf(TAG, &quot;Thread identity changed from 0x&quot;</span><br><span class="line">                        + Long.toHexString(ident) + &quot; to 0x&quot;</span><br><span class="line">                        + Long.toHexString(newIdent) + &quot; while dispatching to &quot;</span><br><span class="line">                        + msg.target.getClass().getName() + &quot; &quot;</span><br><span class="line">                        + msg.callback + &quot; what=&quot; + msg.what);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            msg.recycleUnchecked();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们可以根据消息处理前后的日志输出作为检测点，计算出消息处理的耗时，如果超出16ms，说明发生了卡顿，此时就可以把UI线程的堆栈日志打印出来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Looper.getMainLooper().setMessageLogging(new Printer() &#123;</span><br><span class="line">            private static final String START = &quot;&gt;&gt;&gt;&gt;&gt; Dispatching&quot;;</span><br><span class="line">            private static final String END = &quot;&lt;&lt;&lt;&lt;&lt; Finished&quot;;</span><br><span class="line"></span><br><span class="line">            @Override</span><br><span class="line">            public void println(String x) &#123;</span><br><span class="line">                if (x.startsWith(START)) &#123;</span><br><span class="line">                    UiBlockLogMonitor.getInstance().startMonitor();</span><br><span class="line">                &#125;</span><br><span class="line">                if (x.startsWith(END)) &#123;</span><br><span class="line">                    UiBlockLogMonitor.getInstance().stopMonitor();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>不过，由于系统定制的原因，打印出来的日志标识不一定标准，所以可以改为判断第一次日志输出和第二次日志输出。</p>
+<p><strong>常见卡顿原因及解决方案</strong></p>
+<p>一、过度绘制，去除不必要的背景色(开发者选项 -&gt; 调试GPU过度绘制)：</p>
+<ol>
+<li>设置窗口背景色为通用背景色，去除根布局背景色。</li>
+<li>若页面背景色与通用背景色不一致，在页面渲染完成后移除窗口背景色</li>
+<li>去除和列表背景色相同的Item背景色</li>
+</ol>
+<p>二、布局视图树扁平化</p>
+<ol>
+<li>移除嵌套布局</li>
+<li>使用merge、include标签</li>
+<li>使用性能消耗更小布局（TableLayout、ConstraintLayout）</li>
+</ol>
+<p>三、减少透明色，即alpha属性的使用<br>将alpha设置为半透明值（0&lt;alpha&lt;1）会很耗性能，尤其是对大视图。所以最好短暂地使用alpha属性。通过<code>使用半透明颜色值(#77000000)代替</code></p>
+<p>四、其他</p>
+<ol>
+<li>使用ViewStub标签，延迟加载不必要的视图</li>
+<li>使用AsyncLayoutInflater异步解析视图</li>
+</ol>
+<p>五、主线程耗时操作</p>
+<ol>
+<li>Json数据解析耗时(Cache类)</li>
+<li>文件操作(获取所属渠道名称)</li>
+<li>Binder通信（获取系统属性(mac地址)）</li>
+<li>正则匹配（Hybird 通信）</li>
+<li>相机操作：初始化、预览、停止预览、释放（反扫）</li>
+<li>组件初始化（推送）</li>
+<li>循环删除、创建View(更多页面)</li>
+<li>WebView首次初始化</li>
+</ol>
+<p>设置异步线程优先级为Process.THREAD_PRIORITY_BACKGROUND，减少与主线程的竞争。</p>
+<p>参考资料：<br><a href="https://www.cnblogs.com/developer-huawei/p/13856252.html" target="_blank" rel="noopener">https://www.cnblogs.com/developer-huawei/p/13856252.html</a><br><a href="https://blog.csdn.net/joye123/article/details/79425398" target="_blank" rel="noopener">https://blog.csdn.net/joye123/article/details/79425398</a></p>
 <h2 id="aar"><a href="#aar" class="headerlink" title="@aar"></a>@aar</h2><p>@aar的方式关闭传递依赖</p>
 <pre><code>// 只下载该库，其他所依赖的所有库不下载
 compile &apos;io.reactivex.rxjava2:rxandroid:2.0.1@aar&apos;
@@ -1551,6 +1759,26 @@ try {
 <h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>线程池使用的好处：<br>1：对多个线程进行统一地管理，避免资源竞争中出现的问题。<br>2：（重点）：对线程进行复用，线程在执行完任务后不会立刻销毁，而会等待另外的任务，这样就不会频繁地创建、销毁线程和调用GC。<br>3：JAVA提供了一套完整的ExecutorService线程池创建的api，可创建多种功能不一的线程池，使用起来很方便。</p>
 <p>创建线程池，主要是利用ThreadPoolExecutor这个类，而这个类有几种构造方法，其中参数最多的一种构造方法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                             int maximumPoolSize,</span><br><span class="line">                             long keepAliveTime,</span><br><span class="line">                             TimeUnit unit,</span><br><span class="line">                             BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                             ThreadFactory threadFactory) &#123;</span><br><span class="line">       ...</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
 <p>corePoolSize: 该线程池中核心线程的数量。<br>maximumPoolSize：该线程池中最大线程数量。(区别于corePoolSize)<br>keepAliveTime:从字面上就可以理解，是非核心线程空闲时要等待下一个任务到来的时间，当任务很多，每个任务执行时间很短的情况下调大该值有助于提高线程利用率。注意：当allowCoreThreadTimeOut属性设为true时，该属性也可用于核心线程。<br>unit:上面时间属性的单位<br>workQueue:任务队列<br>threadFactory:线程工厂，可用于设置线程名字等等，一般无须设置该参数。</p>
+<h2 id="进程保活"><a href="#进程保活" class="headerlink" title="进程保活"></a>进程保活</h2><p>android进程优先级：前台进程 &gt; 可见进程 &gt; 服务进程 &gt; 后台进程 &gt; 空进程</p>
+<p>android进程的回收策略：主要依靠LMK ( Low Memory Killer )机制来完成。LMK机制通过 oom_adj 这个阀值来判断进程的优先级，oom_adj 的值越高，优先级越低，越容易被杀死。</p>
+<p>拓展：LMK ( Low Memory Killer ) 机制基于Linux的OOM（Out Of Memery）机制，通过一些比较复杂的评分机制，对进程进行打分，将分数高的进程判定为bad进程，杀死并释放内存。LMS机制和OOM机制的不同之处在于：OOM只有当系统内存不足时才会启动检查，而LMS机制是定时进行检查。</p>
+<p><strong>方案：</strong></p>
+<p>1、利用系统广播拉活：</p>
+<blockquote>
+<p>系统广播事件是不可控制的，只有在发生事件时才能进行拉活，无法保证进程被杀死后立即被拉活</p>
+</blockquote>
+<p>2、利用系统Service机制拉活：</p>
+<blockquote>
+<p>将Service中的onStartCommand()回调方法的返回值设为START_STICKY，就可以利用系统机制在Service挂掉后自动拉活。<br>拓展：onStartCommand()的返回值表明当Service由于系统内存不足而被系统杀掉之后，在未来的某个时间段内当系统内存足够的情况下，系统会尝试创建这个Service，一旦创建成功就又会回调onStartCommand()方法。<br>缺点（无法拉活的情形）：Service第一次被异常杀死后会在5s内重启，第二次会在10s内重启，第三次会在20s内重启，若Service在短时间内被杀死的次数超过3次以上系统就会不惊醒拉活；进程被取得root权限的管理工具或系统工具通过强制stop时，通过Service机制无法重启进程。</p>
+</blockquote>
+<p>3、利用JobScheduler机制拉活</p>
+<blockquote>
+<p>说明：android在5.0后提供了JobScheduler接口，这个接口能够监听主进程的存活，然后拉活进程。</p>
+</blockquote>
+<p>4、利用Native进程拉活</p>
+<blockquote>
+<p>思想：利用Linux中的fork机制创建一个Native进程，在Native进程可以监控主进程的存活，当主进程挂掉之后，Native进程可以立即对主进程进行拉活。<br>在Native进程中如何监听主进程被杀死：可在Native进程中通过死循环或定时器，轮询地判断主进程被杀死，但是此方案会耗时耗资源；在主线程中创建一个监控文件，并且在主进程中持有文件锁，在拉活进程启动后申请文件锁将会被阻塞，一旦成功获取到锁说明主进程挂掉了。<br>如何在Native进程中拉活主进程：主要通过一个am命令即可拉活。<br>说明：android5.0后系统对Native进程加强了管理，利用Native进程拉活的方式已失效。</p>
+</blockquote>
 
           
         
@@ -4888,333 +5116,6 @@ public final Single&lt;T&gt; elementAtOrError(long index)
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/28/flutter-integration/" itemprop="url">Flutter集成Android项目</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T16:31:43+08:00">
-                2019-06-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
-                    <span itemprop="name">Hybrid Develop</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="在现有项目上集成Flutter"><a href="#在现有项目上集成Flutter" class="headerlink" title="在现有项目上集成Flutter"></a>在现有项目上集成Flutter</h2><p>1.在andorid工程目录上级目录下执行命令:</p>
-<pre><code>flutter create -t module xxxx(想要创建的flutter项目名)
-</code></pre><p>执行完后，一个和Android项目平级的flutter项目就已经创建好了。</p>
-<p>2.添加flutter到当前Android项目：<br>在Android项目根目录下的settings.gradle文件中，添加如下代码：</p>
-<pre><code>setBinding(new Binding([gradle: this]))
-evaluate(new File(
-        settingsDir.parentFile,
-        &quot;flutter_hybrid/.android/include_flutter.groovy&quot;
-))
-</code></pre><p>然后，在项目的app目录下，build.gradle文件中，添加如下dependency:</p>
-<pre><code>implementation project(&apos;:flutter&apos;)
-</code></pre><p>如上，添加完之后，准备工作就完成了。</p>
-<h2 id="集成Flutter页面跳转"><a href="#集成Flutter页面跳转" class="headerlink" title="集成Flutter页面跳转"></a>集成Flutter页面跳转</h2><h3 id="通过继承FlutterActivity跳到默认页面"><a href="#通过继承FlutterActivity跳到默认页面" class="headerlink" title="通过继承FlutterActivity跳到默认页面"></a>通过继承FlutterActivity跳到默认页面</h3><p>1.Application：初始化Flutter</p>
-<pre><code>public class App extends Application {
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        FlutterMain.startInitialization(this);
-    }
-}
-</code></pre><p>2.Activity：继承FlutterActivity</p>
-<pre><code>/**
- * debug模式原生跳转到flutter界面会出现白屏，release包就不会出现白屏了
- */
-public class MainFlutterActivity extends FlutterActivity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    GeneratedPluginRegistrant.registerWith(this);
-  }
-</code></pre><p>这样以后，我们就可以跳转这个MainFlutterActivity，实现在Android工程里面进入Flutter工程的默认页面了。</p>
-<h3 id="通过FlutterView跳到指定页面"><a href="#通过FlutterView跳到指定页面" class="headerlink" title="通过FlutterView跳到指定页面"></a>通过FlutterView跳到指定页面</h3><p>首先通过Flutter.createFlutterView方法来创建一个FlutterView类型的View。它有三个构造参数：</p>
-<pre><code>public static FlutterView createView(Activity activity, Lifecycle lifecycle, String initialRoute)
-</code></pre><p>三个参数分别是：<br>1.Activity，即当前附着的Activity</p>
-<p>2.LifeCycle，且是不能为空(NonNull)的，这也就要求我们必须用AppCompatActivity来承载FlutterView了，如果我们的Activity继承自android.app.Activity是没有getLifeCycle()这个方法的。</p>
-<pre><code>public class FlutterViewActivity extends AppCompatActivity 复制代码
-</code></pre><p>3.initialRoute这是一个String类型的变量，根据不同的标识跳转不同的Flutter页面：</p>
-<pre><code>Widget _widgetForRoute(String route) {
-  switch (route) {
-    case &apos;route1&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page1&apos;);
-    case &apos;route2&apos;:
-      return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-    default:
-        return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
-  }
-}
-</code></pre><p>然后在当前Activity的OnCreate方法中，执行：</p>
-<pre><code>FlutterView flutterView = Flutter.createView(this, getLifecycle(), &quot;route1&quot;);    
-setContentView(flutterView);
-
-//或者：
-
-setContentView(R.layout.activity_flutter);
-rlContainer = findViewById(R.id.rl_container);
-rlContainer.addView(flutterView)
-</code></pre><h2 id="集成到现有项目遇到的坑"><a href="#集成到现有项目遇到的坑" class="headerlink" title="集成到现有项目遇到的坑"></a>集成到现有项目遇到的坑</h2><p>Check failed: vm. Must be able to initialize the VM：</p>
-<pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_data.cc(19)] VM snapshot invalid and could not be inferred from settings.
-    [ERROR:flutter/runtime/dart_vm.cc(241)] Could not setup VM data to bootstrap the VM from.
-    [ERROR:flutter/runtime/dart_vm_lifecycle.cc(89)] Could not create Dart VM instance.
- A/flutter: [FATAL:flutter/shell/common/shell.cc(218)] Check failed: vm. Must be able to initialize the VM.
-
-SIGABRT
-    0x146b
-    #00    pc 0002210c    /system/lib/libc.so (tgkill+12) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #01    pc 00013165    /system/lib/libc.so (pthread_kill+48) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #02    pc 00013379    /system/lib/libc.so (raise+10) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #03    pc 000120a3    /system/lib/libc.so [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #04    pc 000219c0    /system/lib/libc.so (abort+4) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
-    #05    pc 00af85ab    /data/app-lib/xxx.debug-1/libflutter.so [armeabi-v7a::a12434e0b53806a35730000001000000]
-</code></pre><p>经github上<a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">#24679</a>及其他issue参考，得出以下解决方案：</p>
-<blockquote>
-<p>Import flutter module to your HOST app(set binding, implementation, and instantiate view/fragment)<br>When you clean/rebuild from HOST app, flutter module does not generate properly<br>You need to open your flutter module in a separate AS<br>flutter clean<br>cd .android<br>./gradlew clean<br>./gradlew assembleDebug<br>Return to host app and run app(do not sync or rebuild) :)</p>
-</blockquote>
-<p>翻译过来就是：</p>
-<blockquote>
-<p>本项目执行清理命令。./gradlew clean<br>进入 flutter module 项目执行清理命令。flutter packages get;flutter clean<br>进入 flutter module 的 .android 项目执行清理命令和打包操作。./gradlew clean;./gradlew assemble<br>回到本项目执行打包命令。./gradlew assemble</p>
-</blockquote>
-<p>直接执行下面命令即可：</p>
-<pre><code>$ ./gradlew clean;cd ../flutter_module;flutter packages get;flutter clean;cd .android/;./gradlew clean;./gradlew assemble;cd /d/workspace/app_proj/;./gradlew installDebug
-</code></pre><p>后续假设你 flutter module 没有更新过，那么以后修改本地项目之后，就直接执行./gradlew installDebug。 注意不要用studio工具运行、rebuild或clean。</p>
-<h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
-<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
-<pre><code>-keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.** { *; }
--keep class io.flutter.util.** { *; }
--keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
--keep class myapp.flutter.** { *; }
-</code></pre><h2 id="交互"><a href="#交互" class="headerlink" title="交互"></a>交互</h2><h3 id="Flutter-调用Android"><a href="#Flutter-调用Android" class="headerlink" title="Flutter 调用Android"></a>Flutter 调用Android</h3><p>java</p>
-<pre><code>new MethodChannel(flutterView, FlutterToAndroidCHANNEL).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-    @Override
-    public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-
-        //接收来自flutter的指令withoutParams
-        if (methodCall.method.equals(&quot;withoutParams&quot;)) {
-
-            //跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        }
-        //接收来自flutter的指令withParams
-        else if (methodCall.method.equals(&quot;withParams&quot;)) {
-
-            //解析参数
-            String text = methodCall.argument(&quot;flutter&quot;);
-
-            //带参数跳转到指定Activity
-            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
-            intent.putExtra(&quot;test&quot;, text);
-            startActivity(intent);
-
-            //返回给flutter的参数
-            result.success(&quot;success&quot;);
-        } else {
-            result.notImplemented();
-        }
-    }
-});
-</code></pre><p>dart</p>
-<pre><code>Future&lt;Null&gt; _jumpToNative() async {
-  String result = await toAndroidPlugin.invokeMethod(&apos;withoutParams&apos;);
-
-  print(result);
-}
-
-
-Future&lt;Null&gt; _jumpToNativeWithParams() async {
-
-  Map&lt;String, String&gt; map = { &quot;flutter&quot;: &quot;这是一条来自flutter的参数&quot; };
-
-  String result = await toAndroidPlugin.invokeMethod(&apos;withParams&apos;, map);
-
-  print(result);
-}
-</code></pre><h3 id="Android-向-Flutter-传参"><a href="#Android-向-Flutter-传参" class="headerlink" title="Android 向 Flutter 传参"></a>Android 向 Flutter 传参</h3><p>java</p>
-<pre><code>new EventChannel(flutterView, AndroidToFlutterCHANNEL)
-            .setStreamHandler(new EventChannel.StreamHandler() {
-                @Override
-                public void onListen(Object o, EventChannel.EventSink eventSink) {
-                    String androidParmas = &quot;来自android原生的参数&quot;;
-                    eventSink.success(androidParmas);
-                }
-
-                @Override
-                public void onCancel(Object o) {
-
-                }
-            });
-</code></pre><p>dart</p>
-<pre><code> void _startfromAndroiPlugin(){
-   if(_fromAndroiSub == null){
-     _fromAndroiSub =  fromAndroiPlugin.receiveBroadcastStream()
-     .listen(_onfromAndroiEvent,onError: _onfromAndroiError);
-   }
- }
-
-void _onfromAndroiEvent(Object event) {
-   setState(() {
-     _nativeParams = event;
-   });
- }
-
- void _onfromAndroiError(Object error) {
-   setState(() {
-     _nativeParams = &quot;error&quot;;
-     print(error);
-   });
- }
-</code></pre><p>有几处 要注意一一对应：</p>
-<pre><code>public static final String FlutterToAndroidCHANNEL = &quot;com.litngzhe.toandroid/plugin&quot;; 
-public static final String AndroidToFlutterCHANNEL= &quot;com.litngzhe.toflutter/plugin&quot;;
-
-new MethodChannel(flutterView, FlutterToAndroidCHANNEL)
-new EventChannel(flutterView, AndroidToFlutterCHANNEL) 
-
-
-//dart中 获取到插件与原生的交互通道 MethodChannel 中 涉及到的方法名要要统一
-static const toAndroidPlugin = const MethodChannel(&apos;com.litngzhe.toandroid/plugin&apos;);
-static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/plugin&apos;); 
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -5267,7 +5168,7 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-count">77</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -5329,7 +5230,7 @@ static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

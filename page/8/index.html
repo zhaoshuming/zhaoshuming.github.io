@@ -293,6 +293,226 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/mpchart-point-label/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/12/mpchart-point-label/" itemprop="url">MpAndroidChart实现多点的特殊标记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-12T18:36:14+08:00">
+                2019-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android知识点/" itemprop="url" rel="index">
+                    <span itemprop="name">Android知识点</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近在开发时遇到这样一种需求，为一些特殊点显示标签，类似默认显示多个markview。如下图（demo）：</p>
+<p><img src="/2019/03/12/mpchart-point-label/chart_label.png" alt><br>在网上并没有相关资料，在此做下记录分享</p>
+<p>下面上代码:</p>
+<p>首先创建一个类继承LineChart,重写init()方法：</p>
+<pre><code>@Override
+protected void init() {
+    super.init();
+    //获取屏幕宽度,上图最边上标签，会根据屏幕宽度适配
+    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+    DisplayMetrics metrics = new DisplayMetrics();
+    wm.getDefaultDisplay().getMetrics(metrics);
+    mRenderer = new HbFundLineChartRenderer(this, mAnimator, mViewPortHandler, metrics.widthPixels);
+}
+</code></pre><p>接下来是主要内容,也就是自己实现的LineChartRenderer即渲染器,用来画点、线等.<br>首先是一些变量,分别是标记控件的宽高边距等,这里写的是一些根据我们需求来的默认值：</p>
+<pre><code>private int mWidth;//屏幕宽度,在构造方法中传进来赋值
+private float hViewLength = Utils.convertDpToPixel(30f);//vie宽30dp
+private float vViewLength = Utils.convertDpToPixel(20f);//view高20dp
+private float viewRect= Utils.convertDpToPixel(4f);//矩形高低差
+</code></pre><p>然后,在LineChartRenderer中有一个drawValues,它是主要负责根据值来画点的,我们要做的就是在super()之后加上我们自己的东西：</p>
+<pre><code>@Override
+public void drawValues(Canvas c) {
+    super.drawValues(c);
+    if (isShowLabel) {
+        LineDataSet dataSetByIndex = (LineDataSet) mChart.getLineData().getDataSetByIndex(0);
+        Transformer trans = mChart.getTransformer(dataSetByIndex.getAxisDependency());
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);//抗锯齿画笔
+        paint.setTextSize(Utils.convertDpToPixel(textSixe));//设置字体大小
+
+        //画首中尾三个label
+        float[] firstFloat = getFloat(dataSetByIndex.getValues(), 0);//根据数据集获取点
+        drawPointLabel(trans, paint, c, firstFloat);
+        float[] middleFloat = getFloat(dataSetByIndex.getValues(), (dataSetByIndex.getValues().size() - 1) / 2);
+        drawPointLabel(trans, paint, c, middleFloat);
+        float[] endFloat = getFloat(dataSetByIndex.getValues(), dataSetByIndex.getValues().size() - 1);
+        drawPointLabel(trans, paint, c, endFloat);
+    }
+}
+</code></pre><p>首先获取点的数据集,然后得到Transformer,它可以根据点数据集里的某一点来得到这个点在屏幕中的位置<br>然后分别传入transformer、画笔、画布对象、点,进行绘制：</p>
+<pre><code>private void drawPointLabel(Transformer trans, Paint paint, Canvas c, float[] floatPosition) {
+    MPPointD maxPoint = trans.getPixelForValues(floatPosition[0], floatPosition[1]);
+    float highX = (float) maxPoint.x;
+    float highY = (float) maxPoint.y;
+    TextView view = (TextView) LayoutInflater.from(mContext).inflate(R.layout.mark_view, null, false);
+    if (highX &gt; mWidth - mWidth / 4) {//标识朝左
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_r);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX - hViewLength), (int) (highY - vViewLength - viewRect), paint);
+    } else if (highX &lt; mWidth / 4) {//标识朝右
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_l);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX), (int) (highY - vViewLength - viewRect), paint);
+    } else {//标识居中
+        view.setBackgroundResource(R.mipmap.sm_lable_bg_buy_c);
+        Bitmap bitmap = createBitmap(view, (int) hViewLength, (int) vViewLength);
+        c.drawBitmap(bitmap, (int) (highX - hViewLength / 2), (int) (highY - vViewLength - viewRect), paint);
+    }
+}
+</code></pre><p>此处，我们随意定义几个点，可以根据实际需求进行设置：</p>
+<pre><code>private float[] getFloat(List&lt;Entry&gt; lists, int index) {
+    float[] maxEntry = new float[2];
+    maxEntry[0] = lists.get(index).getX();
+    maxEntry[1] = lists.get(index).getY();
+    return maxEntry;
+}
+</code></pre><p>view转bitmap方法如下：</p>
+<pre><code>private Bitmap createBitmap(View v, int width, int height) {
+    //测量使得view指定大小
+    int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+    int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+    v.measure(measuredWidth, measuredHeight);
+    //调用layout方法布局后，可以得到view的尺寸大小
+    v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+    Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas c = new Canvas(bmp);
+    v.draw(c);
+    return bmp;
+}
+</code></pre><p>最后附上<a href="https://github.com/zhaoshuming/TestAcharView" target="_blank" rel="noopener">代码（内部测试demo，多余功能请忽略）</a></p>
+<p>参考资料：<br><a href="https://www.jianshu.com/p/1877b8c2fc6c" target="_blank" rel="noopener">https://www.jianshu.com/p/1877b8c2fc6c</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/java-reentrantlock/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2020,7 +2240,7 @@ tags: #文章標籤 可以省略
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-count">77</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2082,7 +2302,7 @@ tags: #文章標籤 可以省略
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

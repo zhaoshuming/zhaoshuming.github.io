@@ -293,6 +293,333 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/flutter-integration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/28/flutter-integration/" itemprop="url">Flutter集成Android项目</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T16:31:43+08:00">
+                2019-06-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hybrid-Develop/" itemprop="url" rel="index">
+                    <span itemprop="name">Hybrid Develop</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="在现有项目上集成Flutter"><a href="#在现有项目上集成Flutter" class="headerlink" title="在现有项目上集成Flutter"></a>在现有项目上集成Flutter</h2><p>1.在andorid工程目录上级目录下执行命令:</p>
+<pre><code>flutter create -t module xxxx(想要创建的flutter项目名)
+</code></pre><p>执行完后，一个和Android项目平级的flutter项目就已经创建好了。</p>
+<p>2.添加flutter到当前Android项目：<br>在Android项目根目录下的settings.gradle文件中，添加如下代码：</p>
+<pre><code>setBinding(new Binding([gradle: this]))
+evaluate(new File(
+        settingsDir.parentFile,
+        &quot;flutter_hybrid/.android/include_flutter.groovy&quot;
+))
+</code></pre><p>然后，在项目的app目录下，build.gradle文件中，添加如下dependency:</p>
+<pre><code>implementation project(&apos;:flutter&apos;)
+</code></pre><p>如上，添加完之后，准备工作就完成了。</p>
+<h2 id="集成Flutter页面跳转"><a href="#集成Flutter页面跳转" class="headerlink" title="集成Flutter页面跳转"></a>集成Flutter页面跳转</h2><h3 id="通过继承FlutterActivity跳到默认页面"><a href="#通过继承FlutterActivity跳到默认页面" class="headerlink" title="通过继承FlutterActivity跳到默认页面"></a>通过继承FlutterActivity跳到默认页面</h3><p>1.Application：初始化Flutter</p>
+<pre><code>public class App extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FlutterMain.startInitialization(this);
+    }
+}
+</code></pre><p>2.Activity：继承FlutterActivity</p>
+<pre><code>/**
+ * debug模式原生跳转到flutter界面会出现白屏，release包就不会出现白屏了
+ */
+public class MainFlutterActivity extends FlutterActivity {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    GeneratedPluginRegistrant.registerWith(this);
+  }
+</code></pre><p>这样以后，我们就可以跳转这个MainFlutterActivity，实现在Android工程里面进入Flutter工程的默认页面了。</p>
+<h3 id="通过FlutterView跳到指定页面"><a href="#通过FlutterView跳到指定页面" class="headerlink" title="通过FlutterView跳到指定页面"></a>通过FlutterView跳到指定页面</h3><p>首先通过Flutter.createFlutterView方法来创建一个FlutterView类型的View。它有三个构造参数：</p>
+<pre><code>public static FlutterView createView(Activity activity, Lifecycle lifecycle, String initialRoute)
+</code></pre><p>三个参数分别是：<br>1.Activity，即当前附着的Activity</p>
+<p>2.LifeCycle，且是不能为空(NonNull)的，这也就要求我们必须用AppCompatActivity来承载FlutterView了，如果我们的Activity继承自android.app.Activity是没有getLifeCycle()这个方法的。</p>
+<pre><code>public class FlutterViewActivity extends AppCompatActivity 复制代码
+</code></pre><p>3.initialRoute这是一个String类型的变量，根据不同的标识跳转不同的Flutter页面：</p>
+<pre><code>Widget _widgetForRoute(String route) {
+  switch (route) {
+    case &apos;route1&apos;:
+      return  MyHomePage(title: &apos;Flutter Demo Home Page1&apos;);
+    case &apos;route2&apos;:
+      return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
+    default:
+        return  MyHomePage(title: &apos;Flutter Demo Home Page2&apos;);
+  }
+}
+</code></pre><p>然后在当前Activity的OnCreate方法中，执行：</p>
+<pre><code>FlutterView flutterView = Flutter.createView(this, getLifecycle(), &quot;route1&quot;);    
+setContentView(flutterView);
+
+//或者：
+
+setContentView(R.layout.activity_flutter);
+rlContainer = findViewById(R.id.rl_container);
+rlContainer.addView(flutterView)
+</code></pre><h2 id="集成到现有项目遇到的坑"><a href="#集成到现有项目遇到的坑" class="headerlink" title="集成到现有项目遇到的坑"></a>集成到现有项目遇到的坑</h2><p>Check failed: vm. Must be able to initialize the VM：</p>
+<pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_data.cc(19)] VM snapshot invalid and could not be inferred from settings.
+    [ERROR:flutter/runtime/dart_vm.cc(241)] Could not setup VM data to bootstrap the VM from.
+    [ERROR:flutter/runtime/dart_vm_lifecycle.cc(89)] Could not create Dart VM instance.
+ A/flutter: [FATAL:flutter/shell/common/shell.cc(218)] Check failed: vm. Must be able to initialize the VM.
+
+SIGABRT
+    0x146b
+    #00    pc 0002210c    /system/lib/libc.so (tgkill+12) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #01    pc 00013165    /system/lib/libc.so (pthread_kill+48) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #02    pc 00013379    /system/lib/libc.so (raise+10) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #03    pc 000120a3    /system/lib/libc.so [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #04    pc 000219c0    /system/lib/libc.so (abort+4) [armeabi-v7a::ac712d92afdda143205c7d7c8befc336]
+    #05    pc 00af85ab    /data/app-lib/xxx.debug-1/libflutter.so [armeabi-v7a::a12434e0b53806a35730000001000000]
+</code></pre><p>经github上<a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">#24679</a>及其他issue参考，得出以下解决方案：</p>
+<blockquote>
+<p>Import flutter module to your HOST app(set binding, implementation, and instantiate view/fragment)<br>When you clean/rebuild from HOST app, flutter module does not generate properly<br>You need to open your flutter module in a separate AS<br>flutter clean<br>cd .android<br>./gradlew clean<br>./gradlew assembleDebug<br>Return to host app and run app(do not sync or rebuild) :)</p>
+</blockquote>
+<p>翻译过来就是：</p>
+<blockquote>
+<p>本项目执行清理命令。./gradlew clean<br>进入 flutter module 项目执行清理命令。flutter packages get;flutter clean<br>进入 flutter module 的 .android 项目执行清理命令和打包操作。./gradlew clean;./gradlew assemble<br>回到本项目执行打包命令。./gradlew assemble</p>
+</blockquote>
+<p>直接执行下面命令即可：</p>
+<pre><code>$ ./gradlew clean;cd ../flutter_module;flutter packages get;flutter clean;cd .android/;./gradlew clean;./gradlew assemble;cd /d/workspace/app_proj/;./gradlew installDebug
+</code></pre><p>后续假设你 flutter module 没有更新过，那么以后修改本地项目之后，就直接执行./gradlew installDebug。 注意不要用studio工具运行、rebuild或clean。</p>
+<h3 id="flutter-assets"><a href="#flutter-assets" class="headerlink" title="flutter_assets"></a>flutter_assets</h3><p>assets下缺少flutter_assets也有可能造成此问题。具体可以参考：<a href="https://www.jianshu.com/p/2d0bba84e57e" target="_blank" rel="noopener">https://www.jianshu.com/p/2d0bba84e57e</a></p>
+<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><p>按照上述方式，debug版本没问题，release却报错。需加以下混淆：</p>
+<pre><code>-keep class io.flutter.app.** { *; }
+-keep class io.flutter.plugin.** { *; }
+-keep class io.flutter.util.** { *; }
+-keep class io.flutter.view.** { *; }
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-keep class myapp.flutter.** { *; }
+</code></pre><h2 id="交互"><a href="#交互" class="headerlink" title="交互"></a>交互</h2><h3 id="Flutter-调用Android"><a href="#Flutter-调用Android" class="headerlink" title="Flutter 调用Android"></a>Flutter 调用Android</h3><p>java</p>
+<pre><code>new MethodChannel(flutterView, FlutterToAndroidCHANNEL).setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+    @Override
+    public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+
+        //接收来自flutter的指令withoutParams
+        if (methodCall.method.equals(&quot;withoutParams&quot;)) {
+
+            //跳转到指定Activity
+            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
+            startActivity(intent);
+
+            //返回给flutter的参数
+            result.success(&quot;success&quot;);
+        }
+        //接收来自flutter的指令withParams
+        else if (methodCall.method.equals(&quot;withParams&quot;)) {
+
+            //解析参数
+            String text = methodCall.argument(&quot;flutter&quot;);
+
+            //带参数跳转到指定Activity
+            Intent intent = new Intent(NativeActivity.this, NativeActivity.class);
+            intent.putExtra(&quot;test&quot;, text);
+            startActivity(intent);
+
+            //返回给flutter的参数
+            result.success(&quot;success&quot;);
+        } else {
+            result.notImplemented();
+        }
+    }
+});
+</code></pre><p>dart</p>
+<pre><code>Future&lt;Null&gt; _jumpToNative() async {
+  String result = await toAndroidPlugin.invokeMethod(&apos;withoutParams&apos;);
+
+  print(result);
+}
+
+
+Future&lt;Null&gt; _jumpToNativeWithParams() async {
+
+  Map&lt;String, String&gt; map = { &quot;flutter&quot;: &quot;这是一条来自flutter的参数&quot; };
+
+  String result = await toAndroidPlugin.invokeMethod(&apos;withParams&apos;, map);
+
+  print(result);
+}
+</code></pre><h3 id="Android-向-Flutter-传参"><a href="#Android-向-Flutter-传参" class="headerlink" title="Android 向 Flutter 传参"></a>Android 向 Flutter 传参</h3><p>java</p>
+<pre><code>new EventChannel(flutterView, AndroidToFlutterCHANNEL)
+            .setStreamHandler(new EventChannel.StreamHandler() {
+                @Override
+                public void onListen(Object o, EventChannel.EventSink eventSink) {
+                    String androidParmas = &quot;来自android原生的参数&quot;;
+                    eventSink.success(androidParmas);
+                }
+
+                @Override
+                public void onCancel(Object o) {
+
+                }
+            });
+</code></pre><p>dart</p>
+<pre><code> void _startfromAndroiPlugin(){
+   if(_fromAndroiSub == null){
+     _fromAndroiSub =  fromAndroiPlugin.receiveBroadcastStream()
+     .listen(_onfromAndroiEvent,onError: _onfromAndroiError);
+   }
+ }
+
+void _onfromAndroiEvent(Object event) {
+   setState(() {
+     _nativeParams = event;
+   });
+ }
+
+ void _onfromAndroiError(Object error) {
+   setState(() {
+     _nativeParams = &quot;error&quot;;
+     print(error);
+   });
+ }
+</code></pre><p>有几处 要注意一一对应：</p>
+<pre><code>public static final String FlutterToAndroidCHANNEL = &quot;com.litngzhe.toandroid/plugin&quot;; 
+public static final String AndroidToFlutterCHANNEL= &quot;com.litngzhe.toflutter/plugin&quot;;
+
+new MethodChannel(flutterView, FlutterToAndroidCHANNEL)
+new EventChannel(flutterView, AndroidToFlutterCHANNEL) 
+
+
+//dart中 获取到插件与原生的交互通道 MethodChannel 中 涉及到的方法名要要统一
+static const toAndroidPlugin = const MethodChannel(&apos;com.litngzhe.toandroid/plugin&apos;);
+static const fromAndroiPlugin = const EventChannel(&apos;com.litngzhe.toflutter/plugin&apos;); 
+</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/chinaltz/FlutterDemo" target="_blank" rel="noopener">FlutterDemo</a><br><a href="https://juejin.im/post/5c74dbeee51d45708f2a20c6" target="_blank" rel="noopener">https://juejin.im/post/5c74dbeee51d45708f2a20c6</a><br><a href="https://github.com/flutter/flutter/issues/24679" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/24679</a><br><a href="https://github.com/flutter/flutter/issues/25147" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/25147</a><br><a href="https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OGbH3G3wHVTUt-0EJit8RA</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/25/dart-knowledge/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3442,179 +3769,6 @@ CONSTANT_Methodref_info：类的方法信息
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/28/architecture-design-flow/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/28/architecture-design-flow/" itemprop="url">架构设计流程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-28T17:55:33+08:00">
-                2019-04-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/架构/" itemprop="url" rel="index">
-                    <span itemprop="name">架构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="如何识别复杂度"><a href="#如何识别复杂度" class="headerlink" title="如何识别复杂度"></a>如何识别复杂度</h3><p>架构设计由需求所驱动，本质目的是为了解决软件系统的复杂性；为此，我们在进行架构设计时，需要以理解需求为前提，首要进行系统复杂性的分析。具体做法是：</p>
-<p>（1）构建复杂度的来源清单——高性能、可用性、扩展性、安全、低成本、规模等。</p>
-<p>（2）结合需求、技术、团队、资源等对上述复杂度逐一分析是否需要？是否关键？</p>
-<p>“高性能”主要从软件系统未来的TPS、响应时间、服务器资源利用率等客观指标，也可以从用户的主观感受方面去考虑。</p>
-<p>“可用性”主要从服务不中断等质量属性，符合行业政策、国家法规等方面去考虑。</p>
-<p>“扩展性”则主要从功能需求的未来变更幅度等方面去考虑。</p>
-<p>（3）按照上述的分析结论，得到复杂度按照优先级的排序清单，越是排在前面的复杂度，就越关键，就越优先解决。</p>
-<p>需要特别注意的是：随着所处的业务阶段不同、外部的技术条件和环境的不同，得到的复杂度问题的优先级排序就会有所不同。一切皆变化。</p>
-<h3 id="备选方案设计"><a href="#备选方案设计" class="headerlink" title="备选方案设计"></a>备选方案设计</h3><p>经过架构设计流程第 1 步——识别复杂度，确定了系统面临的主要复杂度问题，进而明确了设计方案的目标，就可以开展架构设计流程第 2 步——设计备选方案。架构设计备选方案的工作更多的是从需求、团队、技术、资源等综合情况出发，对主流、成熟的架构模式进行选择、组合、调整、创新。</p>
-<p>1.几种常见的架构设计误区</p>
-<p>（1）设计最优秀的方案。不要面向“简历”进行架构设计，而是要根据“合适”、“简单”、“演进”的架构设计原则，决策出与需求、团队、技术能力相匹配的合适方案。</p>
-<p>（2）只做一个方案。一个方案容易陷入思考问题片面、自我坚持的认知陷阱。</p>
-<p>2.备选方案设计的注意事项</p>
-<p>（1）备选方案不要过于详细。备选阶段解决的是技术选型问题，而不是技术细节。</p>
-<p>（2）备选方案的数量以 3~5个为最佳。</p>
-<p>（3）备选方案的技术差异要明显。</p>
-<p>（4）备选方案不要只局限于已经熟悉的技术。</p>
-<p>3.问题思考</p>
-<p>可以从开源、自研的角度提出架构设计方案</p>
-<p>如果是创业公司的业务早、中期阶段，可直接考虑采用阿里云/腾讯云，性能、HA、伸缩性都有保证。</p>
-<p>最大的感悟是：做事情永远都要有B方案。</p>
-<h3 id="评估和选择备选方案"><a href="#评估和选择备选方案" class="headerlink" title="评估和选择备选方案"></a>评估和选择备选方案</h3><p>1 评估和选择备选方案的方法<br><strong>列出我们需要关注的质量属性点，然后分别从这些质量属性的维度去评估每个方案，再综合挑选适合当时情况的最优方案。</strong>常见的质量属性点有：性能、可用性、硬件成本、项目投入、复杂度、安全性、可扩展性。<br>按优先级选择，即架构师综合当前的业务发展情况、团队人员规模和技能、业务发展预测等因素，将质量属性按照优先级排序，首先挑选满足第一优先级的，如果方案都满足，那就再看第二优先级……以此类推。</p>
-<p>2 RocketMQ 和 Kafka 有什么区别？</p>
-<p>（1） 适用场景<br>Kafka适合日志处理；RocketMQ适合业务处理。</p>
-<p>（2） 性能<br>Kafka单机写入TPS号称在百万条/秒；RocketMQ大约在10万条/秒。Kafka单机性能更高。</p>
-<p>（3） 可靠性<br>RocketMQ支持异步/同步刷盘;异步/同步Replication；Kafka使用异步刷盘方式，异步Replication。RocketMQ所支持的同步方式提升了数据的可靠性。</p>
-<p>（4） 实时性<br>均支持pull长轮询，RocketMQ消息实时性更好</p>
-<p>（5） 支持的队列数<br>Kafka单机超过64个队列/分区，消息发送性能降低严重；RocketMQ单机支持最高5万个队列，性能稳定（这也是适合业务处理的原因之一）</p>
-<p>3 为什么阿里会自研RocketMQ？</p>
-<p>（1） Kafka的业务应用场景主要定位于日志传输；对于复杂业务支持不够<br>（2） 阿里很多业务场景对数据可靠性、数据实时性、消息队列的个数等方面的要求很高<br>（3）当业务成长到一定规模，采用开源方案的技术成本会变高（开源方案无法满足业务的需要；旧版本、自开发代码与新版本的兼容等）<br>（4） 阿里在团队、成本、资源投入等方面约束性条件几乎没有</p>
-<h3 id="详细设计方案"><a href="#详细设计方案" class="headerlink" title="详细设计方案"></a>详细设计方案</h3><p>完成备选方案的设计和选择后，接下来需要将确定的备选方案细化，使得备选方案变成一个可以落地的设计方案。</p>
-<p>1）架构师不但要进行备选方案的设计和选型，还需要对备选方案的关键细节有较深入的理解。<br>2）通过分步骤、分阶段、分系统等方式，尽量减低方案复杂度，方案本身的复杂度越高，某个细节推翻整个方案的可能性就越大，适当降低复杂度，可以降低这种风险。<br>3）如果方案本身就很复杂，那就采取设计团队的方式来进行设计，博采众长，防止可能出现的盲点或经验误区。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3667,7 +3821,7 @@ CONSTANT_Methodref_info：类的方法信息
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-count">77</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3729,7 +3883,7 @@ CONSTANT_Methodref_info：类的方法信息
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

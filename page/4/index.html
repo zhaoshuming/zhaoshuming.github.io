@@ -293,6 +293,159 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/04/design-mode-command/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/04/design-mode-command/" itemprop="url">命令模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-04T09:39:04+08:00">
+                2019-11-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>命令（Command）模式的定义如下：<strong>将一个请求封装为一个对象，使发出请求的责任和执行请求的责任分割开</strong>。这样两者之间通过命令对象进行沟通，这样方便将命令对象进行储存、传递、调用、增加与管理。</p>
+<p>优点： 1、降低了系统耦合度。 2、新的命令可以很容易添加到系统中去。 3、可以比较容易地设计一个组合命令(宏命令)。</p>
+<p>缺点：使用命令模式可能会导致某些系统有过多的具体命令类。</p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>1.命令的发送者和命令执行者有不同的生命周期。命令发送了并不是立即执行。<br>2.命令需要进行各种管理逻辑（当系统需要执行一组操作时，命令模式可以定义宏命令来实现该功能）。<br>3.需要支持撤消\重做操作，可以将命令对象存储起来，采用备忘录模式来实现。</p>
+<h2 id="结构与实现"><a href="#结构与实现" class="headerlink" title="结构与实现"></a>结构与实现</h2><p>命令模式是对命令的封装。命令模式把发出命令的责任和执行命令的责任分割开，委派给不同的对象。</p>
+<p>每一个命令都是一个操作：请求的一方发出请求要求执行一个操作；接收的一方收到请求，并执行操作。命令模式允许请求的一方和接收的一方独立开来，使得请求的一方不必知道接收请求的一方的接口，更不必知道请求是怎么被接收，以及操作是否被执行、何时被执行，以及是怎么被执行的。</p>
+<p><img src="/2019/11/04/design-mode-command/command.png" alt title="结构图"></p>
+<p>命令模式涉及到五个角色，它们分别是：<br>1、客户端(Client)角色：创建一个具体命令(ConcreteCommand)对象并确定其接收者。<br>2、命令(Command)角色：声明了一个给所有具体命令类的抽象接口。<br>3、具体命令(ConcreteCommand)角色：定义一个接收者和行为之间的弱耦合；实现execute()方法，负责调用接收者的相应操作。execute()方法通常叫做执行方法。<br>4、请求者(Invoker)角色：负责调用命令对象执行请求，相关的方法叫做行动方法。<br>5、接收者(Receiver)角色：负责具体实施和执行一个请求。任何一个类都可以成为接收者，实施和执行请求的方法叫做行动方法。</p>
+<p>代码实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">//接收者角色类</span><br><span class="line">public class Receiver &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 真正执行命令相应的操作</span><br><span class="line">     */</span><br><span class="line">    public void action()&#123;</span><br><span class="line">        System.out.println(&quot;执行操作&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//抽象命令角色类</span><br><span class="line">public interface Command &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 执行方法</span><br><span class="line">     */</span><br><span class="line">    void execute();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体命令角色类</span><br><span class="line">public class ConcreteCommand implements Command &#123;</span><br><span class="line">    //持有相应的接收者对象</span><br><span class="line">    private Receiver receiver = null;</span><br><span class="line">    /**</span><br><span class="line">     * 构造方法</span><br><span class="line">     */</span><br><span class="line">    public ConcreteCommand(Receiver receiver)&#123;</span><br><span class="line">        this.receiver = receiver;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void execute() &#123;</span><br><span class="line">        //通常会转调接收者对象的相应方法，让接收者来真正执行功能</span><br><span class="line">        receiver.action();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//请求者角色类</span><br><span class="line">public class Invoker &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 持有命令对象</span><br><span class="line">     */</span><br><span class="line">    private Command command = null;</span><br><span class="line">    /**</span><br><span class="line">     * 构造方法</span><br><span class="line">     */</span><br><span class="line">    public Invoker(Command command)&#123;</span><br><span class="line">        this.command = command;</span><br><span class="line">    &#125;</span><br><span class="line">    /**</span><br><span class="line">     * 行动方法</span><br><span class="line">     */</span><br><span class="line">    public void action()&#123;</span><br><span class="line">        </span><br><span class="line">        command.execute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//客户端角色类</span><br><span class="line">public class Client &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        //创建接收者</span><br><span class="line">        Receiver receiver = new Receiver();</span><br><span class="line">        //创建命令对象，设定它的接收者</span><br><span class="line">        Command command = new ConcreteCommand(receiver);</span><br><span class="line">        //创建请求者，把命令对象设置进去</span><br><span class="line">        Invoker invoker = new Invoker(command);</span><br><span class="line">        //执行方法</span><br><span class="line">        invoker.action();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="组合命令模式"><a href="#组合命令模式" class="headerlink" title="组合命令模式"></a>组合命令模式</h2><p>在软件开发中，有时<strong>将命令模式与组合模式联合使用，这就构成了宏命令模式</strong>，也叫组合命令模式。宏命令包含了一组命令，它充当了具体命令与调用者的双重角色，执行它时将递归调用它所包含的所有命令，其具体结构图如图：</p>
+<p><img src="/2019/11/04/design-mode-command/composite-command.jpg" alt></p>
+<p>程序代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">//抽象命令</span><br><span class="line">interface AbstractCommand</span><br><span class="line">&#123;</span><br><span class="line">    public abstract void execute();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//树叶构件: 具体命令1</span><br><span class="line">class ConcreteCommand1 implements AbstractCommand</span><br><span class="line">&#123;</span><br><span class="line">    private CompositeReceiver receiver;</span><br><span class="line">    ConcreteCommand1()</span><br><span class="line">    &#123;</span><br><span class="line">        receiver=new CompositeReceiver();</span><br><span class="line">    &#125;</span><br><span class="line">    public void execute()</span><br><span class="line">    &#123;       </span><br><span class="line">        receiver.action1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//树叶构件: 具体命令2</span><br><span class="line">class ConcreteCommand2 implements AbstractCommand</span><br><span class="line">&#123;</span><br><span class="line">    private CompositeReceiver receiver;</span><br><span class="line">    ConcreteCommand2()</span><br><span class="line">    &#123;</span><br><span class="line">        receiver=new CompositeReceiver();</span><br><span class="line">    &#125;</span><br><span class="line">    public void execute()</span><br><span class="line">    &#123;       </span><br><span class="line">        receiver.action2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//树枝构件: 调用者</span><br><span class="line">class CompositeInvoker implements AbstractCommand</span><br><span class="line">&#123;</span><br><span class="line">    private ArrayList&lt;AbstractCommand&gt; children = new ArrayList&lt;AbstractCommand&gt;();   </span><br><span class="line">    public void add(AbstractCommand c)</span><br><span class="line">    &#123;</span><br><span class="line">        children.add(c);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void remove(AbstractCommand c)</span><br><span class="line">    &#123;</span><br><span class="line">        children.remove(c);</span><br><span class="line">    &#125;   </span><br><span class="line">    public AbstractCommand getChild(int i)</span><br><span class="line">    &#123;</span><br><span class="line">        return children.get(i);</span><br><span class="line">    &#125;   </span><br><span class="line">    public void execute()</span><br><span class="line">    &#123;</span><br><span class="line">        for(Object obj:children)</span><br><span class="line">        &#123;</span><br><span class="line">            ((AbstractCommand)obj).execute();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//接收者</span><br><span class="line">class CompositeReceiver</span><br><span class="line">&#123;</span><br><span class="line">    public void action1()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;接收者的action1()方法被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public void action2()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;接收者的action2()方法被调用...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Client</span><br><span class="line">public class CompositeCommandPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        AbstractCommand cmd1=new ConcreteCommand1();</span><br><span class="line">        AbstractCommand cmd2=new ConcreteCommand2();</span><br><span class="line">        CompositeInvoker ir=new CompositeInvoker();</span><br><span class="line">        ir.add(cmd1);</span><br><span class="line">        ir.add(cmd2);</span><br><span class="line">        System.out.println(&quot;客户访问调用者的execute()方法...&quot;);</span><br><span class="line">        ir.execute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">程序的运行结果如下：</span><br><span class="line">客户访问调用者的execute()方法...</span><br><span class="line">接收者的action1()方法被调用...</span><br><span class="line">接收者的action2()方法被调用...</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/30/design-mode-interpreter/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1735,167 +1888,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/design-mode-singleton/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/17/design-mode-singleton/" itemprop="url">单例模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T16:17:38+08:00">
-                2019-10-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Singleton通过将构造方法限定为private避免了类在外部被实例化，在同一个虚拟机范围内，Singleton的唯一实例只能通过getInstance()方法访问。（事实上，通过Java反射机制是能够实例化构造方法为private的类的，那基本上会使所有的Java单例实现失效，下面会讨论。）</p>
-<p>主要优点：<br>1、提供了对唯一实例的受控访问。<br>2、由于在系统内存中只存在一个对象，因此可以节约系统资源，对于一些需要频繁创建和销毁的对象单例模式无疑可以提高系统的性能。<br>3、允许可变数目的实例。</p>
-<p>主要缺点：<br>1、由于单例模式中没有抽象层，因此单例类的扩展有很大的困难。<br>2、单例类的职责过重，在一定程度上违背了“单一职责原则”。<br>3、滥用单例将带来一些负面问题，如为了节省资源将数据库连接池对象设计为的单例类，可能会导致共享连接池对象的程序过多而出现连接池溢出；如果实例化的对象长时间不被利用，系统会认为是垃圾而被回收，这将导致对象状态的丢失。</p>
-<p>以下列出单例模式的几种写法及单例模式的漏洞解决方案：</p>
-<h2 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h2><p>类初始化时创建对象，不管需不需要实例对象，都会创建。不存在线程安全问题，因为实例是在类创建和初始化时创建，是由类加载器完成的，类加载器是线程安全的。</p>
-<p>缺点，无法延时加载,没有使用就已经加载了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static final Singleton mInstance = new Singleton();</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h2><p>优化了恶汉式无法延迟加载的问题。<br>缺点：存在同步问题，多线程并发的时候会失效，getInstance不同步。比如：一个线程在创建mInstance时，还未创建完成，另一个线程访问mInstance此时还是为空，又创建了一次。</p>
-<p>对懒汉式的优化，主要是在线程安全方面，使用synchronized关键字或同步代码块修饰，使得同时只能有一个线程访问。但存在性能缺陷的，因为使用了synchronized关键字。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static Singleton mInstance;</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static synchronized Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123;</span><br><span class="line">            mInstance = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="DCL双重检查锁"><a href="#DCL双重检查锁" class="headerlink" title="DCL双重检查锁"></a>DCL双重检查锁</h2><p>DCL双重检查锁，是对第二种方法性能缺陷的优化。</p>
-<p>DCL双重检查锁仅在真正创建mInstance实例的时候加上了synchronized关键字。而且使用volatile关键字修饰，是为了禁止编译器对volatile变量重排序，并且保证volatile变量的读操作发生在写操作之后。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123;</span><br><span class="line"> </span><br><span class="line">    private static volatile Singleton mInstance =null; //volatile关键字是为了禁止编译器对 volatile关键字修饰的变量进行重排序，并保证volatile变量的读操作发生在写操作之后</span><br><span class="line"> </span><br><span class="line">    private Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getInstance()&#123;</span><br><span class="line">        if(mInstance == null)&#123; //第一次检查</span><br><span class="line">            synchronized (Singleton.class)&#123; //同步代码块</span><br><span class="line">                if(mInstance == null)&#123; //第二次检查</span><br><span class="line">                    mInstance = new Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return mInstance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h2><p>利用static final关键字的同步机制，初始化后就无法修改保证了线程安全。使用静态内部类的方式保证了延迟加载，不使用不会被加载。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Singleton &#123; //完成了懒汉式的延迟加载，同时static保证了线程安全。</span><br><span class="line"> </span><br><span class="line">    private  Singleton()&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static Singleton getIntance()&#123;</span><br><span class="line">        return SingletonHolder.mIntance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    private static class SingletonHolder&#123; //私有的，初始化的时候，没有调用getIntance方法则不会加载</span><br><span class="line">        private static final Singleton mIntance = new Singleton();  //static,final是jvm提供的同步机制，初始化后就无法修改了</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="枚举（推荐用法）"><a href="#枚举（推荐用法）" class="headerlink" title="枚举（推荐用法）"></a>枚举（推荐用法）</h2><p>1.简洁<br>2.线程安全<br>3.可以防止反射注入,反序列化它也不会重新生成新的实例</p>
-<p>所有的枚举类型隐性地继承自java.lang.Enum 。枚举实质上还是类！而每个枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final 修饰的。可以直接通过枚举类型名使用它们。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public enum Singleton &#123;</span><br><span class="line"></span><br><span class="line">  INSTANCE;</span><br><span class="line"></span><br><span class="line">  public void doSomething()&#123;</span><br><span class="line">     System.out.println(&quot;do sth.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="单例模式存在的漏洞"><a href="#单例模式存在的漏洞" class="headerlink" title="单例模式存在的漏洞"></a>单例模式存在的漏洞</h2><p>1、 通过反射获取单例对象</p>
-<p>我们观察反射获取单例的代码，发现它还是调用了私有的构造方法获取对象【声明为私有的构造方法就是为了不让类外直接new对象】。如果只让私有的构造器只能调用一次就可以避免反射。</p>
-<p>2、 反序列化获得单例模式对象</p>
-<p>传统的单例模式的另外一个问题是一旦你实现了serializable接口，他们就不再是单例的了，因为readObject()方法总是返回一个 新的实例对象，就像java中的构造器一样。如果定义了readResolve()则直接返回此方法指定的对象，而不需要再创建新的对象！</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 序列化必须实现Serializable接口，否则序列化时会报错</span><br><span class="line"> */</span><br><span class="line">public class Singleton implements Serializable&#123;</span><br><span class="line">     </span><br><span class="line">    private static final long serialVersionUID = 1L;</span><br><span class="line"> </span><br><span class="line">    private static Singleton sl;</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">    private Singleton() &#123;</span><br><span class="line">        //如果sl不为空即这不是第一次调用该构造器</span><br><span class="line">        if(sl != null)</span><br><span class="line">            throw new RuntimeException();</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    public static Singleton getInstance() &#123;</span><br><span class="line">        if(sl == null) &#123;</span><br><span class="line">            sl = new Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        return sl;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    /**</span><br><span class="line">     * 反序列化时，如果定义了readResolve()则直接返回此方法指定的对象，而不需要在创建新的对象！</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    private Object readResolve() &#123; </span><br><span class="line">        return getInstance(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/d9d9dcf23359" target="_blank" rel="noopener">为什么说枚举是最好的Java单例实现方法？</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1948,7 +1940,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-count">77</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2010,7 +2002,7 @@
         ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
