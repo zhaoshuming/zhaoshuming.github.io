@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="1ilOhMWnNE">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android App Bundles（简称AAB）是一款全新动态化框架，与Instant App不同，AAB是借助Split Apk完成动态加载。 AAB与Instant Apps有何不同：Instant Apps是应用程序未下载，用户通过链接即可体验其部分功能，Instant Apps应用程序是运行在google play service上，而AAB插件是运行在应用程序进程内。AAB强调的是减">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android App Bundles分析">
+<meta property="og:url" content="http://yoursite.com/2021/01/19/android-plugin-aab/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="Android App Bundles（简称AAB）是一款全新动态化框架，与Instant App不同，AAB是借助Split Apk完成动态加载。 AAB与Instant Apps有何不同：Instant Apps是应用程序未下载，用户通过链接即可体验其部分功能，Instant Apps应用程序是运行在google play service上，而AAB插件是运行在应用程序进程内。AAB强调的是减">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2021/01/19/android-plugin-aab/aab-struc.webp">
+<meta property="og:updated_time" content="2021-01-20T07:22:33.963Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android App Bundles分析">
+<meta name="twitter:description" content="Android App Bundles（简称AAB）是一款全新动态化框架，与Instant App不同，AAB是借助Split Apk完成动态加载。 AAB与Instant Apps有何不同：Instant Apps是应用程序未下载，用户通过链接即可体验其部分功能，Instant Apps应用程序是运行在google play service上，而AAB插件是运行在应用程序进程内。AAB强调的是减">
+<meta name="twitter:image" content="http://yoursite.com/2021/01/19/android-plugin-aab/aab-struc.webp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/01/19/android-plugin-aab/">
+
+
+
+
+
+  <title>Android App Bundles分析 | Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+	
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/19/android-plugin-aab/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android App Bundles分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-19T16:06:53+08:00">
+                2021-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android插件化/" itemprop="url" rel="index">
+                    <span itemprop="name">Android插件化</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Android App Bundles（简称AAB）是一款全新动态化框架，与Instant App不同，AAB是借助Split Apk完成动态加载。</p>
+<p>AAB与Instant Apps有何不同：Instant Apps是应用程序未下载，用户通过链接即可体验其部分功能，Instant Apps应用程序是运行在google play service上，而AAB插件是运行在应用程序进程内。AAB强调的是减少app包体积同时提供一样的用户功能体验，提供<strong>按需下载安装</strong>模式。</p>
+<p><strong>好处：</strong></p>
+<ul>
+<li>Size更小【个人理解是相对用户来感知来说更小】</li>
+<li>安装更快【base.apk被优化相对来说安装会更快】</li>
+<li>支持动态发布</li>
+</ul>
+<p><strong>限制</strong></p>
+<ul>
+<li>仅限于通过 Google Play 发布的应用，（Google进一步巩固自身生态）</li>
+<li>需要加入到 Google 的 beta program</li>
+<li>最低支持版本Android 5.0 (API level 21)，低于Android 5.0 (API level 21) 的版本GooglePlay会优化Size，但不支持动态交付。</li>
+</ul>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>结合Google Play Dynamic Delivery (动态交付) ， 实现动态功能。Android App Bundle 支持模块化，通过Dynamic Delivery with split APKs，将一个apk拆分成多个apk，按需加载（包括加载C/C++ libraries），这样开发者可以随时按需交付功能，而不是仅限在安装过程中。</p>
+<ul>
+<li>Base Apk  首次安装的apk，公共代码和资源，所以其他的模块都基于Base Apk</li>
+<li>Configuration APKs  native libraries 和适配当前手机屏幕分辨率的资源</li>
+<li>Dynamic feature APKs  不需要在首次安装就加载的模块</li>
+</ul>
+<p><img src="/2021/01/19/android-plugin-aab/aab-struc.webp" alt></p>
+<p>下面介绍下SplitApk。</p>
+<h2 id="Split-Apks"><a href="#Split-Apks" class="headerlink" title="Split Apks"></a>Split Apks</h2><p>split apks是Android 5.0开始提供多apk构建机制，借助split apks可以将一个apk基于ABI和屏幕密度两个维度拆分城多个apk，这样可以有效减少apk体积。当用户下载应用程序安装包时，只会包含对应平台的so和资源。因为需要google play支持，所以国内就没戏了。针对不同cpu架构问题，国内应用开发商大部分都会将so文件只放在armabi目录下，如此做虽然可以有效减少包体积，但可能带来性能问题。</p>
+<p>安装应用程序时，首先安装base apk，然后安装split apks。为了解splite apks运作原理，我们还是结合源码做简要分析。因为splite apks是Android 5.0开始支持，所以我们以5.0版本开始分析。</p>
+<p>在ApplicationInfo中，增加splites apk相关字段。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * Full paths to zero or more split APKs that, when combined with the base</span><br><span class="line">     * APK defined in &#123;@link #sourceDir&#125;, form a complete application.</span><br><span class="line">     */</span><br><span class="line">    public String[] splitSourceDirs;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * Full path to the publicly available parts of &#123;@link #splitSourceDirs&#125;,</span><br><span class="line">     * including resources and manifest. This may be different from</span><br><span class="line">     * &#123;@link #splitSourceDirs&#125; if an application is forward locked.</span><br><span class="line">     */</span><br><span class="line">    public String[] splitPublicSourceDirs;</span><br></pre></td></tr></table></figure></p>
+<p>LoadeApk中有PathClassLoader和Resources创建过程。LoadedApk#mClassLoader是PathClassLoader实例引用，接着分析PathClassLoader创建过程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">public ClassLoader getClassLoader() &#123;</span><br><span class="line">        synchronized (this) &#123;</span><br><span class="line">            if (mClassLoader != null) &#123;</span><br><span class="line">                return mClassLoader;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (mIncludeCode &amp;&amp; !mPackageName.equals(&quot;android&quot;)) &#123;</span><br><span class="line"></span><br><span class="line">                ......</span><br><span class="line"></span><br><span class="line">                final ArrayList&lt;String&gt; zipPaths = new ArrayList&lt;&gt;();</span><br><span class="line">                final ArrayList&lt;String&gt; libPaths = new ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">                .......</span><br><span class="line"></span><br><span class="line">                zipPaths.add(mAppDir);</span><br><span class="line">                //将split apk路径追加到zipPaths中</span><br><span class="line">                if (mSplitAppDirs != null) &#123;</span><br><span class="line">                    Collections.addAll(zipPaths, mSplitAppDirs);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                libPaths.add(mLibDir);</span><br><span class="line"></span><br><span class="line">                ......</span><br><span class="line"></span><br><span class="line">                final String zip = TextUtils.join(File.pathSeparator, zipPaths);</span><br><span class="line">                final String lib = TextUtils.join(File.pathSeparator, libPaths);</span><br><span class="line"></span><br><span class="line">                ......</span><br><span class="line">                //如果mSplitAppDirs不为空，则zip将包含split apps所有路径。</span><br><span class="line">                mClassLoader = ApplicationLoaders.getDefault().getClassLoader(zip, lib,</span><br><span class="line">                        mBaseClassLoader);</span><br><span class="line"></span><br><span class="line">                StrictMode.setThreadPolicy(oldPolicy);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (mBaseClassLoader == null) &#123;</span><br><span class="line">                    mClassLoader = ClassLoader.getSystemClassLoader();</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    mClassLoader = mBaseClassLoader;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            return mClassLoader;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>在创建PathClassLoader时，dex文件路径包含base app和split apps路径。LoadedApk#mResources是Resources实例引用，其创建过程如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public Resources getResources(ActivityThread mainThread) &#123;</span><br><span class="line">        if (mResources == null) &#123;</span><br><span class="line">            mResources = mainThread.getTopLevelResources(mResDir, mSplitResDirs, mOverlayDirs,</span><br><span class="line">                    mApplicationInfo.sharedLibraryFiles, Display.DEFAULT_DISPLAY, null, this);</span><br><span class="line">        &#125;</span><br><span class="line">        return mResources;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法中，split apks资源路径（LoadedApk#mSplitResDirs）也会被增加至Resources中。</p>
+<p>以上简要介绍split apks加载过程，包括code和resources加载。split apks并不支持动态加载split apk，即base apk 和split apks在app安装时，全部安装。但通过split apks工作原理，可以发现其是<strong>能够支持按需加载</strong>。</p>
+<h2 id="Play-Core-Library"><a href="#Play-Core-Library" class="headerlink" title="Play Core Library"></a>Play Core Library</h2><p>Play Core Library是AAB提供的核心库，用于下载、安装dynamic feature模块。</p>
+<p>主工程模块app，首先分析MainActivity.kt文件。在MainActivity.kt的onCreate方法中，增加如下逻辑：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">override fun onCreate(savedInstanceState: Bundle?) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line">        manager = SplitInstallManagerFactory.create(this)</span><br><span class="line">        initializeViews()</span><br><span class="line">        val installedList = manager.installedModules.toList()</span><br><span class="line">        for (item in installedList) &#123;</span><br><span class="line">            toastAndLog(&quot;installed module : &quot; + item.toString())</span><br><span class="line">        &#125;</span><br><span class="line">        val splits = applicationInfo.splitSourceDirs</span><br><span class="line">        for ( item in splits) &#123;</span><br><span class="line">            toastAndLog(&quot;split dir : &quot; + item.toString())</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>打印结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">D/DynamicFeatures: installed module : native</span><br><span class="line">D/DynamicFeatures: installed module : java</span><br><span class="line">D/DynamicFeatures: installed module : kotlin</span><br><span class="line">D/DynamicFeatures: installed module : assets</span><br><span class="line">D/DynamicFeatures: split dir : /data/app/com.google.android.samples.dynamicapps.ondemand-1/split_assets.apk</span><br><span class="line">D/DynamicFeatures: split dir : /data/app/com.google.android.samples.dynamicapps.ondemand-1/split_java.apk</span><br><span class="line">D/DynamicFeatures: split dir : /data/app/com.google.android.samples.dynamicapps.ondemand-1/split_kotlin.apk</span><br><span class="line">D/DynamicFeatures: split dir : /data/app/com.google.android.samples.dynamicapps.ondemand-1/split_native.apk</span><br></pre></td></tr></table></figure></p>
+<p>从运行结果可知，split apks（即使是on-demand模块）在debug模式下，是紧接着base apk安装完成后安装。</p>
+<p>SplitInstallManager类提供获取已安装模块方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;String&gt; getInstalledModules();</span><br></pre></td></tr></table></figure></p>
+<p>因为Play Core Library非对外暴露接口都是混淆过的，因此就不直接附源码分析。但通过追踪分析源码可知，获取已安装模块的核心过程是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private final String[] a() &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            PackageInfo var1;</span><br><span class="line">            return (var1 = this.d.getPackageManager().getPackageInfo(this.e, 0)) != null ? var1.splitNames : null;</span><br><span class="line">        &#125; catch (NameNotFoundException var2) &#123;</span><br><span class="line">            a.c(&quot;App is not found in PackageManager&quot;, new Object[0]);</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过PackageInfo#splitNames字段获取。</p>
+<p>在示例中，每当我们需要启动dynamic feature模块时，都要判断该模块是否安装。如果没有安装，则启动下载，Play Core Library提供了比较完善的下载状态回调，比如下载进度，下载失败原因等等。</p>
+<p>通过粗略分析这些混淆源码可知，<strong>下载与安装on-demand模块均是通过ipc交由google play完成</strong>。</p>
+<h2 id="兼容性问题"><a href="#兼容性问题" class="headerlink" title="兼容性问题"></a>兼容性问题</h2><h3 id="OS版本不高于6-0"><a href="#OS版本不高于6-0" class="headerlink" title="OS版本不高于6.0"></a>OS版本不高于6.0</h3><p>当app运行设备版本不高于6.0时，需要使用SplitCompat库才能立即访问下载模块代码和资源。AAB提供SplitCompatApplication类用于开启SplitCompat。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class SplitCompatApplication extends Application &#123;</span><br><span class="line">    public SplitCompatApplication() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    protected void attachBaseContext(Context var1) &#123;</span><br><span class="line">        super.attachBaseContext(var1);</span><br><span class="line">        SplitCompat.install(this);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在Application#attachBaseContext(Context)中调用SplitCompat.install(Context)。在该方法中主要完成split apks代码（dex和so）和资源的安装。</p>
+<p>因为代码都是混淆过的，因此只能大概知道SplitCompat做了哪些操作。在SplitCompat#a(boolean)方法调用了<br>com.google.android.play.core.splitcompat.b.b.a()方法，其中有对不同版本OS兼容性处理。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public static a a() &#123;</span><br><span class="line">        if (VERSION.SDK_INT == 21) &#123;</span><br><span class="line">        //com.google.android.play.core.splitcompat.b.c</span><br><span class="line">            return new c();</span><br><span class="line">        &#125; else if (VERSION.SDK_INT == 22) &#123;</span><br><span class="line">        //com.google.android.play.core.splitcompat.b.f</span><br><span class="line">            return new f();</span><br><span class="line">        &#125; else if (VERSION.SDK_INT == 23) &#123;</span><br><span class="line">        //com.google.android.play.core.splitcompat.b.g</span><br><span class="line">            return new g();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            throw new AssertionError();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>分别查看com.google.android.play.core.splitcompat.b.c、com.google.android.play.core.splitcompat.b.f、com.google.android.play.core.splitcompat.b.g，得知其<strong>主要做so加载和dex加载（dex前插，与mutil-dex类似）</strong>。split apks资源加载在SplitCompat#a(boolean)方法有反射调用AssetManager#addAssetPath(String)。</p>
+<h3 id="OS版本不低于8-0"><a href="#OS版本不低于8-0" class="headerlink" title="OS版本不低于8.0"></a>OS版本不低于8.0</h3><p>在Android 8.0中，Instant Apps相关代码嵌入至Framework。因此如果on-demand模块用于Instant Apps中，需要在on-demand下载成功中，调用SplitInstallHelper.updateAppInfo(Context)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public static void updateAppInfo(Context var0) &#123;</span><br><span class="line">        if (VERSION.SDK_INT &gt; 25) &#123;</span><br><span class="line">            a.a(&quot;Calling dispatchPackageBroadcast!&quot;, new Object[0]);</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                Class var1;</span><br><span class="line">                Method var2;</span><br><span class="line">                (var2 = (var1 = Class.forName(&quot;android.app.ActivityThread&quot;)).getMethod(&quot;currentActivityThread&quot;)).setAccessible(true);</span><br><span class="line">                Object var3 = var2.invoke((Object)null);</span><br><span class="line">                Field var4;</span><br><span class="line">                (var4 = var1.getDeclaredField(&quot;mAppThread&quot;)).setAccessible(true);</span><br><span class="line">                Object var5;</span><br><span class="line">                (var5 = var4.get(var3)).getClass().getMethod(&quot;dispatchPackageBroadcast&quot;, Integer.TYPE, String[].class).invoke(var5, 3, new String[]&#123;var0.getPackageName()&#125;);</span><br><span class="line">                a.a(&quot;Calling dispatchPackageBroadcast&quot;, new Object[0]);</span><br><span class="line">            &#125; catch (Exception var6) &#123;</span><br><span class="line">                a.a(var6, &quot;Update app info with dispatchPackageBroadcast failed!&quot;, new Object[0]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>从上述代码得知其反射调用ActivityThread#dispatchPackageBroadcast方法。最终是调用至LoadedApk#updateApplicationInfo。该方法做了如下事情</p>
+<ul>
+<li>重新创建mClassLoader</li>
+<li>重新创建mResources</li>
+<li>更新applicationInfo（调用LoadedApk#setApplicationInfo完成）。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://zhuanlan.zhihu.com/p/36902641" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/36902641</a><br><a href="https://www.jianshu.com/p/57cccc680bb6" target="_blank" rel="noopener">https://www.jianshu.com/p/57cccc680bb6</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/01/android-x/" rel="next" title="AndroidX 迁移">
+                <i class="fa fa-chevron-left"></i> AndroidX 迁移
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Shuming Zhao">
+            
+              <p class="site-author-name" itemprop="name">Shuming Zhao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">78</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Split-Apks"><span class="nav-number">2.</span> <span class="nav-text">Split Apks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Play-Core-Library"><span class="nav-number">3.</span> <span class="nav-text">Play Core Library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#兼容性问题"><span class="nav-number">4.</span> <span class="nav-text">兼容性问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OS版本不高于6-0"><span class="nav-number">4.1.</span> <span class="nav-text">OS版本不高于6.0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OS版本不低于8-0"><span class="nav-number">4.2.</span> <span class="nav-text">OS版本不低于8.0</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shuming Zhao</span>
+
+  
+</div>
+
+<div class="powered-by"><i class="fa fa-user-md"></i>
+<span id="busuanzi_container_site_uv">访客数<span id="busuanzi_value_site_uv"></span>人，
+<span id="busuanzi_container_site_pv">访问量<span id="busuanzi_value_site_pv"></span>次</span>
+<span class="post-meta-divider">|</span>
+</span>
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

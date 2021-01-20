@@ -293,6 +293,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/04/design-mode-observer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Shuming Zhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/04/design-mode-observer/" itemprop="url">观察者模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-04T10:55:05+08:00">
+                2019-11-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>　　观察者（Observer）模式的定义：指<strong>多个对象间存在一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新</strong>。这种模式有时又称作发布-订阅模式、模型-视图模式，它是对象行为型模式。</p>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>实现观察者模式时要注意具体目标对象和具体观察者对象之间不能直接调用，否则将使两者之间紧密耦合起来，这违反了面向对象的设计原则。</p>
+<p><img src="/2019/11/04/design-mode-observer/observer.jpg" alt title="观察者结构图"></p>
+<p>观察者模式的主要角色如下：</p>
+<p>1、抽象主题（Subject）角色：也叫抽象目标类，它提供了一个用于保存观察者对象的聚集类和增加、删除观察者对象的方法，以及通知所有观察者的抽象方法。</p>
+<p>2、具体主题（Concrete    Subject）角色：也叫具体目标类，它实现抽象目标中的通知方法，当具体主题的内部状态发生改变时，通知所有注册过的观察者对象。</p>
+<p>3、抽象观察者（Observer）角色：它是一个抽象类或接口，它包含了一个更新自己的抽象方法，当接到具体主题的更改通知时被调用。</p>
+<p>4、具体观察者（Concrete Observer）角色：实现抽象观察者中定义的抽象方法，以便在得到目标的更改通知时更新自身的状态。</p>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>1、对象间存在一对多关系，一个对象的状态发生改变会影响其他对象。</p>
+<p>2、当一个抽象模型有两个方面，其中一个方面依赖于另一方面时，可将这二者封装在独立的对象中以使它们可以各自独立地改变和复用。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>观察者模式是一种对象行为型模式，其主要优点如下：<br>1、降低了目标与观察者之间的耦合关系，两者之间是抽象耦合关系。<br>2、目标与观察者之间建立了一套触发机制。</p>
+<p>它的主要缺点如下：<br>1、目标与观察者之间的依赖关系并没有完全解除，而且有可能出现循环引用。<br>2、当观察者对象很多时，通知的发布会花费很多时间，影响程序的效率。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">//抽象目标</span><br><span class="line">abstract class Subject</span><br><span class="line">&#123;</span><br><span class="line">    protected List&lt;Observer&gt; observers=new ArrayList&lt;Observer&gt;();   </span><br><span class="line">    //增加观察者方法</span><br><span class="line">    public void add(Observer observer)</span><br><span class="line">    &#123;</span><br><span class="line">        observers.add(observer);</span><br><span class="line">    &#125;    </span><br><span class="line">    //删除观察者方法</span><br><span class="line">    public void remove(Observer observer)</span><br><span class="line">    &#123;</span><br><span class="line">        observers.remove(observer);</span><br><span class="line">    &#125;   </span><br><span class="line">    public abstract void notifyObserver(); //通知观察者方法</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体目标</span><br><span class="line">class ConcreteSubject extends Subject</span><br><span class="line">&#123;</span><br><span class="line">    public void notifyObserver()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体目标发生改变...&quot;);</span><br><span class="line">        System.out.println(&quot;--------------&quot;);       </span><br><span class="line">       </span><br><span class="line">        for(Object obs:observers)</span><br><span class="line">        &#123;</span><br><span class="line">            ((Observer)obs).response();</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">    &#125;          </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//抽象观察者</span><br><span class="line">interface Observer</span><br><span class="line">&#123;</span><br><span class="line">    void response(); //反应</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//具体观察者1</span><br><span class="line">class ConcreteObserver1 implements Observer</span><br><span class="line">&#123;</span><br><span class="line">    public void response()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体观察者1作出反应！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">//具体观察者2</span><br><span class="line">class ConcreteObserver2 implements Observer</span><br><span class="line">&#123;</span><br><span class="line">    public void response()</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(&quot;具体观察者2作出反应！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Client</span><br><span class="line">public class ObserverPattern</span><br><span class="line">&#123;</span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        Subject subject=new ConcreteSubject();</span><br><span class="line">        Observer obs1=new ConcreteObserver1();</span><br><span class="line">        Observer obs2=new ConcreteObserver2();</span><br><span class="line">        subject.add(obs1);</span><br><span class="line">        subject.add(obs2);</span><br><span class="line">        subject.notifyObserver();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/04/design-mode-command/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1720,174 +1874,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/ds-string-matching/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Shuming Zhao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/17/ds-string-matching/" itemprop="url">字符串匹配算法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T18:14:19+08:00">
-                2019-10-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>字符串的匹配算法有：<br>1、单模式串匹配算法（BF算法，RK算法，BM算法，KMP算法）<br>2、多模式串匹配算法有（Trie树，AC自动机）</p>
-<h2 id="BF（Brute-Force）算法"><a href="#BF（Brute-Force）算法" class="headerlink" title="BF（Brute Force）算法"></a>BF（Brute Force）算法</h2><p>BF算法就是拿模式串m，从主串n的第0位开始匹配，如果匹配不成功，则后移一位继续匹配。<br>是比较简单的一种字符串匹配算法，在处理简单的数据时候就可以用这种算法，完全匹配，速度很慢，时间复杂度最坏情况O(M*N)。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public static int bf(String str,String sub)&#123;</span><br><span class="line">        int i = 0;</span><br><span class="line">        int j = 0;</span><br><span class="line">        while(i &lt; str.length())&#123;</span><br><span class="line">            while(j &lt; sub.length())&#123;</span><br><span class="line">                if(str.charAt(i) == sub.charAt(j))&#123;</span><br><span class="line">                    i++;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;else&#123;</span><br><span class="line">                    i = i-j+1;</span><br><span class="line">                    j =0;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">        return i-j;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="RK（Rabin-Karp）算法"><a href="#RK（Rabin-Karp）算法" class="headerlink" title="RK（Rabin-Karp）算法"></a>RK（Rabin-Karp）算法</h2><p>RK算法：数字的匹配比字符串快速，就把主串中的这n-m+1的子串分别求哈希值，然后在分别跟模式串的哈希值进行比较。如果哈希值不一样那肯定不匹配，如果哈希值一样，因为哈希算法存在哈希冲突，这时候在拿模式串跟该子串对比一下就好了。</p>
-<p>虽然模式串跟子串的对比速度提高了，但是我们事先需要遍历主串，逐个求子串的哈希值，这部分也挺耗时的，所以需要设计比较高效的哈希算法尽量的减少哈希冲突的产生。</p>
-<h2 id="BM（Boyer-Moore）算法"><a href="#BM（Boyer-Moore）算法" class="headerlink" title="BM（Boyer-Moore）算法"></a>BM（Boyer-Moore）算法</h2><p>上面两种字符串匹配算法都有缺点，BF算法在极端情况下效率会很低，RK算法需要有一个很好的哈希算法，而设计一个好的哈希算法并不简单，有没有尽可能的高效，极端情况下效率退化也不大的算法呢，下面看看BM算法。</p>
-<p>BM算法是一种非常高效的算法，各种记事本的查找功能一般都是采用的这种算法。该算法从模式串的尾部开始匹配，且拥有在最坏情况下 O(N) 的时间复杂度。在实践中，比 KMP 算法的实际效能高。</p>
-<p>BM 算法定义了两个规则：</p>
-<ul>
-<li>坏字符规则：当文本串中的某个字符跟模式串的某个字符不匹配时，我们称文本串中的这个失配字符为坏字符，此时模式串需要向右移动，移动的位数 = 坏字符在模式串中的位置 坏字符在模式串中最右出现的位置。此外，如果”坏字符”不包含在模式串之中，则最右出现位置为 -1。</li>
-<li>好后缀规则：当字符失配时，后移位数 = 好后缀在模式串中的位置 - 好后缀在模式串上一次出现的位置，且如果好后缀在模式串中没有再次出现，则为 -1。</li>
-</ul>
-<p>通过坏字符算法与好后缀算法分别获取位移值，取两者中的最大值进行位移操作。</p>
-<p>案例可参考：<a href="http://wiki.jikexueyuan.com/project/kmp-algorithm/bm.html" target="_blank" rel="noopener">http://wiki.jikexueyuan.com/project/kmp-algorithm/bm.html</a></p>
-<p>BM算法完整代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">// a,b 表示主串和模式串；n，m 表示主串和模式串的长度。</span><br><span class="line">public int bm(char[] a, int n, char[] b, int m) &#123;</span><br><span class="line">  int[] bc = new int[SIZE]; // 记录模式串中每个字符最后出现的位置</span><br><span class="line">  generateBC(b, m, bc); // 构建坏字符哈希表</span><br><span class="line">  int[] suffix = new int[m];</span><br><span class="line">  boolean[] prefix = new boolean[m];</span><br><span class="line">  generateGS(b, m, suffix, prefix);</span><br><span class="line">  int i = 0; // j 表示主串与模式串匹配的第一个字符</span><br><span class="line">  while (i &lt;= n - m) &#123;</span><br><span class="line">    int j;</span><br><span class="line">    for (j = m - 1; j &gt;= 0; --j) &#123; // 模式串从后往前匹配</span><br><span class="line">      if (a[i+j] != b[j]) break; // 坏字符对应模式串中的下标是 j</span><br><span class="line">    &#125;</span><br><span class="line">    if (j &lt; 0) &#123;</span><br><span class="line">      return i; // 匹配成功，返回主串与模式串第一个匹配的字符的位置</span><br><span class="line">    &#125;</span><br><span class="line">    int x = j - bc[(int)a[i+j]];</span><br><span class="line">    int y = 0;</span><br><span class="line">    if (j &lt; m-1) &#123; // 如果有好后缀的话</span><br><span class="line">      y = moveByGS(j, m, suffix, prefix);</span><br><span class="line">    &#125;</span><br><span class="line">    i = i + Math.max(x, y);</span><br><span class="line">  &#125;</span><br><span class="line">  return -1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// j 表示坏字符对应的模式串中的字符下标 ; m 表示模式串长度</span><br><span class="line">private int moveByGS(int j, int m, int[] suffix, boolean[] prefix) &#123;</span><br><span class="line">  int k = m - 1 - j; // 好后缀长度</span><br><span class="line">  if (suffix[k] != -1) return j - suffix[k] +1;</span><br><span class="line">  for (int r = j+2; r &lt;= m-1; ++r) &#123;</span><br><span class="line">    if (prefix[m-r] == true) &#123;</span><br><span class="line">      return r;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void generateBC(char[] b, int m, int[] bc) &#123;</span><br><span class="line">        for (int i = 0; i &lt; m; ++i) &#123;</span><br><span class="line">            bc[i] = -1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        for (int i = 0; i &lt; m; ++i) &#123;</span><br><span class="line">            int ascii = (int) b[i];</span><br><span class="line">            bc[ascii] = i; // 如果ascii相同只需要存储 bc[ascii] = 最后一个</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void generateGS(char[] b, int m, int[] suffix, boolean[] prefix) &#123;</span><br><span class="line">        for (int i = 0; i &lt; m; ++i) &#123; //初始化</span><br><span class="line">            suffix[i] = -1;</span><br><span class="line">            prefix[i] = false;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        for (int i = 0; i &lt; m - 1; ++i) &#123; // b[0,i]</span><br><span class="line">            int j = i;</span><br><span class="line">            int k = 0;</span><br><span class="line">            while (j &gt;= 0 &amp;&amp; b[j] == b[m - 1 - k]) &#123;</span><br><span class="line">                --j;</span><br><span class="line">                ++k;</span><br><span class="line">                suffix[k] = j + 1;//记录模式串每个可以匹配前缀子串的长度 等于 最大下标值</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (j == -1) prefix[k] = true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="KMP（Knuth-Morris-Pratt）算法"><a href="#KMP（Knuth-Morris-Pratt）算法" class="headerlink" title="KMP（Knuth Morris Pratt）算法"></a>KMP（Knuth Morris Pratt）算法</h2><p>模式串跟主串左端对齐，先比较第一个字符，如果不一样就，模式串后移，直到第一个字符相等</p>
-<p>第一个字符匹配上之后在匹配第二个，直到有不相等的为止，比如下面</p>
-<p>主串：cd<strong>ababaea</strong>bac</p>
-<p>模式串：ababacd</p>
-<p>e和c不匹配，e就可以理解为坏字符，ababa可以理解为好前缀，那移动几位呢？</p>
-<p>我们拿好前缀本身，在它的后缀子串中查找最长的那个可以跟好前缀的前缀子串匹配的。</p>
-<p>移动位数 = 已匹配的字符数 - 对应的部分匹配值的长度</p>
-<p>如何求这个对应的匹配值呢？这个不涉及到主串只需要根据模式串就可以求出来。</p>
-<p>比如这里的模式串是 ababacd</p>
-<p>a的前缀和后缀都是空，共有元素为0<br>ab的前缀是[a]后缀是[b]，共有元素为0<br>aba的前缀是[a,ab]后缀是[ba,a]，共有元素a的长度是1<br>abab的前缀是[a,ab,aba]后缀是[bab,ab,b],共有元素是[ab]长度为2<br>ababa的前缀是[a,ab,aba,abab]后缀是[baba,aba,ba,a],最长共有元素是[aba]长度是3<br>ababac的前缀是[a,ab,aba,abab,ababa]后缀是[babac,abac,bac,ac,c]共有元素为0<br>ababacd的前缀是[a,ab,aba,abab,ababa,ababac]后缀是[babacd,abacd,bacd,acd,cd,d]共有元素是0</p>
-<p>代码实现:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">// a, b 分别是主串和模式串；n, m 分别是主串和模式串的长度。</span><br><span class="line">public static int kmp(char[] a, int n, char[] b, int m) &#123;</span><br><span class="line">  int[] next = getNexts(b, m);</span><br><span class="line">  int j = 0;</span><br><span class="line">  for (int i = 0; i &lt; n; ++i) &#123;</span><br><span class="line">    while (j &gt; 0 &amp;&amp; a[i] != b[j]) &#123; // 一直找到 a[i] 和 b[j]</span><br><span class="line">      j = next[j - 1] + 1;</span><br><span class="line">    &#125;</span><br><span class="line">    if (a[i] == b[j]) &#123;</span><br><span class="line">      ++j;</span><br><span class="line">    &#125;</span><br><span class="line">    if (j == m) &#123; // 找到匹配模式串的了</span><br><span class="line">      return i - m + 1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return -1;</span><br><span class="line">&#125;</span><br><span class="line">// b 表示模式串，m 表示模式串的长度</span><br><span class="line">private static int[] getNexts(char[] b, int m) &#123;</span><br><span class="line">  int[] next = new int[m];</span><br><span class="line">  next[0] = -1;</span><br><span class="line">  int k = -1;</span><br><span class="line">  for (int i = 1; i &lt; m; ++i) &#123;</span><br><span class="line">    while (k != -1 &amp;&amp; b[k + 1] != b[i]) &#123;</span><br><span class="line">      k = next[k];</span><br><span class="line">    &#125;</span><br><span class="line">    if (b[k + 1] == b[i]) &#123;</span><br><span class="line">      ++k;</span><br><span class="line">    &#125;</span><br><span class="line">    next[i] = k;</span><br><span class="line">  &#125;</span><br><span class="line">  return next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/mingyunxiaohai/article/details/87563292" target="_blank" rel="noopener">https://blog.csdn.net/mingyunxiaohai/article/details/87563292</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1940,7 +1926,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">77</span>
+                  <span class="site-state-item-count">78</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
